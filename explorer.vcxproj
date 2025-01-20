@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{244f63ed-b552-44f6-89ce-5f9e741ceb70}</ProjectGuid>
+    <RootNamespace>explorer</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="atlstuff.h" />
+    <ClInclude Include="bandsite.h" />
+    <ClInclude Include="cabinet.h" />
+    <ClInclude Include="deskhost.h" />
+    <ClInclude Include="dlg.h" />
+    <ClInclude Include="hostutil.h" />
+    <ClInclude Include="mfulist.h" />
+    <ClInclude Include="mixer.h" />
+    <ClInclude Include="moreprog.h" />
+    <ClInclude Include="pidlbutton.h" />
+    <ClInclude Include="proglist.h" />
+    <ClInclude Include="rcids.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="sfthost.h" />
+    <ClInclude Include="specfldr.h" />
+    <ClInclude Include="ssomgr.h" />
+    <ClInclude Include="startmnu.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="taskband.h" />
+    <ClInclude Include="taskbar.h" />
+    <ClInclude Include="tray.h" />
+    <ClInclude Include="trayclok.h" />
+    <ClInclude Include="traycmn.h" />
+    <ClInclude Include="trayitem.h" />
+    <ClInclude Include="traynot.h" />
+    <ClInclude Include="trayreg.h" />
+    <ClInclude Include="userpane.h" />
+    <ClInclude Include="util.h" />
+    <ClInclude Include="w4warn.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="explorer.rcv" />
+    <None Include="resource.rcv" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="dlg.rc" />
+    <ResourceCompile Include="explorer.rc" />
+    <ResourceCompile Include="startpane.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="clasicsm.ico" />
+    <Image Include="classicsm.bmp" />
+    <Image Include="desktop.ico" />
+    <Image Include="docs.ico" />
+    <Image Include="folderop.ico" />
+    <Image Include="inetmail.ico" />
+    <Image Include="inetweb.ico" />
+    <Image Include="logoffbuttons.bmp" />
+    <Image Include="logoffbuttonshot.bmp" />
+    <Image Include="mycomold.ico" />
+    <Image Include="mycomp.ico" />
+    <Image Include="naclockclean.bmp" />
+    <Image Include="naclocknoclean.bmp" />
+    <Image Include="nanoclockclean.bmp" />
+    <Image Include="nanoclocknoclean.bmp" />
+    <Image Include="newsm.bmp" />
+    <Image Include="old_error.ico" />
+    <Image Include="old_info.ico" />
+    <Image Include="old_printer.ico" />
+    <Image Include="old_printerr.ico" />
+    <Image Include="old_warning.ico" />
+    <Image Include="overflow.ico" />
+    <Image Include="sbsbkg.bmp" />
+    <Image Include="smwmail.ico" />
+    <Image Include="srvadv2.bmp" />
+    <Image Include="srvapp.bmp" />
+    <Image Include="srvbkg.bmp" />
+    <Image Include="srvdc2.bmp" />
+    <Image Include="srvemb.bmp" />
+    <Image Include="srvweb.bmp" />
+    <Image Include="start.bmp" />
+    <Image Include="start.ico" />
+    <Image Include="start16.bmp" />
+    <Image Include="start16mask.bmp" />
+    <Image Include="startclassic.bmp" />
+    <Image Include="startem.bmp" />
+    <Image Include="stmuper.bmp" />
+    <Image Include="stmupr64.bmp" />
+    <Image Include="stmupro.bmp" />
+    <Image Include="stmutab.bmp" />
+    <Image Include="taautohide.bmp" />
+    <Image Include="talockgroup.bmp" />
+    <Image Include="talocknogroup.bmp" />
+    <Image Include="tanolockgroup.bmp" />
+    <Image Include="tanolocknogroup.bmp" />
+    <Image Include="taqllockgroup.bmp" />
+    <Image Include="taqllocknogroup.bmp" />
+    <Image Include="taqlnolockgroup.bmp" />
+    <Image Include="taqlnolocknogroup.bmp" />
+    <Image Include="traych.bmp" />
+    <Image Include="traycho.bmp" />
+    <Image Include="traycv.bmp" />
+    <Image Include="traycvo.bmp" />
+    <Image Include="treeup.ico" />
+    <Image Include="tsbanner.bmp" />
+    <Image Include="underflow.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="bandsite.cpp" />
+    <ClCompile Include="classfac.cpp" />
+    <ClCompile Include="debug.cpp" />
+    <ClCompile Include="defaultmfu.cpp" />
+    <ClCompile Include="deskhost.cpp" />
+    <ClCompile Include="dllload.c" />
+    <ClCompile Include="hostutil.cpp" />
+    <ClCompile Include="initcab.cpp" />
+    <ClCompile Include="libx.cpp" />
+    <ClCompile Include="logoff.cpp" />
+    <ClCompile Include="mixer.cpp" />
+    <ClCompile Include="moreprog.cpp" />
+    <ClCompile Include="muext.c" />
+    <ClCompile Include="proglist.cpp" />
+    <ClCompile Include="sfthost.cpp" />
+    <ClCompile Include="specfldr.cpp" />
+    <ClCompile Include="ssomgr.cpp" />
+    <ClCompile Include="startmnu.cpp" />
+    <ClCompile Include="taskband.cpp" />
+    <ClCompile Include="taskbar.cpp" />
+    <ClCompile Include="tray.cpp" />
+    <ClCompile Include="trayclok.cpp" />
+    <ClCompile Include="traycmn.cpp" />
+    <ClCompile Include="trayitem.cpp" />
+    <ClCompile Include="traynot.cpp" />
+    <ClCompile Include="trayprop.cpp" />
+    <ClCompile Include="trayreg.cpp" />
+    <ClCompile Include="userpane.cpp" />
+    <ClCompile Include="util.cpp" />
+    <ClCompile Include="wrapctl.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
