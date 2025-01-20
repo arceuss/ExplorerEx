@@ -4,6 +4,6 @@
 // form.  this file builds them in the current directory.
 
 #include "cabinet.h"
-#include <shguidp.h>
+//#include <shguidp.h>
 
-#include "..\inc\uassist.cpp"       // 'safe' thunks and cache
+//#include "..\inc\uassist.cpp"       // 'safe' thunks and cache

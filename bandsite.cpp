@@ -1,9 +1,9 @@
 #include "cabinet.h"
 #include "rcids.h"
-#include <shguidp.h>
+//#include <shguidp.h>
 #include "bandsite.h"
-#include "shellp.h"
-#include "shdguid.h"
+//#include "shellp.h"
+//#include "shdguid.h"
 #include "taskband.h"
 #include "taskbar.h"
 #include <regstr.h>

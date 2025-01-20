@@ -4,16 +4,16 @@
 #include "cabinet.h"
 #include "rcids.h"
 #include "util.h"
-#include <help.h>       // help ids
+//#include <help.h>       // help ids
 #include <regstr.h>
-#include <atlstuff.h>
+//#include <atlstuff.h>
 
 #include "dlg.h"
 #include "tray.h"
 #include "traycmn.h"
 #include "startmnu.h"
-#include "desktop2.h"
-#include "uemapp.h"
+//#include "desktop2.h"
+//#include "uemapp.h"
 
 #define GROUPID_CURRENTITEMS    5
 #define GROUPID_PASTITEMS       6

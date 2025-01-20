@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "proglist.h"
-#include "uemapp.h"
-#include <shdguid.h>
-#include "shguidp.h"        // IID_IInitializeObject
+//#include "uemapp.h"
+//#include <shdguid.h>
+//#include "shguidp.h"        // IID_IInitializeObject
 #include <pshpack4.h>
-#include <idhidden.h>       // Note!  idhidden.h requires pack4
+//#include <idhidden.h>       // Note!  idhidden.h requires pack4
 #include <poppack.h>
 #include <userenv.h>        // GetProfileType
-#include <desktray.h>
+//#include <desktray.h>
 #include "tray.h"
 #define STRSAFE_NO_CB_FUNCTIONS
 #define STRSAFE_NO_DEPRECATE

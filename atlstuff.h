@@ -22,16 +22,16 @@ extern CComModule _Module;
 #include <hlink.h>
 #include <shellapi.h>
 #include <shlobj.h>
-#include <shlobjp.h>
+//#include <shlobjp.h>
 
-#include <atlapp.h>
+//#include <atlapp.h>
 #include <atlwin.h>
 
-#include <atlres.h>
-#include <atlframe.h>
-#include <atlgdi.h>
-#include <atlctrls.h>
-#include <atldlgs.h>
-#include <atlcrack.h>
-#include <atlmisc.h>
-#include <atlctrlx.h>
+//#include <atlres.h>
+//#include <atlframe.h>
+//#include <atlgdi.h>
+//#include <atlctrls.h>
+//#include <atldlgs.h>
+//#include <atlcrack.h>
+//#include <atlmisc.h>
+//#include <atlctrlx.h>

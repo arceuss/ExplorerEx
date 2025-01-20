@@ -3,12 +3,12 @@
 #include "psapi.h"
 
 #include <regstr.h>
-#include <ntddapmt.h>
+//#include <ntddapmt.h>
 
 #define DECL_CRTFREE
-#include <crtfree.h>
+//#include <crtfree.h>
 
-#include <qsort.h>
+//#include <qsort.h>
 
 #include <ddraw.h>      // DirectDraw stuff..
 

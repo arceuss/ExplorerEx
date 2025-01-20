@@ -1,6 +1,6 @@
 #define UXCTRL_VERSION 0x0100
 
-#include <w4warn.h>
+#include "w4warn.h"
 /*
  *   Level 4 warnings to be turned on.
  *   Do not disable any more level 4 warnings.
@@ -13,24 +13,24 @@
 
 #define _BROWSEUI_          // See HACKS OF DEATH in sfthost.cpp
 #include <shlobj.h>
-#include <shlobjp.h>
-#include <shguidp.h>
-#include <ieguidp.h>
+//#include <shlobjp.h>
+//#include <shguidp.h>
+//#include <ieguidp.h>
 #include <shlwapi.h>
-#include <ccstock.h>
-#include <port32.h>
-#include <debug.h>
-#include <varutil.h>
-#include <dpa.h>
+//#include <ccstock.h>
+//#include <port32.h>
+//#include <debug.h>
+//#include <varutil.h>
+//#include <dpa.h>
 #include <atlbase.h>
 extern CComModule _Module;
 #include <atlcom.h>
 #include <atlctl.h>
-#include <desktop2.h>
-#include <shsemip.h>
-#include <runonce.h>
+//#include <desktop2.h>
+//#include <shsemip.h>
+//#include <runonce.h>
 #include "regstr.h"
-#include <shfusion.h>
+//#include <shfusion.h>
 
 #define REGSTR_EXPLORER_ADVANCED REGSTR_PATH_EXPLORER TEXT("\\Advanced")
 

@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include <startids.h>           // for IDM_PROGRAMS et al
+//#include <startids.h>           // for IDM_PROGRAMS et al
 #include "regstr.h"
 #include "rcids.h"
-#include <desktray.h>
+//#include <desktray.h>
 #include "tray.h"
 #include "startmnu.h"
 #include "hostutil.h"
 #include "deskhost.h"
-#include "shdguid.h"
+//#include "shdguid.h"
 
 #define REGSTR_EXPLORER_ADVANCED REGSTR_PATH_EXPLORER TEXT("\\Advanced")
 

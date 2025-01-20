@@ -1,8 +1,8 @@
 #ifndef _TRAY_H
 #define _TRAY_H
 
-#include "trayp.h"
-#include "cwndproc.h"
+//#include "trayp.h"
+//#include "cwndproc.h"
 
 #ifdef __cplusplus
 

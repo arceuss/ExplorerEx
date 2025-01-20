@@ -1,13 +1,13 @@
 #include "cabinet.h"
 #include "rcids.h"
-#include <shguidp.h>
+//#include <shguidp.h>
 #include <lmcons.h>
 #include "bandsite.h"
-#include "shellp.h"
-#include "shdguid.h"
+//#include "shellp.h"
+//#include "shdguid.h"
 #include <regstr.h> 
 #include "startmnu.h"
-#include "trayp.h"      // for WMTRAY_*
+//#include "trayp.h"      // for WMTRAY_*
 #include "tray.h"
 #include "util.h"
 #include <strsafe.h>

@@ -494,4 +494,4 @@
 #endif
 
 //Start menu IDS have been moved to inc/startids.h, to share with shdocvw.dll
-#include <startids.h>
+//#include <startids.h>

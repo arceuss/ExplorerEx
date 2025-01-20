@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "sfthost.h"
 #include "uxtheme.h"
-#include "uxthemep.h"
+//#include "uxthemep.h"
 #include "rcids.h"
 
 // WARNING!  Must be in sync with c_rgidmLegacy

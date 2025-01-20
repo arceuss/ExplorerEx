@@ -1,6 +1,6 @@
 #include "cabinet.h"
 #include "taskband.h"
-#include <shguidp.h>
+//#include <shguidp.h>
 #include "bandsite.h"
 #include "util.h"
 #include "tray.h"
@@ -9,7 +9,7 @@
 #include "startmnu.h"
 #include "mixer.h"
 #include <regstr.h>
-#include "uemapp.h"
+//#include "uemapp.h"
 #include "strsafe.h"
 
 #define TIF_RENDERFLASHED       0x000000001

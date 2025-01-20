@@ -3,16 +3,16 @@
 
 #include <regstr.h>
 #include "startmnu.h"
-#include <shdguid.h>    // for IID_IShellService
+//#include <shdguid.h>    // for IID_IShellService
 #include <shlguid.h>
-#include <desktray.h>
+//#include <desktray.h>
 #include <wininet.h>
-#include <trayp.h>
+//#include <trayp.h>
 #include "tray.h"
 #include "util.h"
 #include "atlstuff.h"
 #include <strsafe.h>
-#include <runonce.c>    // shared runonce processing code
+//#include <runonce.c>    // shared runonce processing code
 #include <dsrole.h>  // DsRoleGetPrimaryDomainInformation, DsRoleFreeMemory
 
 // global so that it is shared between TS sessions
@@ -31,10 +31,10 @@ BOOL _ShouldFixResolution(void);
 
 #ifdef PERF_ENABLESETMARK
 #include <wmistr.h>
-#include <ntwmi.h>  // PWMI_SET_MARK_INFORMATION is defined in ntwmi.h
-#include <wmiumkm.h>
+// <ntwmi.h>  // PWMI_SET_MARK_INFORMATION is defined in ntwmi.h
+//#include <wmiumkm.h>
 #define NTPERF
-#include <ntperf.h>
+//#include <ntperf.h>
 
 void DoSetMark(LPCSTR pszMark, ULONG cbSz)
 {

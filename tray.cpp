@@ -1,18 +1,18 @@
 #include "cabinet.h"
 
 #include <wtsapi32.h>   // for NOTIFY_FOR_THIS_SESSION
-#include <winsta.h>     // for disconnect and reconnect messages from terminal server
-#include "mmsysp.h"
+//#include <winsta.h>     // for disconnect and reconnect messages from terminal server
+//#include "mmsysp.h"
 
 #include "rcids.h"
 #include "dlg.h"
 
-#include <atlstuff.h>
+//#include <atlstuff.h>
 
-#include <shlapip.h>
+//#include <shlapip.h>
 #include "trayclok.h"
-#include <help.h>       // help ids
-#include <desktray.h>
+//#include <help.h>       // help ids
+//#include <desktray.h>
 
 #include "util.h"
 #include "tray.h"
@@ -26,13 +26,13 @@
 #include "bandsite.h"
 
 #include "startmnu.h"
-#include "uemapp.h"
-#include <uxthemep.h>
+//#include "uemapp.h"
+//#include <uxthemep.h>
 
 #define NO_NOTIFYSUBCLASSWNDPROC
-#include "cwndproc.cpp"
+//#include "cwndproc.cpp"
 
-#include "desktop2.h"
+//#include "desktop2.h"
 #include "mixer.h"
 
 #include "strsafe.h"

@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include <browseui.h>
+//#include <browseui.h>
 #include "sfthost.h"
-#include <shellp.h>
+//#include <shellp.h>
 #include "startmnu.h"
 
 #define TF_HOST     0x00000010
@@ -16,9 +16,9 @@
 // HACKHACK - desktopp.h and browseui.h both define SHCreateFromDesktop
 // What's worse, browseui.h includes desktopp.h! So you have to sneak it
 // out in this totally wacky way.
-#include <desktopp.h>
+//#include <desktopp.h>
 #define SHCreateFromDesktop _SHCreateFromDesktop
-#include <browseui.h>
+//#include <browseui.h>
 
 //---------END HACKS OF DEATH -------------
 

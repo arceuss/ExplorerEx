@@ -1,7 +1,7 @@
 #ifndef _CABINET_H
 #define _CABINET_H
 
-#include <w4warn.h>
+#include "w4warn.h"
 /*
  *   Level 4 warnings to be turned on.
  *   Do not disable any more level 4 warnings.
@@ -31,8 +31,8 @@
 
 #include <windows.h>
 #include <commctrl.h>
-#include <shfusion.h>
-#include <msginaexports.h>
+//#include <shfusion.h>
+//#include <msginaexports.h>
 
 // if you include atlstuff.h, you don't get windowsx.h.  so we define needed functions here
 __inline HBRUSH SelectBrush(HDC hdc, HBRUSH hbr) { return (HBRUSH)SelectObject(hdc, (HGDIOBJ)(HBRUSH)hbr); }
@@ -45,7 +45,7 @@ __inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWi
 #include <ole2.h>
 #include <wininet.h>
 #include <shlobj.h>     // Includes <fcext.h>
-#include <shsemip.h>
+//#include <shsemip.h>
 #include <shellapi.h>
 #include <cpl.h>
 #include <ddeml.h>
@@ -58,27 +58,27 @@ __inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWi
 #endif
 
 #define DISALLOW_Assert
-#include <debug.h>          // our version of Assert etc.
-#include <port32.h>
-#include <heapaloc.h>
-#include <shellp.h>
-#include <ccstock.h>
-#include <shlobjp.h>
+//#include <debug.h>          // our version of Assert etc.
+//#include <port32.h>
+//#include <heapaloc.h>
+//#include <shellp.h>
+//#include <ccstock.h>
+//#include <shlobjp.h>
 #include <shlwapi.h>
 #include "dbt.h"
-#include "trayp.h"
-#include <shdocvw.h>
+//#include "trayp.h"
+//#include <shdocvw.h>
 #include <uxtheme.h>
-#include <tmschema.h>
-#include <runonce.h>
+//#include <tmschema.h>
+//#include <runonce.h>
 
-#include "shguidp.h"
-#include "ieguidp.h"
-#include "shdguid.h"
+//#include "shguidp.h"
+//#include "ieguidp.h"
+//#include "shdguid.h"
 
-#include "uastrfnc.h"
+//#include "uastrfnc.h"
 
-#include <desktopp.h>
+//#include <desktopp.h>
 
 //
 // Trace/dump/break flags specific to explorer.

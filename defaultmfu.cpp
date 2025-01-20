@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "sfthost.h"
-#include "uemapp.h"
-#include <desktray.h>
+//#include "uemapp.h"
+//#include <desktray.h>
 #include "tray.h"
 #include "rcids.h"
 #include "mfulist.h"

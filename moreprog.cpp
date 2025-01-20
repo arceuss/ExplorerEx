@@ -3,7 +3,7 @@
 #include "hostutil.h"
 #include "moreprog.h"
 
-#include <desktray.h>
+//#include <desktray.h>
 #include "tray.h"           // To get access to c_tray
 #include "rcids.h"          // for IDM_PROGRAMS etc.
 #include <strsafe.h>

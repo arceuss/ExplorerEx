@@ -5,7 +5,7 @@
 // CNotificationItem - encapsulate the data needed to communicate between the tray
 // and the tray properties dialog
 //
-#include <shpriv.h>
+//#include <shpriv.h>
 
 typedef struct tagTNPersistStreamData TNPersistStreamData;
 
