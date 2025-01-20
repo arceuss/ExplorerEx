@@ -2,6 +2,12 @@
 #include "sfthost.h"
 #include "userpane.h"
 
+#include "shundoc.h"
+
+#include "vssym32.h"
+
+
+
 CUserPane::CUserPane()
 {
     ASSERT(_hwnd == NULL);
@@ -28,7 +34,7 @@ CUserPane::~CUserPane()
 
 LRESULT CALLBACK CUserPane::s_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CUserPane *pThis = reinterpret_cast<CUserPane *>(GetWindowPtr(hwnd, GWLP_USERDATA));
+    CUserPane *pThis = reinterpret_cast<CUserPane *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
     if (!pThis && (WM_NCDESTROY != uMsg))
     {
@@ -396,12 +402,12 @@ HRESULT CUserPane::_UpdateUserInfo()
         GetThemeBool(_hTheme, SPP_USERPANE, 0, TMT_USERPICTURE, &bShowPicture);
 
     // add FriendlyLogonUI check here, since SHGetUserPicturePath 
-    if (bShowPicture && IsOS(OS_FRIENDLYLOGONUI))
+    if (bShowPicture && IsOS(OS_PROFESSIONAL)) // No, this isn't meant to be OS_PROFESSIONAL. TODO: Aubrey-styled IsOS thing
     {
         TCHAR szUserPicturePath[MAX_PATH];
         szUserPicturePath[0] = _T('0');
 
-        SHGetUserPicturePath(NULL, SHGUPP_FLAG_CREATE, szUserPicturePath);
+        SHGetUserPicturePath(NULL, SHGUPP_FLAG_CREATE, szUserPicturePath, MAX_PATH);
 
         if (szUserPicturePath[0])
         {

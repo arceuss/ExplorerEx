@@ -10,6 +10,7 @@
 //--------------------------------------------------------------------------
 #pragma once
 #include <Windows.h>
+#include <shobjidl_core.h>
 
 //
 // Macros
@@ -20,6 +21,18 @@
                                                 // will receive WM_INITMENUPOPUP, WM_MEASUREITEM, WM_DRAWITEM,
                                                 // and WM_MENUCHAR, via HandleMenuMsg2)
 
+#define SHGUPP_FLAG_BASEPATH            0x00000001
+#define SHGUPP_FLAG_DEFAULTPICSPATH     0x00000002
+#define SHGUPP_FLAG_CREATE              0x80000000
+#define SHGUPP_FLAG_VALID_MASK          0x80000003
+#define SHGUPP_FLAG_INVALID_MASK        ~SHGUPP_FLAG_VALID_MASK
+
+#define SPM_POST        0x0000
+#define SPM_SEND        0x0001
+#define SPM_ONELEVEL    0x0002  // default: send to all descendants including grandkids, etc.
+
+#define SHCNEE_USERINFOCHANGED     11L
+
 
 //
 // Function definitions
@@ -27,6 +40,14 @@
 
 extern HRESULT(STDMETHODCALLTYPE* IUnknown_Exec)(IUnknown* punk, const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut);
 extern HRESULT(STDMETHODCALLTYPE* IUnknown_GetClassID)(IUnknown* punk, CLSID* pclsid);
+
+extern HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg, WPARAM wParam, LPARAM lParam, int iFlags);
+extern HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen);
+extern HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
+extern UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
+STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
+
+typedef HANDLE LPSHChangeNotificationLock;
 
 //
 // Function loader

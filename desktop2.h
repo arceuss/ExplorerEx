@@ -2,7 +2,7 @@
 #define _DESKTOP2_H
 
 #include "uxtheme.h"
-#include "tmschema.h"
+//#include "tmschema.h"
 
 #define WC_USERPANE     TEXT("Desktop User Pane")
 #define WC_LOGOFF       TEXT("DesktopLogoffPane")
