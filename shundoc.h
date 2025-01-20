@@ -1,11 +1,13 @@
 //+-------------------------------------------------------------------------
 //
-//  TaskMan - NT TaskManager
+//  ExplorerEx - Windows XP Explorer
 //  Copyright (C) Microsoft
 //
 //  File:       shundoc.h
 //
 //  History:    Oct-11-24   aubymori  Created
+//  History:    Jan-20-25   kfh83     Modify for Explorer
+//  History:    Jan-20-25   olive6841 Add COM Interaces
 //
 //--------------------------------------------------------------------------
 #pragma once
