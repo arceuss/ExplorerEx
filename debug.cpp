@@ -7,6 +7,6 @@
 #define SZ_DEBUGSECTION     "explorer"
 #define SZ_MODULE           "EXPLORER"
 #define DECLARE_DEBUG
-//#include <debug.h>
+#include "debug.h"
 
 

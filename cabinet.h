@@ -58,7 +58,7 @@ __inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWi
 #endif
 
 #define DISALLOW_Assert
-//#include <debug.h>          // our version of Assert etc.
+#include "debug.h"          // our version of Assert etc.
 //#include <port32.h>
 //#include <heapaloc.h>
 //#include <shellp.h>

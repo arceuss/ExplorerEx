@@ -102,6 +102,21 @@
     <ClInclude Include="bandsite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shguidp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shdguid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ieguidp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shundoc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">
@@ -381,6 +396,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="defaultmfu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shundoc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

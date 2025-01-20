@@ -130,9 +130,11 @@
     <ClInclude Include="atlstuff.h" />
     <ClInclude Include="bandsite.h" />
     <ClInclude Include="cabinet.h" />
+    <ClInclude Include="debug.h" />
     <ClInclude Include="deskhost.h" />
     <ClInclude Include="dlg.h" />
     <ClInclude Include="hostutil.h" />
+    <ClInclude Include="ieguidp.h" />
     <ClInclude Include="mfulist.h" />
     <ClInclude Include="mixer.h" />
     <ClInclude Include="moreprog.h" />
@@ -141,6 +143,9 @@
     <ClInclude Include="rcids.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="sfthost.h" />
+    <ClInclude Include="shdguid.h" />
+    <ClInclude Include="shguidp.h" />
+    <ClInclude Include="shundoc.h" />
     <ClInclude Include="specfldr.h" />
     <ClInclude Include="ssomgr.h" />
     <ClInclude Include="startmnu.h" />
@@ -240,6 +245,7 @@
     <ClCompile Include="muext.c" />
     <ClCompile Include="proglist.cpp" />
     <ClCompile Include="sfthost.cpp" />
+    <ClCompile Include="shundoc.cpp" />
     <ClCompile Include="specfldr.cpp" />
     <ClCompile Include="ssomgr.cpp" />
     <ClCompile Include="startmnu.cpp" />

@@ -1,14 +1,22 @@
 #include "cabinet.h"
 #include "rcids.h"
-//#include <shguidp.h>
+#include "shguidp.h"
 #include "bandsite.h"
 //#include "shellp.h"
-//#include "shdguid.h"
+#include "shdguid.h"
 #include "taskband.h"
 #include "taskbar.h"
 #include <regstr.h>
 #include "util.h"
 #include "strsafe.h"
+#include <combaseapi.h>
+#include "ieguidp.h"
+
+#include "shundoc.h"
+
+#include "shdeprecated.h"
+
+#define SAFECAST(_obj, _type) (((_type)(_obj)==(_obj)?0:0), (_type)(_obj))
 
 extern IStream *GetDesktopViewStream(DWORD grfMode, LPCTSTR pszName);
 
@@ -210,7 +218,7 @@ HRESULT CTrayBandSite::AddBand(IUnknown* punk)
         if (SUCCEEDED(hr))
         {
             IShellFolderBand *pisfBand;
-            HRESULT hrInner = punk->QueryInterface(IID_PPV_ARG(IShellFolderBand, &pisfBand));
+            HRESULT hrInner = punk->QueryInterface(IID_PPV_ARGS(&pisfBand));
             if (SUCCEEDED(hrInner)) 
             {
                 BANDINFOSFB bi;
@@ -285,7 +293,7 @@ HRESULT CTrayBandSite::GetBandSiteInfo (BANDSITEINFO * pbsinfo)
 HRESULT CTrayBandSite::_AddRequiredBands()
 {
     IDeskBand* pdb;
-    HRESULT hr = CoCreateInstance(CLSID_TaskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IDeskBand, &pdb));
+    HRESULT hr = CoCreateInstance(CLSID_TaskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
     if (SUCCEEDED(hr))
     {
         hr = AddBand(pdb);
@@ -322,7 +330,7 @@ HRESULT BandSite_TestBandCLSID(IBandSite *pbs, DWORD idBand, REFIID riid)
     IPersist *pp;
     if (pbs)
     {
-        hr = pbs->GetBandObject(idBand, IID_PPV_ARG(IPersist, &pp));
+        hr = pbs->GetBandObject(idBand, IID_PPV_ARGS(&pp));
         if (SUCCEEDED(hr))
         {
             CLSID clsid;
@@ -354,7 +362,7 @@ HRESULT BandSite_SetWindowTheme(IBandSite* pbs, LPWSTR pwzTheme)
         for (int i = 0; !fFound && SUCCEEDED(pbs->EnumBands(i, &dwBandID)); i++)
         {
             IUnknown* punk;
-            HRESULT hrInner = pbs->GetBandObject(dwBandID, IID_PPV_ARG(IUnknown, &punk));
+            HRESULT hrInner = pbs->GetBandObject(dwBandID, IID_PPV_ARGS(&punk));
             if (SUCCEEDED(hrInner))
             {
                 VARIANTARG var;
@@ -412,7 +420,7 @@ void BandSite_Initialize(IBandSite* pbs)
     if (pow)
     {
         IDeskBarClient* pdbc;
-        if (SUCCEEDED(pbs->QueryInterface(IID_PPV_ARG(IDeskBarClient, &pdbc))))
+        if (SUCCEEDED(pbs->QueryInterface(IID_PPV_ARGS(&pdbc))))
         {
             // we need to set a dummy tray IOleWindow
             pdbc->SetDeskBarSite(SAFECAST(pow, IOleWindow*));
@@ -434,10 +442,10 @@ IContextMenu3* CTrayBandSite::GetContextMenu()
     if (!_pcm)
     {
         if (SUCCEEDED(CoCreateInstance(CLSID_BandSiteMenu, NULL,CLSCTX_INPROC_SERVER, 
-                         IID_PPV_ARG(IContextMenu3, &_pcm))))
+                         IID_PPV_ARGS(&_pcm))))
         {
             IShellService* pss;
-            if (SUCCEEDED(_pcm->QueryInterface(IID_PPV_ARG(IShellService, &pss))))
+            if (SUCCEEDED(_pcm->QueryInterface(IID_PPV_ARGS(&pss))))
             {
                 pss->SetOwner(SAFECAST(this, IBandSite*));
                 pss->Release();
@@ -493,7 +501,7 @@ void CTrayBandSite::SetInner(IUnknown* punk)
 {
     _punkInner = punk;
     
-    _punkInner->QueryInterface(IID_PPV_ARG(IBandSite, &_pbsInner));
+    _punkInner->QueryInterface(IID_PPV_ARGS(&_pbsInner));
     Release();
     
     ASSERT(_pbsInner);
@@ -508,7 +516,7 @@ IBandSite* BandSite_CreateView()
     CTrayBandSite *ptbs = new CTrayBandSite;
     if (ptbs)
     {
-        hr = CoCreateInstance(CLSID_RebarBandSite, (IBandSite*)ptbs, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IUnknown, &punk));
+        hr = CoCreateInstance(CLSID_RebarBandSite, (IBandSite*)ptbs, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&punk));
         if (SUCCEEDED(hr))
         {
             ptbs->SetInner(punk);    // paired w/ Release in outer (TBS::Release)
@@ -584,7 +592,7 @@ BOOL CTrayBandSite::HandleMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     }
         
     IWinEventHandler *pweh;
-    if (SUCCEEDED(QueryInterface(IID_PPV_ARG(IWinEventHandler, &pweh))))
+    if (SUCCEEDED(QueryInterface(IID_PPV_ARGS(&pweh))))
     {
         HRESULT hr = pweh->OnWinEvent(hwnd, uMsg, wParam, lParam, plres);
         pweh->Release();
@@ -604,7 +612,7 @@ void CTrayBandSite::_BroadcastExec(const GUID *pguidCmdGroup, DWORD nCmdID, DWOR
     while (SUCCEEDED(EnumBands(uBand, &dwBandID)))
     {
         IOleCommandTarget* pct;
-        if (SUCCEEDED(GetBandObject(dwBandID, IID_PPV_ARG(IOleCommandTarget, &pct))))
+        if (SUCCEEDED(GetBandObject(dwBandID, IID_PPV_ARGS(&pct))))
         {
             pct->Exec(pguidCmdGroup, nCmdID, nCmdexecopt, pvarargIn, pvarargOut);
             pct->Release();
@@ -640,7 +648,7 @@ void BandSite_SetMode(IUnknown *punk, DWORD dwMode)
     if (pbs) 
     {
         IDeskBarClient *pdbc;
-        if (SUCCEEDED(pbs->QueryInterface(IID_PPV_ARG(IDeskBarClient, &pdbc))))
+        if (SUCCEEDED(pbs->QueryInterface(IID_PPV_ARGS(&pdbc))))
         {
             pdbc->SetModeDBC(dwMode);
             pdbc->Release();
@@ -654,7 +662,7 @@ void BandSite_Update(IUnknown *punk)
     if (pbs) 
     {
         IOleCommandTarget *pct;
-        if (SUCCEEDED(pbs->QueryInterface(IID_PPV_ARG(IOleCommandTarget, &pct))))
+        if (SUCCEEDED(pbs->QueryInterface(IID_PPV_ARGS(&pct))))
         {
             pct->Exec(&CGID_DeskBand, DBID_BANDINFOCHANGED, 0, NULL, NULL);
             pct->Release();
@@ -668,7 +676,7 @@ void BandSite_UIActivateDBC(IUnknown *punk, DWORD dwState)
     if (pbs)
     {
         IDeskBarClient *pdbc;
-        if (SUCCEEDED(pbs->QueryInterface(IID_PPV_ARG(IDeskBarClient, &pdbc))))
+        if (SUCCEEDED(pbs->QueryInterface(IID_PPV_ARGS(&pdbc))))
         {
             pdbc->UIActivateDBC(dwState);
             pdbc->Release();
@@ -683,7 +691,7 @@ void BandSite_UIActivateDBC(IUnknown *punk, DWORD dwState)
 HRESULT PersistStreamLoad(IStream *pstm, IUnknown *punk)
 {
     IPersistStream *pps;
-    HRESULT hr = punk->QueryInterface(IID_PPV_ARG(IPersistStream, &pps));
+    HRESULT hr = punk->QueryInterface(IID_PPV_ARGS(&pps));
     if (SUCCEEDED(hr))
     {
         hr = pps->Load(pstm);
@@ -701,7 +709,7 @@ HRESULT PersistStreamSave(IStream *pstm, BOOL fClearDirty, IUnknown *punk)
     {
         hr = S_OK;// n.b. S_OK not hr (don't insist on IID_IPS)
         IPersistStream *pps;
-        if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARG(IPersistStream, &pps))))
+        if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARGS(&pps))))
         {
             hr = pps->Save(pstm, fClearDirty);
             pps->Release();
@@ -716,7 +724,7 @@ HRESULT IUnknown_SimulateDrop(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyS
     if (punk)
     {
         IDropTarget* pdt;
-        hr = punk->QueryInterface(IID_PPV_ARG(IDropTarget, &pdt));
+        hr = punk->QueryInterface(IID_PPV_ARGS(&pdt));
         if (SUCCEEDED(hr)) 
         {
             hr = pdt->DragEnter(pdtobj, grfKeyState, pt, pdwEffect);
@@ -792,14 +800,14 @@ void BandSite_Load()
     if (FAILED(hr))
     {
         LPTSTR pszValue;
-        if (IsOS(OS_PERSONAL) || IsOS(OS_PROFESSIONAL) || SHRestricted(REST_CLASSICSHELL))
+        if (IsOS(OS_HOME) || IsOS(OS_PROFESSIONAL) || SHRestricted(REST_CLASSICSHELL))
         {
             // use the no-quick-launch stream
-            pszValue = TEXT("Default Taskbar (Personal)");
+            pszValue = (LPWSTR)L"Default Taskbar (Personal)";
         }
         else
         {
-            pszValue = TEXT("Default Taskbar");
+            pszValue = (LPWSTR)L"Default Taskbar";
         }
 
         // n.b. HKLM not HKCU
@@ -842,7 +850,7 @@ void BandSite_Load()
     if (FAILED(hr) || FAILED(BandSite_FindBand(ptbs, CLSID_TipBand, CLSID_NULL, NULL, &iCount, &dwBandID)))
     {
         IDeskBand* pdb;
-        HRESULT hr = CoCreateInstance(CLSID_TipBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IDeskBand, &pdb));
+        HRESULT hr = CoCreateInstance(CLSID_TipBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
         if (SUCCEEDED(hr))
         {
             hr = ptbs->AddBand(pdb);

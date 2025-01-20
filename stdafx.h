@@ -19,7 +19,7 @@
 #include <shlwapi.h>
 //#include <ccstock.h>
 //#include <port32.h>
-//#include <debug.h>
+#include "debug.h"
 //#include <varutil.h>
 //#include <dpa.h>
 #include <atlbase.h>
