@@ -65,12 +65,12 @@ BOOL _GetPinnedItemTarget(LPCITEMIDLIST pidl, LPTSTR *ppszPath)
 
     IShellFolder *psf;
     LPCITEMIDLIST pidlChild;
-    if (SUCCEEDED(SHBindToIDListParent(pidl, IID_PPV_ARG(IShellFolder, &psf), &pidlChild)))
+    if (SUCCEEDED(SHBindToIDListParent(pidl, IID_PPV_ARGS(&psf), &pidlChild)))
     {
         IShellLink *psl;
         IExtractIcon *pxi;
         if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlChild,
-                                           IID_PPV_ARG_NULL(IShellLink, &psl))))
+                                           IID_PPV_ARGS(&psl))))
         {
             TCHAR szPath[MAX_PATH];
             TCHAR szPathExpanded[MAX_PATH];
@@ -82,12 +82,12 @@ BOOL _GetPinnedItemTarget(LPCITEMIDLIST pidl, LPTSTR *ppszPath)
             psl->Release();
         }
         else if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlChild,
-                                           IID_PPV_ARG_NULL(IExtractIcon, &pxi))))
+                                           IID_PPV_ARGS(&pxi))))
         {
             // There is no way to get the IAssociationElement directly, so
             // we get the IExtractIcon and then ask him for the IAssociationElement.
             IAssociationElement *pae;
-            if (SUCCEEDED(IUnknown_QueryService(pxi, IID_IAssociationElement, IID_PPV_ARG(IAssociationElement, &pae))))
+            if (SUCCEEDED(IUnknown_QueryService(pxi, IID_IAssociationElement, IID_PPV_ARGS(&pae))))
             {
                 pae->QueryString(AQVS_APPLICATION_PATH, L"open", ppszPath);
                 pae->Release();
@@ -127,7 +127,7 @@ MFUExclusion::MFUExclusion() : _cExcluded(0)
     HRESULT hr;
 
     hr = CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
-                          IID_PPV_ARG(IStartMenuPin, &psmpin));
+                          IID_PPV_ARGS(&psmpin));
     if (SUCCEEDED(hr))
     {
         IEnumIDList *penum;
@@ -463,7 +463,7 @@ void CreateInitialMFU(BOOL fReset)
             // how we have to set them.
             IShellFolder *psf;
             LPCITEMIDLIST pidlChild;
-            if (SUCCEEDED(SHBindToIDListParent(rgpidlMFU[iSlot], IID_PPV_ARG(IShellFolder, &psf), &pidlChild)))
+            if (SUCCEEDED(SHBindToIDListParent(rgpidlMFU[iSlot], IID_PPV_ARGS(&psf), &pidlChild)))
             {
                 _SetUEMPidlInfo(psf, pidlChild, &uei);
                 psf->Release();

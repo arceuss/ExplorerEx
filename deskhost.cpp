@@ -7,7 +7,7 @@
 #include "startmnu.h"
 #include "hostutil.h"
 #include "deskhost.h"
-//#include "shdguid.h"
+#include "shdguid.h"
 
 #define REGSTR_EXPLORER_ADVANCED REGSTR_PATH_EXPLORER TEXT("\\Advanced")
 
@@ -50,21 +50,21 @@ HRESULT CPopupMenu::Initialize(IShellMenu *psm, IUnknown *punkSite, HWND hwnd)
     ASSERT(_psm == NULL);
 
     hr = CoCreateInstance(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER,
-                          IID_PPV_ARG(IMenuPopup, &_pmp));
+                          IID_PPV_ARGS(&_pmp));
     if (SUCCEEDED(hr))
     {
         IUnknown_SetSite(_pmp, punkSite);
 
         IBandSite *pbs;
         hr = CoCreateInstance(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER,
-                              IID_PPV_ARG(IBandSite, &pbs));
+                              IID_PPV_ARGS(&pbs));
         if (SUCCEEDED(hr))
         {
             hr = _pmp->SetClient(pbs);
             if (SUCCEEDED(hr))
             {
                 IDeskBand *pdb;
-                if (SUCCEEDED(psm->QueryInterface(IID_PPV_ARG(IDeskBand, &pdb))))
+                if (SUCCEEDED(psm->QueryInterface(IID_PPV_ARGS(&pdb))))
                 {
                     hr = pbs->AddBand(pdb);
                     if (SUCCEEDED(hr))
@@ -73,7 +73,7 @@ HRESULT CPopupMenu::Initialize(IShellMenu *psm, IUnknown *punkSite, HWND hwnd)
                         hr = pbs->EnumBands(0, &dwBandID);
                         if (SUCCEEDED(hr))
                         {
-                            hr = pbs->GetBandObject(dwBandID, IID_PPV_ARG(IMenuBand, &_pmb));
+                            hr = pbs->GetBandObject(dwBandID, IID_PPV_ARGS(&_pmb));
                         }
                     }
                     pdb->Release();
@@ -87,7 +87,7 @@ HRESULT CPopupMenu::Initialize(IShellMenu *psm, IUnknown *punkSite, HWND hwnd)
     {
         // Failure to set the theme is nonfatal
         IShellMenu2* psm2;
-        if (SUCCEEDED(psm->QueryInterface(IID_PPV_ARG(IShellMenu2, &psm2))))
+        if (SUCCEEDED(psm->QueryInterface(IID_PPV_ARGS(&psm2))))
         {
             BOOL fThemed = IsAppThemed();
             psm2->SetTheme(fThemed ? c_wzStartMenuTheme : NULL);

@@ -4,7 +4,7 @@
 #include <exdisp.h>
 #include <mshtml.h>
 //#include "dpa.h"
-//#include "../startmnu.h"
+#include "startmnu.h"
 //#include <cowsite.h>
 
 #define WC_DV2      TEXT("DV2ControlHost")

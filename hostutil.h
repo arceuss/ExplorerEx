@@ -18,8 +18,8 @@ private:
     HKEY _hk;
     DWORD _cref;
 
-    CPropBagFromReg::CPropBagFromReg(HKEY hk);
-    CPropBagFromReg::~CPropBagFromReg();
+    CPropBagFromReg(HKEY hk);
+    ~CPropBagFromReg();
 
 public:
 

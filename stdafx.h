@@ -26,7 +26,7 @@
 extern CComModule _Module;
 #include <atlcom.h>
 #include <atlctl.h>
-//#include <desktop2.h>
+#include "desktop2.h"
 //#include <shsemip.h>
 //#include <runonce.h>
 #include "regstr.h"
