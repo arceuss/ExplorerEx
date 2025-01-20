@@ -12,6 +12,19 @@
 #include <Windows.h>
 #include <shobjidl_core.h>
 
+
+//
+// Structs
+// 
+typedef struct
+{
+    DWORD   cbSize;     // SIZEOF
+    DWORD   dwMask;     // INOUT requested/given (UEIM_*)
+    int     cHit;       // profile count
+    DWORD   dwAttrs;    // attributes (UEIA_*)
+    FILETIME ftExecute; // Last execute filetime
+} UEMINFO, * LPUEMINFO;
+
 //
 // Macros
 //
@@ -45,6 +58,7 @@ extern HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg
 extern HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen);
 extern HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
 extern UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
+COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 
 typedef HANDLE LPSHChangeNotificationLock;

@@ -390,7 +390,7 @@ EXTERN_C IShellFolder* BindToFolder(LPCITEMIDLIST pidl)
     if (SUCCEEDED(SHGetDesktopFolder(&psfDesktop)))
     {
         IShellFolder* psf;
-        psfDesktop->BindToObject(pidl, NULL, IID_PPV_ARG(IShellFolder, &psf));
+        psfDesktop->BindToObject(pidl, NULL, IID_PPV_ARGS(&psf));
         psfDesktop->Release();    // not really needed
         return psf;
     }

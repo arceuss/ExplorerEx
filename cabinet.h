@@ -72,9 +72,9 @@ __inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWi
 //#include <tmschema.h>
 //#include <runonce.h>
 
-//#include "shguidp.h"
-//#include "ieguidp.h"
-//#include "shdguid.h"
+#include "shguidp.h"
+#include "ieguidp.h"
+#include "shdguid.h"
 
 //#include "uastrfnc.h"
 

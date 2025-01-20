@@ -7,10 +7,12 @@
 #ifndef __SFTHOST_H__
 #define __SFTHOST_H__
 
-//#include "uemapp.h"
+#include "uemapp.h"
 //#include "runtask.h"
 #include "hostutil.h"
 //#include "dobjutil.h"
+
+#include "shundoc.h"
 
 //****************************************************************************
 //

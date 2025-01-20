@@ -4,6 +4,9 @@
 //#include "uxthemep.h"
 #include "rcids.h"
 
+#include "shundoc.h"
+#include "vssym32.h"
+
 // WARNING!  Must be in sync with c_rgidmLegacy
 
 #define NUM_TBBUTTON_IMAGES 3
@@ -39,8 +42,8 @@ public:
     STDMETHODIMP get_accKeyboardShortcut(VARIANT varChild, BSTR *pszKeyboardShortcut);
     STDMETHODIMP get_accDefaultAction(VARIANT varChild, BSTR *pszDefAction);
 
-    CLogoffPane::CLogoffPane();
-    CLogoffPane::~CLogoffPane();
+    CLogoffPane();
+    ~CLogoffPane();
 
     static LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT _OnCreate(LPARAM lParam);
@@ -106,7 +109,7 @@ HRESULT CLogoffPane::QueryInterface(REFIID riid, void * *ppvOut)
 
 LRESULT CALLBACK CLogoffPane::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CLogoffPane *self = reinterpret_cast<CLogoffPane *>(GetWindowPtr0(hwnd));
+    CLogoffPane *self = reinterpret_cast<CLogoffPane *>(GetWindowLongPtr(hwnd, 0));
 
     switch (uMsg)
     {

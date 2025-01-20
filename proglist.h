@@ -211,7 +211,7 @@ protected:
                 SHRestricted(REST_NOCOMMONGROUPS);
     }
 
-    static FolderEnumCallback(LPITEMIDLIST pidlChild, ENUMFOLDERINFO *pinfo);
+    static int FolderEnumCallback(LPITEMIDLIST pidlChild, ENUMFOLDERINFO *pinfo);
 
     ByUsageDir *            _pdirDesktop; // ByUsageDir for the desktop
 

@@ -200,7 +200,7 @@ BOOL AbortStartup()
 BOOL ExecStartupEnumProc(IShellFolder *psf, LPITEMIDLIST pidlItem)
 {
     IContextMenu *pcm;
-    HRESULT hr = psf->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlItem, IID_PPV_ARG_NULL(IContextMenu, &pcm));
+    HRESULT hr = psf->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlItem, IID_IContextMenu, nullptr, (void**)&pcm);
     if (SUCCEEDED(hr))
     {
         HMENU hmenu = CreatePopupMenu();

@@ -507,7 +507,7 @@ HICON _IconOf(IShellFolder *psf, LPCITEMIDLIST pidl, int cxIcon)
     HICON hicoLarge = NULL, hicoSmall = NULL;
     IExtractIcon *pxi;
 
-    hr = psf->GetUIObjectOf(NULL, 1, &pidl, IID_PPV_ARG_NULL(IExtractIcon, &pxi));
+    hr = psf->GetUIObjectOf(NULL, 1, &pidl, IID_IExtractIcon, nullptr, (void**)&pxi);
     if (SUCCEEDED(hr))
     {
         TCHAR szPath[MAX_PATH];
@@ -1034,9 +1034,9 @@ LRESULT SFTBarHost::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
 
     // We can survive if these objects fail to be created
     CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
-                     IID_PPV_ARG(IDropTargetHelper, &_pdth));
+                     IID_PPV_ARGS(&_pdth));
     CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
-                     IID_PPV_ARG(IDragSourceHelper, &_pdsh));
+                     IID_PPV_ARGS(&_pdsh));
 
     //
     // If this fails, no big whoop - you just don't get
@@ -1388,7 +1388,7 @@ void SFTBarHost::_EnumerateContents(BOOL fUrgent)
         {
             // We need a separate task scheduler for each instance
             hr = CoCreateInstance(CLSID_ShellTaskScheduler, NULL, CLSCTX_INPROC_SERVER,
-                                  IID_PPV_ARG(IShellTaskScheduler, &_psched));
+                                  IID_PPV_ARGS(&_psched));
         }
 
         if (SUCCEEDED(hr))

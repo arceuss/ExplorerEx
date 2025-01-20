@@ -636,7 +636,7 @@ BOOL MinKidsHelper(UINT csidl, BOOL bOnlyRASCON, DWORD dwMinKids)
     LPITEMIDLIST pidlBind = NULL;
     if (SHGetSpecialFolderLocation(NULL, csidl, &pidlBind) == S_OK)
     {
-        if (SUCCEEDED(SHBindToObjectEx(NULL, pidlBind, NULL, IID_PPV_ARG(IShellFolder2, &psf))))
+        if (SUCCEEDED(SHBindToObjectEx(NULL, pidlBind, NULL, IID_PPV_ARGS(&psf))))
         {
             IEnumIDList *penum;
             if (S_OK == psf->EnumObjects(NULL, SHCONTF_FOLDERS | SHCONTF_NONFOLDERS, &penum))
@@ -862,7 +862,7 @@ void SpecialFolderList::EnumItems()
                         IShellFolder *psf;
                         LPCITEMIDLIST pidlItem;
 
-                        HRESULT hr = SHBindToIDListParent(pitem->_pidl, IID_PPV_ARG(IShellFolder, &psf), &pidlItem);
+                        HRESULT hr = SHBindToIDListParent(pitem->_pidl, IID_PPV_ARGS(&psf), &pidlItem);
                         if (SUCCEEDED(hr))
                         {
                             if (!pitem->_psfd->GetCustomName(&pitem->_pszDispName))
@@ -941,7 +941,7 @@ HRESULT SpecialFolderList::GetFolderAndPidl(PaneItem *p,
         IShellFolder **ppsfOut, LPCITEMIDLIST *ppidlOut)
 {
     SpecialFolderListItem *pitem = static_cast<SpecialFolderListItem *>(p);
-    return SHBindToIDListParent(pitem->_pidl, IID_PPV_ARG(IShellFolder, ppsfOut), ppidlOut);
+    return SHBindToIDListParent(pitem->_pidl, IID_PPV_ARGS(ppsfOut), ppidlOut);
 }
 
 void SpecialFolderList::GetItemInfoTip(PaneItem *p, LPTSTR pszText, DWORD cch)
@@ -1006,12 +1006,12 @@ HRESULT SpecialFolderList::GetCascadeMenu(PaneItem *p, IShellMenu **ppsm)
 {
     SpecialFolderListItem *pitem = static_cast<SpecialFolderListItem *>(p);
     IShellFolder *psf;
-    HRESULT hr = SHBindToObjectEx(NULL, pitem->_pidl, NULL, IID_PPV_ARG(IShellFolder, &psf));
+    HRESULT hr = SHBindToObjectEx(NULL, pitem->_pidl, NULL, IID_PPV_ARGS(&psf));
     if (SUCCEEDED(hr))
     {
         IShellMenu *psm;
         hr = CoCreateInstance(CLSID_MenuBand, NULL, CLSCTX_INPROC_SERVER,
-                              IID_PPV_ARG(IShellMenu, &psm));
+                              IID_PPV_ARGS(&psm));
         if (SUCCEEDED(hr))
         {
 
@@ -1533,7 +1533,7 @@ HRESULT CConnectToShellMenuCallback::_OnGetInfo(SMDATA *psmd, SMINFO *psminfo)
             {
                 LPCITEMIDLIST pidlObject;
                 IShellFolder *psf;
-                hr = SHBindToParent(pidl, IID_PPV_ARG(IShellFolder, &psf), &pidlObject);
+                hr = SHBindToParent(pidl, IID_PPV_ARGS(&psf), &pidlObject);
                 if (SUCCEEDED(hr))
                 {
                     SHMapPIDLToSystemImageListIndex(psf, pidlObject, &psminfo->iIcon);
@@ -1553,7 +1553,7 @@ HRESULT CConnectToShellMenuCallback::_OnGetSFInfo(SMDATA *psmd, SMINFO *psminfo)
     ASSERT(psminfo->dwMask & SMIM_FLAGS);                       // ??
     psminfo->dwFlags &= ~SMIF_SUBMENU;
 
-    if (SUCCEEDED(psmd->psf->QueryInterface(IID_PPV_ARG(IShellFolder2, &psf2))))
+    if (SUCCEEDED(psmd->psf->QueryInterface(IID_PPV_ARGS(&psf2))))
     {
         if (!IsNetConPidlRAS(psf2, psmd->pidlItem))
             psminfo->dwFlags |= SMIF_HIDDEN;
@@ -1571,7 +1571,7 @@ HRESULT CConnectToShellMenuCallback::_OnEndEnum(SMDATA *psmd)
     HRESULT hr = S_FALSE;
     IShellMenu* psm;
 
-    if (psmd->punk && SUCCEEDED(hr = psmd->punk->QueryInterface(IID_PPV_ARG(IShellMenu, &psm))))
+    if (psmd->punk && SUCCEEDED(hr = psmd->punk->QueryInterface(IID_PPV_ARGS(&psm))))
     {
         // load the static portion of the connect to menu, and add it to the bottom
         HMENU hmStatic = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(MENU_CONNECTTO));
@@ -1584,7 +1584,7 @@ HRESULT CConnectToShellMenuCallback::_OnEndEnum(SMDATA *psmd)
 
             HWND hwnd = NULL;
             IUnknown *punk;
-            if (SUCCEEDED(IUnknown_QueryService(_punkSite, SID_SMenuPopup, IID_PPV_ARG(IUnknown, &punk))))
+            if (SUCCEEDED(IUnknown_QueryService(_punkSite, SID_SMenuPopup, IID_PPV_ARGS(&punk))))
             {
                 IUnknown_GetWindow(punk, &hwnd);
                 punk->Release();

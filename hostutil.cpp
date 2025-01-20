@@ -372,7 +372,7 @@ LRESULT CALLBACK CAccessible::s_SubclassProc(
             // We forward nearly all calls to the inner IAccessible.
             if (!self->_paccInner)
             {
-                hr = CreateStdAccessibleObject(hwnd, (DWORD)lParam, IID_PPV_ARG(IAccessible, &self->_paccInner));
+                hr = CreateStdAccessibleObject(hwnd, (DWORD)lParam, IID_PPV_ARGS(&self->_paccInner));
             } else {
                 hr = S_OK;
             }

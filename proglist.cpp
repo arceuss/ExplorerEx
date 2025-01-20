@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "proglist.h"
-//#include "uemapp.h"
-//#include <shdguid.h>
-//#include "shguidp.h"        // IID_IInitializeObject
+#include "uemapp.h"
+#include "shdguid.h"
+#include "shguidp.h"        // IID_IInitializeObject
 #include <pshpack4.h>
 //#include <idhidden.h>       // Note!  idhidden.h requires pack4
 #include <poppack.h>
@@ -12,6 +12,13 @@
 #define STRSAFE_NO_CB_FUNCTIONS
 #define STRSAFE_NO_DEPRECATE
 #include <strsafe.h>
+
+#include <dpa_dsa.h>
+
+#include "shundoc.h"
+
+typedef UNALIGNED const WCHAR* LPNCWSTR;
+typedef UNALIGNED WCHAR* LPNWSTR;
 
 // Global cache item being passed from the background task to the start panel ByUsage.
 CMenuItemsCache *g_pMenuCache;
@@ -338,14 +345,14 @@ public:
         if (_fIgnoreTimestamp)
         {
             // just save the path; ignore the timestamp
-            if (Str_SetPtr(&_pszAppPath, pszAppPath))
+            if (Str_SetPtrW(&_pszAppPath, pszAppPath))
             {
                 _fNew = TRUE;
                 return TRUE;
             }
         }
         else
-        if (Str_SetPtr(&_pszAppPath, pszAppPath))
+        if (Str_SetPtrW(&_pszAppPath, pszAppPath))
         {
             if (fCheckNew && GetFileCreationTime(pszAppPath, &_ftCreated))
             {
@@ -372,7 +379,7 @@ public:
     {
         TraceMsg(TF_PROGLIST, "%p.ai.~", this);
         ASSERT(IsBlank());
-        Str_SetPtr(&_pszAppPath, NULL);
+        Str_SetPtrW(&_pszAppPath, NULL);
     }
 
     // Notice! When the reference count goes to zero, we do not delete
@@ -1731,7 +1738,7 @@ HRESULT ByUsage::_GetShortcutExeTarget(IShellFolder *psf, LPCITEMIDLIST pidl, LP
     HRESULT hr;
     IShellLink *psl;
 
-    hr = psf->GetUIObjectOf(_hwnd, 1, &pidl, IID_PPV_ARG_NULL(IShellLink, &psl));
+    hr = psf->GetUIObjectOf(_hwnd, 1, &pidl, IID_IShellLink, nullptr, (void**)&psl);
 
     if (SUCCEEDED(hr))
     {
@@ -1875,7 +1882,7 @@ void CMenuItemsCache::_AddShortcutToCache(ByUsageDir *pdir, LPITEMIDLIST pidl, B
         //
         IShellLink *psl;
         hr = pdir->Folder()->GetUIObjectOf(NULL, 1, const_cast<LPCITEMIDLIST *>(&pidl),
-                                           IID_PPV_ARG_NULL(IShellLink, &psl));
+                                           IID_IShellLink, nullptr, (void**)&psl);
         if (SUCCEEDED(hr))
         {
             hd.LoadFromShellLink(psl);
@@ -1887,6 +1894,7 @@ void CMenuItemsCache::_AddShortcutToCache(ByUsageDir *pdir, LPITEMIDLIST pidl, B
                 SHRegisterDarwinLink(ILCombine(pdir->Pidl(), pidl),
                                      hd._pwszTargetPath +1 /* Exclude the Darwin marker! */,
                                      _fCheckDarwin);
+
                 SHParseDarwinIDFromCacheW(hd._pwszTargetPath+1, &hd._pwszMSIPath);
             }
 
@@ -3625,8 +3633,7 @@ LPITEMIDLIST ByUsage::GetFullPidl(PaneItem *p)
 }
 
 
-HRESULT ByUsage::GetFolderAndPidl(PaneItem *p,
-        IShellFolder **ppsfOut, LPCITEMIDLIST *ppidlOut)
+HRESULT ByUsage::GetFolderAndPidl(PaneItem *p, IShellFolder **ppsfOut, LPCITEMIDLIST *ppidlOut)
 {
     ByUsageItem *pitem = static_cast<ByUsageItem *>(p);
 
@@ -3642,7 +3649,7 @@ HRESULT ByUsage::GetFolderAndPidl(PaneItem *p,
     {
         // Multi-level child pidl
         return SHBindToFolderIDListParent(pitem->_pdir->Folder(), pitem->_pidl,
-                    IID_PPV_ARG(IShellFolder, ppsfOut), ppidlOut);
+                    IID_PPV_ARGS(ppsfOut), ppidlOut);
     }
 }
 
