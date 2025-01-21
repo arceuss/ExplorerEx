@@ -3,7 +3,7 @@
 
 #include <exdisp.h>
 #include <mshtml.h>
-//#include "dpa.h"
+#include "dpa.h"
 #include "startmnu.h"
 //#include <cowsite.h>
 

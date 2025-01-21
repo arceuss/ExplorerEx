@@ -117,6 +117,18 @@
     <ClInclude Include="shundoc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="trayp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dpa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="help.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="startids.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">

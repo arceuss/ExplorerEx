@@ -14,14 +14,14 @@
 #define _BROWSEUI_          // See HACKS OF DEATH in sfthost.cpp
 #include <shlobj.h>
 //#include <shlobjp.h>
-//#include <shguidp.h>
-//#include <ieguidp.h>
+#include "shguidp.h"
+#include "ieguidp.h"
 #include <shlwapi.h>
 //#include <ccstock.h>
 //#include <port32.h>
 #include "debug.h"
 //#include <varutil.h>
-//#include <dpa.h>
+#include "dpa.h"
 #include <atlbase.h>
 extern CComModule _Module;
 #include <atlcom.h>

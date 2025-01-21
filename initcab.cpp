@@ -3,7 +3,7 @@
 
 #include <regstr.h>
 #include "startmnu.h"
-//#include <shdguid.h>    // for IID_IShellService
+#include "shdguid.h"    // for IID_IShellService
 #include <shlguid.h>
 //#include <desktray.h>
 #include <wininet.h>

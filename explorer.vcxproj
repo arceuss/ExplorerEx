@@ -133,6 +133,8 @@
     <ClInclude Include="debug.h" />
     <ClInclude Include="deskhost.h" />
     <ClInclude Include="dlg.h" />
+    <ClInclude Include="dpa.h" />
+    <ClInclude Include="help.h" />
     <ClInclude Include="hostutil.h" />
     <ClInclude Include="ieguidp.h" />
     <ClInclude Include="mfulist.h" />
@@ -148,6 +150,7 @@
     <ClInclude Include="shundoc.h" />
     <ClInclude Include="specfldr.h" />
     <ClInclude Include="ssomgr.h" />
+    <ClInclude Include="startids.h" />
     <ClInclude Include="startmnu.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="taskband.h" />
@@ -157,6 +160,7 @@
     <ClInclude Include="traycmn.h" />
     <ClInclude Include="trayitem.h" />
     <ClInclude Include="traynot.h" />
+    <ClInclude Include="trayp.h" />
     <ClInclude Include="trayreg.h" />
     <ClInclude Include="userpane.h" />
     <ClInclude Include="util.h" />

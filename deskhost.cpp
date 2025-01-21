@@ -1,5 +1,5 @@
 #include "stdafx.h"
-//#include <startids.h>           // for IDM_PROGRAMS et al
+#include "startids.h"           // for IDM_PROGRAMS et al
 #include "regstr.h"
 #include "rcids.h"
 //#include <desktray.h>

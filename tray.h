@@ -9,6 +9,8 @@
 #include "traynot.h"
 #include "ssomgr.h"
 
+#include "shundoc.h"
+
 typedef struct tagHWNDANDPLACEMENT
 {
     HWND hwnd;

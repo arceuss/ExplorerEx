@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "sfthost.h"
-//#include "uemapp.h"
+#include "uemapp.h"
 //#include <desktray.h>
 #include "tray.h"
 #include "rcids.h"

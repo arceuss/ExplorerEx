@@ -1,7 +1,7 @@
 #ifndef _SHSRVOBJ_H
 #define _SHSRVOBJ_H
 
-//#include "dpa.h"
+#include "dpa.h"
 
 //
 // class to manage shell service objects

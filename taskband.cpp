@@ -1,6 +1,6 @@
 #include "cabinet.h"
 #include "taskband.h"
-//#include <shguidp.h>
+#include "shguidp.h"
 #include "bandsite.h"
 #include "util.h"
 #include "tray.h"
@@ -9,8 +9,16 @@
 #include "startmnu.h"
 #include "mixer.h"
 #include <regstr.h>
-//#include "uemapp.h"
+#include "uemapp.h"
 #include "strsafe.h"
+
+#include "shundoc.h"
+#include <afxstat_.h>
+
+#include "trayp.h"
+
+#include "dpa.h"
+
 
 #define TIF_RENDERFLASHED       0x000000001
 #define TIF_SHOULDTIP           0x000000002
@@ -69,6 +77,8 @@ static const EXCLUDELIST g_rgNoGlom[] =
 void _RestoreWindow(HWND hwnd, DWORD dwFlags);
 HMENU _GetSystemMenu(HWND hwnd);
 BOOL _IsRudeWindowActive(HWND hwnd);
+
+
 
 ////////////////////////////////////////////////////////////////////////////
 //
@@ -1900,7 +1910,7 @@ BOOL TaskShortcut::_PromotePidl(LPCITEMIDLIST pidl, BOOL fForce)
     IShellFolder *psf;
     LPCITEMIDLIST pidlChild;
     if (SUCCEEDED(SHBindToFolderIDListParent(NULL, pidl,
-                        IID_PPV_ARG(IShellFolder, &psf), &pidlChild)))
+                        IID_PPV_ARGS(&psf), &pidlChild)))
     {
         if (!fForce)
         {

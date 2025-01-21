@@ -5,7 +5,7 @@
 
 #include "atlstuff.h"
 //#include "cwndproc.h"
-//#include <dpa.h>
+#include "dpa.h"
 #include "commoncontrols.h"
 
 class CTray;
