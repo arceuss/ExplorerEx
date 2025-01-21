@@ -131,11 +131,28 @@ STDAPI_(BOOL) UEMGetInfo(const GUID *pguidGrp, int eCmd, WPARAM wParam, LPARAM l
 // {
 //***   UEMC_* -- commands
 //
-#define TABDAT(uemc)   uemc,
 enum {
-    #include "uemcdat.h"
+    UEMC_NIL,
+    UEMC_FIRST,
+    UEMC_STARTMENU,
+    UEMC_PROGS,
+    UEMC_FAVS,
+    UEMC_DOCS,
+    UEMC_CONTROLS,
+    UEMC_PRINTERS,
+    UEMC_TASKBAR,
+    UEMC_FOLDERS,
+    UEMC_ACTDESK,
+    UEMC_FINDFILES,
+    UEMC_FINDCOMP,
+    UEMC_FINDINTER,
+    UEMC_FINDOTHERS,
+    UEMC_HELPSEARCH,
+    UEMC_FILERUN,
+    UEMC_LOGOFF,
+    UEMC_SHUTDOWN,
+    UEMC_LAST
 };
-#undef  TABDAT
 // }
 
 

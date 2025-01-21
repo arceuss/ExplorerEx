@@ -349,35 +349,42 @@ ITrayPriv2 : ITrayPriv
     STDMETHOD(ModifySMInfo)(THIS_ IN LPSMDATA psmd, IN OUT SMINFO* psminfo) PURE;
 };
 
-MIDL_INTERFACE("D782CCBA-AFB0-43F1-94DB-FDA3779EACCB") INotificationCB : public IUnknown
+MIDL_INTERFACE("e9ead8e6-2a25-410e-9b58-a9fbef1dd1a2")
+IUserEventTimerCallback: IUnknown
 {
-public:
-    BEGIN_INTERFACE
-    virtual HRESULT STDMETHODCALLTYPE Notify(ULONG, NOTIFYITEM*) = 0;
-    END_INTERFACE
+    HRESULT UserEventTimerProc(ULONG uUserEventTimerID, UINT uTimerElapse);
 };
 
-MIDL_INTERFACE("FB852B2C-6BAD-4605-9551-F15F87830935") ITrayNotify : public IUnknown
+MIDL_INTERFACE("0F504B94-6E42-42E6-99E0-E20FAFE52AB4")
+IUserEventTimer: IUnknown
 {
-public:
-    BEGIN_INTERFACE
-    virtual HRESULT STDMETHODCALLTYPE RegisterCallback(INotificationCB * callback) = 0;
-    virtual HRESULT STDMETHODCALLTYPE SetPreference(const NOTIFYITEM* notify_item) = 0;
-    virtual HRESULT STDMETHODCALLTYPE EnableAutoTray(BOOL enabled) = 0;
-    END_INTERFACE
+    STDMETHOD(SetUserEventTimer)(HWND hWnd, UINT uCallbackMessage, UINT uTimerElapse, IUserEventTimerCallback * pUserEventTimerCallback, ULONG * puUserEventTimerID );
+    STDMETHOD(KillUserEventTimer)(HWND hWnd, ULONG uUserEventTimerID);
+
+    STDMETHOD(GetUserEventTimerElapsed)(HWND hWnd, ULONG uUserEventTimerID, UINT* puTimerElapsed);
+    STDMETHOD(InitTimerTickInterval)(UINT uTimerTickIntervalMs);
+};
+
+MIDL_INTERFACE("D782CCBA-AFB0-43F1-94DB-FDA3779EACCB") INotificationCB : IUnknown
+{
+    STDMETHOD(Notify)(ULONG, NOTIFYITEM*) = 0;
+};
+
+MIDL_INTERFACE("FB852B2C-6BAD-4605-9551-F15F87830935") ITrayNotify : IUnknown
+{
+    STDMETHOD(RegisterCallback)(INotificationCB * callback) = 0;
+    STDMETHOD(SetPreference)(const NOTIFYITEM* notify_item) = 0;
+    STDMETHOD(EnableAutoTray)(BOOL enabled) = 0;
 };
 
 //this is the Windows 8+ variant of ITrayNotify, probably not needed for now but might need it for later
-MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4") ITrayNotifyWin8 : public IUnknown
+MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4") ITrayNotifyWin8 : IUnknown
 {
-public:
-    BEGIN_INTERFACE
-    virtual HRESULT STDMETHODCALLTYPE RegisterCallback(INotificationCB * callback, ULONG*) = 0;
-    virtual HRESULT STDMETHODCALLTYPE UnregisterCallback(ULONG*) = 0;
-    virtual HRESULT STDMETHODCALLTYPE SetPreference(NOTIFYITEM const*) = 0;
-    virtual HRESULT STDMETHODCALLTYPE EnableAutoTray(BOOL) = 0;
-    virtual HRESULT STDMETHODCALLTYPE DoAction(BOOL) = 0;
-    END_INTERFACE
+    STDMETHOD(RegisterCallback)(INotificationCB * callback, ULONG*) = 0;
+    STDMETHOD(UnregisterCallback)(ULONG*) = 0;
+    STDMETHOD(SetPreference)(NOTIFYITEM const*) = 0;
+    STDMETHOD(EnableAutoTray)(BOOL) = 0;
+    STDMETHOD(DoAction)(BOOL) = 0;
 };
 
 const CLSID CLSID_TrayNotify = { 0x25DEAD04, 0x1EAC, 0x4911,{ 0x9E, 0x3A, 0xAD, 0x0A, 0x4A, 0xB5, 0x60, 0xFD } };
