@@ -36,6 +36,14 @@ typedef struct _SHShortcutInvokeAsIDList {
     USHORT  cbZero;
 } SHShortcutInvokeAsIDList, * LPSHShortcutInvokeAsIDList;
 
+typedef struct _tagHardErrorData
+{
+    DWORD   dwSize;             // Size of this structure
+    DWORD   dwError;            // Hard Error
+    DWORD   dwFlags;            // Hard Error flags
+    UINT    uOffsetTitleW;      // Offset to UNICODE Title
+    UINT    uOffsetTextW;       // Offset to UNICODE Text
+} HARDERRORDATA, * PHARDERRORDATA;
 
 //
 // Macros
