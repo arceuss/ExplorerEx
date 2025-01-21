@@ -249,6 +249,28 @@ typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
 #define ABE_MAX         4
 
 //
+// Enums
+// 
+typedef enum
+{
+    RR_ALLOW = 1,
+    RR_DISALLOW,
+    RR_NOCHANGE,
+} RESTRICTION_RESULT;
+
+// IRestrict::IsRestricted() dwRestrictAction parameter values for
+// the RID_RDeskBars pguidID.
+typedef enum
+{
+    RA_DRAG = 1,
+    RA_DROP,
+    RA_ADD,
+    RA_CLOSE,
+    RA_MOVE,
+} RESTRICT_ACTIONS;
+
+
+//
 // Function definitions
 //
 
@@ -285,6 +307,19 @@ bool SHUndocInit(void);
 //
 // COM Interfaces
 // 
+
+MIDL_INTERFACE("D12F26B1-D90A-11d0-830D-00AA005B4383")
+IRestrict : IUnknown
+{
+    // *** IUnknown methods ***
+    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
+    STDMETHOD_(ULONG,AddRef) (THIS)  PURE;
+    STDMETHOD_(ULONG,Release) (THIS) PURE;
+
+    // *** IRestrict Methods ***
+    STDMETHOD(IsRestricted) (THIS_ const GUID* pguidID, DWORD dwRestrictAction, VARIANT* pvarArgs, OUT DWORD* pdwRestrictionResult) PURE;
+};
+
 MIDL_INTERFACE("EA5F2D61-E008-11CF-99CB-00C04FD64497")
 IWinEventHandler : IUnknown
 {

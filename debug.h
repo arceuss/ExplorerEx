@@ -201,14 +201,13 @@ void    AttachUserModeDebugger (void);
         AttachUserModeDebugger();                       \
         do                                              \
         {                                               \
-            _try                                        \
+            __try                                        \
             {                                           \
                 DebugBreak();                           \
             }                                           \
-            _except (EXCEPTION_EXECUTE_HANDLER)         \
+            __except (EXCEPTION_EXECUTE_HANDLER)         \
             {                                           \
             }                                           \
-            __endexcept                                 \
         } while (gAlwaysAssert);                        \
     }
 #endif
