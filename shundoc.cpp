@@ -80,6 +80,7 @@ STDAPI IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* pd
 HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg, WPARAM wParam, LPARAM lParam, int iFlags) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax) = nullptr;
+HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue) = nullptr;
 UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) = nullptr;
 
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color) = nullptr;
@@ -210,6 +211,7 @@ bool SHUndocInit(void)
 
 	LOAD_MODULE(shlwapi);
 	LOAD_ORDINAL(shlwapi, IUnknown_Exec, 164);
+    LOAD_ORDINAL(shlwapi, SHSetWindowBits, 165);
 	LOAD_ORDINAL(shlwapi, IUnknown_OnFocusChangeIS, 509);
 	LOAD_ORDINAL(shlwapi, SHPropagateMessage, 178);
 	LOAD_ORDINAL(shlwapi, SHGetCurColorRes, 193);
