@@ -19,6 +19,8 @@
 
 #include "dpa.h"
 
+#include <vssym32.h>
+
 
 #define TIF_RENDERFLASHED       0x000000001
 #define TIF_SHOULDTIP           0x000000002
@@ -4453,21 +4455,21 @@ HRESULT CTaskBand::_CreatePopupMenu(POINTL* ppt, RECTL* prcl)
     CTaskBandSMC* ptbc = new CTaskBandSMC(this);
     if (ptbc)
     {
-        if (SUCCEEDED(CoCreateInstance(CLSID_MenuBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IShellMenu2, &_psmPopup))) &&
+        if (SUCCEEDED(CoCreateInstance(CLSID_MenuBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_psmPopup))) &&
             SUCCEEDED(_psmPopup->Initialize(ptbc, 0, 0, SMINIT_CUSTOMDRAW | SMINIT_VERTICAL | SMINIT_TOPLEVEL | SMINIT_USEMESSAGEFILTER)) &&
-            SUCCEEDED(CoCreateInstance(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IMenuPopup, &_pmpPopup))) &&
+            SUCCEEDED(CoCreateInstance(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_pmpPopup))) &&
             SUCCEEDED(_psmPopup->SetMenu(_menuPopup, _hwnd, SMSET_USEPAGER | SMSET_NOPREFIX)) &&
-            SUCCEEDED(_psmPopup->QueryInterface(IID_PPV_ARG(IMenuBand, &_pmbPopup))))
+            SUCCEEDED(_psmPopup->QueryInterface(IID_PPV_ARGS(&_pmbPopup))))
         {
             _psmPopup->SetMinWidth(RECTWIDTH(*prcl));
 
             IBandSite* pbs;
-            if (SUCCEEDED(CoCreateInstance(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IBandSite, &pbs))))
+            if (SUCCEEDED(CoCreateInstance(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pbs))))
             {
                 if (SUCCEEDED(_pmpPopup->SetClient(pbs)))
                 {
                     IDeskBand* pdb;
-                    if (SUCCEEDED(_psmPopup->QueryInterface(IID_PPV_ARG(IDeskBand, &pdb))))
+                    if (SUCCEEDED(_psmPopup->QueryInterface(IID_PPV_ARGS(&pdb))))
                     {
                         pbs->AddBand(pdb);
                         pdb->Release();
@@ -4918,7 +4920,7 @@ void CTaskBand::_CreateTBImageLists()
     CImageList il = CImageList(_tb.GetImageList());
 
     ATOMICRELEASE(_pimlSHIL);
-    SHGetImageList(SHIL_SYSSMALL, IID_PPV_ARG(IImageList, &_pimlSHIL));
+    SHGetImageList(SHIL_SYSSMALL, IID_PPV_ARGS(&_pimlSHIL));
     
     il.Destroy();
     int cx = GetSystemMetrics(SM_CXSMICON);
@@ -5606,7 +5608,7 @@ void CTaskBand::_UpdateAllIcons()
     // Create a new image list
     _CreateTBImageLists();
 
-    for (i = _tb.GetButtonCount() - 1; i >= 0; i--)
+    for (int i = _tb.GetButtonCount() - 1; i >= 0; i--)
     {
         _UpdateItemIcon(i);
     }
@@ -5769,7 +5771,7 @@ DWORD WINAPI HardErrorBalloonThread(PVOID pv)
         {
             IUserNotification *pun;
             HRESULT hr;
-            hr = CoCreateInstance(CLSID_UserNotification, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IUserNotification, &pun));
+            hr = CoCreateInstance(CLSID_UserNotification, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pun));
             if (SUCCEEDED(hr))
             {
                 pun->SetBalloonRetry(120 * 1000, 0, 0);

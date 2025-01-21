@@ -207,6 +207,12 @@ typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
 #define BOOLIFY(expr)           (!!(expr))
 #define IntToPtr_(T, i) ((T)IntToPtr(i))
 
+#define IS_VALID_WRITE_PTR(ptr, type) \
+   (IsBadWritePtr((PVOID)(ptr), sizeof(type)) ? \
+    (TraceMsgA(TF_ERROR, "invalid %hs write pointer - %#08lx", (LPCSTR)#type" *", (ptr)), FALSE) : \
+    TRUE)
+
+
 #define CMF_ICM3                0x00020000      // QueryContextMenu can assume IContextMenu3 semantics (i.e.,
                                                 // will receive WM_INITMENUPOPUP, WM_MEASUREITEM, WM_DRAWITEM,
                                                 // and WM_MENUCHAR, via HandleMenuMsg2)
@@ -247,6 +253,8 @@ typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
 #define WMTRAY_TOGGLEQL             (WM_USER + 237)
 
 #define ABE_MAX         4
+
+#define WM_SYSMENU                      0x0313
 
 //
 // Enums
