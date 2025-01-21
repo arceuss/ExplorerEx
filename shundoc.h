@@ -273,7 +273,7 @@ inline void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 
 typedef HANDLE LPSHChangeNotificationLock;
-
+typedef BOOL* BOOL_PTR;
 
 //
 // Function loader
