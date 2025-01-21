@@ -129,6 +129,9 @@
     <ClInclude Include="startids.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cwndproc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">
@@ -411,6 +414,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shundoc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cwndproc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

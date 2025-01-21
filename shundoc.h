@@ -144,19 +144,6 @@ inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 
 typedef HANDLE LPSHChangeNotificationLock;
 
-class CImpWndProc
-{
-public:
-    virtual ULONG __stdcall AddRef() = 0;
-    virtual ULONG __stdcall Release() = 0;
-
-protected:
-    virtual LRESULT v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) PURE;
-    static LRESULT CALLBACK s_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-    HWND _hwnd;
-
-};
 
 //
 // Function loader

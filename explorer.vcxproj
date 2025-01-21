@@ -130,6 +130,7 @@
     <ClInclude Include="atlstuff.h" />
     <ClInclude Include="bandsite.h" />
     <ClInclude Include="cabinet.h" />
+    <ClInclude Include="cwndproc.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="deskhost.h" />
     <ClInclude Include="dlg.h" />
@@ -236,6 +237,7 @@
   <ItemGroup>
     <ClCompile Include="bandsite.cpp" />
     <ClCompile Include="classfac.cpp" />
+    <ClCompile Include="cwndproc.cpp" />
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="defaultmfu.cpp" />
     <ClCompile Include="deskhost.cpp" />
