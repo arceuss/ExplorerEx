@@ -1767,7 +1767,7 @@ void CTray::_InitBandsite()
     BandSite_Update(_ptbs);
     BandSite_UIActivateDBC(_ptbs, DBC_SHOW);
 
-    BandSite_FindBand(_ptbs, CLSID_TaskBand, IID_PPV_ARG(IDeskBand, &_pdbTasks), NULL, NULL);
+    BandSite_FindBand(_ptbs, CLSID_TaskBand, IID_PPV_ARGS(&_pdbTasks), NULL, NULL);
     IUnknown_GetWindow(_pdbTasks, &_hwndTasks);
 
     // Now that bandsite is ready, set the correct size
@@ -1917,7 +1917,7 @@ DWORD CTray::_SyncThreadProc()
         // get the system background scheduler thread
         IShellTaskScheduler* pScheduler;
         if (SUCCEEDED(CoCreateInstance(CLSID_SharedTaskScheduler, NULL, CLSCTX_INPROC,
-                                       IID_PPV_ARG(IShellTaskScheduler, &pScheduler))))
+                                       IID_PPV_ARGS(&pScheduler))))
         {
             AddMenuItemsCacheTask(pScheduler, Tray_StartPanelEnabled());
             pScheduler->Release();
@@ -2228,7 +2228,7 @@ void CTray::_BuildStartMenu()
         {
             IBanneredBar* pbb;
 
-            hr = _pmpStartMenu->QueryInterface(IID_PPV_ARG(IBanneredBar, &pbb));
+            hr = _pmpStartMenu->QueryInterface(IID_PPV_ARGS(&pbb));
             if (SUCCEEDED(hr))
             {
                 pbb->SetBitmap(_hbmpStartBkg);
@@ -7930,7 +7930,7 @@ void CTray::StartMenuContextMenu(HWND hwnd, DWORD dwPos)
                 if (hmenu)
                 {
                     IContextMenu *pcm;
-                    HRESULT hr = psf->GetUIObjectOf(hwnd, 1, (LPCITEMIDLIST*)&pidlLast, IID_X_PPV_ARG(IContextMenu, NULL, &pcm));
+                    HRESULT hr = psf->GetUIObjectOf(hwnd, 1, (LPCITEMIDLIST*)&pidlLast, IID_IContextMenu, nullptr, (void**)&pcm);
                     if (SUCCEEDED(hr))
                     {
                         hr = pcm->QueryContextMenu(hmenu, 0, IDSYSPOPUP_FIRST, IDSYSPOPUP_LAST, CMF_VERBSONLY);
@@ -8403,7 +8403,7 @@ HRESULT CStartDropTarget::_GetStartMenuDropTarget(IDropTarget** pptgt)
         IShellFolder *psf = BindToFolder(pidlStart);
         if (psf)
         {
-            hr = psf->CreateViewObject(_ptray->_hwnd, IID_PPV_ARG(IDropTarget, pptgt));
+            hr = psf->CreateViewObject(_ptray->_hwnd, IID_PPV_ARGS(pptgt));
             psf->Release();
         }
 
@@ -8638,7 +8638,7 @@ void CTray::_RegisterDropTargets()
     // It is not a serious error if this fails; it just means that
     // drag/drop to the Start Button will not add to the pin list
     CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
-                     IID_PPV_ARG(IStartMenuPin, &_psmpin));
+                     IID_PPV_ARGS(&_psmpin));
 }
 
 void CTray::_RevokeDropTargets()
@@ -8837,7 +8837,7 @@ BOOL CTray::_ToggleLanguageBand(BOOL fShowIt)
     if (fShowIt && !fFound)
     {
         IDeskBand* pdb;
-        HRESULT hr = CoCreateInstance(CLSID_MSUTBDeskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IDeskBand, &pdb));
+        HRESULT hr = CoCreateInstance(CLSID_MSUTBDeskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
         if (SUCCEEDED(hr))
         {
             hr = _ptbs->AddBand(pdb);
