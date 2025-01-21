@@ -347,3 +347,35 @@ ITrayPriv2 : ITrayPriv
     STDMETHOD(ModifySMInfo)(THIS_ IN LPSMDATA psmd, IN OUT SMINFO* psminfo) PURE;
 };
 
+MIDL_INTERFACE("D782CCBA-AFB0-43F1-94DB-FDA3779EACCB") INotificationCB : public IUnknown
+{
+public:
+    BEGIN_INTERFACE
+    virtual HRESULT STDMETHODCALLTYPE Notify(ULONG, NOTIFYITEM*) = 0;
+    END_INTERFACE
+};
+
+MIDL_INTERFACE("FB852B2C-6BAD-4605-9551-F15F87830935") ITrayNotify : public IUnknown
+{
+public:
+    BEGIN_INTERFACE
+    virtual HRESULT STDMETHODCALLTYPE RegisterCallback(INotificationCB * callback) = 0;
+    virtual HRESULT STDMETHODCALLTYPE SetPreference(const NOTIFYITEM* notify_item) = 0;
+    virtual HRESULT STDMETHODCALLTYPE EnableAutoTray(BOOL enabled) = 0;
+    END_INTERFACE
+};
+
+//this is the Windows 8+ variant of ITrayNotify, probably not needed for now but might need it for later
+MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4") ITrayNotifyWin8 : public IUnknown
+{
+public:
+    BEGIN_INTERFACE
+    virtual HRESULT STDMETHODCALLTYPE RegisterCallback(INotificationCB * callback, ULONG*) = 0;
+    virtual HRESULT STDMETHODCALLTYPE UnregisterCallback(ULONG*) = 0;
+    virtual HRESULT STDMETHODCALLTYPE SetPreference(NOTIFYITEM const*) = 0;
+    virtual HRESULT STDMETHODCALLTYPE EnableAutoTray(BOOL) = 0;
+    virtual HRESULT STDMETHODCALLTYPE DoAction(BOOL) = 0;
+    END_INTERFACE
+};
+
+const CLSID CLSID_TrayNotify = { 0x25DEAD04, 0x1EAC, 0x4911,{ 0x9E, 0x3A, 0xAD, 0x0A, 0x4A, 0xB5, 0x60, 0xFD } };
