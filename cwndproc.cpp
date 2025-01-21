@@ -12,7 +12,7 @@ LRESULT CALLBACK CImpWndProc::s_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
         if (EVAL(pThis))
         {
             pThis->_hwnd = hwnd;
-            SetWindowPtr(hwnd, 0, pThis);
+            SetWindowLongPtr(hwnd, 0, (LONG_PTR)pThis);
 
             // Even if pThis->vWndProc fails the create, USER will always
             // send us a WM_NCDESTROY so we always get a chance to clean up
@@ -22,7 +22,7 @@ LRESULT CALLBACK CImpWndProc::s_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
     }
     else
     {
-        CImpWndProc* pThis = (CImpWndProc*)GetWindowPtr0(hwnd);    // GetWindowLong(hwnd, 0);
+        CImpWndProc* pThis = (CImpWndProc*)GetWindowLongPtr(hwnd, 0);    // GetWindowLong(hwnd, 0);
         LRESULT lres;
 
         if (pThis)
@@ -35,7 +35,7 @@ LRESULT CALLBACK CImpWndProc::s_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
 
             if (uMsg == WM_NCDESTROY)
             {
-                SetWindowPtr(hwnd, 0, NULL);
+                SetWindowLongPtr(hwnd, 0, NULL);
                 pThis->_hwnd = NULL;
             }
             pThis->Release();

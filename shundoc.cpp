@@ -81,6 +81,7 @@ HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg, WPARA
 HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue) = nullptr;
+HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient) = nullptr;
 UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) = nullptr;
 
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color) = nullptr;
@@ -216,6 +217,7 @@ bool SHUndocInit(void)
 	LOAD_ORDINAL(shlwapi, SHPropagateMessage, 178);
 	LOAD_ORDINAL(shlwapi, SHGetCurColorRes, 193);
 	LOAD_ORDINAL(shlwapi, SHFillRectClr, 197);
+    LOAD_ORDINAL(shlwapi, SHRunIndirectRegClientCommand, 467);
 
 	LOAD_MODULE(shell32);
 	LOAD_ORDINAL(shell32, SHGetUserDisplayName, 241);

@@ -26,13 +26,13 @@
 #include "bandsite.h"
 
 #include "startmnu.h"
-//#include "uemapp.h"
+#include "uemapp.h"
 //#include <uxthemep.h>
 
 #define NO_NOTIFYSUBCLASSWNDPROC
-//#include "cwndproc.cpp"
+#include "cwndproc.cpp"
 
-//#include "desktop2.h"
+#include "desktop2.h"
 #include "mixer.h"
 
 #include "strsafe.h"
@@ -1140,11 +1140,11 @@ UINT _GetStartIDB()
     {
         id = IDB_SERVERSTARTBKG;
     }
-    else if (IsOS(OS_PERSONAL))
+    else if (IsOS(OS_HOME)) // OS_PERSONAL
     {
         id = IDB_PERSONALSTARTBKG;
     }
-    else if (IsOS(OS_BLADE))
+    else if (IsOS(OS_WEBSERVER)) // OS_BLADE
     {
         id = IDB_BLADESTARTBKG;
     }
@@ -1235,7 +1235,7 @@ LRESULT CTray::_CreateWindows()
                 SetTimer(_hwnd, IDT_CHECKDISKSPACE, 60 * 1000, NULL);   // 60 seconds poll
             }
 
-            if (IsOS(OS_PERSONAL) || IsOS(OS_PROFESSIONAL))
+            if (IsOS(OS_HOME) || IsOS(OS_PROFESSIONAL))
             {
                 SetTimer(_hwnd, IDT_DESKTOPCLEANUP, 24 * 60 * 60 * 1000, NULL);   // 24 hour poll
             }

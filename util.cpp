@@ -15,7 +15,7 @@
 #define STRSAFE_NO_CB_FUNCTIONS
 #define STRSAFE_NO_DEPRECATE
 #include <strsafe.h>
-
+#include "ssomgr.h"
 //////////////////////////////////////////////////////////////////////////
 //
 // util.cpp
@@ -168,7 +168,7 @@ WORD _GetHotkeyFromFolderItem(IShellFolder *psf, LPCITEMIDLIST pidl)
         (dwAttrs & SFGAO_LINK))
     {
         IShellLink *psl;
-        if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidl, IID_X_PPV_ARG(IShellLink, NULL, &psl))))
+        if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidl, IID_IShellLink, nullptr, (void**)&psl)))
         {
             psl->GetHotkey(&wHotkey);
             psl->Release();

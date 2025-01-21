@@ -66,7 +66,7 @@ __inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWi
 //#include <shlobjp.h>
 #include <shlwapi.h>
 #include "dbt.h"
-//#include "trayp.h"
+#include "trayp.h"
 //#include <shdocvw.h>
 #include <uxtheme.h>
 //#include <tmschema.h>
@@ -77,6 +77,8 @@ __inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWi
 #include "shdguid.h"
 
 //#include "uastrfnc.h"
+
+#include "shundoc.h"
 
 //#include <desktopp.h>
 

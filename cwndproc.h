@@ -1,6 +1,9 @@
 #ifndef _CWNDPROC_H_
 #define _CWNDPROC_H_
 
+#include <Windows.h>
+#include "debug.h"
+
 // CImpWndProc
 //
 // Use this class when you want to associate a window with
@@ -19,8 +22,8 @@
 class CImpWndProc
 {
 public:
-    virtual ULONG __stdcall AddRef() = 0;
-    virtual ULONG __stdcall Release() = 0;
+    virtual ULONG STDMETHODCALLTYPE AddRef() = 0;
+    virtual ULONG STDMETHODCALLTYPE Release() = 0;
 
 protected:
     virtual LRESULT v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) PURE;

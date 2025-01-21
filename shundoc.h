@@ -205,6 +205,7 @@ typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
 #define ResultFromShort(i)  ResultFromScode(MAKE_SCODE(SEVERITY_SUCCESS, 0, (USHORT)(i)))
 #define SAFECAST(_obj, _type) (((_type)(_obj)==(_obj)?0:0), (_type)(_obj))
 #define BOOLIFY(expr)           (!!(expr))
+#define IntToPtr_(T, i) ((T)IntToPtr(i))
 
 #define CMF_ICM3                0x00020000      // QueryContextMenu can assume IContextMenu3 semantics (i.e.,
                                                 // will receive WM_INITMENUPOPUP, WM_MEASUREITEM, WM_DRAWITEM,
@@ -262,6 +263,7 @@ extern HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg
 extern HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen);
 extern HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
 extern HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue);
+extern HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient);
 extern UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
