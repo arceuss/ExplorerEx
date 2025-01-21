@@ -45,6 +45,108 @@ typedef struct _tagHardErrorData
     UINT    uOffsetTextW;       // Offset to UNICODE Text
 } HARDERRORDATA, * PHARDERRORDATA;
 
+typedef struct _AppBarData3264
+{
+    DWORD cbSize;
+    DWORD dwWnd;
+    UINT uCallbackMessage;
+    UINT uEdge;
+    RECT rc;
+    DWORDLONG lParam; // message specific
+} APPBARDATA3264, * PAPPBARDATA3264;
+
+typedef struct _TRAYAPPBARDATA
+{
+    APPBARDATA3264 abd;
+    DWORD dwMessage;
+    DWORD hSharedABD;
+    DWORD dwProcId;
+} TRAYAPPBARDATA, * PTRAYAPPBARDATA;
+
+typedef struct tagNOTIFYITEM
+{
+    LPWSTR      pszExeName;
+    LPWSTR      pszIconText;
+    HICON       hIcon;
+    HWND        hWnd;
+    DWORD       dwUserPref;
+    UINT        uID;
+    GUID        guidItem;
+} NOTIFYITEM, * LPNOTIFYITEM;
+
+typedef struct _NOTIFYICONDATA32A {
+    DWORD cbSize;
+    DWORD dwWnd;                        // NB!
+    UINT uID;
+    UINT uFlags;
+    UINT uCallbackMessage;
+    DWORD dwIcon;                       // NB!
+#if (_WIN32_IE < 0x0500)
+    CHAR   szTip[64];
+#else
+    CHAR   szTip[128];
+#endif
+#if (_WIN32_IE >= 0x0500)
+    DWORD dwState;
+    DWORD dwStateMask;
+    CHAR   szInfo[256];
+    union {
+        UINT  uTimeout;
+        UINT  uVersion;
+    } DUMMYUNIONNAME;
+    CHAR   szInfoTitle[64];
+    DWORD dwInfoFlags;
+#endif
+#if (_WIN32_IE >= 0x600)
+    GUID guidItem;
+#endif
+} NOTIFYICONDATA32A, * PNOTIFYICONDATA32A;
+typedef struct _NOTIFYICONDATA32W {
+    DWORD cbSize;
+    DWORD dwWnd;                        // NB!
+    UINT uID;
+    UINT uFlags;
+    UINT uCallbackMessage;
+    DWORD dwIcon;                       // NB!
+#if (_WIN32_IE < 0x0500)
+    WCHAR  szTip[64];
+#else
+    WCHAR  szTip[128];
+#endif
+#if (_WIN32_IE >= 0x0500)
+    DWORD dwState;
+    DWORD dwStateMask;
+    WCHAR  szInfo[256];
+    union {
+        UINT  uTimeout;
+        UINT  uVersion;
+    } DUMMYUNIONNAME;
+    WCHAR  szInfoTitle[64];
+    DWORD dwInfoFlags;
+#endif
+#if (_WIN32_IE >= 0x600)
+    GUID guidItem;
+#endif
+} NOTIFYICONDATA32W, * PNOTIFYICONDATA32W;
+
+typedef NOTIFYICONDATA32W NOTIFYICONDATA32;
+typedef PNOTIFYICONDATA32W PNOTIFYICONDATA32;
+
+
+typedef struct _TRAYNOTIFYDATAA {
+    DWORD dwSignature;
+    DWORD dwMessage;
+    NOTIFYICONDATA32 nid;
+} TRAYNOTIFYDATAA, * PTRAYNOTIFYDATAA;
+typedef struct _TRAYNOTIFYDATAW {
+    DWORD dwSignature;
+    DWORD dwMessage;
+    NOTIFYICONDATA32 nid;
+} TRAYNOTIFYDATAW, * PTRAYNOTIFYDATAW;
+
+typedef TRAYNOTIFYDATAW TRAYNOTIFYDATA;
+typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
+
 //
 // Macros
 //
@@ -124,7 +226,26 @@ typedef struct _tagHardErrorData
 #define DTM_RAISE                       (WM_USER + 83)
 #define DTRF_RAISE      0
 
+#define WMTRAY_PROGCHANGE           (WM_USER + 200)     // 200=0xc8
+#define WMTRAY_RECCHANGE            (WM_USER + 201)
+#define WMTRAY_FASTCHANGE           (WM_USER + 202)
+// was  WMTRAY_DESKTOPCHANGE        (WM_USER + 204)
 
+#define WMTRAY_COMMONPROGCHANGE     (WM_USER + 205)
+#define WMTRAY_COMMONFASTCHANGE     (WM_USER + 206)
+
+#define WMTRAY_FAVORITESCHANGE      (WM_USER + 207)
+
+#define WMTRAY_REGISTERHOTKEY       (WM_USER + 230)
+#define WMTRAY_UNREGISTERHOTKEY     (WM_USER + 231)
+#define WMTRAY_SETHOTKEYENABLE      (WM_USER + 232)
+#define WMTRAY_SCREGISTERHOTKEY     (WM_USER + 233)
+#define WMTRAY_SCUNREGISTERHOTKEY   (WM_USER + 234)
+#define WMTRAY_QUERY_MENU           (WM_USER + 235)
+#define WMTRAY_QUERY_VIEW           (WM_USER + 236)     // 236=0xec
+#define WMTRAY_TOGGLEQL             (WM_USER + 237)
+
+#define ABE_MAX         4
 
 //
 // Function definitions
