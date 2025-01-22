@@ -8690,7 +8690,7 @@ void CTray::_HandleGlobalHotkey(WPARAM wParam)
         break;
 
     case GHID_EXPLORER:
-        _ShowFolder(_hwnd, CSIDL_DRIVES, COF_CREATENEWWINDOW | COF_EXPLORE);
+        _ShowFolder(_hwnd, CSIDL_DRIVES, 0x00000001 | 0x00000008);
         break;
 
     case GHID_FINDFILES:
@@ -9149,7 +9149,7 @@ HRESULT CDeskTray::SetVar(int var, DWORD value)
 
     TraceMsg(DM_TRACE, "c.cdt_sv: set var(%d):=%d", var, value);
     switch (var) {
-    case SVTRAY_EXITEXPLORER:
+    case 0:
         TraceMsg(DM_TRACE, "c.cdt_sv: set g_fExitExplorer:=%d", value);
         g_fExitExplorer = value;
         WriteCleanShutdown(1);

@@ -100,6 +100,7 @@ HRESULT(STDMETHODCALLTYPE* IUnknown_GetClassID)(IUnknown* punk, CLSID* pclsid) =
 HRESULT(STDMETHODCALLTYPE* IUnknown_OnFocusChangeIS)(IUnknown* punk, IUnknown* punkSrc, BOOL fSetFocus) = nullptr;
 HRESULT(STDMETHODCALLTYPE* IUnknown_QueryStatus)(IUnknown* punk, const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext) = nullptr;
 HRESULT(STDMETHODCALLTYPE* IUnknown_UIActivateIO)(IUnknown* punk, BOOL fActivate, LPMSG lpMsg) = nullptr;
+HRESULT(STDMETHODCALLTYPE* IUnknown_TranslateAcceleratorIO)(IUnknown* punk, LPMSG lpMsg) = nullptr;
 
 
 STDAPI IUnknown_DragEnter(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
@@ -168,6 +169,7 @@ HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf,
 HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd) = nullptr;
 BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags) = nullptr;
+BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile) = nullptr;
 LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) = nullptr;
 UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) = nullptr;
@@ -638,7 +640,6 @@ BOOL IsBiDiLocalizedSystem(void)
 }
 
 
-
 //
 // Function loader
 //
@@ -676,6 +677,7 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shlwapi, IUnknown_UIActivateIO, 479);
     LOAD_ORDINAL(shlwapi, SHMessageBoxCheckExW, 292);
     LOAD_ORDINAL(shlwapi, SHDefWindowProc, 240);
+    LOAD_ORDINAL(shlwapi, IUnknown_TranslateAcceleratorIO, 478);
     LOAD_FUNCTION(shlwapi, SHIsChildOrSelf);
 
 	LOAD_MODULE(shell32);
@@ -686,6 +688,7 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shell32, RunFileDlg, 61);
     LOAD_ORDINAL(shell32, LogoffWindowsDialog, 54);
     LOAD_ORDINAL(shell32, DisconnectWindowsDialog, 254);
+    LOAD_ORDINAL(shell32, SHFindComputer, 91);
     LOAD_FUNCTION(shell32, SHUpdateRecycleBinIcon);
 
 	LOAD_MODULE(shcore);

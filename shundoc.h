@@ -299,6 +299,9 @@ typedef struct _tagSHELLREMINDER
 
 #define IntToPtr_(T, i) ((T)IntToPtr(i))
 
+#define _IOffset(class, itf)         ((UINT)(UINT_PTR)&(((class *)0)->itf))
+#define IToClass(class, itf, pitf)   ((class  *)(((LPSTR)pitf)-_IOffset(class, itf)))
+
 
 
 #define SHProcessMessagesUntilEvent(hwnd, hEvent, dwTimeout)        SHProcessMessagesUntilEventEx(hwnd, hEvent, dwTimeout, QS_ALLINPUT)
@@ -354,6 +357,15 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
     SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
 }
 
+#define INSTRUMENT_HOTKEY(t,w)                                  \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_HOTKEY;                     \
+    s.e.hotkey.wParam=(w);                                      \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
+
 #define CMF_ICM3                0x00020000      // QueryContextMenu can assume IContextMenu3 semantics (i.e.,
                                                 // will receive WM_INITMENUPOPUP, WM_MEASUREITEM, WM_DRAWITEM,
                                                 // and WM_MENUCHAR, via HandleMenuMsg2)
@@ -374,6 +386,7 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define CWM_TASKBARWAKEUP               (WM_USER + 26) // Used to restore tray thread to normal priority in extremely stressed machines
 #define DTM_RAISE                       (WM_USER + 83)
 #define DTRF_RAISE      0
+#define DTRF_LOWER      1
 #define DTM_SAVESTATE               (WM_USER + 77)
 #define DTM_UPDATENOW               (WM_USER + 93)
 #define DTM_UIACTIVATEIO            (WM_USER + 88)
@@ -481,6 +494,7 @@ extern HRESULT(STDMETHODCALLTYPE* IUnknown_GetClassID)(IUnknown* punk, CLSID* pc
 extern HRESULT(STDMETHODCALLTYPE* IUnknown_OnFocusChangeIS)(IUnknown* punk, IUnknown* punkSrc, BOOL fSetFocus);
 extern HRESULT(STDMETHODCALLTYPE* IUnknown_QueryStatus)(IUnknown* punk, const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext);
 extern HRESULT(STDMETHODCALLTYPE* IUnknown_UIActivateIO)(IUnknown* punk, BOOL fActivate, LPMSG lpMsg);
+extern HRESULT(STDMETHODCALLTYPE* IUnknown_TranslateAcceleratorIO)(IUnknown* punk, LPMSG lpMsg);
 STDAPI IUnknown_DragEnter(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 STDAPI IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 STDAPI IUnknown_DragLeave(IUnknown* punk);
@@ -495,14 +509,15 @@ extern HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lPara
 extern HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd);
 extern LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags);
-HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent);
+extern BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile);
+extern HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent);
 extern INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal);
 extern INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags);
 extern UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
 extern VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)();
 extern VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent);
 extern VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent);
-COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
+extern COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
 STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);

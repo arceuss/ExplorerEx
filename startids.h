@@ -9,10 +9,8 @@
 #define IDM_UPDATEWIZARD            414
 #define IDM_UPDATE_SEP              415
 
-#ifdef WINNT // hydra specific ids
 #define IDM_MU_DISCONNECT           5000
 #define IDM_MU_SECURITY             5001
-#endif
 
 #define IDM_RECENT              501
 #define IDM_FIND                502
