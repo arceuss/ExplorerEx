@@ -490,7 +490,7 @@ inline void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 
 typedef HANDLE LPSHChangeNotificationLock;
-typedef BOOL* BOOL_PTR;
+typedef BOOL BOOL_PTR;
 
 
 
@@ -581,6 +581,89 @@ ITrayPriv2 : ITrayPriv
     STDMETHOD(ModifySMInfo)(THIS_ IN LPSMDATA psmd, IN OUT SMINFO* psminfo) PURE;
 };
 
+interface IDeskTray : public IUnknown
+{
+    // *** IUnknown methods ***
+    STDMETHOD(QueryInterface) (THIS_ REFIID riid, LPVOID * ppvObj) PURE;
+    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
+    STDMETHOD_(ULONG, Release) (THIS) PURE;
+
+    // *** IDeskTray methods ***
+    STDMETHOD_(UINT, AppBarGetState)(THIS) PURE;
+    STDMETHOD(GetTrayWindow)(THIS_ HWND * phwndTray) PURE;
+    STDMETHOD(SetDesktopWindow)(THIS_ HWND hwndDesktop) PURE;
+
+    // WARNING!  BEFORE CALLING THE SetVar METHOD YOU MUST DETECT
+    // THE EXPLORER VERSION BECAUSE IE 4.00 WILL CRASH IF YOU TRY
+    // TO CALL IT
+
+    STDMETHOD(SetVar)(THIS_ int var, DWORD value) PURE;
+};
+
+MIDL_INTERFACE("6f51c646-0efe-4370-882a-c1f61cb27c3b")
+IShellMenu2 : IShellMenu
+{
+    // Retrieves an interface on a submenu.
+    HRESULT GetSubMenu(UINT idCmd, REFIID riid, void** ppvObj);
+    HRESULT SetToolbar(HWND hwnd, DWORD dwFlags);
+    HRESULT SetMinWidth(int cxMenu);
+    HRESULT SetNoBorder(BOOL fNoBorder);
+    HRESULT SetTheme(LPCWSTR pszTheme);
+};
+
+MIDL_INTERFACE("ec35e37a-6579-4f3c-93cd-6e62c4ef7636")
+IStartMenuPin : IUnknown
+{
+
+    #define SMPIN_POS(i) (LPCITEMIDLIST)MAKEINTRESOURCE((i)+1))
+    #define SMPINNABLE_EXEONLY          0x00000001) // allow only EXEs to be pinned
+    #define SMPINNABLE_REJECTSLOWMEDIA  0x00000002) // reject slow media
+
+    HRESULT EnumObjects(IEnumIDList * *ppenumIDList);
+    //
+    //  Pin:        pidlFrom = NULL, pidlTo = pidl
+    //  Unpin:      pidlFrom = pidl, pidlTo = NULL
+    //  Update:     pidlFrom = old,  pidlTo = new
+    //  Move:       pidlFrom = pidl, pidlTo = SMPINPOS(iPos)
+    HRESULT Modify(LPCITEMIDLIST pidlFrom, LPCITEMIDLIST pidlTo);
+    HRESULT GetChangeCount(ULONG* pulOut);
+
+    //
+    //  pdto = data object to test
+    //  dwFlags is an SMPINNABLE_* flag
+    //  *ppidl receives pidl being pinned
+    //
+    HRESULT IsPinnable(IDataObject* pdto, DWORD dwFlags, LPITEMIDLIST* ppidl); // S_FALSE if not
+
+    //
+    //  Find the pidl on the pin list and resolve the shortcut that
+    //  tracks it.
+    //
+    //  Returns S_OK if the pidl changed and was resolved.
+    //  Returns S_FALSE if the pidl did not change.
+    //  Returns an error if the Resolve failed.
+    //
+    HRESULT Resolve(HWND hwnd, DWORD dwFlags,[in] LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlResolved);
+};
+
+MIDL_INTERFACE("5836FB00-8187-11CF-A12B-00AA004AE837")
+IShellService : IUnknown
+{
+    // *** IUnknown methods ***
+    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
+    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
+    STDMETHOD_(ULONG, Release) (THIS) PURE;
+
+    // *** IShellService specific methods ***
+    STDMETHOD(SetOwner)(THIS_ struct IUnknown* punkOwner) PURE;
+};
+
+MIDL_INTERFACE("fadb55b4-d382-4fc4-81d7-abb325c7f12a")
+IFadeTask : IUnknown
+{
+    HRESULT FadeRect(LPCRECT prc);
+};
+
 MIDL_INTERFACE("e9ead8e6-2a25-410e-9b58-a9fbef1dd1a2")
 IUserEventTimerCallback: IUnknown
 {
@@ -620,3 +703,4 @@ MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4") ITrayNotifyWin8 : IUnknow
 };
 
 const CLSID CLSID_TrayNotify = { 0x25DEAD04, 0x1EAC, 0x4911,{ 0x9E, 0x3A, 0xAD, 0x0A, 0x4A, 0xB5, 0x60, 0xFD } };
+DEFINE_GUID(IID_IShellService, 0x5836FB00L, 0x8187, 0x11CF, 0xA1, 0x2B, 0x00, 0xAA, 0x00, 0x4A, 0xE8, 0x37);

@@ -14,7 +14,7 @@
 
 #include "shundoc.h"
 
-#include "shdeprecated.h"
+//#include "shdeprecated.h"
 
 #define SAFECAST(_obj, _type) (((_type)(_obj)==(_obj)?0:0), (_type)(_obj))
 
