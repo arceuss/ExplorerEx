@@ -3,6 +3,8 @@
 
 #include <Windows.h>
 #include "debug.h"
+#include <CommCtrl.h>
+#include <ShlObj.h>
 
 // CImpWndProc
 //
@@ -67,9 +69,7 @@ private:
 
     UINT        _uRegister;         // SHChangeNotify id
 
-#ifdef DEBUG
     HWND        _hwndSubclassed;
-#endif
-} ;
+};
 
 #endif _CWNDPROC_H_
