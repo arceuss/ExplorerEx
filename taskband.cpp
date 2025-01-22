@@ -13,13 +13,13 @@
 #include "strsafe.h"
 
 #include "shundoc.h"
-#include <afxstat_.h>
 
 #include "trayp.h"
 
 #include "dpa.h"
 
 #include <vssym32.h>
+#include "winuserp.h"
 
 
 #define TIF_RENDERFLASHED       0x000000001
@@ -4686,7 +4686,8 @@ void CTaskBand::_ScrollIntoView(int iItem)
     if (dwStyle & (WS_HSCROLL | WS_VSCROLL))
     {
         int cVisible = 0;
-        for (int i = 0; i < iItem; i++)
+        int i;
+        for (i = 0; i < iItem; i++)
         {
             if (!_IsHidden(i))
                 cVisible++;

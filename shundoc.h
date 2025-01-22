@@ -147,6 +147,38 @@ typedef struct _TRAYNOTIFYDATAW {
 typedef TRAYNOTIFYDATAW TRAYNOTIFYDATA;
 typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
 
+typedef struct tagSHCNF_INSTRUMENT {
+    USHORT uOffset;
+    USHORT uAlign;
+    DWORD dwEventType;
+    DWORD dwEventStructure;
+    SYSTEMTIME st;
+    union tagEvents {
+        struct tagSTRING {
+            TCHAR sz[32];
+        } string;
+        struct tagHOTKEY {
+            WPARAM wParam;
+        } hotkey;
+        struct tagWNDPROC {
+            HWND hwnd;
+            UINT uMsg;
+            WPARAM wParam;
+            LPARAM lParam;
+        } wndproc;
+        struct tagCOMMAND {
+            HWND hwnd;
+            UINT idCmd;
+        } command;
+        struct tagDROP {
+            HWND hwnd;
+            UINT idCmd;
+            //          TCHAR sz[32]; // convert pDataObject into something we can log
+        } drop;
+    } e;
+    USHORT uTerm;
+} SHCNF_INSTRUMENT_INFO, * LPSHCNF_INSTRUMENT_INFO;
+
 //
 // Macros
 //
@@ -200,6 +232,9 @@ typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
 #define UEIM_HIT        0x01
 #define UEIM_FILETIME   0x02
 
+#define SHCNFI_MAIN_WNDPROC               6
+#define SHCNFI_EVENT_WNDPROC              3   // e.wndproc
+
 #define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
 #define ATOMICRELEASE(p) IUnknown_AtomicRelease((void **)&p)
 #define ResultFromShort(i)  ResultFromScode(MAKE_SCODE(SEVERITY_SUCCESS, 0, (USHORT)(i)))
@@ -212,6 +247,17 @@ typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
     (TraceMsgA(TF_ERROR, "invalid %hs write pointer - %#08lx", (LPCSTR)#type" *", (ptr)), FALSE) : \
     TRUE)
 
+#define INSTRUMENT_WNDPROC(t,h,u,w,l)                           \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_WNDPROC;                    \
+    s.e.wndproc.hwnd=(h);                                       \
+    s.e.wndproc.uMsg=(u);                                       \
+    s.e.wndproc.wParam=(w);                                     \
+    s.e.wndproc.lParam=(l);                                     \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
 
 #define CMF_ICM3                0x00020000      // QueryContextMenu can assume IContextMenu3 semantics (i.e.,
                                                 // will receive WM_INITMENUPOPUP, WM_MEASUREITEM, WM_DRAWITEM,
@@ -228,6 +274,7 @@ typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
 #define SPM_ONELEVEL    0x0002  // default: send to all descendants including grandkids, etc.
 
 #define SHCNEE_USERINFOCHANGED     11L
+#define SHCNEE_SHORTCUTINVOKE       9L  // an app has been launched via a shortcut
 
 #define CWM_TASKBARWAKEUP               (WM_USER + 26) // Used to restore tray thread to normal priority in extremely stressed machines
 #define DTM_RAISE                       (WM_USER + 83)
@@ -254,7 +301,15 @@ typedef PTRAYNOTIFYDATAW PTRAYNOTIFYDATA;
 
 #define ABE_MAX         4
 
-#define WM_SYSMENU                      0x0313
+#define TBSTYLE_EX_FIXEDDROPDOWN            0x00000040 // Only used in the taskbar
+#define TBSTYLE_EX_TRANSPARENTDEADAREA      0x00000100
+#define TBSTYLE_EX_TOOLTIPSEXCLUDETOOLBAR   0x00000200
+
+#define SMINIT_CUSTOMDRAW           0x00000080   // Send SMC_CUSTOMDRAW
+#define SMINIT_USEMESSAGEFILTER     0x00000020
+#define SMSET_USEPAGER              0x00000080    //Enable pagers in static menus
+#define SMSET_NOPREFIX              0x00000100    //Enable ampersand in static menus
+#define SMINV_POSITION       0x00000004
 
 //
 // Enums
@@ -298,6 +353,9 @@ extern UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
+BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
+
+BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce);
 
 inline unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft);
 inline void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64);

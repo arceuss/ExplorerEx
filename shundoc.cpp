@@ -83,6 +83,7 @@ HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFl
 HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient) = nullptr;
 UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) = nullptr;
+BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall) = nullptr;
 
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color) = nullptr;
 
@@ -163,6 +164,8 @@ STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2)
     return bRet;
 }
 
+BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce) = nullptr;
+
 
 inline unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft)
 {
@@ -221,9 +224,13 @@ bool SHUndocInit(void)
 
 	LOAD_MODULE(shell32);
 	LOAD_ORDINAL(shell32, SHGetUserDisplayName, 241);
+    LOAD_ORDINAL(shell32, RegisterShellHook, 181);
 
 	LOAD_MODULE(shcore);
 	LOAD_ORDINAL(shcore, IUnknown_GetClassID, 142);
+
+    LOAD_MODULE(user32);
+    LOAD_FUNCTION(user32, EndTask);
 
 
 

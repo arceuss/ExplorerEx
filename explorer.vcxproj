@@ -166,6 +166,7 @@
     <ClInclude Include="userpane.h" />
     <ClInclude Include="util.h" />
     <ClInclude Include="w4warn.h" />
+    <ClInclude Include="winuserp.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv" />
