@@ -42,6 +42,8 @@
 
 #include "vssym32.h"
 
+#include "startids.h"
+
 
 #define DM_FOCUS        0           // focus
 #define DM_SHUTDOWN     TF_TRAY     // shutdown
@@ -7817,7 +7819,7 @@ int CTray::_GetQuickLaunchID()
         if (BandSite_TestBandCLSID(_ptbs, dwBandID, CLSID_ISFBand) == S_OK)
         {
             IUnknown* punk;
-            if (SUCCEEDED(_ptbs->GetBandObject(dwBandID, IID_PPV_ARG(IUnknown, &punk))))
+            if (SUCCEEDED(_ptbs->GetBandObject(dwBandID, IID_PPV_ARGS(&punk))))
             {
                 VARIANTARG v = {0};
                 v.vt = VT_I4;
@@ -7860,10 +7862,10 @@ int CTray::_ToggleQL(int iVisible)
                 {
                     IFolderBandPriv *pfbp;
                     // create an ISF band to show folders as hotlinks
-                    if (SUCCEEDED(CoCreateInstance(CLSID_ISFBand, NULL, CLSCTX_INPROC, IID_PPV_ARG(IFolderBandPriv, &pfbp))))
+                    if (SUCCEEDED(CoCreateInstance(CLSID_ISFBand, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfbp))))
                     {
                         IShellFolderBand* psfb;
-                        if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARG(IShellFolderBand, &psfb))))
+                        if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARGS(&psfb))))
                         {
                             if (SUCCEEDED(psfb->InitializeSFB(NULL, pidl)))
                             {
@@ -7878,7 +7880,7 @@ int CTray::_ToggleQL(int iVisible)
                                 IUnknown_Exec(psfb, &CGID_ShellDocView, SHDVID_UEMLOG, 0, &v, NULL);
 
                                 IDeskBand* ptb;
-                                if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARG(IDeskBand, &ptb))))
+                                if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARGS(&ptb))))
                                 {
                                     HRESULT hr = _ptbs->AddBand(ptb);
                                     if (SUCCEEDED(hr))
@@ -8084,11 +8086,11 @@ void CTray::_RefreshStartMenu()
 {
     if (_pmbStartMenu)
     {
-        IUnknown_Exec(_pmbStartMenu, &CLSID_MenuBand, MBANDCID_REFRESH, 0, NULL, NULL);
+        IUnknown_Exec(_pmbStartMenu, &CLSID_MenuBand, 0x10000000, 0, NULL, NULL);
     }
     else if (_pmpStartPane)
     {
-        IUnknown_Exec(_pmpStartPane, &CLSID_MenuBand, MBANDCID_REFRESH, 0, NULL, NULL);
+        IUnknown_Exec(_pmpStartPane, &CLSID_MenuBand, 0x10000000, 0, NULL, NULL);
     }
     _RefreshSettings();
     _UpdateBandSiteStyle();
@@ -8133,7 +8135,7 @@ void CTray::_Command(UINT idCmd)
     case IDM_CONTROLS:
     case IDM_PRINTERS:
         _ShowFolder(_hwnd,
-            idCmd == IDM_CONTROLS ? CSIDL_CONTROLS : CSIDL_PRINTERS, COF_USEOPENSETTINGS);
+            idCmd == IDM_CONTROLS ? CSIDL_CONTROLS : CSIDL_PRINTERS, 0x00000002);
         break;
 
     case IDM_EJECTPC:

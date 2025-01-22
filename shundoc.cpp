@@ -168,11 +168,14 @@ HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf,
 HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd) = nullptr;
 BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags) = nullptr;
+LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) = nullptr;
 UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) = nullptr;
 INT(STDMETHODCALLTYPE* SHMessageBoxCheckExA)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal) = nullptr;
 INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags) = nullptr;
 VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)() = nullptr;
+VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent) = nullptr;
+VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent) = nullptr;
 BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall) = nullptr;
 DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi) = nullptr;
 
@@ -188,6 +191,7 @@ HDPA g_hdpaDarwinAds = NULL;
 
 #define ENTERCRITICAL_DARWINADS EnterCriticalSection(&g_csDarwinAds)
 #define LEAVECRITICAL_DARWINADS LeaveCriticalSection(&g_csDarwinAds)
+
 
 int GetDarwinIndex(LPCITEMIDLIST pidlFull, CDarwinAd** ppda)
 {
@@ -298,6 +302,53 @@ STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf)
         if (plf->lfWeight > FW_NORMAL)
             plf->lfWeight = FW_NORMAL;
     }
+}
+
+STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask)
+{
+    DWORD dwEndTime = GetTickCount() + dwTimeout;
+    LONG lWait = (LONG)dwTimeout;
+    DWORD dwReturn;
+
+    if (!hEvent && (dwTimeout == INFINITE))
+    {
+        return -1;
+    }
+
+    for (;;)
+    {
+        DWORD dwCount = hEvent ? 1 : 0;
+        dwReturn = MsgWaitForMultipleObjects(dwCount, &hEvent, FALSE, lWait, dwWakeMask);
+
+        // were we signalled or did we time out?
+        if (dwReturn != (WAIT_OBJECT_0 + dwCount))
+        {
+            break;
+        }
+
+        // we woke up because of messages.
+        MSG msg;
+        while (PeekMessage(&msg, hwnd, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            if (msg.message == WM_SETCURSOR)
+            {
+                SetCursor(LoadCursor(NULL, IDC_WAIT));
+            }
+            else
+            {
+                DispatchMessage(&msg);
+            }
+        }
+
+        // calculate new timeout value
+        if (dwTimeout != INFINITE)
+        {
+            lWait = (LONG)dwEndTime - GetTickCount();
+        }
+    }
+
+    return dwReturn;
 }
 
 // 
@@ -624,6 +675,7 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shlwapi, SHInvokeDefaultCommand, 279);
     LOAD_ORDINAL(shlwapi, IUnknown_UIActivateIO, 479);
     LOAD_ORDINAL(shlwapi, SHMessageBoxCheckExW, 292);
+    LOAD_ORDINAL(shlwapi, SHDefWindowProc, 240);
     LOAD_FUNCTION(shlwapi, SHIsChildOrSelf);
 
 	LOAD_MODULE(shell32);
@@ -632,6 +684,8 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shell32, SHSettingsChanged, 244);
     LOAD_ORDINAL(shell32, ExitWindowsDialog, 60);
     LOAD_ORDINAL(shell32, RunFileDlg, 61);
+    LOAD_ORDINAL(shell32, LogoffWindowsDialog, 54);
+    LOAD_ORDINAL(shell32, DisconnectWindowsDialog, 254);
     LOAD_FUNCTION(shell32, SHUpdateRecycleBinIcon);
 
 	LOAD_MODULE(shcore);

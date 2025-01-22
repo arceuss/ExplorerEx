@@ -252,6 +252,7 @@ typedef struct tagSHCNF_INSTRUMENT {
 #define SMC_CALLBACKMASK        0xF0000000  // Mask of comutationally intense messages
 
 //
+ 
 
 #define UEIM_HIT        0x01
 #define UEIM_FILETIME   0x02
@@ -272,11 +273,20 @@ typedef struct tagSHCNF_INSTRUMENT {
 
 #define ResultFromShort(i)  ResultFromScode(MAKE_SCODE(SEVERITY_SUCCESS, 0, (USHORT)(i)))
 
+#define ShortFromResult(r)  (short)SCODE_CODE(GetScode(r))
+
 #define SAFECAST(_obj, _type) (((_type)(_obj)==(_obj)?0:0), (_type)(_obj))
 
 #define BOOLIFY(expr)           (!!(expr))
 
+#define SIZECHARS(x)    (sizeof((x))/sizeof(WCHAR))
+
 #define IntToPtr_(T, i) ((T)IntToPtr(i))
+
+
+
+#define SHProcessMessagesUntilEvent(hwnd, hEvent, dwTimeout)        SHProcessMessagesUntilEventEx(hwnd, hEvent, dwTimeout, QS_ALLINPUT)
+#define SHProcessSentMessagesUntilEvent(hwnd, hEvent, dwTimeout)    SHProcessMessagesUntilEventEx(hwnd, hEvent, dwTimeout, QS_SENDMESSAGE)
 
 #define INSTRUMENT_STATECHANGE(t)
 
@@ -318,6 +328,16 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
     SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
 }
 
+#define INSTRUMENT_ONCOMMAND(t,h,u)                             \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_ONCOMMAND;                  \
+    s.e.command.hwnd=(h);                                       \
+    s.e.command.idCmd=(u);                                      \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
+
 #define CMF_ICM3                0x00020000      // QueryContextMenu can assume IContextMenu3 semantics (i.e.,
                                                 // will receive WM_INITMENUPOPUP, WM_MEASUREITEM, WM_DRAWITEM,
                                                 // and WM_MENUCHAR, via HandleMenuMsg2)
@@ -340,6 +360,7 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define DTRF_RAISE      0
 #define DTM_SAVESTATE               (WM_USER + 77)
 #define DTM_UPDATENOW               (WM_USER + 93)
+#define DTM_UIACTIVATEIO            (WM_USER + 88)
 
 #define WMTRAY_PROGCHANGE           (WM_USER + 200)     // 200=0xc8
 #define WMTRAY_RECCHANGE            (WM_USER + 201)
@@ -456,17 +477,21 @@ extern HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCW
 extern HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem);
 extern HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam);
 extern HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd);
+extern LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags);
 HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent);
 extern INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal);
 extern INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags);
 extern UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
 extern VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)();
+extern VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent);
+extern VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent);
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
 STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);
 STDAPI SHCoInitialize(void);
+STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask);
 BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
 BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
 
