@@ -167,6 +167,7 @@ HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR psz
 HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd) = nullptr;
+BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags) = nullptr;
 HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) = nullptr;
 UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) = nullptr;
 INT(STDMETHODCALLTYPE* SHMessageBoxCheckExA)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal) = nullptr;
@@ -635,12 +636,15 @@ bool SHUndocInit(void)
 
 	LOAD_MODULE(shcore);
 	LOAD_ORDINAL(shcore, IUnknown_GetClassID, 142);
+    LOAD_ORDINAL(shcore, SHQueueUserWorkItem, 162);
 
     LOAD_MODULE(user32);
     LOAD_FUNCTION(user32, EndTask);
 
     LOAD_MODULE(winsta);
     LOAD_FUNCTION(winsta, WinStationRegisterConsoleNotification);
+
+
 
 
 
