@@ -1,3 +1,4 @@
+#include "shundoc.h"
 #ifndef _HOSTUTIL_H_
 #define _HOSTUTIL_H_
 

@@ -1,4 +1,7 @@
 #include "cwndproc.h"
+#include <shtypes.h>
+#include <ShlObj.h>
+#include "shundoc.h"
 
 #define ID_NOTIFY_SUBCLASS (DWORD)'CHN'     // CHN change notify
 //
@@ -71,7 +74,7 @@ BOOL CNotifySubclassWndProc::_SubclassWindow(HWND hwnd)
         g_idFSNotify = RegisterWindowMessage(TEXT("SubclassedFSNotify"));
     }
 
-    DEBUG_CODE( _hwndSubclassed = hwnd; );
+    _hwndSubclassed = hwnd;
 
     return SetWindowSubclass(hwnd, _SubclassWndProc, ID_NOTIFY_SUBCLASS, (DWORD_PTR)this);
 }

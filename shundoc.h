@@ -203,6 +203,22 @@ typedef struct tagSHCNF_INSTRUMENT {
     USHORT uTerm;
 } SHCNF_INSTRUMENT_INFO, * LPSHCNF_INSTRUMENT_INFO;
 
+typedef struct _tagSHELLREMINDER
+{
+    DWORD  cbSize;
+    LPWSTR pszName;
+    LPWSTR pszTitle;
+    LPWSTR pszText;
+    LPWSTR pszTooltip;
+    LPWSTR pszIconResource;
+    LPWSTR pszShellExecute;
+    GUID* pclsid;
+    DWORD  dwShowTime;
+    DWORD  dwRetryInterval;
+    DWORD  dwRetryCount;
+    DWORD  dwTypeFlags;
+} SHELLREMINDER;
+
 //
 // Macros
 //
@@ -490,7 +506,7 @@ inline void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 
 typedef HANDLE LPSHChangeNotificationLock;
-typedef BOOL BOOL_PTR;
+typedef INT_PTR BOOL_PTR;
 
 
 
@@ -643,7 +659,7 @@ IStartMenuPin : IUnknown
     //  Returns S_FALSE if the pidl did not change.
     //  Returns an error if the Resolve failed.
     //
-    HRESULT Resolve(HWND hwnd, DWORD dwFlags,[in] LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlResolved);
+    HRESULT Resolve(HWND hwnd, DWORD dwFlags, LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlResolved);
 };
 
 MIDL_INTERFACE("5836FB00-8187-11CF-A12B-00AA004AE837")
