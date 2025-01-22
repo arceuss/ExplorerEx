@@ -14,10 +14,34 @@
 #include <Windows.h>
 #include <shobjidl_core.h>
 
+const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 
 //
 // Structs
 // 
+
+typedef struct {
+    NMHDR  hdr;
+    CHAR   szCmd[MAX_PATH * 2];
+    DWORD  dwHotKey;
+} NMVIEWFOLDERA, FAR* LPNMVIEWFOLDERA;
+typedef struct {
+    NMHDR  hdr;
+    WCHAR  szCmd[MAX_PATH * 2];
+    DWORD  dwHotKey;
+} NMVIEWFOLDERW, FAR* LPNMVIEWFOLDERW;
+
+typedef struct tagMUIINSTALLLANG {
+    LANGID LangID;
+    BOOL   bInstalled;
+} MUIINSTALLLANG, * LPMUIINSTALLLANG;
+
+typedef struct
+{
+    CLSID clsid;
+    DWORD dwFlags;
+} LOADINPROCDATA, * PLOADINPROCDATA;
+
 typedef struct
 {
     DWORD   cbSize;     // SIZEOF
@@ -235,12 +259,45 @@ typedef struct tagSHCNF_INSTRUMENT {
 #define SHCNFI_MAIN_WNDPROC               6
 #define SHCNFI_EVENT_WNDPROC              3   // e.wndproc
 
+
+#define WINMMDEVICECHANGEMSGSTRING L"winmm_devicechange"
+
+#define ENABLE_BALLOONTIP_MESSAGE L"Enable Balloon Tip"
+
 #define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+
 #define ATOMICRELEASE(p) IUnknown_AtomicRelease((void **)&p)
+
+#define ATOMICRELEASET(p, type) { if(p) { type* punkT=p; p=NULL; punkT->Release();} }
+
 #define ResultFromShort(i)  ResultFromScode(MAKE_SCODE(SEVERITY_SUCCESS, 0, (USHORT)(i)))
+
 #define SAFECAST(_obj, _type) (((_type)(_obj)==(_obj)?0:0), (_type)(_obj))
+
 #define BOOLIFY(expr)           (!!(expr))
+
 #define IntToPtr_(T, i) ((T)IntToPtr(i))
+
+#define INSTRUMENT_STATECHANGE(t)
+
+#define SERVERNAME_CURRENT  ((HANDLE)NULL)
+
+#define IS_BIDI_LOCALIZED_SYSTEM()       IsBiDiLocalizedSystem()
+
+
+
+#define IS_WINDOW_RTL_MIRRORED(hwnd)     (g_bMirroredOS && Mirror_IsWindowMirroredRTL(hwnd))
+
+#ifdef UNICODE
+typedef NMVIEWFOLDERW NMVIEWFOLDER;
+typedef LPNMVIEWFOLDERW LPNMVIEWFOLDER;
+#else
+typedef NMVIEWFOLDERA NMVIEWFOLDER;
+typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
+#endif // UNICODE
+
+
+
 
 #define IS_VALID_WRITE_PTR(ptr, type) \
    (IsBadWritePtr((PVOID)(ptr), sizeof(type)) ? \
@@ -279,6 +336,8 @@ typedef struct tagSHCNF_INSTRUMENT {
 #define CWM_TASKBARWAKEUP               (WM_USER + 26) // Used to restore tray thread to normal priority in extremely stressed machines
 #define DTM_RAISE                       (WM_USER + 83)
 #define DTRF_RAISE      0
+#define DTM_SAVESTATE               (WM_USER + 77)
+#define DTM_UPDATENOW               (WM_USER + 93)
 
 #define WMTRAY_PROGCHANGE           (WM_USER + 200)     // 200=0xc8
 #define WMTRAY_RECCHANGE            (WM_USER + 201)
@@ -299,6 +358,12 @@ typedef struct tagSHCNF_INSTRUMENT {
 #define WMTRAY_QUERY_VIEW           (WM_USER + 236)     // 236=0xec
 #define WMTRAY_TOGGLEQL             (WM_USER + 237)
 
+//
+//  GMI_TSCLIENT tells you whether you are running as a Terminal Server
+//  client and should disable your animations.
+//
+#define GMI_TSCLIENT            0x0003  // Returns nonzero if TS client
+
 #define ABE_MAX         4
 
 #define TBSTYLE_EX_FIXEDDROPDOWN            0x00000040 // Only used in the taskbar
@@ -310,6 +375,32 @@ typedef struct tagSHCNF_INSTRUMENT {
 #define SMSET_USEPAGER              0x00000080    //Enable pagers in static menus
 #define SMSET_NOPREFIX              0x00000100    //Enable ampersand in static menus
 #define SMINV_POSITION       0x00000004
+
+#define WS_EX_LAYOUTRTL         0x00400000L // Right to left mirroring
+
+// StopWatch node types used in memory log to identify the type of node
+#define EMPTY_NODE  0x0
+#define START_NODE  0x1
+#define LAP_NODE    0x2
+#define STOP_NODE   0x3
+#define OUT_OF_NODES 0x4
+
+// Tray CopyData Messages
+#define TCDM_APPBAR     0x00000000
+#define TCDM_NOTIFY     0x00000001
+#define TCDM_LOADINPROC 0x00000002
+
+
+
+#define DCX_USESTYLE        0x00010000L
+#define DCX_NEEDFONT        0x00020000L /* ;Internal */
+#define DCX_NODELETERGN     0x00040000L /* ;Internal */
+#define DCX_NOCLIPCHILDREN  0x00080000L /* ;Internal */
+#define DCX_NORECOMPUTE     0x00100000L /* ;Internal */
+#define DCX_VALIDATE        0x00200000L /* ;Internal */
+
+#define TTF_EXCLUDETOOLAREA     0x4000
+
 
 //
 // Enums
@@ -332,6 +423,15 @@ typedef enum
     RA_MOVE,
 } RESTRICT_ACTIONS;
 
+enum INSTALLSTATE
+{
+    installingNone,
+    installingDone,
+    installingBoth,
+    installingDocObject,
+    installingHandler
+};
+
 
 //
 // Function definitions
@@ -340,6 +440,8 @@ typedef enum
 extern HRESULT(STDMETHODCALLTYPE* IUnknown_Exec)(IUnknown* punk, const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut);
 extern HRESULT(STDMETHODCALLTYPE* IUnknown_GetClassID)(IUnknown* punk, CLSID* pclsid);
 extern HRESULT(STDMETHODCALLTYPE* IUnknown_OnFocusChangeIS)(IUnknown* punk, IUnknown* punkSrc, BOOL fSetFocus);
+extern HRESULT(STDMETHODCALLTYPE* IUnknown_QueryStatus)(IUnknown* punk, const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext);
+extern HRESULT(STDMETHODCALLTYPE* IUnknown_UIActivateIO)(IUnknown* punk, BOOL fActivate, LPMSG lpMsg);
 STDAPI IUnknown_DragEnter(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 STDAPI IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 STDAPI IUnknown_DragLeave(IUnknown* punk);
@@ -349,13 +451,35 @@ extern HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, P
 extern HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
 extern HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue);
 extern HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient);
+extern HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem);
+extern HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam);
+extern HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd);
+HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent);
+extern INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal);
+extern INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags);
 extern UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
+extern VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)();
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
+STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);
+STDAPI SHCoInitialize(void);
+BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
 BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
 
+BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags);
+
+#define GMI_DOCKSTATE           0x0000
+// Return values for SHGetMachineInfo(GMI_DOCKSTATE)
+#define GMID_NOTDOCKABLE         0  // Cannot be docked
+#define GMID_UNDOCKED            1  // Is undocked
+#define GMID_DOCKED              2  // Is docked
+extern DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi);
+
 BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce);
+
+BOOL IsBiDiLocalizedSystem(void);
+BOOL Mirror_IsWindowMirroredRTL(HWND hWnd);
 
 inline unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft);
 inline void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64);
@@ -364,6 +488,9 @@ inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 
 typedef HANDLE LPSHChangeNotificationLock;
 typedef BOOL* BOOL_PTR;
+
+
+
 
 
 //

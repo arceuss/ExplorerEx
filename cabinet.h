@@ -59,7 +59,7 @@ __inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWi
 
 #define DISALLOW_Assert
 #include "debug.h"          // our version of Assert etc.
-//#include <port32.h>
+#include "port32.h"
 //#include <heapaloc.h>
 //#include <shellp.h>
 //#include <ccstock.h>
@@ -170,6 +170,9 @@ extern const WCHAR c_wzTaskbarTheme[];
    !STUCK_HORIZONTAL(STICK_TOP)  || !STUCK_HORIZONTAL(STICK_BOTTOM)
 #error Invalid STICK_* constants
 #endif
+
+#define InRange(id, idFirst, idLast)      ((UINT)((id)-(idFirst)) <= (UINT)((idLast)-(idFirst)))
+#define IsInRange                   InRange
 
 #define IsValidSTUCKPLACE(stick) IsInRange(stick, STICK_FIRST, STICK_LAST)
 

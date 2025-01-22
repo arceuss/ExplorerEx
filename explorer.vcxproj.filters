@@ -135,6 +135,9 @@
     <ClInclude Include="winuserp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="port32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">

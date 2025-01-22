@@ -37,6 +37,12 @@
 
 #include "strsafe.h"
 
+#include "port32.h"
+#include "shundoc.h"
+
+#include "vssym32.h"
+
+
 #define DM_FOCUS        0           // focus
 #define DM_SHUTDOWN     TF_TRAY     // shutdown
 #define DM_UEMTRACE     TF_TRAY     // timer service, other UEM stuff
@@ -379,7 +385,7 @@ BOOL CTray::_InitTrayClass()
 {
     WNDCLASS wc = {0};
 
-    wc.lpszClassName = TEXT(WNDCLASS_TRAYNOTIFY);
+    wc.lpszClassName = (LPWSTR)L"WNDCLASS_TRAYNOTIFY";
     wc.style = CS_DBLCLKS;
     wc.lpfnWndProc = s_WndProc;
     wc.hInstance = hinstCabinet;
@@ -960,7 +966,7 @@ void CTray::_AdjustRectForSizingBar(UINT uStuckPlace, LPRECT prc, int iIncrement
     }
     else
     {
-        if (IS_BIDI_LOCALIZED_SYSTEM())
+        if (IsBiDiLocalizedSystem())
         {
             switch (uStuckPlace)
             {
@@ -1824,7 +1830,7 @@ void CTray::_CreateTrayWindow()
     DWORD dwExStyle = WS_EX_WINDOWEDGE | WS_EX_TOOLWINDOW;
     // Don't fadein because layered windows suck
     // If you create a layered window on a non-active desktop then the window goes black
-    dwExStyle |= IS_BIDI_LOCALIZED_SYSTEM() ? dwExStyleRTLMirrorWnd : 0L;
+    dwExStyle |= IS_BIDI_LOCALIZED_SYSTEM() ? WS_EX_LAYOUTRTL : 0L;
 
     CreateWindowEx(dwExStyle, TEXT(WNDCLASS_TRAYNOTIFY), NULL,
                    WS_CLIPCHILDREN | WS_POPUP,
@@ -3139,7 +3145,7 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
     if (_ptbs)
     {
         IDeskBarClient* pdbc;
-        if (SUCCEEDED(_ptbs->QueryInterface(IID_PPV_ARG(IDeskBarClient, &pdbc))))
+        if (SUCCEEDED(_ptbs->QueryInterface(IID_PPV_ARGS(&pdbc))))
         {
             RECT rcClient = *lprc;
             RECT rcOldClient = _arStuckRects[uStuckPlace];
@@ -3914,13 +3920,13 @@ int WINAPI CTray::CheckWndPosEnumProc(void *pItem, void *pData)
 
 void CTray::CheckWindowPositions()
 {
-    ENTERCRITICAL;      // i think this is needed...
+    //ENTERCRITICAL;      // i think this is needed...
     if (_pPositions) {
         if (_pPositions->hdsaWP) {
             DSA_EnumCallback(_pPositions->hdsaWP, CheckWndPosEnumProc, NULL);
         }
     }
-    LEAVECRITICAL;
+    //LEAVECRITICAL;
 
     return;
 }
@@ -4432,13 +4438,13 @@ void CTray::_HandleHotKey(int nID)
             }
             else
             {
-                DECLAREWAITCURSOR;
+                HCURSOR hcursor_wait_cursor_save;
                 // Exec the item.
-                SetWaitCursor();
+                SetCursor(LoadCursor(0, IDC_WAIT));
                 TraceMsg(TF_TRAY, "c.hkl_hh: Hotkey is not in use, execing item.");
                 ASSERT(phki->pidlFolder && phki->pidlItem);
                 BOOL fRes = _ExecItemByPidls(_hwnd, phki->pidlFolder, phki->pidlItem);
-                ResetWaitCursor();
+                SetCursor(hcursor_wait_cursor_save);
 #ifdef DEBUG
                 if (!fRes)
                 {
@@ -5361,10 +5367,10 @@ void CTray::_CheckForRogueProgramFile()
                     lstrcmpi(szProgramFilesShortName, szRogueFileName) != 0))
                 {
                         
-                    iRet = SHMessageBoxCheckEx(GetDesktopWindow(),
+                    iRet = SHMessageBoxCheckExW(GetDesktopWindow(),
                                                hinstCabinet,
                                                MAKEINTRESOURCE(DLG_PROGRAMFILECONFLICT),
-                                               RogueProgramFileDlgProc,
+                                               (DLGPROC)RogueProgramFileDlgProc,
                                                (void *)szRogueFileName,
                                                IDIGNORE,
                                                TEXT("RogueProgramName"));
@@ -5387,7 +5393,7 @@ void CTray::_CheckForRogueProgramFile()
 
 void CTray::_OnWaitCursorNotify(LPNMHDR pnm)
 {
-    _iWaitCount += (pnm->code == NM_STARTWAIT ? 1 :-1);
+    _iWaitCount += (pnm->code == NM_FIRST - 9 ? 1 :-1);
     ASSERT(_iWaitCount >= 0);
     // Don't let it go negative or we'll never get rid of it.
     if (_iWaitCount < 0)
@@ -5457,7 +5463,7 @@ void CTray::_OnFocusMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
             SendMessage(_hwnd, WM_UPDATEUISTATE, MAKEWPARAM(UIS_CLEAR,
                 UISF_HIDEFOCUS), 0);
 
-            SendMessage(v_hwndDesktop, DTM_ONFOCUSCHANGEIS, TRUE, (LPARAM) _hwnd);
+            SendMessage(v_hwndDesktop, (WM_USER + 89), TRUE, (LPARAM) _hwnd);
             SetForegroundWindow(_hwnd);
 
             // fake an IUnknown_UIActivateIO(_ptbs, TRUE, &msg);
@@ -5986,7 +5992,6 @@ DWORD CTray::CountOfRunningPrograms()
 
 LRESULT CTray::_OnSessionChange(WPARAM wParam, LPARAM lParam)
 {
-    ASSERTMSG(DWORD(lParam) == NtCurrentPeb()->SessionId, "Session ID mismatch in CTray::_OnSessionChange");
 
     if ((WTS_CONSOLE_CONNECT == wParam) || (WTS_REMOTE_CONNECT == wParam) || (WTS_SESSION_UNLOCK == wParam))
     {
@@ -6314,7 +6319,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (!BandSite_HandleMessage(_ptbs, hwnd, uMsg, wParam, lParam, &lres)) {
             switch (pnm->code)
             {
-            case SEN_DDEEXECUTE:
+            case ((0U - 550U) - 0):
                 if (((LPNMHDR)lParam)->idFrom == 0)
                 {
                     LPNMVIEWFOLDER pnmPost = DDECreatePostNotify((LPNMVIEWFOLDER)pnm);
@@ -6327,10 +6332,10 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 }
                 break;
 
-            case NM_STARTWAIT:
-            case NM_ENDWAIT:
+            case (NM_FIRST - 9):
+            case (NM_FIRST - 10):
                 _OnWaitCursorNotify((NMHDR *)lParam);
-                PostMessage(v_hwndDesktop, ((NMHDR*)lParam)->code == NM_STARTWAIT ? DTM_STARTWAIT : DTM_ENDWAIT,
+                PostMessage(v_hwndDesktop, ((NMHDR*)lParam)->code == (NM_FIRST - 9) ? (WM_USER + 80) : (WM_USER + 81),
                             0, 0); // forward it along
                 break;
 
@@ -7249,7 +7254,7 @@ void _RunFileDlg(HWND hwnd, UINT idIcon, LPCITEMIDLIST pidlWorkingDir, UINT idTi
     TCHAR szPrompt[256];
     TCHAR szWorkingDir[MAX_PATH];
 
-    dwFlags |= RFD_USEFULLPATHDIR;
+    dwFlags |= 0x00000004;
     szWorkingDir[0] = 0;
 
     hIcon = idIcon ? LoadIcon(hinstCabinet, MAKEINTRESOURCE(idIcon)) : NULL;
@@ -7316,7 +7321,7 @@ BOOL CTray::SavePosEnumProc(HWND hwnd, LPARAM lParam)
     // called from SaveWindowPositions, which as already entered the critical secion
     // for _pPositions
 
-    ASSERTCRITICAL;
+    ASSERT(g_CriticalSectionCount > 0 && GetCurrentThreadId() == g_CriticalSectionOwner);
 
     CTray* ptray = (CTray*)lParam;
 
@@ -7666,7 +7671,7 @@ DWORD CTray::_RunDlgThreadProc(HANDLE hdata)
                 ENTERCRITICAL;
                 if (_hwndLastActive && !IsMinimized(_hwndLastActive) && _IsBrowserWindow(_hwndLastActive))
                 {
-                    SendMessageTimeout(_hwndLastActive, CWM_CLONEPIDL, GetCurrentProcessId(), 0, SMTO_ABORTIFHUNG | SMTO_BLOCK, 500, (DWORD_PTR*)&hMemWorkDir);
+                    SendMessageTimeout(_hwndLastActive, (WM_USER + 12), GetCurrentProcessId(), 0, SMTO_ABORTIFHUNG | SMTO_BLOCK, 500, (DWORD_PTR*)&hMemWorkDir);
                     pidlWorkingDir = (LPITEMIDLIST)SHLockShared(hMemWorkDir, GetCurrentProcessId());
                 }
                 LEAVECRITICAL;
@@ -7741,7 +7746,7 @@ void CTray::_RunDlg()
         else
             pvThreadParam = NULL;
 
-        if (SHQueueUserWorkItem(RunDlgThreadProc, pvThreadParam, 0, 0, NULL, NULL, TPS_LONGEXECTIME | TPS_DEMANDTHREAD))
+        if (SHQueueUserWorkItem(RunDlgThreadProc, pvThreadParam, 0, 0, NULL, NULL, 0x00000008 | 0x00000004))
         {
             if (hEvent)
             {

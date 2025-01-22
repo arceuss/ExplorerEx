@@ -142,6 +142,7 @@
     <ClInclude Include="mixer.h" />
     <ClInclude Include="moreprog.h" />
     <ClInclude Include="pidlbutton.h" />
+    <ClInclude Include="port32.h" />
     <ClInclude Include="proglist.h" />
     <ClInclude Include="rcids.h" />
     <ClInclude Include="resource.h" />
