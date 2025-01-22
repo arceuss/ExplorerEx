@@ -21,6 +21,8 @@
 #include <vssym32.h>
 #include "winuserp.h"
 
+#include "afxwin.h"
+
 
 #define TIF_RENDERFLASHED       0x000000001
 #define TIF_SHOULDTIP           0x000000002

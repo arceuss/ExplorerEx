@@ -25,7 +25,7 @@ extern CComModule _Module;
 //#include <shlobjp.h>
 
 //#include <atlapp.h>
-#include <atlwin.h>
+//include <atlwin.h>
 
 //#include <atlres.h>
 //#include <atlframe.h>
