@@ -171,6 +171,7 @@ HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR psz
 HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd) = nullptr;
+HRESULT(STDMETHODCALLTYPE* SHLoadRegUIStringW)(HKEY     hkey, LPCWSTR  pszValue, LPWSTR   pszOutBuf, UINT     cchOutBuf) = nullptr;
 BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags) = nullptr;
 BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength) = nullptr;
 BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd) = nullptr;
@@ -1426,6 +1427,11 @@ STDAPI_(BOOL) DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWF
     return fRet;
 }
 
+STDAPI SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast)
+{
+    return SHBindToFolderIDListParent(NULL, pidl, riid, ppv, ppidlLast);
+}
+
 
 //
 // Function loader
@@ -1480,7 +1486,8 @@ bool SHUndocInit(void)
 
 	LOAD_MODULE(shcore);
 	LOAD_ORDINAL(shcore, IUnknown_GetClassID, 142);
-    LOAD_ORDINAL(shcore, SHQueueUserWorkItem, 162);
+    LOAD_ORDINAL(shcore, SHQueueUserWorkItem, 162)
+    LOAD_ORDINAL(shcore, SHLoadRegUIStringW, 126);
 
     LOAD_MODULE(user32);
     LOAD_FUNCTION(user32, EndTask);
