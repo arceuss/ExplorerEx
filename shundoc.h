@@ -700,6 +700,12 @@ typedef enum _WINSTATIONINFOCLASS {
     WinStationMprNotifyInfo       // Mprnotify info from Winlogon for notifying 3rd party network providers
 } WINSTATIONINFOCLASS;
 
+#define CONTEXTMENU_IDCMD_FIRST    1        // minimal QueryContextMenu idCmdFirst value //
+#define CONTEXTMENU_IDCMD_LAST     0x7fff   // maximal QueryContextMenu idCmdLast value  //
+
+#define IID_PPV_ARG(IType, ppType) IID_##IType, reinterpret_cast<void**>(static_cast<IType**>(ppType))
+#define IID_X_PPV_ARG(IType, X, ppType) X, NULL, IID_##IType, reinterpret_cast<void**>(static_cast<IType**>(ppType))
+
 typedef enum
 {
     RR_ALLOW = 1,

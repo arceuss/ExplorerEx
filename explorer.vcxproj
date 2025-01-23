@@ -140,7 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cowsite.h" />
+    <ClInclude Include="desktopp.h" />
+    <ClInclude Include="ntperf.h" />
+    <ClInclude Include="ntwmi.h" />
+    <ClInclude Include="runonce.h" />
     <ClInclude Include="runtask.h" />
+    <ClInclude Include="wmiumkm.h" />
     <ClInclude Include="wtl\atlapp.h" />
     <ClInclude Include="wtl\atlcrack.h" />
     <ClInclude Include="wtl\atlctrls.h" />
@@ -288,6 +293,7 @@
     <ClCompile Include="moreprog.cpp" />
     <ClCompile Include="muext.c" />
     <ClCompile Include="proglist.cpp" />
+    <ClCompile Include="runonce.cpp" />
     <ClCompile Include="sfthost.cpp" />
     <ClCompile Include="shundoc.cpp" />
     <ClCompile Include="specfldr.cpp" />

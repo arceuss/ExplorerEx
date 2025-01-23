@@ -12,7 +12,7 @@
 #include "util.h"
 #include "atlstuff.h"
 #include <strsafe.h>
-//#include <runonce.c>    // shared runonce processing code
+#include "runonce.cpp"    // shared runonce processing code
 #include <dsrole.h>  // DsRoleGetPrimaryDomainInformation, DsRoleFreeMemory
 
 // global so that it is shared between TS sessions
@@ -31,10 +31,11 @@ BOOL _ShouldFixResolution(void);
 
 #ifdef PERF_ENABLESETMARK
 #include <wmistr.h>
-// <ntwmi.h>  // PWMI_SET_MARK_INFORMATION is defined in ntwmi.h
-//#include <wmiumkm.h>
+#include "ntwmi.h"  // PWMI_SET_MARK_INFORMATION is defined in ntwmi.h
+#include "wmiumkm.h"
 #define NTPERF
-//#include <ntperf.h>
+#include "ntperf.h"
+#include <desktopp.h>
 
 void DoSetMark(LPCSTR pszMark, ULONG cbSz)
 {
@@ -809,6 +810,9 @@ void _RunWelcome()
         {
             // OLE created a secret window for us, so we can't use
             // WaitForSingleObject or we will deadlock
+            using fnSHWaitForSendMessageThread = DWORD(WINAPI*)(HANDLE, DWORD);
+            fnSHWaitForSendMessageThread SHWaitForSendMessageThread;
+            SHWaitForSendMessageThread = reinterpret_cast<fnSHWaitForSendMessageThread>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(194)));
             SHWaitForSendMessageThread(pi.hProcess, INFINITE);
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
@@ -954,7 +958,7 @@ void _CreateAppGlobals()
     // Check if the mirroring APIs exist on the current
     // platform.
     //
-    g_bMirroredOS = IS_MIRRORING_ENABLED();
+    g_bMirroredOS = FALSE;
 }
 
 //
@@ -1157,17 +1161,27 @@ HANDLE CreateDesktopAndTray()
 
     return hDesktop;
 }
+using fnSHSessionKey = HRESULT(WINAPI*)(REGSAM, HKEY*);
+fnSHSessionKey SHCreateSessionKey;
+
 
 // Removes the session key from the registry.
 void NukeSessionKey(void)
 {
     HKEY hkDummy;
+
+    if (!SHCreateSessionKey)
+        SHCreateSessionKey = reinterpret_cast<fnSHSessionKey>(GetProcAddress(GetModuleHandle(L"shell32.dll"), MAKEINTRESOURCEA(723)));
+
     SHCreateSessionKey(0xFFFFFFFF, &hkDummy);
 }
 
 BOOL IsFirstInstanceAfterLogon()
 {
     BOOL fResult = FALSE;
+
+    if (!SHCreateSessionKey)
+        SHCreateSessionKey = reinterpret_cast<fnSHSessionKey>(GetProcAddress(GetModuleHandle(L"shell32.dll"), MAKEINTRESOURCEA(723)));
 
     HKEY hkSession;
     HRESULT hr = SHCreateSessionKey(KEY_WRITE, &hkSession);
@@ -1272,6 +1286,10 @@ BOOL ReadCleanShutdown()
     return (BOOL)dwValue;
 }
 
+
+using fnSHGetAllAccessSA = LPSECURITY_ATTRIBUTES(WINAPI*)();
+fnSHGetAllAccessSA SHGetAllAccessSA;
+
 //
 //  Synopsis:   Waits for the OLE SCM process to finish its initialization.
 //              This is called before the first call to OleInitialize since
@@ -1294,6 +1312,10 @@ HRESULT WaitForSCMToInitialize()
     {
         return S_OK;
     }
+
+    if (!SHGetAllAccessSA)
+        SHGetAllAccessSA = reinterpret_cast<fnSHGetAllAccessSA>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(563)));
+
 
     SECURITY_ATTRIBUTES* psa = SHGetAllAccessSA();
 
@@ -1593,18 +1615,7 @@ typedef BOOL (*CHECKFUNCTION)(void);
 
 void _ConditionalBalloonLaunch(CHECKFUNCTION pCheckFct, SHELLREMINDER* psr)
 {
-    if (pCheckFct())
-    {
-        IShellReminderManager* psrm;
-        HRESULT hr = CoCreateInstance(CLSID_PostBootReminder, NULL, CLSCTX_INPROC_SERVER,
-                         IID_PPV_ARGS(&psrm));
-
-        if (SUCCEEDED(hr))
-        {
-            psrm->Add(psr);
-            psrm->Release();
-        }
-    }
+    // stub
 }
 
 
@@ -1618,13 +1629,19 @@ void _CheckScreenResolution(void)
     LoadString(hinstCabinet, IDS_FIXSCREENRES_TEXT, szText, ARRAYSIZE(szText));
 
     sr.cbSize = sizeof (sr);
-    sr.pszName = L"Microsoft.FixScreenResolution";
+    //sr.pszName = L"Microsoft.FixScreenResolution";
+    wsprintf(sr.pszName, L"Microsoft.FixScreenResolution");
     sr.pszTitle = szTitle;
     sr.pszText = szText;
-    sr.pszIconResource = L"explorer.exe,9";
+    //sr.pszIconResource = L"explorer.exe,9";
+    wsprintf(sr.pszIconResource, L"explorer.exe,9");
     sr.dwTypeFlags = NIIF_INFO;
+    GUID CLSID_ScreenResFixer;
+    CLSIDFromString(L"5a3d988e-820d-4aaf-ba87-440081768a17", &CLSID_ScreenResFixer);
     sr.pclsid = (GUID*)&CLSID_ScreenResFixer; // Try to run the Screen Resolution Fixing code over in ThemeUI
-    sr.pszShellExecute = L"desk.cpl"; // Open the Display Control Panel as a backup
+    //sr.pszShellExecute = L"desk.cpl"; // Open the Display Control Panel as a backup
+    wsprintf(sr.pszShellExecute, L"desk.cpl");
+
 
     _ConditionalBalloonLaunch(_ShouldFixResolution, &sr);
 }
@@ -1640,12 +1657,15 @@ void _OfferTour(void)
     LoadString(hinstCabinet, IDS_OFFERTOUR_TEXT, szText, ARRAYSIZE(szText));
 
     sr.cbSize = sizeof (sr);
-    sr.pszName = L"Microsoft.OfferTour";
+    //sr.pszName = L"Microsoft.OfferTour";
+    wsprintf(sr.pszName, L"Microsoft.OfferTour");
     sr.pszTitle = szTitle;
     sr.pszText = szText;
-    sr.pszIconResource = L"tourstart.exe,0";
+    //sr.pszIconResource = L"tourstart.exe,0";
+    wsprintf(sr.pszIconResource, L"tourstart.exe,0");
     sr.dwTypeFlags = NIIF_INFO;
-    sr.pszShellExecute = L"tourstart.exe";
+    //sr.pszShellExecute = L"tourstart.exe";
+    wsprintf(sr.pszShellExecute, L"tourstart.exe");
     sr.dwShowTime = 60000;
 
     _ConditionalBalloonLaunch(_ShouldOfferTour, &sr);
@@ -1663,13 +1683,13 @@ void _FixWordMailRegKey(void)
         {
             HKEY hkeyWinWord;
             DWORD dwResult;
-            if (ERROR_SUCCESS == RegCreateKeyEx(hkey, L"WINWORD.EXE", 0, L"", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkeyWinWord, &dwResult))
+            if (ERROR_SUCCESS == RegCreateKeyEx(hkey, L"WINWORD.EXE", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkeyWinWord, &dwResult))
             {
                 HKEY hkeyTBExcept;
-                if (ERROR_SUCCESS == RegCreateKeyEx(hkeyWinWord, L"TaskbarExceptionsIcons", 0, L"", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkeyTBExcept, &dwResult))
+                if (ERROR_SUCCESS == RegCreateKeyEx(hkeyWinWord, L"TaskbarExceptionsIcons", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkeyTBExcept, &dwResult))
                 {
                     HKEY hkeyIcon;
-                    if (ERROR_SUCCESS == RegCreateKeyEx(hkeyTBExcept, L"WordMail", 0, L"", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkeyIcon, &dwResult))
+                    if (ERROR_SUCCESS == RegCreateKeyEx(hkeyTBExcept, L"WordMail", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkeyIcon, &dwResult))
                     {
                         const WCHAR szIconPath[] = L"explorer.exe,16";
                         DWORD cbIconPath = sizeof(szIconPath);
@@ -1718,7 +1738,7 @@ void CheckForServerAdminUI()
         if (dwServerAdminUI)
         {
             // Install the Server Admin UI
-            typedef HRESULT (CALLBACK *DLLINSTALLPROC)(BOOL, LPWSTR);
+            typedef HRESULT (CALLBACK *DLLINSTALLPROC)(BOOL, LPCWSTR);
             DLLINSTALLPROC pfnDllInstall = (DLLINSTALLPROC)GetProcAddress(GetModuleHandle(TEXT("SHELL32")), "DllInstall");
             if (pfnDllInstall)
             {
@@ -1742,11 +1762,17 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
 {
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
-    SHFusionInitializeFromModule(hInstance);
+    //SHFusionInitializeFromModule(hInstance);
+
+    typedef void(__stdcall* ShellDDEInit_t)(bool bInit);
+    ShellDDEInit_t ShellDDEInit;
+    ShellDDEInit = (ShellDDEInit_t)GetProcAddress(GetModuleHandle(L"Shdocvw.dll") ,(LPSTR)118);
+    
+    typedef void(__stdcall* FileIconInit_t)(bool);
+    FileIconInit_t FileIconInit;
+    FileIconInit = (FileIconInit_t)GetProcAddress(GetModuleHandle(L"shell32.dll"), (LPSTR)660);
 
     CcshellGetDebugFlags();
-
-    g_dwStopWatchMode = StopWatchMode();
 
     if (g_dwProfileCAP & 0x00000001)
         StartCAP();
@@ -1815,6 +1841,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
             MSG msg;
 
             DWORD dwShellStartTime = GetTickCount();    // Compute shell startup time for perf automation
+
 
             ShellDDEInit(TRUE);        // use shdocvw shell DDE code.
 
@@ -1900,7 +1927,6 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
 
             WriteCleanShutdown(FALSE);    // assume we will have a bad shutdown
 
-            WinList_Init();
 
             // If any of the shellwindows are already present, then we want to bail out.
             //
@@ -1933,14 +1959,6 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
 
                 _RunWinComCmdLine(pszCmdLine, nCmdShow);
 
-                if (g_dwStopWatchMode)
-                {
-                    // We used to save these off into global vars, and then write them at
-                    // WM_ENDSESSION, but that seems too unreliable
-                    DWORD dwShellStopTime = GetTickCount();
-                    StopWatch_StartTimed(SWID_STARTUP, TEXT("Shell Startup: Start"), SPMODE_SHELL | SPMODE_DEBUGOUT, dwShellStartTime);
-                    StopWatch_StopTimed(SWID_STARTUP, TEXT("Shell Startup: Stop"), SPMODE_SHELL | SPMODE_DEBUGOUT, dwShellStopTime);
-                }
 
                 if (g_dwProfileCAP & 0x00010000)
                     StopCAP();
@@ -1956,7 +1974,6 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
                 WriteFaultCount(0);          // clear our count of faults, we are exiting normally
             }
 
-            WinList_Terminate();    // Turn off our window list processing
             OleUninitialize();
             SHCoUninitialize(hrInit);
 
@@ -1966,7 +1983,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
         _Module.Term();
     }
 
-    SHFusionUninitialize();
+    //SHFusionUninitialize();
     DebugMsg(DM_TRACE, TEXT("c.App Exit."));
 
     return TRUE;

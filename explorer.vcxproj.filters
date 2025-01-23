@@ -204,6 +204,24 @@
     <ClInclude Include="runtask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cowsite.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntwmi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ntperf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wmiumkm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="runonce.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="desktopp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">
@@ -492,6 +510,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cwndproc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="runonce.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
