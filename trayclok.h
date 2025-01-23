@@ -4,6 +4,8 @@
 // Put a clock in a window.
 //---------------------------------------------------------------------------
 
+#include <Windows.h>
+
 #define WC_TRAYCLOCK TEXT("TrayClockWClass")
 
 BOOL ClockCtl_Class(HINSTANCE hinst);

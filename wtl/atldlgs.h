@@ -2368,6 +2368,261 @@ public:
 
 
 ///////////////////////////////////////////////////////////////////////////////
+// CPrintDialogExImpl - new print dialog for Windows 2000
+
+} // namespace WTL
+
+#include <atlcom.h>
+
+extern "C" const __declspec(selectany) IID IID_IPrintDialogCallback = {0x5852a2c3, 0x6530, 0x11d1, {0xb6, 0xa3, 0x0, 0x0, 0xf8, 0x75, 0x7b, 0xf9}};
+extern "C" const __declspec(selectany) IID IID_IPrintDialogServices = {0x509aaeda, 0x5639, 0x11d1, {0xb6, 0xa1, 0x0, 0x0, 0xf8, 0x75, 0x7b, 0xf9}};
+
+namespace WTL
+{
+
+template <class T>
+class ATL_NO_VTABLE CPrintDialogExImpl : 
+				public ATL::CWindow,
+				public ATL::CMessageMap,
+				public IPrintDialogCallback,
+				public ATL::IObjectWithSiteImpl< T >
+{
+public:
+	PRINTDLGEX m_pdex;
+
+// Constructor
+	CPrintDialogExImpl(DWORD dwFlags = PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_NOSELECTION | PD_NOCURRENTPAGE,
+				HWND hWndParent = NULL)
+	{
+		memset(&m_pdex, 0, sizeof(m_pdex));
+
+		m_pdex.lStructSize = sizeof(PRINTDLGEX);
+		m_pdex.hwndOwner = hWndParent;
+		m_pdex.Flags = dwFlags;
+		m_pdex.nStartPage = START_PAGE_GENERAL;
+		// callback object will be set in DoModal
+
+		m_pdex.Flags &= ~PD_RETURNIC; // do not support information context
+	}
+
+// Operations
+	HRESULT DoModal(HWND hWndParent = ::GetActiveWindow())
+	{
+		ATLASSERT(m_hWnd == NULL);
+		ATLASSERT((m_pdex.Flags & PD_RETURNDEFAULT) == 0);   // use GetDefaults for this
+
+		if(m_pdex.hwndOwner == NULL)   // set only if not specified before
+			m_pdex.hwndOwner = hWndParent;
+
+		T* pT = static_cast<T*>(this);
+		m_pdex.lpCallback = (IUnknown*)(IPrintDialogCallback*)pT;
+
+		HRESULT hResult = ::PrintDlgEx(&m_pdex);
+
+		m_hWnd = NULL;
+
+		return hResult;
+	}
+
+	BOOL EndDialog(INT_PTR /*nRetCode*/ = 0)
+	{
+		ATLASSERT(::IsWindow(m_hWnd));
+		SendMessage(WM_COMMAND, MAKEWPARAM(IDABORT, 0));
+		return TRUE;
+	}
+
+	// GetDefaults will not display a dialog but will get device defaults
+	HRESULT GetDefaults()
+	{
+		ATLASSERT(m_pdex.hDevMode == NULL);    // must be NULL
+		ATLASSERT(m_pdex.hDevNames == NULL);   // must be NULL
+
+		if(m_pdex.hwndOwner == NULL)   // set only if not specified before
+			m_pdex.hwndOwner = ::GetActiveWindow();
+
+		m_pdex.Flags |= PD_RETURNDEFAULT;
+		HRESULT hRet = ::PrintDlgEx(&m_pdex);
+		m_pdex.Flags &= ~PD_RETURNDEFAULT;
+
+		return hRet;
+	}
+
+	// Helpers for parsing information after successful return num. copies requested
+	int GetCopies() const
+	{
+		if((m_pdex.Flags & PD_USEDEVMODECOPIES) != 0)
+		{
+			LPDEVMODE lpDevMode = GetDevMode();
+			return (lpDevMode != NULL) ? lpDevMode->dmCopies : -1;
+		}
+
+		return m_pdex.nCopies;
+	}
+
+	BOOL PrintCollate() const       // TRUE if collate checked
+	{
+		return ((m_pdex.Flags & PD_COLLATE) != 0) ? TRUE : FALSE;
+	}
+
+	BOOL PrintSelection() const     // TRUE if printing selection
+	{
+		return ((m_pdex.Flags & PD_SELECTION) != 0) ? TRUE : FALSE;
+	}
+
+	BOOL PrintAll() const           // TRUE if printing all pages
+	{
+		return (!PrintRange() && !PrintSelection()) ? TRUE : FALSE;
+	}
+
+	BOOL PrintRange() const         // TRUE if printing page range
+	{
+		return ((m_pdex.Flags & PD_PAGENUMS) != 0) ? TRUE : FALSE;
+	}
+
+	BOOL PrintToFile() const        // TRUE if printing to a file
+	{
+		return ((m_pdex.Flags & PD_PRINTTOFILE) != 0) ? TRUE : FALSE;
+	}
+
+	LPDEVMODE GetDevMode() const    // return DEVMODE
+	{
+		if(m_pdex.hDevMode == NULL)
+			return NULL;
+
+		return (LPDEVMODE)::GlobalLock(m_pdex.hDevMode);
+	}
+
+	LPCTSTR GetDriverName() const   // return driver name
+	{
+		if(m_pdex.hDevNames == NULL)
+			return NULL;
+
+		LPDEVNAMES lpDev = (LPDEVNAMES)::GlobalLock(m_pdex.hDevNames);
+		if(lpDev == NULL)
+			return NULL;
+
+		return (LPCTSTR)lpDev + lpDev->wDriverOffset;
+	}
+
+	LPCTSTR GetDeviceName() const   // return device name
+	{
+		if(m_pdex.hDevNames == NULL)
+			return NULL;
+
+		LPDEVNAMES lpDev = (LPDEVNAMES)::GlobalLock(m_pdex.hDevNames);
+		if(lpDev == NULL)
+			return NULL;
+
+		return (LPCTSTR)lpDev + lpDev->wDeviceOffset;
+	}
+
+	LPCTSTR GetPortName() const     // return output port name
+	{
+		if(m_pdex.hDevNames == NULL)
+			return NULL;
+
+		LPDEVNAMES lpDev = (LPDEVNAMES)::GlobalLock(m_pdex.hDevNames);
+		if(lpDev == NULL)
+			return NULL;
+
+		return (LPCTSTR)lpDev + lpDev->wOutputOffset;
+	}
+
+	HDC GetPrinterDC() const        // return HDC (caller must delete)
+	{
+		ATLASSERT((m_pdex.Flags & PD_RETURNDC) != 0);
+		return m_pdex.hDC;
+	}
+
+	// This helper creates a DC based on the DEVNAMES and DEVMODE structures.
+	// This DC is returned, but also stored in m_pdex.hDC as though it had been
+	// returned by CommDlg.  It is assumed that any previously obtained DC
+	// has been/will be deleted by the user.  This may be
+	// used without ever invoking the print/print setup dialogs.
+	HDC CreatePrinterDC()
+	{
+		m_pdex.hDC = _AtlCreateDC(m_pdex.hDevNames, m_pdex.hDevMode);
+		return m_pdex.hDC;
+	}
+
+// Implementation - interfaces
+
+// IUnknown
+	STDMETHOD(QueryInterface)(REFIID riid, void** ppvObject)
+	{
+		if(ppvObject == NULL)
+			return E_POINTER;
+
+		T* pT = static_cast<T*>(this);
+		if(IsEqualGUID(riid, IID_IUnknown) || IsEqualGUID(riid, IID_IPrintDialogCallback))
+		{
+			*ppvObject = (IPrintDialogCallback*)pT;
+			// AddRef() not needed
+			return S_OK;
+		}
+		else if(IsEqualGUID(riid, IID_IObjectWithSite))
+		{
+			*ppvObject = (IObjectWithSite*)pT;
+			// AddRef() not needed
+			return S_OK;
+		}
+
+		return E_NOINTERFACE;
+	}
+
+	virtual ULONG STDMETHODCALLTYPE AddRef()
+	{
+		return 1;
+	}
+
+	virtual ULONG STDMETHODCALLTYPE Release()
+	{
+		return 1;
+	}
+
+// IPrintDialogCallback
+	STDMETHOD(InitDone)()
+	{
+		return S_FALSE;
+	}
+
+	STDMETHOD(SelectionChange)()
+	{
+		return S_FALSE;
+	}
+
+	STDMETHOD(HandleMessage)(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT* plResult)
+	{
+		// set up m_hWnd the first time
+		if(m_hWnd == NULL)
+			Attach(hWnd);
+
+		// call message map
+		HRESULT hRet = ProcessWindowMessage(hWnd, uMsg, wParam, lParam, *plResult, 0) ? S_OK : S_FALSE;
+		if((hRet == S_OK) && (uMsg == WM_NOTIFY))   // return in DWLP_MSGRESULT
+			::SetWindowLongPtr(GetParent(), DWLP_MSGRESULT, (LONG_PTR)*plResult);
+
+		if((uMsg == WM_INITDIALOG) && (hRet == S_OK) && ((BOOL)*plResult != FALSE))
+			hRet = S_FALSE;
+
+		return hRet;
+	}
+};
+
+class CPrintDialogEx : public CPrintDialogExImpl<CPrintDialogEx>
+{
+public:
+	CPrintDialogEx(
+		DWORD dwFlags = PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_NOSELECTION | PD_NOCURRENTPAGE,
+		HWND hWndParent = NULL)
+		: CPrintDialogExImpl<CPrintDialogEx>(dwFlags, hWndParent)
+	{ }
+
+	DECLARE_EMPTY_MSG_MAP()
+};
+
+
+///////////////////////////////////////////////////////////////////////////////
 // CPageSetupDialogImpl - Page Setup dialog
 
 template <class T>

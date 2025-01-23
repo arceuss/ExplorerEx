@@ -1,15 +1,14 @@
+#pragma once
+
 #ifndef _TRAY_H
 #define _TRAY_H
 
 #include "trayp.h"
 #include "cwndproc.h"
 
-#ifdef __cplusplus
-
 #include "traynot.h"
 #include "ssomgr.h"
 
-#include "shundoc.h"
 #include "shundoc.h"
 
 typedef struct tagHWNDANDPLACEMENT
@@ -661,8 +660,5 @@ extern UINT g_uStartButtonAllowPopup;
 
 BOOL _IsSizeMoveEnabled();
 BOOL _IsSizeMoveRestricted();
-
-
-#endif  // __cplusplus
 
 #endif  // _TRAY_H

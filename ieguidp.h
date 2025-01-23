@@ -2,7 +2,7 @@
 #define _IEGUIDP_H_
 
 #ifndef _WIN32_IE
-#define _WIN32_IE 0x0501
+#define _WIN32_IE 0x0600
 #else
 #if (_WIN32_IE < 0x0400) && defined(_WIN32_WINNT) && (_WIN32_WINNT >= 0x0500)
 #error _WIN32_IE setting conflicts with _WIN32_WINNT setting

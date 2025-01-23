@@ -69,10 +69,6 @@ IShellMenu2 : IShellMenu
 MIDL_INTERFACE("EC35E37A-6579-4F3C-93CD-6E62C4EF7636")
 IStartMenuPin : IUnknown
 {
-    #define SMPIN_POS(i) (LPCITEMIDLIST)MAKEINTRESOURCE((i)+1))
-    #define SMPINNABLE_EXEONLY          0x00000001) // allow only EXEs to be pinned
-    #define SMPINNABLE_REJECTSLOWMEDIA  0x00000002) // reject slow media
-
     STDMETHOD(EnumObjects)(THIS_ IEnumIDList * *ppenumIDList) PURE;
     //
     //  Pin:        pidlFrom = NULL, pidlTo = pidl

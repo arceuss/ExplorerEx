@@ -12,6 +12,7 @@
 #pragma warning(disable:4328)    // indirection alignment of formal parameter 1(4) is greater than the actual argument alignment (1)
 
 #define _BROWSEUI_          // See HACKS OF DEATH in sfthost.cpp
+#include <windows.h>
 #include <shlobj.h>
 //#include <shlobjp.h>
 #include "shguidp.h"
@@ -23,7 +24,7 @@
 //#include <varutil.h>
 #include "dpa.h"
 #include <atlbase.h>
-extern CComModule _Module;
+//extern CComModule _Module;
 #include <atlcom.h>
 #include <atlctl.h>
 #include "desktop2.h"

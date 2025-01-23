@@ -69,7 +69,7 @@ BOOL _GetPinnedItemTarget(LPCITEMIDLIST pidl, LPTSTR *ppszPath)
     {
         IShellLink *psl;
         IExtractIcon *pxi;
-        if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlChild, IID_PPV_ARGS(&psl))))
+        if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlChild, IID_IShellLink, nullptr, (void**)&psl)))
         {
             TCHAR szPath[MAX_PATH];
             TCHAR szPathExpanded[MAX_PATH];
@@ -80,7 +80,7 @@ BOOL _GetPinnedItemTarget(LPCITEMIDLIST pidl, LPTSTR *ppszPath)
             }
             psl->Release();
         }
-        else if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlChild, IID_PPV_ARGS(&pxi))))
+        else if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlChild, IID_IExtractIcon, nullptr, (void**)&pxi)))
         {
             // There is no way to get the IAssociationElement directly, so
             // we get the IExtractIcon and then ask him for the IAssociationElement.
