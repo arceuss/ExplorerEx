@@ -1136,7 +1136,6 @@ BOOL CTrayNotify::_DeleteNotify(INT_PTR nIcon, BOOL bShutdown, BOOL bShouldSaveI
     }
     else
     {
-        TraceMsg(TF_ERROR, "Removing nIcon %x - pti is NULL", nIcon);
     }
 
     return bRet;
@@ -2947,7 +2946,6 @@ void CTrayNotify::_OnIconDemoteTimer(WPARAM wParam, LPARAM lParam)
         // It looks like a timer for a now-defunct icon.  Go ahead and kill it.
         // Though we do handle this case, it's odd for it to happen, so spew a
         // warning.
-        TraceMsg(TF_WARNING, "CTrayNotify::_OnIconDemoteTimer -- killing zombie timer %x", lParam);
         _KillTimer(TF_ICONDEMOTE_TIMER, (UINT) lParam);
     }
 }

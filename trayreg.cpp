@@ -13,7 +13,7 @@ BOOL CTrayItemRegistry::_DestroyIconInfoCB(TNPersistStreamData * pData, LPVOID p
     return TRUE;
 }
 
-void CTrayItemRegistry::_QueryRegValue(HKEY hkey, LPTSTR pszValue, ULONG* puVal, ULONG uDefault, DWORD dwValSize)
+void CTrayItemRegistry::_QueryRegValue(HKEY hkey, LPCWSTR pszValue, ULONG* puVal, ULONG uDefault, DWORD dwValSize)
 {
     if (hkey)
     {

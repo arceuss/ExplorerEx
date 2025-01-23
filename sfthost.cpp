@@ -3,6 +3,7 @@
 #include "sfthost.h"
 //#include <shellp.h>
 #include "startmnu.h"
+#include <vssym32.h>
 
 #define TF_HOST     0x00000010
 #define TF_HOSTDD   0x00000040 // drag/drop
@@ -199,8 +200,6 @@ LRESULT SFTBarHost::_OnNcCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         case SPP_PLACESLIST:
             self = SpecList_CreateInstance();
             break;
-        default:
-            TraceMsg(TF_ERROR, "Unknown panetype %d", pspld->iPartId);
     }
 
     if (self)
@@ -212,7 +211,6 @@ LRESULT SFTBarHost::_OnNcCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
         if (FAILED(self->Initialize()))
         {
-            TraceMsg(TF_ERROR, "SFTBarHost::NcCreate Initialize call failed");
             return FALSE;
         }
 
@@ -417,7 +415,6 @@ BOOL SFTBarHost::AddItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlC
 
 void SFTBarHost::_RepositionItems()
 {
-    DEBUG_CODE(_fListUnstable++);
 
     int iItem;
     for (iItem = ListView_GetItemCount(_hwndList) - 1; iItem >= 0; iItem--)
@@ -430,7 +427,6 @@ void SFTBarHost::_RepositionItems()
             ListView_SetItemPosition(_hwndList, iItem, pt.x, pt.y);
         }
     }
-    DEBUG_CODE(_fListUnstable--);
 }
 
 int SFTBarHost::AddImage(HICON hIcon)
@@ -824,7 +820,6 @@ void SFTBarHost::_InternalRepopulateList()
 
     SetWindowRedraw(_hwndList, FALSE);
 
-    DEBUG_CODE(_fPopulating++);
 
     //
     //  To populate the list, we toss the pinned items at the top,
@@ -941,7 +936,6 @@ void SFTBarHost::_InternalRepopulateList()
     //
     _RepositionItems();
 
-    DEBUG_CODE(_fPopulating--);
 
     SetWindowRedraw(_hwndList, TRUE);
 
@@ -1435,9 +1429,7 @@ void SFTBarHost::_EnumerateContentsBackground()
 {
     // Start over
 
-    DEBUG_CODE(_fEnumerating = TRUE);
     EnumItems();
-    DEBUG_CODE(_fEnumerating = FALSE);
 
 #ifdef _ALPHA_
     // Alpha compiler is lame
@@ -3312,7 +3304,6 @@ void SFTBarHost::_ClearInnerDropTarget()
         _pdtDragOver->DragLeave();
         _pdtDragOver->Release();
         _pdtDragOver = NULL;
-        DEBUG_CODE(_iDragState = DRAGSTATE_UNINITIALIZED);
     }
     _SetDragOver(-1);
 }
@@ -3341,11 +3332,9 @@ HRESULT SFTBarHost::_TryInnerDropTarget(int iItem, DWORD grfKeyState, POINTL ptl
                 hr = _pdtDragOver->DragEnter(_pdtoDragIn, grfKeyState, ptl, pdwEffect);
                 if (SUCCEEDED(hr) && *pdwEffect)
                 {
-                    DEBUG_CODE(_iDragState = DRAGSTATE_ENTERED);
                 }
                 else
                 {
-                    DEBUG_CODE(_iDragState = DRAGSTATE_UNINITIALIZED);
                     ATOMICRELEASE(_pdtDragOver);
                 }
             }

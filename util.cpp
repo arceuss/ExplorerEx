@@ -232,7 +232,6 @@ DWORD GetMinDisplayRes(void)
         {
             StrCatBuff(ach, c_szSlashDisplaySettings, ARRAYSIZE(ach));  // 0000\Display\Settings
 
-            TraceMsg(TF_TRAY, "GetMinDisplayRes: found config %s", ach);
 
             if (RegOpenKeyEx(hkey, ach, 0, KEY_READ, &hkeyT) == ERROR_SUCCESS)
             {
@@ -240,7 +239,6 @@ DWORD GetMinDisplayRes(void)
                 ach[0] = 0;
                 RegQueryValueEx(hkeyT, c_szResolution, 0, NULL, (LPBYTE) &ach[0], &cb);
 
-                TraceMsg(TF_TRAY, "GetMinDisplayRes: found res %s", ach);
 
                 if (ach[0])
                 {
@@ -269,7 +267,6 @@ DWORD GetMinDisplayRes(void)
         RegCloseKey(hkey);
     }
 
-    TraceMsg(TF_TRAY, "GetMinDisplayRes: xres=%d yres=%d", xres, yres);
 
     if (xres == 0 || yres == 0)
         return MAKELONG(640, 480);

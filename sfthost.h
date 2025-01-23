@@ -15,6 +15,8 @@
 #include "shundoc.h"
 #include <cabinet.h>
 
+#define FT_ONEHOUR             ((unsigned __int64)10000000 * 3600)
+
 //****************************************************************************
 //
 //  Miscellaneous helper functions

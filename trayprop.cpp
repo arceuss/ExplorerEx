@@ -1315,7 +1315,6 @@ BOOL CCustomizeSPPropSheet::OnCommand(UINT id, UINT code, HWND hwndCtl, HWND hwn
 
 BOOL CCustomizeSPPropSheet::OnGeneralApply(HWND hDlg)
 {
-    TraceMsg(TF_ALWAYS, "cspps.General apply", _bDirtyTree);
 
     _WriteStartPageSetting(REGSTR_VAL_DV2_LARGEICONS,  _bLargeIcons);
 
@@ -1349,7 +1348,6 @@ BOOL_PTR CCustomizeSPPropSheet::OnAdvancedNotify(HWND hwndDlg, NMHDR * pnm)
     switch (pnm->code)
     {
         case PSN_APPLY:
-            TraceMsg(TF_ALWAYS, "cspps.Advanced apply - _bDirtyTree=%d", _bDirtyTree);
             if (_bDirtyTree)
             {
                 _prto->WalkTree(WALK_TREE_SAVE);
@@ -1837,7 +1835,6 @@ BOOL_PTR CTaskBarPropertySheet::StartMenuDlgProc(HWND hDlg, UINT uMsg, WPARAM wP
             {
                 if (FAILED(CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_Adv.pTO))))
                 {
-                    TraceMsg(TF_WARNING, "ctbps failed to create CRegTreeOptions");
                     break;
                 }
 

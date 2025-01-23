@@ -677,7 +677,6 @@ HMENU GetStaticStartMenu(BOOL fEdit)
     }
     else
     {
-        DebugMsg(DM_ERROR, TEXT("c.fm_rui: Settings menu couldn't be found. Restricted items may not have been removed."));
     }
 
     // Find menu.

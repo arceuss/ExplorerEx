@@ -203,7 +203,6 @@ LRESULT CMorePrograms::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     // truncate the indent, if the text won't fit in the given area
     if (_cxTextIndent > RECTWIDTH(rc) - (_cxText + _cxArrow))
     {
-        TraceMsg(TF_WARNING, "StartMenu: '%s' is %dpx, only room for %d- notify localizers!",_szMessage, _cxText, RECTWIDTH(rc)-(_cxArrow+_cxTextIndent));
         _cxTextIndent = max(0, RECTWIDTH(rc) - (_cxText + _cxArrow));
     }
 

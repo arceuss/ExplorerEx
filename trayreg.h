@@ -184,7 +184,7 @@ class CTrayItemRegistry
 
         BOOL _IsAutoTrayEnabledInRegistry();
 
-        void _QueryRegValue(HKEY hkey, LPTSTR pszValue, ULONG* puVal, ULONG uDefault, DWORD dwValSize);
+        void _QueryRegValue(HKEY hkey, LPCWSTR pszValue, ULONG* puVal, ULONG uDefault, DWORD dwValSize);
 
         void _RestorePersistentIconSettings(TNPersistStreamData * ptnpd, CTrayItem * pti);
 

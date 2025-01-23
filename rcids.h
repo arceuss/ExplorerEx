@@ -487,6 +487,8 @@
 #define IDM_LOCKTASKBAR             424
 
 #define IDM_SEP2                    450
+#define IDM_SIZEUP              427
+#define IDM_SIZEDOWN            428
 
 #ifdef WINNT // hydra specific ids
 // unused                           5000

@@ -96,6 +96,10 @@ public:
     void LockPopup()
     {
         ASSERT(!IsLocked()); // enforce mutex hierarchy;
+
+        using fnSHWaitForSendMessageThread = DWORD(WINAPI*)(HANDLE, DWORD);
+        fnSHWaitForSendMessageThread SHWaitForSendMessageThread;
+        SHWaitForSendMessageThread = reinterpret_cast<fnSHWaitForSendMessageThread>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(194)));
         SHWaitForSendMessageThread(_hPopupReady, INFINITE);
     }
     void UnlockPopup()
@@ -266,7 +270,7 @@ public:        // Methods required by SFTBarHost
     HRESULT ContextMenuDeleteItem(PaneItem *pitem, IContextMenu *pcm, CMINVOKECOMMANDINFOEX *pici);
     HRESULT ContextMenuInvokeItem(PaneItem *pitem, IContextMenu *pcm, CMINVOKECOMMANDINFOEX *pici, LPCTSTR pszVerb);
     HRESULT ContextMenuRenameItem(PaneItem *pitem, LPCTSTR ptszNewName);
-    LPTSTR DisplayNameOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGNO shgno);
+    LPTSTR DisplayNameOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem, _SHGDNF shgno);
     LPTSTR SubtitleOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem);
     HRESULT MovePinnedItem(PaneItem *pitem, int iInsert);
     void PrePopulate();
@@ -376,7 +380,7 @@ private:        // Methods required by SFTBarHost
     LRESULT OnWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { return _byUsage.OnWndProc(hwnd, uMsg, wParam, lParam); }
     HRESULT ContextMenuInvokeItem(PaneItem *pitem, IContextMenu *pcm, CMINVOKECOMMANDINFOEX *pici, LPCTSTR pszVerb) { return _byUsage.ContextMenuInvokeItem(pitem, pcm, pici, pszVerb); }
     HRESULT ContextMenuRenameItem(PaneItem *pitem, LPCTSTR ptszNewName) { return _byUsage.ContextMenuRenameItem(pitem, ptszNewName); }
-    LPTSTR DisplayNameOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGNO shgno) { return _byUsage.DisplayNameOfItem(pitem, psf, pidlItem, shgno); }
+    LPTSTR DisplayNameOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem, _SHGDNF shgno) { return _byUsage.DisplayNameOfItem(pitem, psf, pidlItem, shgno); }
     LPTSTR SubtitleOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem) { return _byUsage.SubtitleOfItem(pitem, psf, pidlItem); }
     HRESULT MovePinnedItem(PaneItem *pitem, int iInsert) { return _byUsage.MovePinnedItem(pitem, iInsert); }
     void PrePopulate() { _byUsage.PrePopulate(); }

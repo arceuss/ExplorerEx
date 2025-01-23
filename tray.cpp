@@ -41,7 +41,7 @@
 #include "shundoc.h"
 
 #include "vssym32.h"
-
+#include <CommCtrl.h>
 #include "startids.h"
 
 #define DM_FOCUS        0           // focus
@@ -1735,7 +1735,6 @@ void CTray::_UpdateVertical(UINT uStuckPlace, BOOL fForce)
     {
         _uOldStuckPlace = uStuckPlace;
 
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_uv tray is now %s"), STUCK_HORIZONTAL(uStuckPlace) ? TEXT("HORIZONTAL") : TEXT("VERTICAL"));
 
         if (_ptbs)
         {
@@ -1982,7 +1981,7 @@ UINT CTray::_HotkeyGetFreeItemIndex(void)
     int i, cItems;
     HOTKEYITEM *phki;
 
-    ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
+    ASSERT(_hdsaHKI != NULL);
 
     cItems = DSA_GetItemCount(_hdsaHKI);
     for (i=0; i<cItems; i++)
@@ -2029,7 +2028,7 @@ int CTray::HotkeyAdd(WORD wHotkey, LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlI
 
         int i = _HotkeyGetFreeItemIndex();
 
-        ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
+        ASSERT(_hdsaHKI != NULL);
 
         // DebugMsg(DM_IANELHK, "c.hl_a: Hotkey %x with id %d.", wHotkey, i);
 
@@ -2069,7 +2068,7 @@ int CTray::_HotkeyAddCached(WORD wGHotkey, LPITEMIDLIST pidl)
     {
         LPITEMIDLIST pidlItem = ILClone(ILFindLastID(pidl));
 
-        ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
+        ASSERT(_hdsaHKI!= NULL);
 
         if (pidlItem)
         {
@@ -2108,7 +2107,7 @@ int CTray::_HotkeyRemove(WORD wHotkey)
         HOTKEYITEM *phki;
         WORD wGHotkey;
 
-        ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
+        ASSERT(_hdsaHKI != NULL);
 
         // DebugMsg(DM_IANELHK, "c.hl_r: Remove hotkey for %x" , wHotkey);
 
@@ -2152,7 +2151,7 @@ int CTray::_HotkeyRemoveCached(WORD wGHotkey)
     int i, cItems;
     HOTKEYITEM *phki;
 
-    ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
+    ASSERT(_hdsaHKI != NULL);
 
     // DebugMsg(DM_IANELHK, "c.hl_rc: Remove hotkey for %x" , wGHotkey);
 
@@ -2251,7 +2250,6 @@ void CTray::_BuildStartMenu()
 
     if (FAILED(hr))
     {
-        TraceMsg(TF_ERROR, "Could not create StartMenu");
     }
 }
 
@@ -2383,7 +2381,6 @@ void CTray::_ToolbarMenu()
     // form.  In such case, rebuild it now.
     if (!*ppmpToDisplay)
     {
-        TraceMsg(TF_WARNING, "e.tbm: Rebuilding Start Menu");
         _BuildStartMenu();
     }
 
@@ -2391,11 +2388,9 @@ void CTray::_ToolbarMenu()
     if (*ppmpToDisplay && SUCCEEDED((*ppmpToDisplay)->Popup(&ptPop, &rcExclude, dwFlags)))
     {
         // All is well - the menu is up
-        TraceMsg(DM_MISC, "e.tbm: dwFlags=%x (0=mouse 1=key)", dwFlags);
     }
     else
     {
-        TraceMsg(TF_WARNING, "e.tbm: %08x->Popup failed", *ppmpToDisplay);
         // Start Menu failed to display -- reset the Start Button
         // so the user can click it again to try again
         Tray_OnStartMenuDismissed();
@@ -2558,13 +2553,11 @@ int CTray::_RecomputeWorkArea(HWND hwndCause, HMONITOR hmon, LPRECT prcWork)
 void RedrawDesktop(RECT *prcWork)
 {
     // This rect point should always be valid (dli)
-    RIP(prcWork);
     
     if (v_hwndDesktop && g_fCleanBoot)
     {
         MapWindowRect(NULL, v_hwndDesktop, prcWork);
 
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac invalidating desktop rect {%d,%d,%d,%d}"), prcWork->left, prcWork->top, prcWork->right, prcWork->bottom);
         RedrawWindow(v_hwndDesktop, prcWork, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
     }
 }
@@ -2582,7 +2575,6 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
     //  reenter count so we can avoid pain of sending notifies to the whole
     //  planet...
     //
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac from_AppBar %08X"), hwndCause);
 
     //
     // see if the work area changed on the display containing prcOld
@@ -2594,7 +2586,6 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
         else
             hmon1 = MonitorFromRect(prcOld, MONITOR_DEFAULTTONEAREST);
 
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac old pos {%d,%d,%d,%d} on monitor %08X"), prcOld->left, prcOld->top, prcOld->right, prcOld->bottom, hmon1);
 
         if (hmon1)
         {
@@ -2615,7 +2606,6 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
     {
         hmon2 = MonitorFromRect(prcNew, MONITOR_DEFAULTTONULL);
 
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac new pos {%d,%d,%d,%d} on monitor %08X"), prcNew->left, prcNew->top, prcNew->right, prcNew->bottom, hmon2);
 
         if (hmon2 && (hmon2 != hmon1))
         {
@@ -2632,7 +2622,6 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
     //
     if (iChange & 1)
     {
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac changing work area for monitor %08X"), hmon1);
 
         // only send SENDWININICHANGE if the desktop has been created (otherwise
         // we will hang the explorer because the main thread is currently blocked)
@@ -2647,7 +2636,6 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
     //
     if (iChange & 2)
     {
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac changing work area for monitor %08X"), hmon2);
 
         // only send SENDWININICHANGE if the desktop has been created (otherwise
         // we will hang the explorer because the main thread is currently blocked)
@@ -2694,7 +2682,6 @@ UINT CTray::_RecalcStuckPos(LPRECT prc)
 
     if (!prc)
     {
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_rsp no rect supplied, using window rect"));
 
         prc = &rcDummy;
         GetWindowRect(_hwnd, prc);
@@ -2704,7 +2691,6 @@ UINT CTray::_RecalcStuckPos(LPRECT prc)
     pt.x = prc->left + RECTWIDTH(*prc) / 2;
     pt.y = prc->top + RECTHEIGHT(*prc) / 2;
 
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_rsp rect is {%d, %d, %d, %d} point is {%d, %d}"), prc->left, prc->top, prc->right, prc->bottom, pt.x, pt.y);
 
     // reset this so the drag code won't give it preference
     _uMoveStuckPlace = (UINT)-1;
@@ -2786,7 +2772,6 @@ UINT CTray::_CalcDragPlace(POINT pt)
 {
     UINT uPlace = _uMoveStuckPlace;
 
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_cdp starting point is {%d, %d}"), pt.x, pt.y);
 
     //
     // if the mouse is currently over the tray position leave it alone
@@ -2804,7 +2789,6 @@ UINT CTray::_CalcDragPlace(POINT pt)
         hmonDrag = _GetDisplayRectFromPoint(&rcDisplay, pt,
             MONITOR_DEFAULTTOPRIMARY);
 
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_cdp monitor is %08X"), hmonDrag);
 
         //
         // re-origin at zero to make calculations simpler
@@ -2857,12 +2841,10 @@ UINT CTray::_CalcDragPlace(POINT pt)
         if ((hmonDrag != _GetDisplayRectFromRect(NULL, prcStick,
             MONITOR_DEFAULTTONULL)))
         {
-            DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_cdp re-snapping rect for new display"));
             _MakeStuckRect(prcStick, &rcDisplay, _sStuckWidths, uPlace);
         }
     }
 
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_cdp edge is %d, rect is {%d, %d, %d, %d}"), uPlace, _arStuckRects[uPlace].left, _arStuckRects[uPlace].top, _arStuckRects[uPlace].right, _arStuckRects[uPlace].bottom);
     ASSERT(IsValidSTUCKPLACE(uPlace));
     return uPlace;
 }
@@ -2994,7 +2976,6 @@ void CTray::_HandleSize()
     //
 #ifdef DEBUG
     if (_fSysSizing && (_uAutoHide & AH_HIDING)) {
-        TraceMsg(DM_TRACE, "fSysSize && hiding");
         ASSERT(0);
     }
 #endif
@@ -3135,12 +3116,10 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
     // compute an initial size
     //
     _MakeStuckRect(lprc, &rcDisplay, sNewWidths, uStuckPlace);
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs starting rect is {%d, %d, %d, %d}"), lprc->left, lprc->top, lprc->right, lprc->bottom);
 
     //
     // negotiate the exact size with our children
     //
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs tray is being calculated for %s"), STUCK_HORIZONTAL(uStuckPlace) ? TEXT("HORIZONTAL") : TEXT("VERTICAL"));
 
     _UpdateVertical(uStuckPlace);
     if (_ptbs)
@@ -3165,7 +3144,6 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
             // Make rcClient start at 0,0, Rebar only used the right and bottom values of this rect
             OffsetRect(&rcClient, -rcClient.left, -rcClient.top);
             OffsetRect(&rcOldClient, -rcOldClient.left, -rcOldClient.top);
-            DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs starting client rect is {%d, %d, %d, %d}"), rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
 
             RECT rcNotify;
             RECT rcView;
@@ -3197,7 +3175,6 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
                 rcClient.right = rcView.right;
             }
 
-            DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs ending client rect is {%d, %d, %d, %d}"), rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
             if (_hTheme && (_fCanSizeMove || _fShowSizingBarAlways))
             {
                 _AdjustRectForSizingBar(uStuckPlace, &rcClient, 1);
@@ -3242,7 +3219,6 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
         _MakeStuckRect(lprc, &rcDisplay, sNewWidths, uStuckPlace);
     }
 
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs final rect is {%d, %d, %d, %d}"), lprc->left, lprc->top, lprc->right, lprc->bottom);
 
     //
     // store the new size in the appropriate StuckRect
@@ -3423,12 +3399,10 @@ void CTray::_SlideWindow(HWND hwnd, RECT *prc, BOOL fShow)
 
     if (!IsWindowVisible(hwnd))
     {
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sw window is hidden, just moving"));
         MoveWindow(_hwnd, prc->left, prc->top, RECTWIDTH(*prc), RECTHEIGHT(*prc), FALSE);
         return;
     }
 
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sw -----------------BEGIN-----------------"));
 
     if (GetSystemMetrics(SM_CMONITORS) > 1)
     {
@@ -3511,7 +3485,6 @@ void CTray::_SlideWindow(HWND hwnd, RECT *prc, BOOL fShow)
     if (fShow)
         UpdateWindow(hwnd);
 
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sw ------------------END------------------"));
 }
 
 void CTray::_UnhideNow()
@@ -3641,7 +3614,6 @@ void CTray::_ClipWindow(BOOL fClipState)
 
     if (_fSelfSizing || _fSysSizing)
     {
-        TraceMsg(TF_WARNING, "_ClipWindow: _fSelfSizing %x, _fSysSizing %x", _fSelfSizing, _fSysSizing);
         return;
     }
 
@@ -3667,7 +3639,6 @@ void CTray::_Hide()
     // don't hide
     if (_uModalMode == MM_SHUTDOWN)
     {
-        TraceMsg(TF_TRAY, "e.th: suppress hide (shutdown || Notify)");
         return;
     }
 
@@ -3693,7 +3664,6 @@ void CTray::_Hide()
 
 void CTray::_AutoHideCollision()
 {
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_ahc COLLISION! (posting UI request)"));
 
     PostMessage(_hwnd, TM_WARNNOAUTOHIDE, ((_uAutoHide & AH_ON) != 0),
         0L);
@@ -3706,7 +3676,6 @@ LONG CTray::_SetAutoHideState(BOOL fAutoHide)
     //
     if ((fAutoHide != 0) == ((_uAutoHide & AH_ON) != 0))
     {
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sahs nothing to do"));
         return MAKELONG(FALSE, TRUE);
     }
 
@@ -3731,7 +3700,6 @@ LONG CTray::_SetAutoHideState(BOOL fAutoHide)
         // _Hide updates the flags for us (sanity)
         if (!(_uAutoHide & AH_ON))
         {
-            TraceMsg(DM_WARNING, "e.sahs: !AH_ON"); // ok to fail on boot/shutdown
         }
 #endif
     }
@@ -3890,7 +3858,6 @@ void CTray::_StartButtonReset()
 
 void CTray::_OnNewSystemSizes()
 {
-    TraceMsg(TF_TRAY, "Handling win ini change.");
     _StartButtonReset();
     VerifySize(TRUE);
 }
@@ -3914,7 +3881,6 @@ int WINAPI CTray::CheckWndPosEnumProc(void *pItem, void *pData)
             pI2->fRestore = FALSE;
     }
 
-    TraceMsg(TF_TRAY, "cwp: (hwnd=0x%x) fRestore=%d", pI2->hwnd, pI2->fRestore);
 
     return 1;   // 1:continue enum
 }
@@ -4128,7 +4094,6 @@ LRESULT CTray::_HandleDestroy()
 {
     MINIMIZEDMETRICS mm;
 
-    TraceMsg(DM_SHUTDOWN, "_HD: enter");
 
     mm.cbSize = sizeof(mm);
     SystemParametersInfo(SPI_GETMINIMIZEDMETRICS, sizeof(mm), &mm, FALSE);
@@ -4240,7 +4205,6 @@ LRESULT CTray::_HandleDestroy()
     _hwndStart = NULL;
 
 
-    TraceMsg(DM_SHUTDOWN, "_HD: leave");
     return 0;
 }
 
@@ -4271,7 +4235,6 @@ void CTray::_ActAsSwitcher()
         s_iRecurse++;
 
         ASSERT(s_iRecurse < TRIEDTOOMANYTIMES);
-        TraceMsg(TF_TRAY, "s_iRecurse = %d", s_iRecurse);
 
         hwndForeground = GetForegroundWindow();
         hwndActive = GetActiveWindow();
@@ -4340,10 +4303,6 @@ void CTray::_OnWinIniChange(HWND hwnd, WPARAM wParam, LPARAM lParam)
     if (wParam == SPI_SETNONCLIENTMETRICS || (!wParam && (!lParam || (lstrcmpi((LPTSTR)lParam, TEXT("WindowMetrics")) == 0))))
     {
 #ifdef DEBUG
-        if (wParam == SPI_SETNONCLIENTMETRICS)
-            TraceMsg(TF_TRAY, "c.t_owic: Non-client metrics (probably) changed.");
-        else
-            TraceMsg(TF_TRAY, "c.t_owic: Window metrics changed.");
 #endif
 
         _OnNewSystemSizes();
@@ -4352,7 +4311,6 @@ void CTray::_OnWinIniChange(HWND hwnd, WPARAM wParam, LPARAM lParam)
     // Handle old extensions.
     if (!lParam || (lParam && (lstrcmpi((LPTSTR)lParam, TEXT("Extensions")) == 0)))
     {
-        TraceMsg(TF_TRAY, "t_owic: Extensions section change.");
         CheckWinIniForAssocs();
     }
 
@@ -4386,7 +4344,6 @@ HWND CTray::_HotkeyInUse(WORD wHK)
 
     wHKNew = (WORD)((nMod*256)+LOBYTE(wHK));
 
-    DebugMsg(DM_IANELHK, TEXT("c.hkl_hiu: Checking for %x"), wHKNew);
     hwnd = GetWindow(GetDesktopWindow(), GW_CHILD);
     while (hwnd)
     {
@@ -4395,7 +4352,6 @@ HWND CTray::_HotkeyInUse(WORD wHK)
         {
 #ifdef DEBUG
             GetWindowText(hwnd, sz, ARRAYSIZE(sz));
-            DebugMsg(DM_IANELHK, TEXT("c.hkl_hiu: %s (%x) is using %x"), sz, hwnd, lrHKInUse);
 #endif
             return hwnd;
         }
@@ -4403,7 +4359,6 @@ HWND CTray::_HotkeyInUse(WORD wHK)
         else if (lrHKInUse)
         {
             GetWindowText(hwnd, sz, ARRAYSIZE(sz));
-            DebugMsg(DM_IANELHK, TEXT("c.hkl_hiu: %s (%x) is using %x"), sz, hwnd, lrHKInUse);
         }
 #endif
         hwnd = GetWindow(hwnd, GW_HWNDNEXT);
@@ -4413,17 +4368,15 @@ HWND CTray::_HotkeyInUse(WORD wHK)
 
 void CTray::_HandleHotKey(int nID)
 {
-    TraceMsg(TF_TRAY, "c.hkl_hh: Handling hotkey (%d).", nID);
 
     // Find it in the list.
-    ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
+    ASSERT(_hdsaHKI != NULL);
 
     EnterCriticalSection(&_csHotkey);
 
     HOTKEYITEM *phki = (HOTKEYITEM *)DSA_GetItemPtr(_hdsaHKI, nID);
     if (phki && phki->wGHotkey)
     {
-        TraceMsg(TF_TRAY, "c.hkl_hh: Hotkey listed.");
 
         // Are global hotkeys enabled?
         if (!_fGlobalHotkeyDisable)
@@ -4433,7 +4386,6 @@ void CTray::_HandleHotKey(int nID)
             // Make sure this hotkey isn't already in use by someone.
             if (hwnd)
             {
-                TraceMsg(TF_TRAY, "c.hkl_hh: Hotkey is already in use.");
                 // Activate it.
                 SwitchToThisWindow(GetLastActivePopup(hwnd), TRUE);
             }
@@ -4442,37 +4394,31 @@ void CTray::_HandleHotKey(int nID)
                 HCURSOR hcursor_wait_cursor_save;
                 // Exec the item.
                 SetCursor(LoadCursor(0, IDC_WAIT));
-                TraceMsg(TF_TRAY, "c.hkl_hh: Hotkey is not in use, execing item.");
                 ASSERT(phki->pidlFolder && phki->pidlItem);
                 BOOL fRes = _ExecItemByPidls(_hwnd, phki->pidlFolder, phki->pidlItem);
                 SetCursor(hcursor_wait_cursor_save);
 #ifdef DEBUG
                 if (!fRes)
                 {
-                    DebugMsg(DM_ERROR, TEXT("c.hkl_hh: Can't exec command ."));
                 }
 #endif
             }
         }
         else
         {
-            DebugMsg(DM_ERROR, TEXT("c.hkl_hh: Global hotkeys have been disabled."));
         }
     }
     else
     {
-        DebugMsg(DM_ERROR, TEXT("c.hkl_hh: Hotkey not listed."));
     }
     LeaveCriticalSection(&_csHotkey);
 }
 
 LRESULT CTray::_UnregisterHotkey(HWND hwnd, int i)
 {
-    TraceMsg(TF_TRAY, "c.t_uh: Unregistering hotkey (%d).", i);
 
     if (!UnregisterHotKey(hwnd, i))
     {
-        DebugMsg(DM_ERROR, TEXT("c.t_rh: Unable to unregister hotkey %d."), i);
     }
     return TRUE;
 }
@@ -4487,7 +4433,6 @@ LRESULT CTray::_ShortcutRegisterHotkey(HWND hwnd, WORD wHotkey, ATOM atom)
 
     if (GlobalGetAtomName(atom, szPath, MAX_PATH))
     {
-        TraceMsg(TF_TRAY, "c.t_srh: Hotkey %d for %s", wHotkey, szPath);
 
         pidl = ILCreateFromPath(szPath);
         if (pidl)
@@ -4525,9 +4470,8 @@ LRESULT CTray::_RegisterHotkey(HWND hwnd, int i)
     HOTKEYITEM *phki;
     WORD wGHotkey = 0;
 
-    ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
+    ASSERT(_hdsaHKI != NULL);
 
-    TraceMsg(TF_TRAY, "c.t_rh: Registering hotkey (%d).", i);
 
     EnterCriticalSection(&_csHotkey);
 
@@ -4567,7 +4511,6 @@ LRESULT CTray::_RegisterHotkey(HWND hwnd, int i)
         }
 
         // Can't set hotkey for this item.
-        DebugMsg(DM_ERROR, TEXT("c.t_rh: Unable to register hotkey %d."), i);
         // Null out this item.
         phki->wGHotkey = 0;
         phki->pidlFolder = NULL;
@@ -4575,7 +4518,6 @@ LRESULT CTray::_RegisterHotkey(HWND hwnd, int i)
     }
     else
     {
-        DebugMsg(DM_ERROR, TEXT("c.t_rh: Hotkey item is invalid."));
     }
     return FALSE;
 }
@@ -5022,11 +4964,9 @@ BOOL IsPosInHwnd(LPARAM lParam, HWND hwnd)
 
 void CTray::_HandleWindowPosChanging(LPWINDOWPOS lpwp)
 {
-    DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hwpc"));
 
     if (_uMoveStuckPlace != (UINT)-1)
     {
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hwpc handling pending move"));
         _DoneMoving(lpwp);
     }
     else if (_fSysSizing || !_fSelfSizing)
@@ -5047,7 +4987,6 @@ void CTray::_HandleWindowPosChanging(LPWINDOWPOS lpwp)
                 rc.bottom = rc.top + lpwp->cy;
             }
 
-            DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hwpc sys sizing to rect {%d, %d, %d, %d}"), rc.left, rc.top, rc.right, rc.bottom);
 
             _uStuckPlace = _RecalcStuckPos(&rc);
             _UpdateVertical(_uStuckPlace);
@@ -5055,7 +4994,6 @@ void CTray::_HandleWindowPosChanging(LPWINDOWPOS lpwp)
 
         _GetDockedRect(&rc, _fSysSizing);
 
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hwpc using rect {%d, %d, %d, %d}"), rc.left, rc.top, rc.right, rc.bottom);
 
         lpwp->x = rc.left;
         lpwp->y = rc.top;
@@ -5452,7 +5390,6 @@ void CTray::_OnFocusMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             int dtb = (int) lParam;
 
-            TraceMsg(DM_FOCUS, "tiois: TM_UIActIO fAct=%d dtb=%d", fActivate, dtb);
 
             ASSERT(dtb == 1 || dtb == -1);
         }
@@ -5491,7 +5428,6 @@ Ldeact:
     {
         HWND hwnd = (HWND) lParam;
 
-        TraceMsg(DM_FOCUS, "tiois: TM_OnFocChgIS hwnd=%x fAct=%d", hwnd, fActivate);
 
         if (fActivate)
         {
@@ -5531,27 +5467,22 @@ int CTray::_OnTimerService(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     switch (uMsg) {
     case TM_SETTIMER:
-        TraceMsg(DM_UEMTRACE, "e.TM_SETTIMER: wP=0x%x lP=%x", wParam, lParam);
         ASSERT(IS_VALID_CODE_PTR(lParam, TIMERPROC));
         for (i = 0; i < TSVC_NTIMER; i++) {
             if (g_timerService[i].pfnSvc == 0) {
                 g_timerService[i].pfnSvc = (TIMERPROC)lParam;
                 idt = SetTimer(_hwnd, TSVC_IndexToID(i), (UINT)wParam, 0);
                 if (idt == 0) {
-                    TraceMsg(DM_UEMTRACE, "e.TM_SETTIMER: ST()=%d (!)", idt);
                     break;
                 }
                 ASSERT(idt == (UINT_PTR)TSVC_IndexToID(i));
                 DBEXEC(TRUE, (g_timerService[i].idtWin = idt));
-                TraceMsg(DM_UEMTRACE, "e.TM_SETTIMER: ret=0x%x", TSVC_IndexToID(i));
                 return TSVC_IndexToID(i);   // idtWin
             }
         }
-        TraceMsg(DM_UEMTRACE, "e.TM_SETTIMER: ret=0 (!)");
         return 0;
 
     case TM_KILLTIMER:  // lP=idtWin
-        TraceMsg(DM_UEMTRACE, "e.TM_KILLTIMER: wP=0x%x lP=%x", wParam, lParam);
         if (EVAL(IDT_SERVICE0 <= lParam && lParam <= IDT_SERVICE0 + TSVC_NTIMER - 1)) {
             i = (int)TSVC_IDToIndex(lParam);
             if (g_timerService[i].pfnSvc) {
@@ -5566,7 +5497,6 @@ int CTray::_OnTimerService(UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_TIMER:      // wP=idtWin lP=0
-        TraceMsg(DM_UEMTRACE, "e.TM_TIMER: wP=0x%x lP=%x", wParam, lParam);
         if (EVAL(IDT_SERVICE0 <= wParam && wParam <= IDT_SERVICE0 + TSVC_NTIMER - 1)) {
             i = (int)TSVC_IDToIndex(wParam);
             pfn = g_timerService[i].pfnSvc;
@@ -6211,7 +6141,6 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 #ifdef DEBUG
     case WM_QUERYENDSESSION:
-        TraceMsg(DM_SHUTDOWN, "Tray.wp WM_QUERYENDSESSION");
         goto DoDefault;
 #endif
 
@@ -6401,7 +6330,6 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_ENTERSIZEMOVE:
-        DebugMsg(DM_TRAYDOCK, TEXT("Tray -- WM_ENTERSIZEMOVE"));
         g_fInSizeMove = TRUE;
         GetCursorPos((LPPOINT)&_rcSizeMoveIgnore);
         _rcSizeMoveIgnore.right = _rcSizeMoveIgnore.left;
@@ -6430,7 +6358,6 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_EXITSIZEMOVE:
-        DebugMsg(DM_TRAYDOCK, TEXT("Tray -- WM_EXITSIZEMOVE"));
 
         // done sizing
         _fSysSizing = FALSE;
@@ -6524,7 +6451,6 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
 
         if (lParam)
-            TraceMsg(TF_TRAY, "Tray Got: lParam=%s", (LPCSTR)lParam);
 
         break;
 
@@ -6625,8 +6551,6 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case TM_WARNNOAUTOHIDE:
-        DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.twp collision UI request"));
-
         //
         // this may look a little funny but what we do is post this message all
         // over the place and ignore it when we think it is a bad time to put
@@ -6644,7 +6568,6 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-            DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.twp blowing off extraneous collision UI request"));
         }
         break;
 
@@ -6961,8 +6884,8 @@ void CTray::_DoExitWindows(HWND hwnd)
             // ??? - Used to destroy all cabinets...
             // PostQuitMessage(0);
             g_fFakeShutdown = TRUE; // Don't blow away session state; the session will survive
-            TraceMsg(TF_TRAY, "c.dew: Posting quit message for tid=%#08x hwndDesk=%x(IsWnd=%d) hwndTray=%x(IsWnd=%d)", GetCurrentThreadId(),
-            v_hwndDesktop,IsWindow(v_hwndDesktop), _hwnd,IsWindow(_hwnd));
+            // what
+            //v_hwndDesktop,IsWindow(v_hwndDesktop), _hwnd,IsWindow(_hwnd)); 
             // 1 means close all the shell windows too
             PostMessage(v_hwndDesktop, WM_QUIT, 0, 1);
             PostMessage(_hwnd, WM_QUIT, 0, 0);
@@ -7752,7 +7675,6 @@ void CTray::_RunDlg()
             if (hEvent)
             {
                 SHProcessMessagesUntilEvent(NULL, hEvent, 10 * 1000);
-                DebugMsg(DM_TRACE, TEXT("c.t_rd: Done waiting."));
             }
         }
 
@@ -9146,10 +9068,8 @@ HRESULT CDeskTray::SetVar(int var, DWORD value)
 {
     extern BOOL g_fExitExplorer;
 
-    TraceMsg(DM_TRACE, "c.cdt_sv: set var(%d):=%d", var, value);
     switch (var) {
     case 0:
-        TraceMsg(DM_TRACE, "c.cdt_sv: set g_fExitExplorer:=%d", value);
         g_fExitExplorer = value;
         WriteCleanShutdown(1);
         break;

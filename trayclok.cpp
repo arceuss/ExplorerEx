@@ -3,6 +3,7 @@
 #include "tray.h"
 #include "util.h"
 #include "strsafe.h"
+#include <vssym32.h>
 
 class CClockCtl : public CImpWndProc
 {
@@ -255,7 +256,7 @@ LRESULT CClockCtl::_DoPaint(BOOL fPaint)
     DWORD dtNextTick = 0;
     BOOL fDoTimer;
     HDC hdc;
-    HBITMAP hMemBm, hOldBm;
+    HBITMAP hMemBm, hOldBm = NULL;
 
     //
     // If we are asked to paint and the clock is not running then start it.
@@ -329,7 +330,7 @@ LRESULT CClockCtl::_DoPaint(BOOL fPaint)
             HFONT hfontOld;
 
             if (_hfontCapNormal)
-                hfontOld = SelectFont(hdc, _hfontCapNormal);
+                hfontOld = (HFONT)SelectObject(hdc, _hfontCapNormal);
 
             SetBkColor(hdc, GetSysColor(COLOR_3DFACE));
             SetTextColor(hdc, GetSysColor(COLOR_BTNTEXT));
@@ -566,7 +567,6 @@ LRESULT CClockCtl::_CalcMinSize(int cxMax, int cyMax)
         if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STIMEFORMAT, _szTimeFmt,
             ARRAYSIZE(_szTimeFmt)) == 0)
         {
-            TraceMsg(TF_ERROR, "c.ccms: GetLocalInfo Failed %d.", GetLastError());
         }
 
         *_szCurTime = 0; // Force the text to be recomputed.
@@ -577,7 +577,6 @@ LRESULT CClockCtl::_CalcMinSize(int cxMax, int cyMax)
         if (GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SSHORTDATE, _szDateFmt,
             ARRAYSIZE(_szDateFmt)) == 0)
         {
-            TraceMsg(TF_ERROR, "c.ccms: GetLocalInfo Failed %d.", GetLastError());
         }
 
         *_szCurDate = 0; // Force the text to be recomputed.
@@ -591,7 +590,7 @@ LRESULT CClockCtl::_CalcMinSize(int cxMax, int cyMax)
     _EnsureFontsInitialized(FALSE);
 
     if (_hfontCapNormal)
-        hfontOld = SelectFont(hdc, _hfontCapNormal);
+        hfontOld = (HFONT)SelectObject(hdc, _hfontCapNormal);
 
     SIZE size = {0};
     SIZE sizeTemp = {0};

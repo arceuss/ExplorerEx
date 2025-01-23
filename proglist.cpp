@@ -335,7 +335,6 @@ public:
     // that you don't leak anything
     BOOL Initialize(LPCTSTR pszAppPath, CMenuItemsCache *pmenuCache, BOOL fCheckNew, bool fIgnoreTimestamp)
     {
-        TraceMsg(TF_PROGLIST, "%p.ai.Init(%s)", this, pszAppPath);
         ASSERT(IsBlank());
 
         _fIgnoreTimestamp = fIgnoreTimestamp || IsDarwinPath(pszAppPath);
@@ -377,7 +376,6 @@ public:
 
     ~ByUsageAppInfo()
     {
-        TraceMsg(TF_PROGLIST, "%p.ai.~", this);
         ASSERT(IsBlank());
         Str_SetPtrW(&_pszAppPath, NULL);
     }
@@ -512,7 +510,6 @@ public:
         ByUsageShortcut *pscut = new ByUsageShortcut;
         if (pscut)
         {
-            TraceMsg(TF_PROGLIST, "%p.scut()", pscut);
 
             pscut->_fNew = TRUE;        // will be set to FALSE later
             pscut->_pdir = pdir; pdir->AddRef();
@@ -550,7 +547,6 @@ public:
 
     ~ByUsageShortcut()
     {
-        TraceMsg(TF_PROGLIST, "%p.scut.~", this);
         if (_pdir) _pdir->Release();
         if (_papp) _papp->Release();
         ILFree(_pidl);          // ILFree ignores NULL
@@ -2053,7 +2049,6 @@ void ByUsage::EnumFolderFromCache()
             pscut->SetNew(FALSE);
         }
 
-        TraceMsg(TF_PROGLIST, "%p.scut.enum", pscut);
 
         ByUsageAppInfo *papp = pscut->App();
 
@@ -2090,7 +2085,6 @@ void ByUsage::EnumFolderFromCache()
                     // Best Start Menu (i.e., non-desktop) item
                     papp->_pscutBestSM = pscut;
                 }
-                TraceMsg(TF_PROGLIST, "%p.scut.winner papp=%p", pscut, papp);
             }
 
             //  Include this file's UEM info in the total
@@ -2137,7 +2131,6 @@ BOOL ByUsage::_AfterEnumCB(ByUsageAppInfo *papp, AFTERENUMINFO *paei)
         if (!papp->_fPinned &&
             papp->_ueiTotal.cHit && FILETIMEtoInt64(papp->_ueiTotal.ftExecute))
         {
-            TraceMsg(TF_PROGLIST, "%p.app.add", papp);
 
             ByUsageItem *pitem = papp->CreateByUsageItem();
             if (pitem)
@@ -2157,7 +2150,6 @@ BOOL ByUsage::_AfterEnumCB(ByUsageAppInfo *papp, AFTERENUMINFO *paei)
         }
         else
         {
-            TraceMsg(TF_PROGLIST, "%p.app.skip", papp);
         }
 
 
@@ -2184,7 +2176,6 @@ BOOL ByUsage::_AfterEnumCB(ByUsageAppInfo *papp, AFTERENUMINFO *paei)
             // NTRAID:193226 We mistakenly treat apps on the desktop
             // as if they were "new".
             // we should only care about apps in the start menu
-            TraceMsg(TF_PROGLIST, "%p.app.new(%s)", papp, papp->_pszAppPath);
             LPITEMIDLIST pidl = papp->_pscutBestSM->CreateFullPidl();
             while (pidl)
             {
@@ -2789,7 +2780,6 @@ void ByUsage::_EnumPinnedItemsFromCache()
         {
             ByUsageShortcut *pscut = _rtPinned._sl.FastGetPtr(i);
 
-            TraceMsg(TF_PROGLIST, "%p.scut.enumC", pscut);
 
             // Enumerating a pinned item consists of marking the corresponding
             // application as "I am pinned, do not mess with me!"
@@ -2799,7 +2789,6 @@ void ByUsage::_EnumPinnedItemsFromCache()
             if (papp)
             {
                 papp->_fPinned = TRUE;
-                TraceMsg(TF_PROGLIST, "%p.scut.pin papp=%p", pscut, papp);
 
             }
         }
@@ -3879,7 +3868,7 @@ HRESULT ByUsage::ContextMenuRenameItem(PaneItem *p, LPCTSTR ptszNewName)
 //  we need to return the "secret display name".  Otherwise, we can
 //  use the default implementation.
 //
-LPTSTR ByUsage::DisplayNameOfItem(PaneItem *p, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGNO shgno)
+LPTSTR ByUsage::DisplayNameOfItem(PaneItem *p, IShellFolder *psf, LPCITEMIDLIST pidlItem, _SHGDNF shgno)
 {
     ByUsageItem *pitem = static_cast<ByUsageItem *>(p);
 

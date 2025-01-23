@@ -810,6 +810,7 @@ void _RunWelcome()
         {
             // OLE created a secret window for us, so we can't use
             // WaitForSingleObject or we will deadlock
+
             using fnSHWaitForSendMessageThread = DWORD(WINAPI*)(HANDLE, DWORD);
             fnSHWaitForSendMessageThread SHWaitForSendMessageThread;
             SHWaitForSendMessageThread = reinterpret_cast<fnSHWaitForSendMessageThread>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(194)));
