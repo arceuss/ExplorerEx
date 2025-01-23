@@ -547,6 +547,31 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define SMPINNABLE_EXEONLY          0x00000001 // allow only EXEs to be pinned
 #define SMPINNABLE_REJECTSLOWMEDIA  0x00000002 // reject slow media
 
+//
+//  FT_ONEHOUR is the number of FILETIME units in an hour.
+//  FT_ONEDAY is the number of FILETIME units in a day.
+//
+//      10,000,000 FILETIME units per second *
+//      3600 seconds per hour *
+//      24 hours per day.
+//
+#define FT_ONESECOND           ((unsigned __int64)10000000)
+#define FT_ONEHOUR             ((unsigned __int64)10000000 * 3600)
+#define FT_ONEDAY              ((unsigned __int64)10000000 * 3600 * 24)
+
+//
+//  FILETIME helpers
+//
+__inline UINT64 _FILETIMEtoInt64(const FILETIME* pft)
+{
+    return ((UINT64)pft->dwHighDateTime << 32) + pft->dwLowDateTime;
+}
+
+#define FILETIMEtoInt64(ft) _FILETIMEtoInt64(&(ft))
+
+
+#define _ILSkip(pidl, cb)	((LPITEMIDLIST)(((BYTE*)(pidl))+cb))
+#define _ILNext(pidl)		_ILSkip(pidl, (pidl)->mkid.cb)
 
 //
 // Enums
