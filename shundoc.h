@@ -24,11 +24,9 @@ const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 // Structs
 // 
 
-typedef enum {
-    RRA_DEFAULT = 0x0000,
-    RRA_DELETE = 0x0001,
-    RRA_WAIT = 0x0002,
-} RRA_FLAGS;
+#define RRA_DEFAULT 0x0000
+#define RRA_DELETE  0x0001
+#define RRA_WAIT    0x0002
 
 
 
