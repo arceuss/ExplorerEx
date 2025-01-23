@@ -402,7 +402,7 @@ HRESULT CUserPane::_UpdateUserInfo()
         GetThemeBool(_hTheme, SPP_USERPANE, 0, TMT_USERPICTURE, &bShowPicture);
 
     // add FriendlyLogonUI check here, since SHGetUserPicturePath
-    BOOL fGina = SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("GinaUI"), FALSE, TRUE);
+    BOOL fGina = SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("GinaUI"), FALSE, FALSE);
     if (bShowPicture && !fGina)
     {
         TCHAR szUserPicturePath[MAX_PATH];

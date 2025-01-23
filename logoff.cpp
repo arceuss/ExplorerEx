@@ -346,7 +346,7 @@ LRESULT CLogoffPane::_OnCreate(LPARAM lParam)
         }
         
         SendMessage(_hwndTB, TB_ADDBUTTONS, ARRAYSIZE(tbButtonsCreate), (LPARAM) tbButtonsCreate);
-        BOOL fGina = SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("GinaUI"), FALSE, TRUE);
+        BOOL fGina = SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("GinaUI"), FALSE, FALSE);
         int idText = !fGina ? IDS_LOGOFF_TEXT_FRIENDLY : IDS_LOGOFF_TEXT_DOMAIN;
         SendMessage(_hwndTB, TB_ADDSTRING, (WPARAM) _Module.GetModuleInstance(), (LPARAM) idText);
 
