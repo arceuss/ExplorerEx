@@ -10,8 +10,8 @@
 #include "shdguid.h"
 
 #include <vssym32.h>
+#include <util.h>
 
-#define REGSTR_EXPLORER_ADVANCED REGSTR_PATH_EXPLORER TEXT("\\Advanced")
 
 #define TF_DV2HOST  0
 // #define TF_DV2HOST TF_CUSTOM1
@@ -411,11 +411,6 @@ void CDesktopHost::_ComputeActualSize(MONITORINFO *pminfo, LPCRECT prcExclude)
     // Figure out the maximum size for each pane
     int cyPlacesMax = cyMax - (_spm.panes[SMPANETYPE_USER].size.cy + _spm.panes[SMPANETYPE_LOGOFF].size.cy);
     int cyMFUMax    = cyPlacesMax - _spm.panes[SMPANETYPE_MOREPROG].size.cy;
-
-
-    TraceMsg(TF_DV2HOST, "MFU Desired Height=%d(cur=%d,max=%d), Places Desired Height=%d(cur=%d,max=%d)",
-        iMFUHeight, _spm.panes[SMPANETYPE_MFU].size.cy, cyMFUMax, 
-        iPlacesHeight, _spm.panes[SMPANETYPE_PLACES].size.cy, cyPlacesMax);
 
     // Clip each pane to its max - the smaller of (The largest possible or The largest we want to be)
     _fClipped = FALSE;
@@ -848,11 +843,15 @@ void CDesktopHost::_MaybeShowClipBalloon()
         }
     }
 }
-
+#define IS_WM_CONTEXTMENU_KEYBOARD(lParam) ((DWORD)(lParam) == 0xFFFFFFFF)
+using fnSHLoadMenuPopup = HMENU(WINAPI*)(HINSTANCE, WORD);
+fnSHLoadMenuPopup SHLoadMenuPopup;
 void CDesktopHost::OnContextMenu(LPARAM lParam)
 {
     if (!IsRestrictedOrUserSettingW(HKEY_CURRENT_USER, REST_NOTRAYCONTEXTMENU, TEXT("Advanced"), TEXT("TaskbarContextMenu"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
     {
+        if (!SHLoadMenuPopup)
+            SHLoadMenuPopup = reinterpret_cast<fnSHLoadMenuPopup>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(177)));
         HMENU hmenu = SHLoadMenuPopup(hinstCabinet, MENU_STARTPANECONTEXT);
         if (hmenu)
         {
@@ -1421,8 +1420,6 @@ BOOL CDesktopHost::_DlgNavigateArrow(HWND hwndStart, MSG *pmsg)
     MSG msg;
     nmdm.pmsg = pmsg;   // other fields will be filled in by _FindChildItem
 
-    TraceMsg(TF_DV2DIALOG, "idm.arrow(%04x)", pmsg->wParam);
-
     // If RTL, then flip the left and right arrows
     UINT vk = (UINT)pmsg->wParam;
     BOOL fRTL = GetWindowLong(_hwnd, GWL_EXSTYLE) & WS_EX_LAYOUTRTL;
@@ -1964,9 +1961,6 @@ void CDesktopHost::LoadPanelMetrics()
     ASSERT(_spm.sizPanel.cx == _spm.panes[SMPANETYPE_MFU].size.cx + _spm.panes[SMPANETYPE_PLACES].size.cx );
     ASSERT(_spm.sizPanel.cx == _spm.panes[SMPANETYPE_LOGOFF].size.cx);
     ASSERT(_spm.panes[SMPANETYPE_MOREPROG].size.cx == _spm.panes[SMPANETYPE_MFU].size.cx);
-    TraceMsg(TF_DV2HOST, "sizPanel.cy = %d, user = %d, MFU =%d, moreprog=%d, logoff=%d",
-        _spm.sizPanel.cy, _spm.panes[SMPANETYPE_USER].size.cy, _spm.panes[SMPANETYPE_MFU].size.cy,
-        _spm.panes[SMPANETYPE_MOREPROG].size.cy, _spm.panes[SMPANETYPE_LOGOFF].size.cy);
 
     ASSERT(_spm.sizPanel.cy == _spm.panes[SMPANETYPE_USER].size.cy + _spm.panes[SMPANETYPE_MFU].size.cy + _spm.panes[SMPANETYPE_MOREPROG].size.cy + _spm.panes[SMPANETYPE_LOGOFF].size.cy);
 
@@ -1984,7 +1978,6 @@ void CDesktopHost::LoadPanelMetrics()
 void CDesktopHost::OnCreate(HWND hwnd)
 {
     _hwnd          = hwnd;
-    TraceMsg(TF_DV2HOST, "Entering CDesktopHost::OnCreate");
 
     // Add the controls and background images
     AddWin32Controls();

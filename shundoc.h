@@ -705,6 +705,7 @@ typedef enum _WINSTATIONINFOCLASS {
 
 #define IID_PPV_ARG(IType, ppType) IID_##IType, reinterpret_cast<void**>(static_cast<IType**>(ppType))
 #define IID_X_PPV_ARG(IType, X, ppType) X, NULL, IID_##IType, reinterpret_cast<void**>(static_cast<IType**>(ppType))
+#define MBANDCID_REFRESH            0x10000000
 
 typedef enum
 {

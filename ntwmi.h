@@ -29,7 +29,7 @@ Revision History:
 #ifndef ETW_WOW6432
 
 #include <evntrace.h>
-
+#include <windows.h>
 // Alignment macros
 #define DEFAULT_TRACE_ALIGNMENT 8              // 8 byte alignment
 #define ALIGN_TO_POWER2( x, n ) (((ULONG)(x) + ((n)-1)) & ~((ULONG)(n)-1))
@@ -362,87 +362,8 @@ typedef struct _MESSAGE_TRACE_USER {
 #ifndef MEMPHIS
 
 //
-// Logger configuration and running statistics. This structure is used
-// by WMI.DLL to convert to UNICODE_STRING
-//
-// begin_wmikm
-typedef struct _WMI_LOGGER_INFORMATION {
-    WNODE_HEADER Wnode;       // Had to do this since wmium.h comes later
-    //
-    // data provider by caller
-    ULONG BufferSize;                   // buffer size for logging (in kbytes)
-    ULONG MinimumBuffers;               // minimum to preallocate
-    ULONG MaximumBuffers;               // maximum buffers allowed
-    ULONG MaximumFileSize;              // maximum logfile size (in MBytes)
-    ULONG LogFileMode;                  // sequential, circular
-    ULONG FlushTimer;                   // buffer flush timer, in seconds
-    ULONG EnableFlags;                  // trace enable flags
-    LONG  AgeLimit;                     // aging decay time, in minutes
-    ULONG Wow;                          // TRUE if the logger started under WOW64
-    union {
-        HANDLE  LogFileHandle;          // handle to logfile
-        ULONG64 LogFileHandle64;
-    };
-
-    // data returned to caller
-    // end_wmikm
-    union {
-        // begin_wmikm
-        ULONG NumberOfBuffers;          // no of buffers in use
-        // end_wmikm
-        ULONG InstanceCount;            // Number of Provider Instances
-    };
-    union {
-        // begin_wmikm
-        ULONG FreeBuffers;              // no of buffers free
-        // end_wmikm
-        ULONG InstanceId;               // Current Provider's Id for UmLogger
-    };
-    union {
-        // begin_wmikm
-        ULONG EventsLost;               // event records lost
-        // end_wmikm
-        ULONG NumberOfProcessors;       // Passed on to UmLogger
-    };
-    // begin_wmikm
-    ULONG BuffersWritten;               // no of buffers written to file
-    ULONG LogBuffersLost;               // no of logfile write failures
-    ULONG RealTimeBuffersLost;          // no of rt delivery failures
-    union {
-        HANDLE  LoggerThreadId;         // thread id of Logger
-        ULONG64 LoggerThreadId64;       // thread is of Logger
-    };
-    union {
-        UNICODE_STRING LogFileName;     // used only in WIN64
-        UNICODE_STRING64 LogFileName64; // Logfile name: only in WIN32
-    };
-
-    // mandatory data provided by caller
-    union {
-        UNICODE_STRING LoggerName;      // Logger instance name in WIN64
-        UNICODE_STRING64 LoggerName64;  // Logger Instance name in WIN32
-    };
-
-    // private
-    union {
-        PVOID   Checksum;
-        ULONG64 Checksum64;
-    };
-    union {
-        PVOID   LoggerExtension;
-        ULONG64 LoggerExtension64;
-    };
-} WMI_LOGGER_INFORMATION, * PWMI_LOGGER_INFORMATION;
-
-//
 // structure for NTDLL tracing
 //
-
-typedef struct
-{
-    BOOLEAN IsGet;
-    PWMI_LOGGER_INFORMATION LoggerInfo;
-} WMINTDLLLOGGERINFO, * PWMINTDLLLOGGERINFO;
 
 typedef struct _TIMED_TRACE_HEADER {
     USHORT          Size;

@@ -3,7 +3,6 @@
 #define _HOSTUTIL_H_
 
 // usefull macro's which aren't elsewhere
-#define ARRAYSIZE(x)    (sizeof(x)/sizeof(x[0]))
 #define RECTWIDTH(rc)   ((rc).right-(rc).left)
 #define RECTHEIGHT(rc)  ((rc).bottom-(rc).top)
 

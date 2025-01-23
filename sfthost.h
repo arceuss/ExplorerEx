@@ -13,6 +13,7 @@
 //#include "dobjutil.h"
 
 #include "shundoc.h"
+#include <cabinet.h>
 
 //****************************************************************************
 //
@@ -191,7 +192,7 @@ public:
      *  The default implementation calls IShellFolder::GetDisplayNameOf.
      *  If hooked, the returned string should be allocated by SHAlloc().
      */
-    virtual LPTSTR DisplayNameOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGNO shgno)
+    virtual LPTSTR DisplayNameOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem, _SHGDNF shgno)
     {
         return _DisplayNameOf(psf, pidlItem, shgno);
     }
@@ -407,7 +408,7 @@ public:
     inline BOOL IsInsertMarkPointless(int iInsert)
     {
         return _fDragToSelf &&
-               IsInRange(iInsert, _iPosDragOut, _iPosDragOut + 1);
+               InRange(iInsert, _iPosDragOut, _iPosDragOut + 1);
     }
 
     void _PurgeDragDropData();

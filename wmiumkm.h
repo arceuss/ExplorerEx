@@ -40,7 +40,7 @@ DEFINE_GUID(DefaultSecurityGuid, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 #define DefaultSecurityGuidName L"00000000-0000-0000-0000-000000000000"
 
 #ifndef _WMIKM_
-
+#include <windows.h>
 //
 // This defines the codes used to define what a request must do. These
 // definitions must match the same in wmium.h
@@ -529,17 +529,6 @@ typedef struct
 
 typedef struct
 {
-    union {
-        POBJECT_ATTRIBUTES ObjectAttributes;
-        ULONG64 Dummy;
-    };
-    ULONG Cookie;
-    ULONG WmiRegInfo32Size;
-    ULONG WmiRegGuid32Size;
-} WMIREGREQUEST, * PWMIREGREQUEST;
-
-typedef struct
-{
     HANDLE3264 RequestHandle;
     ULONG64 LoggerContext;
     BOOLEAN MofIgnored;
@@ -564,14 +553,6 @@ typedef struct
 //
 // BufferIn - PWMICREATEUMLOGGER
 // BufferOut - PWMICREATEUMLOGGER
-
-typedef struct
-{
-    IN  POBJECT_ATTRIBUTES ObjectAttributes;
-    IN  GUID ControlGuid;
-    OUT HANDLE3264 ReplyHandle;
-    OUT ULONG ReplyCount;
-} WMICREATEUMLOGGER, * PWMICREATEUMLOGGER;
 
 typedef struct
 {
@@ -743,14 +724,6 @@ typedef struct
 
 #define WmiSampleGuidObjectName L"\\WmiGuid\\00000000-0000-0000-0000-000000000000"
 #define WmiGuidObjectNameLength ((sizeof(WmiSampleGuidObjectName) / sizeof(WCHAR))-1)  // 45
-
-typedef struct
-{
-    IN POBJECT_ATTRIBUTES ObjectAttributes;
-    IN ACCESS_MASK DesiredAccess;
-
-    OUT HANDLE3264 Handle;
-} WMIOPENGUIDBLOCK, * PWMIOPENGUIDBLOCK;
 
 typedef struct
 {

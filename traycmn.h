@@ -6,6 +6,7 @@
 // and the tray properties dialog
 //
 //#include <shpriv.h>
+#include "shundoc.h"
 
 typedef struct tagTNPersistStreamData TNPersistStreamData;
 

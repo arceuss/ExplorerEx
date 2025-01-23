@@ -32,7 +32,6 @@ extern CComModule _Module;
 #include "regstr.h"
 //#include <shfusion.h>
 
-#define REGSTR_EXPLORER_ADVANCED REGSTR_PATH_EXPLORER TEXT("\\Advanced")
 
 #include <windowsx.h>
 

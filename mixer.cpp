@@ -729,7 +729,6 @@ Routine Description:
         } else {
             mixerClose(pMixerData->hMixer);
             pMixerData->hMixer = NULL;
-            TraceMsg(TF_WARNING, "Mixer_Open : Could not find mixer destination line");
             result = FALSE;
         }
     }
@@ -754,7 +753,6 @@ Routine Description:
     if (pMixerData->hMixer){
         MMRESULT mmr;
         mmr = mixerClose(pMixerData->hMixer);
-        if (mmr) TraceMsg(TF_ERROR, "Mixer_Close : error: mixerClose returned mmr=%08Xh", mmr);
         
         ASSERT(MMSYSERR_NOERROR == mmr);
         pMixerData->hMixer = NULL;

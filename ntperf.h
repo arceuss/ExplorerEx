@@ -232,56 +232,6 @@ typedef struct _PERFINFO_SET_DEVICES_STATE_RET {
 } PERFINFO_SET_DEVICES_STATE_RET, * PPERFINFO_SET_DEVICES_STATE_RET;
 
 //
-// This structure is logged when PopNotifyDevice calls into a driver
-// to set the power state of a device.
-//
-
-typedef struct _PERFINFO_PO_NOTIFY_DEVICE {
-
-    //
-    // This field is used to match notification and completion log
-    // entries for a device.
-    //
-
-    PVOID Irp;
-
-    //
-    // Base address of the driver that owns this device.
-    //
-
-    PVOID DriverStart;
-
-    //
-    // Device node properties.
-    //
-
-    UCHAR OrderLevel;
-
-    //
-    // Major and minor IRP codes for the request made to the driver.
-    //
-
-    UCHAR MajorFunction;
-    UCHAR MinorFunction;
-
-    //
-    // Type of power irp
-    //
-    POWER_STATE_TYPE Type;
-    POWER_STATE      State;
-
-    //
-    // Length of the device name in characters excluding terminating NUL,
-    // and the device name itself. Depending on how much fits into our
-    // stack buffer, this is the *last* part of the device name.
-    //
-
-    ULONG DeviceNameLength;
-    WCHAR DeviceName[1];
-
-} PERFINFO_PO_NOTIFY_DEVICE, * PPERFINFO_PO_NOTIFY_DEVICE;
-
-//
 // This structure is logged when a PopNotifyDevice processing for a
 // particular device completes.
 //

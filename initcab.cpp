@@ -1772,8 +1772,6 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
     FileIconInit_t FileIconInit;
     FileIconInit = (FileIconInit_t)GetProcAddress(GetModuleHandle(L"shell32.dll"), (LPSTR)660);
 
-    CcshellGetDebugFlags();
-
     if (g_dwProfileCAP & 0x00000001)
         StartCAP();
 
@@ -1805,7 +1803,6 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
         RegCreateKey(HKEY_CURRENT_USER, REGSTR_PATH_EXPLORER, &g_hkeyExplorer);
         if (g_hkeyExplorer == NULL)
         {
-            TraceMsg(TF_ERROR, "ExplorerWinMain: unable to create reg explorer key");
         }
 
         HANDLE hMutex = NULL;
@@ -1984,7 +1981,6 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
     }
 
     //SHFusionUninitialize();
-    DebugMsg(DM_TRACE, TEXT("c.App Exit."));
 
     return TRUE;
 }

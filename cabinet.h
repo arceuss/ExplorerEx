@@ -18,7 +18,6 @@
 
 #define _WINMM_ // for DECLSPEC_IMPORT
 
-#define STRICT
 #define OEMRESOURCE
 
 #define OVERRIDE_SHLWAPI_PATH_FUNCTIONS     // see comment in shsemip.h
@@ -35,11 +34,6 @@
 //#include <msginaexports.h>
 
 // if you include atlstuff.h, you don't get windowsx.h.  so we define needed functions here
-__inline HBRUSH SelectBrush(HDC hdc, HBRUSH hbr) { return (HBRUSH)SelectObject(hdc, (HGDIOBJ)(HBRUSH)hbr); }
-__inline HFONT SelectFont(HDC hdc, HFONT hfont) { return (HFONT)SelectObject(hdc, (HGDIOBJ)(HFONT)hfont); }
-__inline HBITMAP SelectBitmap(HDC hdc, HBITMAP hbm)  { return (HBITMAP)SelectObject(hdc, (HGDIOBJ)(HBITMAP)hbm); }
-__inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LPARAM)lpfn); }
-
 #include <windowsx.h>
 
 #include <ole2.h>

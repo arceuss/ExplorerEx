@@ -175,7 +175,12 @@ void CNotifySubclassWndProc::_RegisterWindow(HWND hwnd, LPCITEMIDLIST pidl, long
         // Since we don't know what this pidl actually points to,
         // we have to register to listen to everything that might affect it...
         //
-        _uRegister = RegisterNotify(hwnd, g_idFSNotify, pidl, lEvents, uFlags, TRUE);
+
+        SHChangeNotifyEntry se;
+        uFlags |= SHCNRF_ShellLevel | SHCNRF_InterruptLevel;
+        se.fRecursive = TRUE;
+        se.pidl = pidl;
+        _uRegister = SHChangeNotifyRegister(hwnd, uFlags, lEvents, g_idFSNotify, 1, &se);
 
         ASSERT(hwnd == _hwndSubclassed);
     }

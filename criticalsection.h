@@ -28,10 +28,6 @@ typedef struct _nonreentrantcriticalsection
 {
     CRITICAL_SECTION critsec;
 
-#ifdef DEBUG
-    DWORD dwOwnerThread;
-#endif   /* DEBUG */
-
     BOOL bEntered;
 }
 NONREENTRANTCRITICALSECTION;
@@ -45,11 +41,6 @@ NONREENTRANTCRITICALSECTION;
 NONREENTRANTCRITICALSECTION s_nrcs =
 {
    { 0 },
-
-#ifdef DEBUG
-   INVALID_THREAD_ID,
-#endif   /* DEBUG */
-
    FALSE
 };
 
@@ -59,26 +50,6 @@ BOOL EnterNonReentrantCriticalSection(
 {
     BOOL bEntered;
 
-#ifdef DEBUG
-
-    BOOL bBlocked;
-
-    ASSERT(IS_VALID_STRUCT_PTR(pnrcs, CNONREENTRANTCRITICALSECTION));
-
-    /* Is the critical section already owned by another thread? */
-
-    /* Use pnrcs->bEntered and pnrcs->dwOwnerThread unprotected here. */
-
-    bBlocked = (pnrcs->bEntered &&
-        GetCurrentThreadId() != pnrcs->dwOwnerThread);
-
-    if (bBlocked)
-        TRACE_OUT(("EnterNonReentrantCriticalSection(): Blocking thread %lx.  Critical section is already owned by thread %#lx.",
-            GetCurrentThreadId(),
-            pnrcs->dwOwnerThread));
-
-#endif
-
     EnterCriticalSection(&(pnrcs.critsec));
 
     bEntered = (!pnrcs.bEntered);
@@ -86,15 +57,6 @@ BOOL EnterNonReentrantCriticalSection(
     if (bEntered)
     {
         pnrcs.bEntered = TRUE;
-
-#ifdef DEBUG
-
-        pnrcs->dwOwnerThread = GetCurrentThreadId();
-
-        if (bBlocked)
-            TRACE_OUT(("EnterNonReentrantCriticalSection(): Unblocking thread %lx.  Critical section is now owned by this thread.",
-                pnrcs->dwOwnerThread));
-#endif
 
     }
     else
@@ -112,15 +74,11 @@ BOOL EnterNonReentrantCriticalSection(
 void LeaveNonReentrantCriticalSection(
     NONREENTRANTCRITICALSECTION pnrcs)
 {
-    ASSERT(IS_VALID_STRUCT_PTR(pnrcs, CNONREENTRANTCRITICALSECTION));
+    //ASSERT(IS_VALID_STRUCT_PTR(pnrcs, CNONREENTRANTCRITICALSECTION));
 
     if (EVAL(pnrcs.bEntered))
     {
         pnrcs.bEntered = FALSE;
-#ifdef DEBUG
-        pnrcs->dwOwnerThread = INVALID_THREAD_ID;
-#endif
-
         LeaveCriticalSection(&(pnrcs.critsec));
     }
 

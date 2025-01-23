@@ -396,7 +396,6 @@ STDAPI_(BOOL) Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS 
             {
                 // ERROR_MORE_DATA means the value name or data was too large
                 // skip to the next item
-                TraceMsg(TF_WARNING, "Cabinet_EnumRegApps: cannot run oversize entry '%s' in <%s>", szValueName, pszSubkey);
                 continue;
             }
             else if (lEnum != ERROR_SUCCESS)
@@ -429,12 +428,9 @@ STDAPI_(BOOL) Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS 
                     if ((dwChars == 0) || (dwChars > ARRAYSIZE(szCmdLine)))
                     {
                         // bail on this value if we failed the expansion, or if the string is > MAX_PATH
-                        TraceMsg(TF_WARNING, "Cabinet_EnumRegApps: expansion of '%s' in <%s> failed or is too long", szCmdLineT, pszSubkey);
                         continue;
                     }
                 }
-
-                TraceMsg(TF_GENERAL, "Cabinet_EnumRegApps: subkey = %s cmdline = %s", pszSubkey, szCmdLine);
 
                 if (g_fCleanBoot && (szValueName[0] != TEXT('*')))
                 {
@@ -488,7 +484,6 @@ STDAPI_(BOOL) Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS 
                     // This delete can fail if the user doesn't have the privilege
                     if (RegDeleteValue(hkey, prai->szValueName) != ERROR_SUCCESS)
                     {
-                        TraceMsg(TF_WARNING, "Cabinet_EnumRegApps: skipping entry %s (cannot delete the value)", prai->szValueName);
                         LocalFree(prai);
                         continue;
                     }
@@ -502,7 +497,6 @@ STDAPI_(BOOL) Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS 
                     // This delete can fail if the user doesn't have the privilege
                     if (RegDeleteValue(hkey, prai->szValueName) != ERROR_SUCCESS)
                     {
-                        TraceMsg(TF_WARNING, "Cabinet_EnumRegApps: cannot delete the value %s ", prai->szValueName);
                     }
                 }
 
@@ -517,7 +511,6 @@ STDAPI_(BOOL) Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS 
     }
     else
     {
-        TraceMsg(TF_WARNING, "Cabinet_EnumRegApps: failed to open subkey %s !", pszSubkey);
         bRet = FALSE;
     }
 

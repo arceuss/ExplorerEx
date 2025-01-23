@@ -11,7 +11,7 @@ extern "C" {
 // {
 //***   UEME_* -- events
 #include "uemevt.h"         // separate #include so rulc.exe can use it
-
+#include "shundoc.h"
 #define UEME_FBROWSER   0x80000000  // 0:shell 1:browser
 
 //***   UEMF_* -- Flags used when calling FireEvent

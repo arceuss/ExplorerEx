@@ -74,7 +74,7 @@ BOOL _GetPinnedItemTarget(LPCITEMIDLIST pidl, LPTSTR *ppszPath)
             TCHAR szPath[MAX_PATH];
             TCHAR szPathExpanded[MAX_PATH];
             if (psl->GetPath(szPath, ARRAYSIZE(szPath), 0, SLGP_RAWPATH) == S_OK &&
-                SHExpandEnvironmentStrings(szPath, szPathExpanded, ARRAYSIZE(szPathExpanded)))
+                ExpandEnvironmentStrings(szPath, szPathExpanded, ARRAYSIZE(szPathExpanded)))
             {
                 SHStrDup(szPathExpanded, ppszPath);
             }
@@ -246,7 +246,7 @@ restart:
     }
 
     TCHAR szPathExpanded[MAX_PATH];
-    SHExpandEnvironmentStrings(szPath, szPathExpanded, ARRAYSIZE(szPathExpanded));
+    ExpandEnvironmentStrings(szPath, szPathExpanded, ARRAYSIZE(szPathExpanded));
 
     LPITEMIDLIST pidl = ILCreateFromPath(szPathExpanded);
     if (!pidl)
@@ -300,13 +300,13 @@ restart:
     }
 
     TCHAR szPathExpanded[MAX_PATH];
-    SHExpandEnvironmentStrings(szPath, szPathExpanded, ARRAYSIZE(szPathExpanded));
+    ExpandEnvironmentStrings(szPath, szPathExpanded, ARRAYSIZE(szPathExpanded));
 
     LPITEMIDLIST pidl = ILCreateFromPath(szPathExpanded);
     if (!pidl)
     {
         // Doesn't exist under localized name; try the English name
-        SHExpandEnvironmentStrings(pmfu->rgpszEnglish[dwCurrentIndex], szPathExpanded, ARRAYSIZE(szPathExpanded));
+        ExpandEnvironmentStrings(pmfu->rgpszEnglish[dwCurrentIndex], szPathExpanded, ARRAYSIZE(szPathExpanded));
         pidl = ILCreateFromPath(szPathExpanded);
     }
 
