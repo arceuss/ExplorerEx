@@ -543,6 +543,10 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define NISP_ITEMSAMEICONMODIFY  0x01000000
 #define NISP_SHAREDICONSOURCE   0x10000000
 
+#define SMPIN_POS(i) (LPCITEMIDLIST)MAKEINTRESOURCE((i)+1))
+#define SMPINNABLE_EXEONLY          0x00000001 // allow only EXEs to be pinned
+#define SMPINNABLE_REJECTSLOWMEDIA  0x00000002 // reject slow media
+
 
 //
 // Enums
@@ -818,5 +822,6 @@ bool SHUndocInit();
 const CLSID CLSID_TrayNotify = { 0x25DEAD04, 0x1EAC, 0x4911,{ 0x9E, 0x3A, 0xAD, 0x0A, 0x4A, 0xB5, 0x60, 0xFD } };
 const CLSID CLSID_FadeTask = { 0x7EB5FBE4, 0x2100, 0x49E6, { 0x85, 0x93, 0x17, 0xE1, 0x30, 0x12, 0x2F, 0x91} };
 DEFINE_GUID(IID_IShellService, 0x5836FB00L, 0x8187, 0x11CF, 0xA1, 0x2B, 0x00, 0xAA, 0x00, 0x4A, 0xE8, 0x37);
+EXTERN_C const IID IID_IAssociationElement;
 
 #include "interfacesp.inc"
