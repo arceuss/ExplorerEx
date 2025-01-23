@@ -197,9 +197,6 @@ void Cabinet_InitGlobalMetrics(WPARAM, LPTSTR);
 #define REGSTR_EXPLORER_ADVANCED    REGSTR_PATH_ADVANCED
 #define REGSTR_POLICIES_EXPLORER    TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer")
 
-#undef WinHelp
-#define WinHelp SHWinHelp
-
 
 #ifdef __cplusplus
 };       /* End of extern "C" { */

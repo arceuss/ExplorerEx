@@ -538,14 +538,14 @@ LRESULT CNotificationsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam,
 
 LRESULT CNotificationsDlg::OnContextMenu(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    ::WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aNotifyOptionsHelpIDs);
+    ::SHWinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aNotifyOptionsHelpIDs);
     bHandled = TRUE;
     return 0;
 }
 
 LRESULT CNotificationsDlg::OnHelp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-    ::WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aNotifyOptionsHelpIDs);
+    ::SHWinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aNotifyOptionsHelpIDs);
     bHandled = TRUE;
     return 0;
 }
@@ -1141,11 +1141,11 @@ BOOL_PTR CCustomizeSPPropSheet::GeneralTabDlgProc(HWND hDlg, UINT uMsg, WPARAM w
             break;
 
         case WM_HELP:
-            ::WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aStartCustGeneralTabHelpIDs);
+            ::SHWinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aStartCustGeneralTabHelpIDs);
             break;
 
         case WM_CONTEXTMENU:
-            ::WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aStartCustGeneralTabHelpIDs);
+            ::SHWinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aStartCustGeneralTabHelpIDs);
             break;
     }
     return FALSE;
@@ -1425,7 +1425,7 @@ BOOL_PTR CCustomizeSPPropSheet::OnAdvancedHelp(HWND hDlg, HELPINFO *phi)
 {
     if (phi->iCtrlId != IDC_STARTMENUSETTINGS)
     {
-        ::WinHelp((HWND)(phi->hItemHandle), NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aStartCustAdvancedTabHelpIDs);
+        ::SHWinHelp((HWND)(phi->hItemHandle), NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aStartCustAdvancedTabHelpIDs);
     }
     else
     {
@@ -1467,7 +1467,7 @@ BOOL_PTR CCustomizeSPPropSheet::AdvancedTabDlgProc(HWND hDlg, UINT uMsg, WPARAM 
             return OnAdvancedHelp(hDlg, (HELPINFO*) lParam);
             break;
         case WM_CONTEXTMENU:
-            ::WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aStartCustAdvancedTabHelpIDs);
+            ::SHWinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aStartCustAdvancedTabHelpIDs);
             break;
     }
     return FALSE;
@@ -1723,11 +1723,11 @@ BOOL_PTR CTaskBarPropertySheet::TaskbarOptionsDlgProc(HWND hDlg, UINT uMsg, WPAR
         break;
 
     case WM_HELP:
-        ::WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aTaskOptionsHelpIDs);
+        ::SHWinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aTaskOptionsHelpIDs);
         break;
 
     case WM_CONTEXTMENU:
-        ::WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aTaskOptionsHelpIDs);
+        ::SHWinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aTaskOptionsHelpIDs);
         break;
     }
 
@@ -1877,11 +1877,11 @@ BOOL_PTR CTaskBarPropertySheet::StartMenuDlgProc(HWND hDlg, UINT uMsg, WPARAM wP
         break;
 
     case WM_HELP:
-        ::WinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aStartTabHelpIDs);
+        ::SHWinHelp((HWND)((LPHELPINFO) lParam)->hItemHandle, NULL, HELP_WM_HELP, (ULONG_PTR)(LPTSTR) aStartTabHelpIDs);
         break;
 
     case WM_CONTEXTMENU:
-        ::WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aStartTabHelpIDs);
+        ::SHWinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU, (ULONG_PTR)(void *)aStartTabHelpIDs);
         break;
     }
 
@@ -2438,7 +2438,7 @@ void InitStartMenu_DoTreeHelp(SMADVANCED* pAdv, WPARAM wParam)
     }
     else
     {
-        WinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
+        SHWinHelp((HWND) wParam, NULL, HELP_CONTEXTMENU,
             (ULONG_PTR)(LPVOID)aInitStartMenuHelpIDs);
     }
 }
@@ -2578,7 +2578,7 @@ BOOL_PTR CALLBACK AdvancedOptDlgProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 
         if (phi->iCtrlId != IDC_STARTMENUSETTINGS)
         {
-            WinHelp( (HWND)(phi->hItemHandle), NULL,
+            SHWinHelp( (HWND)(phi->hItemHandle), NULL,
                 HELP_WM_HELP, (ULONG_PTR)(LPTSTR)aInitStartMenuHelpIDs);
         }
         else
