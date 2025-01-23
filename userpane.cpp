@@ -175,7 +175,7 @@ LRESULT CALLBACK CUserPane::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 
             _hwndStatic = CreateWindowEx(0, TEXT("static"), NULL, dwStyle,
                                          0, 0, 0, 0,                                        // we'll be sized properly on WM_SIZE
-                                         _hwnd, NULL, _Module.GetModuleInstance(), NULL);
+                                         _hwnd, NULL, _AtlBaseModule.GetModuleInstance(), NULL);
             if (_hwndStatic)
             {
                 if (_hFont)
@@ -491,7 +491,7 @@ BOOL WINAPI UserPane_RegisterClass()
     wc.cbSize        = sizeof(wc);
     wc.style         = CS_GLOBALCLASS;
     wc.lpfnWndProc   = CUserPane::s_WndProc;
-    wc.hInstance     = _Module.GetModuleInstance();
+    wc.hInstance     = GetModuleHandle(NULL);
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = (HBRUSH)(NULL);
     wc.lpszClassName = WC_USERPANE;

@@ -20,9 +20,46 @@
 #include <DocObj.h>
 #include <winuserp.h>
 
+// path.cpp (private stuff) ---------------------
+
+#define PQD_NOSTRIPDOTS 0x00000001
+
+STDAPI_(void) PathQualifyDef(LPTSTR psz, LPCTSTR szDefDir, DWORD dwFlags);
+
+STDAPI_(BOOL) PathIsRemovable(LPCTSTR pszPath);
+STDAPI_(BOOL) PathIsRemote(LPCTSTR pszPath);
+STDAPI_(BOOL) PathIsTemporary(LPCTSTR pszPath);
+STDAPI_(BOOL) PathIsWild(LPCTSTR pszPath);
+STDAPI_(BOOL) PathIsLnk(LPCTSTR pszFile);
+STDAPI_(BOOL) PathIsSlow(LPCTSTR pszFile, DWORD dwFileAttr);
+STDAPI_(BOOL) PathIsInvalid(LPCTSTR pPath);
+STDAPI_(BOOL) PathIsBinaryExe(LPCTSTR szFile);
+STDAPI_(BOOL) PathMergePathName(LPTSTR pPath, LPCTSTR pName);
+STDAPI_(BOOL) PathGetMountPointFromPath(LPCTSTR pcszPath, LPTSTR pszMountPoint, int cchMountPoint);
+STDAPI_(BOOL) PathIsShortcutToProgram(LPCTSTR pszFile);
+
 //
 // Constants
 //
+
+// from browseui/globals.h, possibly others
+#define c_szNULL        TEXT("")
+
+// Old shlobj.h things:
+//
+// Path processing function
+//
+#define PPCF_ADDQUOTES               0x00000001        // return a quoted name if required
+#define PPCF_ADDARGUMENTS            0x00000003        // appends arguments (and wraps in quotes if required)
+#define PPCF_NODIRECTORIES           0x00000010        // don't match to directories
+#define PPCF_FORCEQUALIFY            0x00000040        // qualify even non-relative names
+#define PPCF_LONGESTPOSSIBLE         0x00000080        // always find the longest possible name
+
+// shellprv.h (including its own copied attributed headers):
+//  Copy.c
+#define SPEED_SLOW  400
+DWORD GetPathSpeed(LPCTSTR pszPath);
+// end shellprv.h
 
 #define RRA_DEFAULT 0x0000
 #define RRA_DELETE  0x0001
@@ -32,6 +69,41 @@
 
 // shlapip.h
 #define NI_SIGNATURE    0x34753423
+#define PFOPEX_NONE        0x00000000
+#define PFOPEX_PIF         0x00000001
+#define PFOPEX_COM         0x00000002
+#define PFOPEX_EXE         0x00000004
+#define PFOPEX_BAT         0x00000008
+#define PFOPEX_LNK         0x00000010
+#define PFOPEX_CMD         0x00000020
+#define PFOPEX_OPTIONAL    0x00000040   // Search only if Extension not present
+#define PFOPEX_DEFAULT     (PFOPEX_CMD | PFOPEX_COM | PFOPEX_BAT | PFOPEX_PIF | PFOPEX_EXE | PFOPEX_LNK)
+
+// shlwapip.h
+
+//
+// flags for PathIsValidChar()
+//
+#define PIVC_ALLOW_QUESTIONMARK     0x00000001  // treat '?' as valid
+#define PIVC_ALLOW_STAR             0x00000002  // treat '*' as valid
+#define PIVC_ALLOW_DOT              0x00000004  // treat '.' as valid
+#define PIVC_ALLOW_SLASH            0x00000008  // treat '\\' as valid
+#define PIVC_ALLOW_COLON            0x00000010  // treat ':' as valid
+#define PIVC_ALLOW_SEMICOLON        0x00000020  // treat ';' as valid
+#define PIVC_ALLOW_COMMA            0x00000040  // treat ',' as valid
+#define PIVC_ALLOW_SPACE            0x00000080  // treat ' ' as valid
+#define PIVC_ALLOW_NONALPAHABETIC   0x00000100  // treat non-alphabetic exteneded chars as valid
+#define PIVC_ALLOW_QUOTE            0x00000200  // treat '"' as valid
+
+//
+// standard masks for PathIsValidChar()
+//
+#define PIVC_SFN_NAME               (PIVC_ALLOW_DOT | PIVC_ALLOW_NONALPAHABETIC)
+#define PIVC_SFN_FULLPATH           (PIVC_SFN_NAME | PIVC_ALLOW_COLON | PIVC_ALLOW_SLASH)
+#define PIVC_LFN_NAME               (PIVC_ALLOW_DOT | PIVC_ALLOW_NONALPAHABETIC | PIVC_ALLOW_SEMICOLON | PIVC_ALLOW_COMMA | PIVC_ALLOW_SPACE)
+#define PIVC_LFN_FULLPATH           (PIVC_LFN_NAME | PIVC_ALLOW_COLON | PIVC_ALLOW_SLASH)
+#define PIVC_SFN_FILESPEC           (PIVC_SFN_FULLPATH | PIVC_ALLOW_STAR | PIVC_ALLOW_QUESTIONMARK)
+#define PIVC_LFN_FILESPEC           (PIVC_LFN_FULLPATH | PIVC_ALLOW_STAR | PIVC_ALLOW_QUESTIONMARK)
 
 const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 
@@ -346,6 +418,8 @@ typedef struct _tagSHELLREMINDER
 #define BOOLIFY(expr)           (!!(expr))
 
 #define SIZECHARS(x)    (sizeof((x))/sizeof(WCHAR))
+
+#define IS_WM_CONTEXTMENU_KEYBOARD(lParam) ((DWORD)(lParam) == 0xFFFFFFFF)
 
 #define IntToPtr_(T, i) ((T)IntToPtr(i))
 
@@ -778,6 +852,7 @@ extern HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCW
 extern HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem);
 extern HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam);
 extern HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd);
+extern HRESULT(STDMETHODCALLTYPE* SHLoadRegUIStringW)(HKEY     hkey, LPCWSTR  pszValue, LPWSTR   pszOutBuf, UINT     cchOutBuf);
 extern LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags);
 extern BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength);
@@ -796,8 +871,10 @@ STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
 STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);
 STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, UINT fFlags);
 STDAPI_(BOOL) IsRestrictedOrUserSettingW(HKEY hkeyRoot, enum RESTRICTIONS rest, LPCWSTR pszSubKey, LPCWSTR pszValue, UINT flags);
+STDAPI SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast); 
 STDAPI SHCoInitialize(void);
 STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask);
+STDAPI_(TCHAR) SHFindMnemonic(LPCTSTR psz);
 BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
 BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
 
@@ -823,6 +900,8 @@ inline unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft);
 inline void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64);
 inline void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
+
+__inline CHAR CharUpperCharA(CHAR c);
 
 typedef HANDLE LPSHChangeNotificationLock;
 typedef INT_PTR BOOL_PTR;
