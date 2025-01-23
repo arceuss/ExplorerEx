@@ -119,7 +119,7 @@ HRESULT CTrayNotifyStub_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk)
 
     CComObject<CTrayNotifyStub> *pStub = new CComObject<CTrayNotifyStub>;
     if (pStub)
-        return pStub->QueryInterface(IID_PPV_ARG(IUnknown, ppunk));
+        return pStub->QueryInterface(IID_PPV_ARGS(ppunk));
     else
         return E_OUTOFMEMORY;
 }
@@ -4084,7 +4084,7 @@ IUserEventTimer * CTrayNotify::_CreateTimer(int nTimerFlag)
     if (ppUserEventTimer && !*ppUserEventTimer)
     {
         if ( !SUCCEEDED(SHCoCreateInstance(NULL, &CLSID_UserEventTimer, NULL, 
-                                IID_PPV_ARG(IUserEventTimer, ppUserEventTimer))) )
+                                IID_PPV_ARGS(ppUserEventTimer))) )
         {
             *ppUserEventTimer = NULL;
         }
