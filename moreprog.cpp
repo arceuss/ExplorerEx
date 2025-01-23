@@ -297,7 +297,7 @@ LRESULT CMorePrograms::_OnNCDestroy(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
     // WARNING!  "this" might be invalid (if WM_NCCREATE failed), so
     // do not use any member variables!
     LRESULT lres = DefWindowProc(hwnd, uMsg, wParam, lParam);
-    SetWindowPtr0(hwnd, 0);
+    SetWindowLongPtr(hwnd, 0, 0);
     if (this)
     {
         this->Release();

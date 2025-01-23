@@ -172,7 +172,7 @@ LRESULT CLogoffPane::_OnNCCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
     if (self)
     {
-        SetWindowPtr0(hwnd, self);
+        SetWindowLongPtr(hwnd, 0, (LONG_PTR)self);
 
         self->_hwnd = hwnd;
 
@@ -413,7 +413,7 @@ LRESULT CLogoffPane::_OnNCDestroy(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
     // WARNING!  "this" might be invalid (if WM_NCCREATE failed), so
     // do not use any member variables!
     LRESULT lres = DefWindowProc(hwnd, uMsg, wParam, lParam);
-    SetWindowPtr0(hwnd, 0);
+    SetWindowLongPtr(hwnd, 0, 0);
     if (this)
     {
         this->Release();

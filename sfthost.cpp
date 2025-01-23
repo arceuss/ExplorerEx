@@ -125,7 +125,7 @@ BOOL SFTBarHost::Unregister()
 
 LRESULT CALLBACK SFTBarHost::_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    SFTBarHost *self = reinterpret_cast<SFTBarHost *>(GetWindowPtr0(hwnd));
+    SFTBarHost *self = reinterpret_cast<SFTBarHost *>(GetWindowLongPtr(hwnd, 0));
 
     if (uMsg == WM_NCCREATE)
     {
@@ -205,7 +205,7 @@ LRESULT SFTBarHost::_OnNcCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
     if (self)
     {
-        SetWindowPtr0(hwnd, self);
+        SetWindowLongPtr(hwnd, (LONG_PTR)self);
 
         self->_hwnd = hwnd;
         self->_hTheme = pspld->hTheme;
@@ -1540,7 +1540,7 @@ LRESULT SFTBarHost::_OnNcDestroy(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 {
     // WARNING!  "this" might be NULL (if WM_NCCREATE failed).
     LRESULT lres = DefWindowProc(hwnd, uMsg, wParam, lParam);
-    SetWindowPtr0(hwnd, 0);
+    SetWindowLongPtr(hwnd, 0, 0);
     if (this) {
         _hwndList = NULL;
         _hwnd = NULL;
