@@ -3922,13 +3922,13 @@ int WINAPI CTray::CheckWndPosEnumProc(void *pItem, void *pData)
 
 void CTray::CheckWindowPositions()
 {
-    //ENTERCRITICAL;      // i think this is needed...
+    ENTERCRITICAL;      // i think this is needed...
     if (_pPositions) {
         if (_pPositions->hdsaWP) {
             DSA_EnumCallback(_pPositions->hdsaWP, CheckWndPosEnumProc, NULL);
         }
     }
-    //LEAVECRITICAL;
+    LEAVECRITICAL;
 
     return;
 }
