@@ -17,6 +17,8 @@
 
 #include "criticalsection.h"
 
+#include "winbase.h"
+
 const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 
 //
@@ -344,6 +346,9 @@ typedef struct _tagSHELLREMINDER
 #define _IOffset(class, itf)         ((UINT)(UINT_PTR)&(((class *)0)->itf))
 #define IToClass(class, itf, pitf)   ((class  *)(((LPSTR)pitf)-_IOffset(class, itf)))
 
+#define IS_VALID_CODE_PTR(ptr, type) \
+   (! IsBadCodePtr((FARPROC)(ptr)))
+
 
 
 #define SHProcessMessagesUntilEvent(hwnd, hEvent, dwTimeout)        SHProcessMessagesUntilEventEx(hwnd, hEvent, dwTimeout, QS_ALLINPUT)
@@ -506,11 +511,99 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define SHCNFI_GLOBALHOTKEY               0
 #define SHCNFI_TRAYCOMMAND                1
 #define SHCNFI_TRAY_WNDPROC               3
+#define SHCNFI_EVENT_ONCOMMAND            5   // e.command
+#define SHCNFI_EVENT_HOTKEY               2   // e.hotkey
+
+#define SHCNF_INSTRUMENT  0x0080        // dwItem1: LPSHCNF_INSTRUMENT
+
+#define SHCNE_INSTRUMENT 0x00008000L    // no clue
 
 
 //
 // Enums
 // 
+
+enum {
+    SHDVID_FINALTITLEAVAIL,     // DEAD: variantIn bstr - sent after final OLECMDID_SETTITLE is sent
+    SHDVID_MIMECSETMENUOPEN,    // mimecharset menu open commands
+    SHDVID_PRINTFRAME,          // print HTML frame
+    SHDVID_PUTOFFLINE,          // DEAD: The Offline property has been changed
+    SHDVID_PUTSILENT,           // DEAD: The frame's Silent property has been changed
+    SHDVID_GOBACK,              // Navigate Back
+    SHDVID_GOFORWARD,           // Navigate Forward
+    SHDVID_CANGOBACK,           // Is Back Navigation Possible?
+    SHDVID_CANGOFORWARD,        // Is Forward Navigation Possible?
+    SHDVID_CANACTIVATENOW,      // (down) (PICS) OK to navigate to this view now?
+    SHDVID_ACTIVATEMENOW,       // (up) (PICS) Rating checks out, navigate now
+    SHDVID_CANSUPPORTPICS,      // (down) variantIn I4: IOleCommandTarget to reply to
+    SHDVID_PICSLABELFOUND,      // (up) variantIn bstr: PICS label
+    SHDVID_NOMOREPICSLABELS,    // (up) End of document, no more PICS labels coming
+    SHDVID_CANDEACTIVATENOW,    // (QS down) (in script/etc) OK to deactivate view now?
+    SHDVID_DEACTIVATEMENOW,     // (EXEC up) (in script/etc) out of script, deactivate view now
+    SHDVID_NODEACTIVATENOW,     // (EXEC up) (in script/etc) entering script, disable deactivate
+    SHDVID_AMBIENTPROPCHANGE,   // variantIn I4: dispid of ambient property that changed
+    SHDVID_GETSYSIMAGEINDEX,    // variantOut: image index for current page
+    SHDVID_GETPENDINGOBJECT,    // variantOut: IUnknown of pending shellview/docobject
+    SHDVID_GETPENDINGURL,       // variantOut: BSTR of URL for pending docobject
+    SHDVID_SETPENDINGURL,       // variantIn: BSTR of URL passed to pending docobject
+    SHDVID_ISDRAGSOURCE,        // (down) varioutOut I4: non-zero if it's initiated drag&drop
+    SHDVID_DOCFAMILYCHARSET,    // variantOut: I4: windows (family) codepage
+    SHDVID_DOCCHARSET,          // variantOut: I4: actual (mlang) codepage
+    SHDVID_RAISE,               // vaIn:I4:DTRF_*, vaOut:NULL unless DTRF_QUERY
+    SHDVID_GETTRANSITION,       // (down) vaIn: I4: TransitionEvent; vaOut BSTR (CLSID), I4 (dwSpeed)
+    SHDVID_GETMIMECSETMENU,     // get menu handle for mimecharset
+    SHDVID_DOCWRITEABORT,       // Abort binding but activate pending docobject
+    SHDVID_SETPRINTSTATUS,      // VariantIn: BOOL, TRUE - Started printing, FALSE - Finished printing
+    SHDVID_NAVIGATIONSTATUS,    // QS for tooltip text and Exec when user clicks
+    SHDVID_PROGRESSSTATUS,      // QS for tooltip text and Exec when user clicks
+    SHDVID_ONLINESTATUS,        // QS for tooltip text and Exec when user clicks
+    SHDVID_SSLSTATUS,           // QS for tooltip text and Exec when user clicks
+    SHDVID_PRINTSTATUS,         // QS for tooltip text and Exec when user clicks
+    SHDVID_ZONESTATUS,          // QS for tooltip text and Exec when user clicks
+    SHDVID_ONCODEPAGECHANGE,    // variantIn I4: new specified codepage
+    SHDVID_SETSECURELOCK,       // set the secure icon
+    SHDVID_SHOWBROWSERBAR,      // show browser bar of clsid guid
+    SHDVID_NAVIGATEBB,          // navigate to pidl in browserbar.
+    SHDVID_UPDATEOFFLINEDESKTOP,// put the desktop in ON-LINE mode, update and put it back in Offline mode
+    SHDVID_PICSBLOCKINGUI,      // (up) In I4: pointer to "ratings nugget" for block API
+    SHDVID_ONCOLORSCHANGE,      // (up) sent by mshtml to indicate color set change
+    SHDVID_CANDOCOLORSCHANGE,   // (down) used to query if document supports the above
+    SHDVID_QUERYMERGEDHELPMENU, // was the help menu micro-merged?
+    SHDVID_QUERYOBJECTSHELPMENU,// return the object's help menu
+    SHDVID_HELP,                // do help
+    SHDVID_UEMLOG,              // set UEM logging vaIn:I4:UEMIND_*, vaOut:NULL
+    SHDVID_GETBROWSERBAR,       // get IDeskBand for browser bar of clsid guid
+    SHDVID_GETFONTMENU,
+    SHDVID_FONTMENUOPEN,
+    SHDVID_CLSIDTOIDM,          // get the idm for the given clsid
+    SHDVID_GETDOCDIRMENU,       // get menu handle for document direction
+    SHDVID_ADDMENUEXTENSIONS,   // Context Menu Extensions
+    SHDVID_CLSIDTOMONIKER,      // CLSID to property page resource mapping
+    SHDVID_RESETSTATUSBAR,      // set the status bar back to "normal" icon w/out text
+    SHDVID_ISBROWSERBARVISIBLE, // is browser bar of clsid guid visible?
+    SHDVID_GETOPTIONSHWND,      // gets hwnd for internet options prop sheet (NULL if not open)
+    SHDVID_DELEGATEWINDOWOM,    // set policy for whether window OM methods should be delegated.
+    SHDVID_PAGEFROMPOSTDATA,    // determines if page was generated by post data
+    SHDVID_DISPLAYSCRIPTERRORS, // tells the top docobject host to display his script err dialog
+    SHDVID_NAVIGATEBBTOURL,     // Navigate to an URL in browserbar (used in Trident).
+    SHDVID_NAVIGATEFROMDOC,     // The document delegated the navigation for a non-html mime-type.
+    SHDVID_STARTPICSFORWINDOW,  // (up) variantIn: IUnknown of window that is navigating
+    //      variantOut: bool if pics process started
+    SHDVID_CANCELPICSFORWINDOW, // (up) variantIn: IUnknown of window that is no longer navigating
+    SHDVID_ISPICSENABLED,       // (up) variantOut: bool
+    SHDVID_PICSLABELFOUNDINHTTPHEADER,// (up) variantIn bstr: PICS label
+    SHDVID_CHECKINCACHEIFOFFLINE, // Check in cache if offline
+    SHDVID_CHECKDONTUPDATETLOG,   // check if the current navigate is already dealing with the travellog correctly
+    SHDVID_UPDATEDOCHOSTSTATE,    // Sent from CBaseBrowser2::_UpdateBrowserState to tell the dochost to update its state.
+    SHDVID_FIREFILEDOWNLOAD,
+    SHDVID_COMPLETEDOCHOSTPASSING,
+    SHDVID_NAVSTART,
+    SHDVID_SETNAVIGATABLECODEPAGE,
+    SHDVID_WINDOWOPEN,
+    SHDVID_PRIVACYSTATUS,        // QS for tooltip text and exec when user clicks
+    SHDVID_FORWARDSECURELOCK,   // asks CDocObjectHost to forward its security status up to the shell browser
+    SHDVID_ISEXPLORERBARVISIBLE, // is any explorer bar visible?
+};
 
 typedef enum _WINSTATIONINFOCLASS {
     WinStationCreateData,         // query WinStation create data
@@ -614,7 +707,7 @@ extern COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORR
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
 STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);
-STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags);
+STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, UINT fFlags);
 STDAPI_(BOOL) IsRestrictedOrUserSettingW(HKEY hkeyRoot, enum RESTRICTIONS rest, LPCWSTR pszSubKey, LPCWSTR pszValue, UINT flags);
 STDAPI SHCoInitialize(void);
 STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask);

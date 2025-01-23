@@ -5372,7 +5372,7 @@ void CTray::_CheckForRogueProgramFile()
                     iRet = SHMessageBoxCheckExW(GetDesktopWindow(),
                                                hinstCabinet,
                                                MAKEINTRESOURCE(DLG_PROGRAMFILECONFLICT),
-                                               (DLGPROC)RogueProgramFileDlgProc,
+                                               RogueProgramFileDlgProc,
                                                (void *)szRogueFileName,
                                                IDIGNORE,
                                                TEXT("RogueProgramName"));
