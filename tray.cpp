@@ -1849,7 +1849,7 @@ DWORD WINAPI CTray::SyncThreadProc(void *pv)
 DWORD CTray::_SyncThreadProc()
 {
     if (g_dwStopWatchMode)
-        StopWatch_StartTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+        //StopWatch_StartTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
 
     if (g_dwProfileCAP & 0x00000002)
         StartCAP();
@@ -1938,7 +1938,7 @@ DWORD CTray::_SyncThreadProc()
         StopCAP();
 
     if (g_dwStopWatchMode)
-        StopWatch_StopTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+        //StopWatch_StopTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
 
     return FALSE;
 }
@@ -5664,7 +5664,7 @@ void CTray::_HandleDelayBootStuff()
 
         if (g_dwStopWatchMode)
         {
-            StopWatch_StartTimed(SWID_STARTUP, TEXT("_DelayedBootStuff"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+            //StopWatch_StartTimed(SWID_STARTUP, TEXT("_DelayedBootStuff"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
         }
 
         PostMessage(_hwnd, TM_SHELLSERVICEOBJECTS, 0, 0);
@@ -5693,7 +5693,7 @@ void CTray::_HandleDelayBootStuff()
 
         if (g_dwStopWatchMode)
         {
-            StopWatch_StopTimed(SWID_STARTUP, TEXT("_DelayedBootStuff"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+            //StopWatch_StopTimed(SWID_STARTUP, TEXT("_DelayedBootStuff"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
         }
     }
 }
