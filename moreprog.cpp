@@ -124,7 +124,7 @@ LRESULT CMorePrograms::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     if(SHRestricted(REST_NOSMMOREPROGRAMS))
         return TRUE;
 
-    if (!LoadString(_Module.GetResourceInstance(),
+    if (!LoadString(_AtlBaseModule.GetResourceInstance(),
                     IDS_STARTPANE_MOREPROGRAMS, _szMessage, ARRAYSIZE(_szMessage)))
     {
         return FALSE;
@@ -220,7 +220,7 @@ LRESULT CMorePrograms::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     _hwndButton = CreateWindowEx(0, TEXT("button"), _szMessage, dwStyle,
                                  rc.left, rc.top, RECTWIDTH(rc), RECTHEIGHT(rc),
                                  _hwnd, (HMENU)IntToPtr(IDC_BUTTON),
-                                 _Module.GetModuleInstance(), NULL);
+                                 GetModuleHandle(NULL), NULL);
 
     if (!_hwndButton)
     {
@@ -263,7 +263,7 @@ HWND CMorePrograms::_CreateTooltip()
     HWND hwnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, dwStyle,
                                0, 0, 0, 0,
                                _hwndButton, NULL,
-                               _Module.GetModuleInstance(), NULL);
+                               GetModuleHandle(NULL), NULL);
     if (hwnd)
     {
         TCHAR szBuf[MAX_PATH];
@@ -272,14 +272,14 @@ HWND CMorePrograms::_CreateTooltip()
         ti.hwnd = _hwnd;
         ti.uId = reinterpret_cast<UINT_PTR>(_hwndButton);
         ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
-        ti.hinst = _Module.GetResourceInstance();
+        ti.hinst = _AtlBaseModule.GetResourceInstance();
 
         // We can't use MAKEINTRESOURCE because that allows only up to 80
         // characters for text, and our text can be longer than that.
         UINT ids = IDS_STARTPANE_MOREPROGRAMS_TIP;
 
         ti.lpszText = szBuf;
-        if (LoadString(_Module.GetResourceInstance(), ids, szBuf, ARRAYSIZE(szBuf)))
+        if (LoadString(_AtlBaseModule.GetResourceInstance(), ids, szBuf, ARRAYSIZE(szBuf)))
         {
             SendMessage(hwnd, TTM_ADDTOOL, 0, reinterpret_cast<LPARAM>(&ti));
 
@@ -738,7 +738,7 @@ BOOL WINAPI MorePrograms_RegisterClass()
     wc.cbSize        = sizeof(wc);
     wc.style         = CS_GLOBALCLASS;
     wc.lpfnWndProc   = CMorePrograms::s_WndProc;
-    wc.hInstance     = _Module.GetModuleInstance();
+    wc.hInstance     = GetModuleHandle(NULL);
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
     wc.lpszClassName = WC_MOREPROGRAMS;

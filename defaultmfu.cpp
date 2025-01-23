@@ -293,7 +293,7 @@ restart:
     //  If this entry is blank, then skip it.
     //
     TCHAR szPath[MAX_PATH];
-    if (!LoadString(_Module.GetModuleInstance(), pmfu->idsBase + dwCurrentIndex,
+    if (!LoadString(GetModuleHandle(NULL), pmfu->idsBase + dwCurrentIndex,
                     szPath, ARRAYSIZE(szPath)))
     {
         goto restart;
@@ -332,7 +332,7 @@ void ValidateMFUList(const MFULIST *pmfu)
     for (int i = 0; i < MAX_MSMFUENTRIES; i++)
     {
         TCHAR szBuf[MAX_PATH];
-        LoadString(_Module.GetModuleInstance(), pmfu->idsBase + i, szBuf, ARRAYSIZE(szBuf));
+        LoadString(GetModuleHandle(NULL), pmfu->idsBase + i, szBuf, ARRAYSIZE(szBuf));
         ASSERT(StrCmpC(szBuf, pmfu->rgpszEnglish[i]) == 0);
     }
 }

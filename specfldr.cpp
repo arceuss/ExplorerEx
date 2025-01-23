@@ -948,7 +948,7 @@ void SpecialFolderList::GetItemInfoTip(PaneItem *p, LPTSTR pszText, DWORD cch)
 {
     SpecialFolderListItem *pitem = (SpecialFolderListItem*)p;
     if (pitem->_psfd->_iToolTip)
-        LoadString(_Module.GetResourceInstance(), pitem->_psfd->_iToolTip, pszText, cch);
+        LoadString(_AtlBaseModule.GetResourceInstance(), pitem->_psfd->_iToolTip, pszText, cch);
     else
         SFTBarHost::GetItemInfoTip(p, pszText, cch);    // call the base class
 }
@@ -1574,7 +1574,7 @@ HRESULT CConnectToShellMenuCallback::_OnEndEnum(SMDATA *psmd)
     if (psmd->punk && SUCCEEDED(hr = psmd->punk->QueryInterface(IID_PPV_ARGS(&psm))))
     {
         // load the static portion of the connect to menu, and add it to the bottom
-        HMENU hmStatic = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(MENU_CONNECTTO));
+        HMENU hmStatic = LoadMenu(_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(MENU_CONNECTTO));
 
         if (hmStatic)
         {
@@ -1648,7 +1648,7 @@ BOOL SpecialFolderDesc::LoadStringAsOLESTR(LPTSTR *ppsz) const
 {
     BOOL bRet = FALSE;
     TCHAR szTmp[MAX_PATH];
-    if (_idsCustomName && LoadString(_Module.GetResourceInstance(), _idsCustomName, szTmp, ARRAYSIZE(szTmp)))
+    if (_idsCustomName && LoadString(_AtlBaseModule.GetResourceInstance(), _idsCustomName, szTmp, ARRAYSIZE(szTmp)))
     {
         if (ppsz)
             SHStrDup(szTmp, ppsz);

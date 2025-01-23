@@ -12,7 +12,7 @@
 #include "tray.h"
 #include "traycmn.h"
 #include "startmnu.h"
-//#include "desktop2.h"
+#include "desktop2.h"
 #include "uemapp.h"
 
 #define GROUPID_CURRENTITEMS    5
