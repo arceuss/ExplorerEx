@@ -13,7 +13,6 @@
 #pragma once
 #include <Windows.h>
 #include <shobjidl_core.h>
-#include "interfacesp.h"
 
 #include "criticalsection.h"
 
@@ -751,3 +750,5 @@ bool SHUndocInit(void);
 
 const CLSID CLSID_TrayNotify = { 0x25DEAD04, 0x1EAC, 0x4911,{ 0x9E, 0x3A, 0xAD, 0x0A, 0x4A, 0xB5, 0x60, 0xFD } };
 DEFINE_GUID(IID_IShellService, 0x5836FB00L, 0x8187, 0x11CF, 0xA1, 0x2B, 0x00, 0xAA, 0x00, 0x4A, 0xE8, 0x37);
+
+#include "interfacesp.inc"
