@@ -2016,7 +2016,7 @@ LRESULT CDesktopHost::OnCommandInvoked(NMHDR *pnm)
     {
         if (!_ptFader)
         {
-            CoCreateInstance(CLSID_FadeTask, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IFadeTask, &_ptFader));
+            CoCreateInstance(CLSID_FadeTask, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_ptFader));
         }
         if (_ptFader)
         {
@@ -2548,10 +2548,10 @@ STDAPI DesktopV2_Create(
         hr = pdh->Initialize();
         if (SUCCEEDED(hr))
         {
-            hr = pdh->QueryInterface(IID_PPV_ARG(IMenuPopup, ppmp));
+            hr = pdh->QueryInterface(IID_PPV_ARGS(ppmp));
             if (SUCCEEDED(hr))
             {
-                hr = pdh->QueryInterface(IID_PPV_ARG(IMenuBand, ppmb));
+                hr = pdh->QueryInterface(IID_PPV_ARGS(ppmb));
             }
         }
         pdh->GetUnknown()->Release();

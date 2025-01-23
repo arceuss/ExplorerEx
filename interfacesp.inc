@@ -201,3 +201,18 @@ ITrayNotifyWin8 : IUnknown
     STDMETHOD(EnableAutoTray)(BOOL) PURE;
     STDMETHOD(DoAction)(BOOL) PURE;
 };
+
+MIDL_INTERFACE("2f711b17-773c-41d4-93fa-7f23edcecb66")
+IAugmentedShellFolder : public IShellFolder
+{
+    STDMETHOD(AddNameSpace)(THIS_ LPGUID, IShellFolder*, LPCITEMIDLIST, ULONG, ULONG) PURE;
+    STDMETHOD(GetNameSpaceID)(THIS_ LPCITEMIDLIST, LPGUID) PURE;
+    STDMETHOD(QueryNameSpace)(THIS_ ULONG, LPGUID, IShellFolder**) PURE;
+    STDMETHOD(EnumNameSpace)(THIS_ ULONG, PULONG) PURE;
+};
+
+MIDL_INTERFACE("8DB3B3F4-6CFE-11d1-8AE9-00C04FD918D0")
+IAugmentedShellFolder2 : public IAugmentedShellFolder
+{
+     STDMETHOD(UnWrapIDList)(THIS_ LPCITEMIDLIST, LONG, IShellFolder**, LPITEMIDLIST*, LPITEMIDLIST*, LONG*) PURE;
+};

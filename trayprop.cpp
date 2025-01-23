@@ -143,7 +143,7 @@ CPinHelper::CPinHelper()
     _pidlBrowser = ILCreateFromPath(TEXT("shell:::{2559a1f4-21d7-11d4-bdaf-00c04f60b9f0}"));
     _pidlEmail   = ILCreateFromPath(TEXT("shell:::{2559a1f5-21d7-11d4-bdaf-00c04f60b9f0}"));
     CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
-                     IID_PPV_ARG(IStartMenuPin, &_psmp));
+                     IID_PPV_ARGS(&_psmp));
 }
 
 
@@ -518,11 +518,11 @@ LRESULT CNotificationsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam,
     }
 
     // localserver for tray notify
-    if (SUCCEEDED(CoCreateInstance(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARG(ITrayNotify, &_pTrayNotify))))
+    if (SUCCEEDED(CoCreateInstance(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&_pTrayNotify))))
     {
         INotificationCB* pCB;
 
-        if (SUCCEEDED(QueryInterface(IID_PPV_ARG(INotificationCB, &pCB))))
+        if (SUCCEEDED(QueryInterface(IID_PPV_ARGS(&pCB))))
         {
             _pTrayNotify->RegisterCallback(pCB);
             pCB->Release();
@@ -1552,7 +1552,7 @@ void CCustomizeSPPropSheet::_SaveMagicEntries()
 
 BOOL CCustomizeSPPropSheet::AdvancedTabInit(HWND hDlg)
 {
-    if (SUCCEEDED(CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IRegTreeOptions, &_prto))))
+    if (SUCCEEDED(CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_prto))))
     {
         HRESULT hr;
         HWND hwndTV = ::GetDlgItem(hDlg, IDC_STARTMENUSETTINGS);
@@ -1835,7 +1835,7 @@ BOOL_PTR CTaskBarPropertySheet::StartMenuDlgProc(HWND hDlg, UINT uMsg, WPARAM wP
             }
             case IDC_OLDSTARTCUSTOMIZE:
             {
-                if (FAILED(CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IRegTreeOptions, &_Adv.pTO))))
+                if (FAILED(CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_Adv.pTO))))
                 {
                     TraceMsg(TF_WARNING, "ctbps failed to create CRegTreeOptions");
                     break;
@@ -1892,7 +1892,7 @@ void _UpdateNotifySetting(BOOL fNotifySetting)
 {
     ITrayNotify * pTrayNotify = NULL;
     // localserver for tray notify
-    if (SUCCEEDED(CoCreateInstance(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARG(ITrayNotify, &pTrayNotify))))
+    if (SUCCEEDED(CoCreateInstance(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&pTrayNotify))))
     {
         pTrayNotify->EnableAutoTray(fNotifySetting);
         pTrayNotify->Release();
@@ -2249,7 +2249,7 @@ void MenuOrderSortSubKey(HKEY hkeyRoot, LPTSTR pszFolder, LPTSTR pszKey, IShellF
     if (SUCCEEDED(psf->ParseDisplayName(NULL, NULL, pszFolder, &cbEaten, &pidl, &dwAttrib)))
     {
         IShellFolder* psfSub;
-        if (SUCCEEDED(psf->BindToObject(pidl, NULL, IID_PPV_ARG(IShellFolder, &psfSub))))
+        if (SUCCEEDED(psf->BindToObject(pidl, NULL, IID_PPV_ARGS(&psfSub))))
         {
             MenuOrderSortKeyWithFolder(hkeyRoot, pszKey, psfSub);
             psfSub->Release();
@@ -2266,7 +2266,7 @@ void MenuOrderSort(HKEY hkeyRoot, IShellFolder* psf)
     if (pstm)
     {
         IOrderList2* pol2;
-        if (SUCCEEDED(CoCreateInstance(CLSID_OrderListExport, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IOrderList2, &pol2))))
+        if (SUCCEEDED(CoCreateInstance(CLSID_OrderListExport, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pol2))))
         {
             HDPA hdpa;
             if (SUCCEEDED(pol2->LoadFromStream(pstm, &hdpa, psf)))
@@ -2317,7 +2317,7 @@ void StartMenuSort()
             IShellFolder* psfCommon;
             IShellFolder* psfUser;
             HRESULT hres = CoCreateInstance(CLSID_MergedFolder, NULL, CLSCTX_INPROC_SERVER,
-                                    IID_PPV_ARG(IAugmentedShellFolder2, &pasf));
+                                    IID_PPV_ARGS(&pasf));
             if (SUCCEEDED(hres))
             {
                 psfUser = BindToFolder(pidl);
@@ -2335,7 +2335,7 @@ void StartMenuSort()
                     psfCommon->Release();
                 }
 
-                hres = pasf->QueryInterface(IID_PPV_ARG(IShellFolder, &psf));
+                hres = pasf->QueryInterface(IID_PPV_ARGS(&psf));
                 pasf->Release();
             }
 
@@ -2364,9 +2364,9 @@ void StartMenuSort()
             if (pidlMyDocs)
             {
                 IShellFolder* psfMyDocs;
-                if (SUCCEEDED(SHBindToObjectEx(NULL, pidlMyDocs, NULL, IID_PPV_ARG(IShellFolder, &psfMyDocs))))
+                if (SUCCEEDED(SHBindToObjectEx(NULL, pidlMyDocs, NULL, IID_PPV_ARGS(&psfMyDocs))))
                 {
-                    MenuOrderSortKeyWithFolder(hkeyRoot, TEXT("MyDocuments"), psfMyDocs);
+                    MenuOrderSortKeyWithFolder(hkeyRoot, (LPTSTR)TEXT("MyDocuments"), psfMyDocs);
                     psfMyDocs->Release();
                 }
                 ILFree(pidlMyDocs);
@@ -2381,7 +2381,7 @@ void StartMenuSort()
             if (StrCmpI(pszName, TEXT("Programs")) != 0)
             {
                 // Ok, It's not the same, so go bind to that sub tree and sort it.
-                MenuOrderSortSubKey(hkeyRoot, pszName, TEXT("Programs"), psf);
+                MenuOrderSortSubKey(hkeyRoot, pszName, (LPTSTR)TEXT("Programs"), psf);
             }
             RegCloseKey(hkeyRoot);
         }
@@ -2397,7 +2397,7 @@ BOOL Advanced_OnInitDialog(HWND hwndDlg, SMADVANCED* pAdv)
         return FALSE;   // no memory?
     }
 
-    SetWindowPtr(hwndDlg, DWLP_USER, pAdv);
+    SetWindowLongPtr(hwndDlg, DWLP_USER, (LONG_PTR)pAdv);
 
     // since the large icon setting is stored in the tray state, not as a standalone reg key, we need to have a temp reg key for the regtreeop to use...
     TRAYVIEWOPTS tvo;
@@ -2445,7 +2445,7 @@ void InitStartMenu_DoTreeHelp(SMADVANCED* pAdv, WPARAM wParam)
 
 BOOL_PTR CALLBACK AdvancedOptDlgProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    SMADVANCED* pAdv = (SMADVANCED*)GetWindowPtr(hwndDlg, DWLP_USER);
+    SMADVANCED* pAdv = (SMADVANCED*)GetWindowLongPtr(hwndDlg, DWLP_USER);
     INSTRUMENT_WNDPROC(SHCNFI_INITSTARTMENU_DLGPROC, hwndDlg, msg, wParam, lParam);
 
     if (msg != WM_INITDIALOG && !pAdv)
@@ -2616,7 +2616,7 @@ BOOL_PTR CALLBACK AdvancedOptDlgProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
             ATOMICRELEASE(pAdv->pTO);
 
             // make sure we don't re-enter
-            SetWindowPtr( hwndDlg, DWLP_USER, NULL );
+            SetWindowLongPtr(hwndDlg, DWLP_USER, NULL);
         }
         break; // WM_DESTORY
 
@@ -2680,7 +2680,7 @@ void SetProgramIcon(HWND hDlg, int idLarge, int idSmall)
         if (SUCCEEDED(SHGetDesktopFolder(&psfDesktop)))
         {
             IExtractIcon *pxi;
-            if (SUCCEEDED(psfDesktop->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlMyComp, IID_PPV_ARG_NULL(IExtractIcon, &pxi))))
+            if (SUCCEEDED(psfDesktop->GetUIObjectOf(NULL, 1, (LPCITEMIDLIST*)&pidlMyComp, IID_IExtractIcon, nullptr, (void**)&pxi)))
             {
                 TCHAR szIconFile[MAX_PATH];
                 int iIndex;

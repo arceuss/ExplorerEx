@@ -979,7 +979,7 @@ HRESULT _GetPathOrDarwinID(IShellLink *psl, LPTSTR pszPath, UINT cchPath, DWORD 
     //  See if it's a Darwin thingie.
     //
     IShellLinkDataList *pdl;
-    hr = psl->QueryInterface(IID_PPV_ARG(IShellLinkDataList, &pdl));
+    hr = psl->QueryInterface(IID_PPV_ARGS(&pdl));
     if (SUCCEEDED(hr))
     {
         //
@@ -1099,7 +1099,7 @@ HRESULT ByUsage::Initialize()
     HRESULT hr;
 
     hr = CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
-                          IID_PPV_ARG(IStartMenuPin, &_psmpin));
+                          IID_PPV_ARGS(&_psmpin));
     if (FAILED(hr))
     {
         return hr;
@@ -1596,7 +1596,7 @@ void CMenuItemsCache::_MergeIntoFolderCache(ByUsageRoot *prt, ByUsageDir *pdir, 
         //  If not, then we just have to assume that they all changed.
         //
         IShellFolder2 *psf2;
-        if (SUCCEEDED(pdir->Folder()->QueryInterface(IID_PPV_ARG(IShellFolder2, &psf2))))
+        if (SUCCEEDED(pdir->Folder()->QueryInterface(IID_PPV_ARGS(&psf2))))
         {
             psf2->Release();
         }
@@ -2665,7 +2665,7 @@ void ByUsage::_FillPinnedItemsCache()
                 //  Note that we do not go through _PathIsInterestingExe
                 //  because all pinned items are interesting.
 
-                hr = SHGetUIObjectFromFullPIDL(pidl, NULL, IID_PPV_ARG(IShellLink, &psl));
+                hr = SHGetUIObjectFromFullPIDL(pidl, NULL, IID_PPV_ARGS(&psl));
                 if (SUCCEEDED(hr))
                 {
                     hd.LoadFromShellLink(psl);
@@ -2726,16 +2726,16 @@ void ByUsage::_FillPinnedItemsCache()
 
 }
 
-IAssociationElement *GetAssociationElementFromSpecialPidl(IShellFolder *psf, LPCITEMIDLIST pidlItem)
+IAssociationElement* GetAssociationElementFromSpecialPidl(IShellFolder *psf, LPCITEMIDLIST pidlItem)
 {
     IAssociationElement *pae = NULL;
 
     // There is no way to get the IAssociationElement directly, so
     // we get the IExtractIcon and then ask him for the IAssociationElement.
     IExtractIcon *pxi;
-    if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlItem, IID_PPV_ARG_NULL(IExtractIcon, &pxi))))
+    if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlItem, IID_IExtractIcon, nullptr, (void**)&pxi)))
     {
-        IUnknown_QueryService(pxi, IID_IAssociationElement, IID_PPV_ARG(IAssociationElement, &pae));
+        IUnknown_QueryService(pxi, IID_IAssociationElement, IID_PPV_ARGS(&pae));
         pxi->Release();
     }
 
@@ -2907,7 +2907,7 @@ HRESULT CMenuItemsCache::Initialize(ByUsageUI *pbuUI, FILETIME * pftOSInstall)
         return E_OUTOFMEMORY;
     }
 
-    hr = AssocCreate(CLSID_QueryAssociations, IID_PPV_ARG(IQueryAssociations, &_pqa));
+    hr = AssocCreate(CLSID_QueryAssociations, IID_PPV_ARGS(&_pqa));
     if (FAILED(hr))
     {
         return hr;

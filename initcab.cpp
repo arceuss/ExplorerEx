@@ -1597,7 +1597,7 @@ void _ConditionalBalloonLaunch(CHECKFUNCTION pCheckFct, SHELLREMINDER* psr)
     {
         IShellReminderManager* psrm;
         HRESULT hr = CoCreateInstance(CLSID_PostBootReminder, NULL, CLSCTX_INPROC_SERVER,
-                         IID_PPV_ARG(IShellReminderManager, &psrm));
+                         IID_PPV_ARGS(&psrm));
 
         if (SUCCEEDED(hr))
         {
@@ -1891,7 +1891,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
 
                 // Put the active desktop in safe mode if we faulted 3 times previously and this is a subsequent instance
 
-                if (ShouldDisplaySafeMode() && SUCCEEDED(CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC, IID_PPV_ARG(IActiveDesktopP, &piadp))))
+                if (ShouldDisplaySafeMode() && SUCCEEDED(CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&piadp))))
                 {
                     piadp->SetSafeMode(SSM_SET | SSM_UPDATE);
                     piadp->Release();

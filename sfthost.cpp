@@ -2355,7 +2355,7 @@ LRESULT SFTBarHost::_OnContextMenu(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
             // If we can't get the official shell context menu,
             // then use a dummy one.
             IContextMenu *pcm;
-            if (FAILED(_GetUIObjectOfItem(pitem, IID_PPV_ARG(IContextMenu, &pcm))))
+            if (FAILED(_GetUIObjectOfItem(pitem, IID_PPV_ARGS(&pcm))))
             {
                 pcm = s_EmptyContextMenu.GetContextMenu();
             }
@@ -2417,10 +2417,10 @@ LRESULT SFTBarHost::_OnContextMenu(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
                 _SHPrettyMenu(hmenu);
 
                 ASSERT(_pcm2Pop == NULL);   // Shouldn't be recursing
-                pcm->QueryInterface(IID_PPV_ARG(IContextMenu2, &_pcm2Pop));
+                pcm->QueryInterface(IID_PPV_ARGS(&_pcm2Pop));
 
                 ASSERT(_pcm3Pop == NULL);   // Shouldn't be recursing
-                pcm->QueryInterface(IID_PPV_ARG(IContextMenu3, &_pcm3Pop));
+                pcm->QueryInterface(IID_PPV_ARGS(&_pcm3Pop));
 
                 int idCmd = TrackPopupMenuEx(hmenu,
                     TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN,
@@ -2630,7 +2630,7 @@ BOOL OfferDelete::_RepairBrokenItem()
         // then I guess the Resolve didn't work after all.
         IShellFolder *psf;
         LPCITEMIDLIST pidlChild;
-        if (SUCCEEDED(SHBindToIDListParent(_pidlFull, IID_PPV_ARG(IShellFolder, &psf), &pidlChild)))
+        if (SUCCEEDED(SHBindToIDListParent(_pidlFull, IID_PPV_ARGS(&psf), &pidlChild)))
         {
             if (SUCCEEDED(SHInvokeDefaultCommand(_hwnd, psf, pidlChild)))
             {
@@ -2649,7 +2649,7 @@ void OfferDelete::_ThreadProc()
     if (_hwnd)
     {
         if (SUCCEEDED(CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
-                                       IID_PPV_ARG(IStartMenuPin, &_psmpin))))
+                                       IID_PPV_ARGS(&_psmpin))))
         {
             //
             //  First try to repair it by invoking the shortcut tracking code.
@@ -2811,7 +2811,7 @@ LRESULT SFTBarHost::_OnLVNBeginDrag(LPNMLISTVIEW plv)
     ASSERT(pitem);
 
     IDataObject *pdto;
-    if (pitem && SUCCEEDED(_GetUIObjectOfItem(pitem, IID_PPV_ARG(IDataObject, &pdto))))
+    if (pitem && SUCCEEDED(_GetUIObjectOfItem(pitem, IID_PPV_ARGS(&pdto))))
     {
         POINT pt;
 
@@ -2897,7 +2897,7 @@ LRESULT SFTBarHost::_OnLVNBeginLabelEdit(NMLVDISPINFO *plvdi)
 
                     int cchLimit = MAX_PATH;
                     IItemNameLimits *pinl;
-                    if (SUCCEEDED(psf->QueryInterface(IID_PPV_ARG(IItemNameLimits, &pinl))))
+                    if (SUCCEEDED(psf->QueryInterface(IID_PPV_ARGS(&pinl))))
                     {
                         pinl->GetMaxLength(ptszName, &cchLimit);
                         pinl->Release();
@@ -3335,7 +3335,7 @@ HRESULT SFTBarHost::_TryInnerDropTarget(int iItem, DWORD grfKeyState, POINTL ptl
         PaneItem *pitem = _GetItemFromLV(iItem);
         if (pitem && pitem->IsDropTarget())
         {
-            hr = _GetUIObjectOfItem(pitem, IID_PPV_ARG(IDropTarget, &_pdtDragOver));
+            hr = _GetUIObjectOfItem(pitem, IID_PPV_ARGS(&_pdtDragOver));
             if (SUCCEEDED(hr))
             {
                 hr = _pdtDragOver->DragEnter(_pdtoDragIn, grfKeyState, ptl, pdwEffect);

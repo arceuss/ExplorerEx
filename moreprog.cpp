@@ -241,7 +241,7 @@ LRESULT CMorePrograms::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
     // We can survive if this fails to be created
     CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
-                     IID_PPV_ARG(IDropTargetHelper, &_pdth));
+                     IID_PPV_ARGS(&_pdth));
 
     //
     // If this fails, no big whoop - you just don't get
@@ -433,7 +433,7 @@ void CMorePrograms::_TrackShellMenu(DWORD dwFlags)
     if (!_psmPrograms)
     {
         CoCreateInstance(CLSID_PersonalStartMenu, NULL, CLSCTX_INPROC,
-            IID_PPV_ARG(IShellMenu, &_psmPrograms));
+            IID_PPV_ARGS(&_psmPrograms));
     }
 
     if (_psmPrograms)
