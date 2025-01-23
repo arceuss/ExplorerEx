@@ -422,7 +422,7 @@ BOOL _ShowStartMenuLogoff()
 
     BOOL fUserWantsLogoff = ss.fStartPanelOn || GetExplorerUserSetting(HKEY_CURRENT_USER, TEXT("Advanced"), TEXT("StartMenuLogoff")) > 0;
     BOOL fAdminWantsLogoff = (BOOL)(dwRest == 2) || SHRestricted(REST_FORCESTARTMENULOGOFF);
-    BOOL fIsFriendlyUIActive = IsOS(OS_FRIENDLYLOGONUI);
+    BOOL fIsFriendlyUIActive = !SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("GinaUI"), FALSE, TRUE);
     BOOL fIsTS = GetSystemMetrics(SM_REMOTESESSION);
 
     if ((dwRest != 1 && (GetSystemMetrics(SM_NETWORK) & RNC_LOGON) != 0) &&

@@ -401,8 +401,9 @@ HRESULT CUserPane::_UpdateUserInfo()
     if (_hTheme)
         GetThemeBool(_hTheme, SPP_USERPANE, 0, TMT_USERPICTURE, &bShowPicture);
 
-    // add FriendlyLogonUI check here, since SHGetUserPicturePath 
-    if (bShowPicture && IsOS(OS_PROFESSIONAL)) // No, this isn't meant to be OS_PROFESSIONAL. TODO: Aubrey-styled IsOS thing
+    // add FriendlyLogonUI check here, since SHGetUserPicturePath
+    BOOL fGina = SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("GinaUI"), FALSE, TRUE);
+    if (bShowPicture && !fGina)
     {
         TCHAR szUserPicturePath[MAX_PATH];
         szUserPicturePath[0] = _T('0');
