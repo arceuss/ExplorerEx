@@ -445,7 +445,7 @@ protected:
     BOOL _DesktopCleanup_ShouldRun();
     void _CheckDesktopCleanup(void);
 
-    BOOL_PTR WINAPI RogueProgramFileDlgProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+    static BOOL_PTR WINAPI RogueProgramFileDlgProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
     void _CheckForRogueProgramFile();
     void _OnWaitCursorNotify(LPNMHDR pnm);
     void _HandlePrivateCommand(LPARAM lParam);
