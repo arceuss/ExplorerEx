@@ -23,6 +23,8 @@
 #include "msi.h"
 #include "port32.h"
 
+#include "path.h"
+
 
 
 //

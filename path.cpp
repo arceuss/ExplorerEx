@@ -1,8 +1,21 @@
+//+-------------------------------------------------------------------------
+//
+//	ExplorerEx - Windows XP Explorer
+//	Copyright (C) Microsoft
+// 
+//	File:			path.cpp
+// 
+//	History:		Jan-23-2025		kawapure		Created
+//
+//+-------------------------------------------------------------------------
+
 #include "shundoc.h"
 #include <strsafe.h>
 #include <Shlwapi.h>
 #include <shlobj.h>
 #include <fileapi.h>
+
+#include "path.h"
 #pragma  hdrstop
 
 BOOL _IsLink(LPCTSTR pszPath, DWORD dwAttributes)

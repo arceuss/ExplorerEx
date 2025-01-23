@@ -222,6 +222,9 @@
     <ClInclude Include="desktopp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="path.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">
@@ -513,6 +516,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="runonce.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="path.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
