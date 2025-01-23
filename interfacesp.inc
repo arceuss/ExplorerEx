@@ -4,13 +4,8 @@
 // 
 
 MIDL_INTERFACE("D12F26B1-D90A-11d0-830D-00AA005B4383")
-IRestrict : IUnknown
+IRestrict : public IUnknown
 {
-    // *** IUnknown methods ***
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
-    STDMETHOD_(ULONG,AddRef) (THIS)  PURE;
-    STDMETHOD_(ULONG,Release) (THIS) PURE;
-
     // *** IRestrict Methods ***
     STDMETHOD(IsRestricted) (THIS_ const GUID* pguidID, DWORD dwRestrictAction, VARIANT* pvarArgs, OUT DWORD* pdwRestrictionResult) PURE;
 };
@@ -18,11 +13,6 @@ IRestrict : IUnknown
 MIDL_INTERFACE("EA5F2D61-E008-11CF-99CB-00C04FD64497")
 IWinEventHandler : IUnknown
 {
-    // *** IUnknown methods ***
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
-    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
-    STDMETHOD_(ULONG, Release) (THIS) PURE;
-
     // *** IWinEventHandler Methods ***
     STDMETHOD(OnWinEvent) (THIS_ HWND hwnd, UINT dwMsg, WPARAM wParam, LPARAM lParam, LRESULT* plres) PURE;
     STDMETHOD(IsWindowOwner) (THIS_ HWND hwnd) PURE;
@@ -31,11 +21,6 @@ IWinEventHandler : IUnknown
 MIDL_INTERFACE("5EA35BC9-19B1-11D1-9828-00C04FD91972")
 IShellHotKey : IUnknown
 {
-    // *** IUnknown methods ***
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
-    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
-    STDMETHOD_(ULONG, Release) (THIS) PURE;
-
     // *** IShellHotKey methods ***
     STDMETHOD(RegisterHotKey)(THIS_ IShellFolder* psf, LPCITEMIDLIST pidlParent, LPCITEMIDLIST pidl) PURE;
 };
@@ -43,15 +28,6 @@ IShellHotKey : IUnknown
 MIDL_INTERFACE("4622AD10-FF23-11D0-8D34-00A0C90F2719")
 ITrayPriv : IOleWindow
 {
-    // *** IUnknown methods ***
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
-    STDMETHOD_(ULONG,AddRef) (THIS)  PURE;
-    STDMETHOD_(ULONG,Release) (THIS) PURE;
-
-    // *** IOleWindow methods ***
-    STDMETHOD(GetWindow) (THIS_ HWND* lphwnd) PURE;
-    STDMETHOD(ContextSensitiveHelp) (THIS_ BOOL fEnterMode) PURE;
-
     // *** ITrayPriv methods ***
     STDMETHOD(ExecItem)(THIS_ IShellFolder* psf, LPCITEMIDLIST pidl) PURE;
     STDMETHOD(GetFindCM)(THIS_ HMENU hmenu, UINT idFirst, UINT idLast, IContextMenu** ppcmFind) PURE;
@@ -61,40 +37,21 @@ ITrayPriv : IOleWindow
 MIDL_INTERFACE("9E83C057-6823-4F1F-BfA3-7461D40A8173")
 ITrayPriv2 : ITrayPriv
 {
-    // *** IUnknown methods ***
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
-    STDMETHOD_(ULONG,AddRef) (THIS)  PURE;
-    STDMETHOD_(ULONG,Release) (THIS) PURE;
-
-    // *** IOleWindow methods ***
-    STDMETHOD(GetWindow) (THIS_ HWND* lphwnd) PURE;
-    STDMETHOD(ContextSensitiveHelp) (THIS_ BOOL fEnterMode) PURE;
-
-    // *** ITrayPriv methods ***
-    STDMETHOD(ExecItem)(THIS_ IShellFolder* psf, LPCITEMIDLIST pidl) PURE;
-    STDMETHOD(GetFindCM)(THIS_ HMENU hmenu, UINT idFirst, UINT idLast, IContextMenu** ppcmFind) PURE;
-    STDMETHOD(GetStaticStartMenu)(THIS_ HMENU* phmenu) PURE;
-
     // *** ITrayPriv2 methods ***
     STDMETHOD(ModifySMInfo)(THIS_ IN LPSMDATA psmd, IN OUT SMINFO* psminfo) PURE;
 };
 
 DECLARE_INTERFACE_(IDeskTray, IUnknown)
 {
-    // *** IUnknown methods ***
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, LPVOID * ppvObj) PURE;
-    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
-    STDMETHOD_(ULONG, Release) (THIS) PURE;
-
     // *** IDeskTray methods ***
     STDMETHOD_(UINT, AppBarGetState)(THIS) PURE;
-    STDMETHOD(GetTrayWindow)(THIS_ HWND * phwndTray) PURE;
+    STDMETHOD(GetTrayWindow)(THIS_ HWND* phwndTray) PURE;
     STDMETHOD(SetDesktopWindow)(THIS_ HWND hwndDesktop) PURE;
 
     // WARNING!  BEFORE CALLING THE SetVar METHOD YOU MUST DETECT
     // THE EXPLORER VERSION BECAUSE IE 4.00 WILL CRASH IF YOU TRY
     // TO CALL IT
-
+    
     STDMETHOD(SetVar)(THIS_ int var, DWORD value) PURE;
 };
 
@@ -146,13 +103,8 @@ IStartMenuPin : IUnknown
 MIDL_INTERFACE("5836FB00-8187-11CF-A12B-00AA004AE837")
 IShellService : IUnknown
 {
-    // *** IUnknown methods ***
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
-    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
-    STDMETHOD_(ULONG, Release) (THIS) PURE;
-
     // *** IShellService specific methods ***
-    STDMETHOD(SetOwner)(THIS_ struct IUnknown* punkOwner) PURE;
+    STDMETHOD(SetOwner)(THIS_ IUnknown* punkOwner) PURE;
 };
 
 MIDL_INTERFACE("FADB55B4-D382-4FC4-81D7-ABB325C7F12A")
@@ -202,8 +154,8 @@ ITrayNotifyWin8 : IUnknown
     STDMETHOD(DoAction)(BOOL) PURE;
 };
 
-MIDL_INTERFACE("2f711b17-773c-41d4-93fa-7f23edcecb66")
-IAugmentedShellFolder : public IShellFolder
+MIDL_INTERFACE("2F711B17-773C-41D4-93FA-7F23EDCECB66")
+IAugmentedShellFolder : IShellFolder
 {
     STDMETHOD(AddNameSpace)(THIS_ LPGUID, IShellFolder*, LPCITEMIDLIST, ULONG, ULONG) PURE;
     STDMETHOD(GetNameSpaceID)(THIS_ LPCITEMIDLIST, LPGUID) PURE;
@@ -212,7 +164,7 @@ IAugmentedShellFolder : public IShellFolder
 };
 
 MIDL_INTERFACE("8DB3B3F4-6CFE-11d1-8AE9-00C04FD918D0")
-IAugmentedShellFolder2 : public IAugmentedShellFolder
+IAugmentedShellFolder2 : IAugmentedShellFolder
 {
      STDMETHOD(UnWrapIDList)(THIS_ LPCITEMIDLIST, LONG, IShellFolder**, LPITEMIDLIST*, LPITEMIDLIST*, LONG*) PURE;
 };
