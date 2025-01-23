@@ -1,6 +1,6 @@
 #include "cabinet.h"
 #include "trayclok.h"
-//#include <atlstuff.h>
+#include <atlstuff.h>
 #include "traynot.h"
 #include "rcids.h"
 #include "tray.h"

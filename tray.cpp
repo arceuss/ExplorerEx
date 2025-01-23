@@ -7,7 +7,7 @@
 #include "rcids.h"
 #include "dlg.h"
 
-//#include <atlstuff.h>
+#include <atlstuff.h>
 
 //#include <shlapip.h>
 #include "trayclok.h"
@@ -43,7 +43,6 @@
 #include "vssym32.h"
 
 #include "startids.h"
-
 
 #define DM_FOCUS        0           // focus
 #define DM_SHUTDOWN     TF_TRAY     // shutdown

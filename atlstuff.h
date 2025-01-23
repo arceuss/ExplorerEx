@@ -6,7 +6,7 @@
 #pragma once
 
 // Change these values to use different versions
-#define _RICHEDIT_VER	0x0100
+//#define _RICHEDIT_VER	0x0100
 
 #define _ATL_NO_MP_HEAP
 
@@ -14,7 +14,7 @@
 
 #include <atlbase.h>
 
-extern CComModule _Module;
+//extern CComModule _Module;
 
 
 #include <atlcom.h>
@@ -24,14 +24,14 @@ extern CComModule _Module;
 #include <shlobj.h>
 //#include <shlobjp.h>
 
-//#include <atlapp.h>
-//include <atlwin.h>
+#include <atlapp.h>
+#include <atlwin.h>
 
-//#include <atlres.h>
-//#include <atlframe.h>
-//#include <atlgdi.h>
-//#include <atlctrls.h>
-//#include <atldlgs.h>
-//#include <atlcrack.h>
-//#include <atlmisc.h>
-//#include <atlctrlx.h>
+#include <atlres.h>
+#include <atlframe.h>
+#include <atlgdi.h>
+#include <atlctrls.h>
+#include <atldlgs.h>
+#include <atlcrack.h>
+#include <atlmisc.h>
+#include <atlctrlx.h>
