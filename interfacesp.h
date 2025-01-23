@@ -112,36 +112,35 @@ IShellMenu2 : IShellMenu
 MIDL_INTERFACE("EC35E37A-6579-4F3C-93CD-6E62C4EF7636")
 IStartMenuPin : IUnknown
 {
-
     #define SMPIN_POS(i) (LPCITEMIDLIST)MAKEINTRESOURCE((i)+1))
     #define SMPINNABLE_EXEONLY          0x00000001) // allow only EXEs to be pinned
     #define SMPINNABLE_REJECTSLOWMEDIA  0x00000002) // reject slow media
 
     STDMETHOD(EnumObjects)(THIS_ IEnumIDList * *ppenumIDList) PURE;
-//
-//  Pin:        pidlFrom = NULL, pidlTo = pidl
-//  Unpin:      pidlFrom = pidl, pidlTo = NULL
-//  Update:     pidlFrom = old,  pidlTo = new
-//  Move:       pidlFrom = pidl, pidlTo = SMPINPOS(iPos)
-STDMETHOD(Modify)(THIS_ LPCITEMIDLIST pidlFrom, LPCITEMIDLIST pidlTo) PURE;
-STDMETHOD(GetChangeCount)(THIS_ ULONG* pulOut) PURE;
+    //
+    //  Pin:        pidlFrom = NULL, pidlTo = pidl
+    //  Unpin:      pidlFrom = pidl, pidlTo = NULL
+    //  Update:     pidlFrom = old,  pidlTo = new
+    //  Move:       pidlFrom = pidl, pidlTo = SMPINPOS(iPos)
+    STDMETHOD(Modify)(THIS_ LPCITEMIDLIST pidlFrom, LPCITEMIDLIST pidlTo) PURE;
+    STDMETHOD(GetChangeCount)(THIS_ ULONG* pulOut) PURE;
 
-//
-//  pdto = data object to test
-//  dwFlags is an SMPINNABLE_* flag
-//  *ppidl receives pidl being pinned
-//
-STDMETHOD(IsPinnable)(THIS_ IDataObject* pdto, DWORD dwFlags, LPITEMIDLIST* ppidl) PURE; // S_FALSE if not
+    //
+    //  pdto = data object to test
+    //  dwFlags is an SMPINNABLE_* flag
+    //  *ppidl receives pidl being pinned
+    //
+    STDMETHOD(IsPinnable)(THIS_ IDataObject* pdto, DWORD dwFlags, LPITEMIDLIST* ppidl) PURE; // S_FALSE if not
 
-//
-//  Find the pidl on the pin list and resolve the shortcut that
-//  tracks it.
-//
-//  Returns S_OK if the pidl changed and was resolved.
-//  Returns S_FALSE if the pidl did not change.
-//  Returns an error if the Resolve failed.
-//
-STDMETHOD(Resolve)(THIS_ HWND hwnd, DWORD dwFlags, LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlResolved) PURE;
+    //
+    //  Find the pidl on the pin list and resolve the shortcut that
+    //  tracks it.
+    //
+    //  Returns S_OK if the pidl changed and was resolved.
+    //  Returns S_FALSE if the pidl did not change.
+    //  Returns an error if the Resolve failed.
+    //
+    STDMETHOD(Resolve)(THIS_ HWND hwnd, DWORD dwFlags, LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlResolved) PURE;
 };
 
 MIDL_INTERFACE("5836FB00-8187-11CF-A12B-00AA004AE837")
