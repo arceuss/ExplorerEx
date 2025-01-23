@@ -18,9 +18,46 @@
 
 #include "winbase.h"
 
+// path.cpp (private stuff) ---------------------
+
+#define PQD_NOSTRIPDOTS 0x00000001
+
+STDAPI_(void) PathQualifyDef(LPTSTR psz, LPCTSTR szDefDir, DWORD dwFlags);
+
+STDAPI_(BOOL) PathIsRemovable(LPCTSTR pszPath);
+STDAPI_(BOOL) PathIsRemote(LPCTSTR pszPath);
+STDAPI_(BOOL) PathIsTemporary(LPCTSTR pszPath);
+STDAPI_(BOOL) PathIsWild(LPCTSTR pszPath);
+STDAPI_(BOOL) PathIsLnk(LPCTSTR pszFile);
+STDAPI_(BOOL) PathIsSlow(LPCTSTR pszFile, DWORD dwFileAttr);
+STDAPI_(BOOL) PathIsInvalid(LPCTSTR pPath);
+STDAPI_(BOOL) PathIsBinaryExe(LPCTSTR szFile);
+STDAPI_(BOOL) PathMergePathName(LPTSTR pPath, LPCTSTR pName);
+STDAPI_(BOOL) PathGetMountPointFromPath(LPCTSTR pcszPath, LPTSTR pszMountPoint, int cchMountPoint);
+STDAPI_(BOOL) PathIsShortcutToProgram(LPCTSTR pszFile);
+
 //
 // Constants
 //
+
+// from browseui/globals.h, possibly others
+#define c_szNULL        TEXT("")
+
+// Old shlobj.h things:
+//
+// Path processing function
+//
+#define PPCF_ADDQUOTES               0x00000001        // return a quoted name if required
+#define PPCF_ADDARGUMENTS            0x00000003        // appends arguments (and wraps in quotes if required)
+#define PPCF_NODIRECTORIES           0x00000010        // don't match to directories
+#define PPCF_FORCEQUALIFY            0x00000040        // qualify even non-relative names
+#define PPCF_LONGESTPOSSIBLE         0x00000080        // always find the longest possible name
+
+// shellprv.h (including its own copied attributed headers):
+//  Copy.c
+#define SPEED_SLOW  400
+DWORD GetPathSpeed(LPCTSTR pszPath);
+// end shellprv.h
 
 #define RRA_DEFAULT 0x0000
 #define RRA_DELETE  0x0001
@@ -30,6 +67,41 @@
 
 // shlapip.h
 #define NI_SIGNATURE    0x34753423
+#define PFOPEX_NONE        0x00000000
+#define PFOPEX_PIF         0x00000001
+#define PFOPEX_COM         0x00000002
+#define PFOPEX_EXE         0x00000004
+#define PFOPEX_BAT         0x00000008
+#define PFOPEX_LNK         0x00000010
+#define PFOPEX_CMD         0x00000020
+#define PFOPEX_OPTIONAL    0x00000040   // Search only if Extension not present
+#define PFOPEX_DEFAULT     (PFOPEX_CMD | PFOPEX_COM | PFOPEX_BAT | PFOPEX_PIF | PFOPEX_EXE | PFOPEX_LNK)
+
+// shlwapip.h
+
+//
+// flags for PathIsValidChar()
+//
+#define PIVC_ALLOW_QUESTIONMARK     0x00000001  // treat '?' as valid
+#define PIVC_ALLOW_STAR             0x00000002  // treat '*' as valid
+#define PIVC_ALLOW_DOT              0x00000004  // treat '.' as valid
+#define PIVC_ALLOW_SLASH            0x00000008  // treat '\\' as valid
+#define PIVC_ALLOW_COLON            0x00000010  // treat ':' as valid
+#define PIVC_ALLOW_SEMICOLON        0x00000020  // treat ';' as valid
+#define PIVC_ALLOW_COMMA            0x00000040  // treat ',' as valid
+#define PIVC_ALLOW_SPACE            0x00000080  // treat ' ' as valid
+#define PIVC_ALLOW_NONALPAHABETIC   0x00000100  // treat non-alphabetic exteneded chars as valid
+#define PIVC_ALLOW_QUOTE            0x00000200  // treat '"' as valid
+
+//
+// standard masks for PathIsValidChar()
+//
+#define PIVC_SFN_NAME               (PIVC_ALLOW_DOT | PIVC_ALLOW_NONALPAHABETIC)
+#define PIVC_SFN_FULLPATH           (PIVC_SFN_NAME | PIVC_ALLOW_COLON | PIVC_ALLOW_SLASH)
+#define PIVC_LFN_NAME               (PIVC_ALLOW_DOT | PIVC_ALLOW_NONALPAHABETIC | PIVC_ALLOW_SEMICOLON | PIVC_ALLOW_COMMA | PIVC_ALLOW_SPACE)
+#define PIVC_LFN_FULLPATH           (PIVC_LFN_NAME | PIVC_ALLOW_COLON | PIVC_ALLOW_SLASH)
+#define PIVC_SFN_FILESPEC           (PIVC_SFN_FULLPATH | PIVC_ALLOW_STAR | PIVC_ALLOW_QUESTIONMARK)
+#define PIVC_LFN_FILESPEC           (PIVC_LFN_FULLPATH | PIVC_ALLOW_STAR | PIVC_ALLOW_QUESTIONMARK)
 
 const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 

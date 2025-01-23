@@ -292,6 +292,7 @@
     <ClCompile Include="mixer.cpp" />
     <ClCompile Include="moreprog.cpp" />
     <ClCompile Include="muext.c" />
+    <ClCompile Include="path.cpp" />
     <ClCompile Include="proglist.cpp" />
     <ClCompile Include="runonce.cpp" />
     <ClCompile Include="sfthost.cpp" />
