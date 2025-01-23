@@ -186,9 +186,9 @@ INotificationCB : IUnknown
 MIDL_INTERFACE("FB852B2C-6BAD-4605-9551-F15F87830935")
 ITrayNotify : IUnknown
 {
-    STDMETHOD(RegisterCallback)(INotificationCB * callback) PURE;
-    STDMETHOD(SetPreference)(const NOTIFYITEM* notify_item) PURE;
-    STDMETHOD(EnableAutoTray)(BOOL enabled) PURE;
+    STDMETHOD(RegisterCallback)(INotificationCB* pNotifyCB) PURE;
+    STDMETHOD(SetPreference)(LPNOTIFYITEM pNotifyItem) PURE;
+    STDMETHOD(EnableAutoTray)(BOOL bTraySetting) PURE;
 };
 
 //this is the Windows 8+ variant of ITrayNotify, probably not needed for now but might need it for later

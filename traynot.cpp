@@ -9,6 +9,10 @@
 
 #include "strsafe.h"
 
+#include <vssym32.h>
+
+#include "shundoc.h"
+
 //
 // Tray Notify Icon area implementation notes / details:
 //
@@ -4083,7 +4087,7 @@ IUserEventTimer * CTrayNotify::_CreateTimer(int nTimerFlag)
 
     if (ppUserEventTimer && !*ppUserEventTimer)
     {
-        if ( !SUCCEEDED(SHCoCreateInstance(NULL, &CLSID_UserEventTimer, NULL, 
+        if ( !SUCCEEDED(SHCoCreateInstance(NULL, &__uuidof(IUserEventTimer), NULL,
                                 IID_PPV_ARGS(ppUserEventTimer))) )
         {
             *ppUserEventTimer = NULL;

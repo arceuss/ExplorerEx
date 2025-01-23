@@ -18,17 +18,33 @@
 
 #include "winbase.h"
 
+//
+// Constants
+//
+
+#define RRA_DEFAULT 0x0000
+#define RRA_DELETE  0x0001
+#define RRA_WAIT    0x0002
+
+#define NIS_SHOWALWAYS          0x20000000      
+
+// shlapip.h
+#define NI_SIGNATURE    0x34753423
+
 const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 
 //
 // Structs
 // 
 
-#define RRA_DEFAULT 0x0000
-#define RRA_DELETE  0x0001
-#define RRA_WAIT    0x0002
-
-
+// From comctrlp.h
+typedef struct tagNMTBWRAPHOTITEM
+{
+    NMHDR hdr;
+    int iStart;
+    int iDir;
+    UINT nReason;       // HICF_* flags
+} NMTBWRAPHOTITEM, *LPNMTBWRAPHOTITEM;
 
 typedef struct _SHDDEERR {      // sde (Software Design Engineer, Not!)
     UINT idMsg;
@@ -462,6 +478,9 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 
 #define ABE_MAX         4
 
+#define TBSTYLE_EX_MULTICOLUMN              0x00000002 // conflicts w/ TBSTYLE_WRAPABLE
+#define TBSTYLE_EX_VERTICAL                 0x00000004
+#define TBSTYLE_EX_INVERTIBLEIMAGELIST      0x00000020  // Image list may contain inverted 
 #define TBSTYLE_EX_FIXEDDROPDOWN            0x00000040 // Only used in the taskbar
 #define TBSTYLE_EX_TRANSPARENTDEADAREA      0x00000100
 #define TBSTYLE_EX_TOOLTIPSEXCLUDETOOLBAR   0x00000200
