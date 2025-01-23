@@ -189,15 +189,16 @@ ITrayNotify : IUnknown
 {
     STDMETHOD(RegisterCallback)(INotificationCB * callback) PURE;
     STDMETHOD(SetPreference)(const NOTIFYITEM* notify_item) PURE;
-    STDMETHOD(EnableAutoTray)(BOOL enabled) = 0;
+    STDMETHOD(EnableAutoTray)(BOOL enabled) PURE;
 };
 
 //this is the Windows 8+ variant of ITrayNotify, probably not needed for now but might need it for later
-MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4") ITrayNotifyWin8 : IUnknown
+MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4")
+ITrayNotifyWin8 : IUnknown
 {
-    STDMETHOD(RegisterCallback)(INotificationCB * callback, ULONG*) = 0;
-    STDMETHOD(UnregisterCallback)(ULONG*) = 0;
-    STDMETHOD(SetPreference)(NOTIFYITEM const*) = 0;
-    STDMETHOD(EnableAutoTray)(BOOL) = 0;
-    STDMETHOD(DoAction)(BOOL) = 0;
+    STDMETHOD(RegisterCallback)(INotificationCB * callback, ULONG*) PURE;
+    STDMETHOD(UnregisterCallback)(ULONG*) PURE;
+    STDMETHOD(SetPreference)(NOTIFYITEM const*) PURE;
+    STDMETHOD(EnableAutoTray)(BOOL) PURE;
+    STDMETHOD(DoAction)(BOOL) PURE;
 };
