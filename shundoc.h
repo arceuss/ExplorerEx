@@ -14,6 +14,8 @@
 #include <Windows.h>
 #include <shobjidl_core.h>
 
+#include "criticalsection.h"
+
 const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 
 //

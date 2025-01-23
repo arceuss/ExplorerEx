@@ -130,6 +130,7 @@
     <ClInclude Include="atlstuff.h" />
     <ClInclude Include="bandsite.h" />
     <ClInclude Include="cabinet.h" />
+    <ClInclude Include="criticalsection.h" />
     <ClInclude Include="cwndproc.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="deskhost.h" />
