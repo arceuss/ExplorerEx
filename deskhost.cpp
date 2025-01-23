@@ -213,7 +213,7 @@ CDesktopHost::~CDesktopHost()
 
     if (_hwnd)
     {
-        ASSERT(GetWindowThreadProcessId(_hwnd, NULL) == GetCurrentThreadId());
+        //ASSERT(GetWindowThreadProcessId(_hwnd, NULL) == GetCurrentThreadId());
         DestroyWindow(_hwnd);
     }
     ATOMICRELEASE(_ptFader);

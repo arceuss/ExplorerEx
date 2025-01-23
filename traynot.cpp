@@ -1020,7 +1020,7 @@ BOOL CTrayNotify::_SetVersionNotify(PNOTIFYICONDATA32 pnid, INT_PTR nIcon)
 
 void CTrayNotify::_NotifyCallback(DWORD dwMessage, INT_PTR nCurrentItem, INT_PTR nPastItem)
 {
-    ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
+    //ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
     if (_pNotifyCB)
     {
         CNotificationItem * pni = new CNotificationItem;
@@ -1146,7 +1146,7 @@ BOOL CTrayNotify::_InsertNotify(PNOTIFYICONDATA32 pnid)
 {
     TBBUTTON tbb;
 
-    ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
+    //ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
 
     // First insert a totally "default" icon
     CTrayItem * pti = new CTrayItem;

@@ -8,6 +8,7 @@
 //
 
 #include "sfthost.h"
+#include <vssym32.h>
 
 class SpecialFolderList : public SFTBarHost
 {
@@ -36,7 +37,7 @@ private:
     int ReadIconSize() { return ICONSIZE_MEDIUM; }
     BOOL NeedBackgroundEnum() { return TRUE; }
     int AddImageForItem(PaneItem *p, IShellFolder *psf, LPCITEMIDLIST pidl, int iPos);
-    LPTSTR DisplayNameOfItem(PaneItem *p, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGNO shgno);
+    LPTSTR DisplayNameOfItem(PaneItem *p, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGDNF shgno);
     TCHAR GetItemAccelerator(PaneItem *pitem, int iItemStart);
     void OnChangeNotify(UINT id, LONG lEvent, LPCITEMIDLIST pidl1, LPCITEMIDLIST pidl2);
     BOOL IsBold(PaneItem *pitem);

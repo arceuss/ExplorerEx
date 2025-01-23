@@ -17,6 +17,8 @@
 #include "criticalsection.h"
 
 #include "winbase.h"
+#include <DocObj.h>
+#include <winuserp.h>
 
 //
 // Constants
@@ -111,15 +113,6 @@ typedef struct _SHShortcutInvokeAsIDList {
     WCHAR   szTargetName[MAX_PATH];     // Path to target application
     USHORT  cbZero;
 } SHShortcutInvokeAsIDList, * LPSHShortcutInvokeAsIDList;
-
-typedef struct _tagHardErrorData
-{
-    DWORD   dwSize;             // Size of this structure
-    DWORD   dwError;            // Hard Error
-    DWORD   dwFlags;            // Hard Error flags
-    UINT    uOffsetTitleW;      // Offset to UNICODE Title
-    UINT    uOffsetTextW;       // Offset to UNICODE Text
-} HARDERRORDATA, * PHARDERRORDATA;
 
 typedef struct _AppBarData3264
 {
@@ -392,8 +385,7 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 
 #define IS_VALID_WRITE_PTR(ptr, type) \
    (IsBadWritePtr((PVOID)(ptr), sizeof(type)) ? \
-    (TraceMsgA(TF_ERROR, "invalid %hs write pointer - %#08lx", (LPCSTR)#type" *", (ptr)), FALSE) : \
-    TRUE)
+    FALSE : TRUE)
 
 #define INSTRUMENT_WNDPROC(t,h,u,w,l)                           \
 {                                                               \
@@ -543,7 +535,7 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define NISP_ITEMSAMEICONMODIFY  0x01000000
 #define NISP_SHAREDICONSOURCE   0x10000000
 
-#define SMPIN_POS(i) (LPCITEMIDLIST)MAKEINTRESOURCE((i)+1))
+#define SMPIN_POS(i) (LPCITEMIDLIST)MAKEINTRESOURCE((i)+1)
 #define SMPINNABLE_EXEONLY          0x00000001 // allow only EXEs to be pinned
 #define SMPINNABLE_REJECTSLOWMEDIA  0x00000002 // reject slow media
 
@@ -835,9 +827,116 @@ inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 typedef HANDLE LPSHChangeNotificationLock;
 typedef INT_PTR BOOL_PTR;
 
+typedef enum tagNETCON_SUBMEDIATYPE
+{
+    NCSM_NONE,
+    NCSM_LAN,
+    NCSM_WIRELESS,
+    NCSM_ATM,
+    NCSM_ELAN,
+    NCSM_1394,
+    NCSM_DIRECT,
+    NCSM_IRDA,
+    NCSM_CM
+} NETCON_SUBMEDIATYPE;
+
+#define OS_PERSONAL                 19 
+#define STRREG_FAVORITES TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MenuOrder\\Favorites")
+DEFINE_GUID(GUID_NETSHELL_PROPS, 0x2d15a9a1, 0xa556, 0x4189, 0x91, 0xad, 0x02, 0x74, 0x58, 0xf1, 0x1a, 0x07);
+#define SMSET_NOEMPTY               0x00000004  
+#define SMINIT_RESTRICT_CONTEXTMENU 0x00000001 
+#define LIPF_ENABLE     0x00000001  // create the object (vs release the object)
+#define LIPF_HOLDREF    0x00000002  // hold ref on object after creation (vs release immediately)
+enum {
+    SSOCMDID_OPEN = 2,
+    SSOCMDID_CLOSE = 3,
+};
+#define REGSTR_PATH_SHELLSERVICEOBJECTDELAYED   TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\ShellServiceObjectDelayLoad")
+// menubar orientation
+#define MENUBAR_LEFT     ABE_LEFT
+#define MENUBAR_TOP      ABE_TOP
+#define MENUBAR_RIGHT    ABE_RIGHT
+#define MENUBAR_BOTTOM   ABE_BOTTOM
+
+// CmdID's for CGID_MENUDESKBAR
+#define  MBCID_GETSIDE   1
+#define  MBCID_RESIZE    2
+#define  MBCID_SETEXPAND 3
+#define  MBCID_SETFLAT   4
+#define  MBCID_NOBORDER  5
+
+#define RNC_LOGON                 0x00000002
+#define OS_FRIENDLYLOGONUI          27  
+#define TM_NEXTCTL                  (WM_USER + 0x15b)
+
+#define DRVM_MAPPER             (0x2000)
+#define DRVM_MAPPER_PREFERRED_GET                 (DRVM_MAPPER+21)
+#define DRV_QUERYDEVICEINTERFACE     (DRV_RESERVED + 12)
+#define DRV_QUERYDEVICEINTERFACESIZE (DRV_RESERVED + 13)
+
+#define IS_WM_CONTEXTMENU_KEYBOARD(lParam) ((DWORD)(lParam) == 0xFFFFFFFF)
+
+enum
+{
+    IDLHID_EMPTY = 0xBEEF0000,   //  where's the BEEF?!
+    IDLHID_URLFRAGMENT,                     //  Fragment IDs on URLs (#anchors)
+    IDLHID_URLQUERY,                        //  Query strings on URLs (?query+info)
+    IDLHID_JUNCTION,                        //  Junction point data
+    IDLHID_IDFOLDEREX,                      //  IDFOLDEREX, extended data for CFSFolder
+    IDLHID_DOCFINDDATA,                     //  DocFind's private attached data (not persisted)
+    IDLHID_PERSONALIZED,                    //  personalized like (My Docs/Zeke's Docs)
+    IDLHID_recycle2,                        //  recycle
+    IDLHID_RECYCLEBINDATA,                  //  RecycleBin private data (not persisted)
+    IDLHID_RECYCLEBINORIGINAL,              //  the original unthunked path for RecycleBin items
+    IDLHID_PARENTFOLDER,                    //  merged folder uses this to encode the source folder.
+    IDLHID_STARTPANEDATA,                   //  Start Pane's private attached data
+    IDLHID_NAVIGATEMARKER                   //  Used by Control Panel's 'Category view'               
+};
+
+typedef DWORD IDLHID;
+typedef struct _HIDDENITEMID
+{
+    WORD    cb;     //  hidden item size
+    WORD    wVersion;
+    IDLHID  id;     //  hidden item ID
+} HIDDENITEMID;
+#pragma pack()
+
+typedef HIDDENITEMID UNALIGNED* PIDHIDDEN;
+typedef const HIDDENITEMID UNALIGNED* PCIDHIDDEN;
+
+#define SHCNEE_PINLISTCHANGED      10L
+#define II_DOCNOASSOC   0         // document (blank page) (not associated)
+#define II_DOCUMENT     1         // document (with stuff on the page)
+#define II_APPLICATION  2         // application (exe, com, bat)
+#define II_FOLDER       3         // folder (plain)
+
+#define SMSET_USEBKICONEXTRACTION   0x00000008
 
 
+typedef enum tagWALK_TREE_CMD
+{
+    WALK_TREE_SAVE,
+    WALK_TREE_DELETE,
+    WALK_TREE_RESTORE,
+    WALK_TREE_REFRESH
+} WALK_TREE_CMD;
 
+DECLARE_INTERFACE_(IRegTreeOptions, IUnknown)
+{
+    // *** IUnknown methods ***
+    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
+    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
+    STDMETHOD_(ULONG, Release) (THIS) PURE;
+
+    // *** IRegTreeOptions specific methods ***
+    STDMETHOD(InitTree)(THIS_ HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey, LPCSTR pszParam) PURE;
+    STDMETHOD(WalkTree)(THIS_ WALK_TREE_CMD cmd) PURE;
+    STDMETHOD(ToggleItem)(THIS_ HTREEITEM hti) PURE;
+    STDMETHOD(ShowHelp)(THIS_ HTREEITEM hti, DWORD dwFlags) PURE;
+};
+
+WINSHELLAPI BOOL WINAPI SHWinHelp(HWND hwndMain, LPCSTR lpszHelp, UINT usCommand, DWORD ulData);
 
 //
 // Function loader

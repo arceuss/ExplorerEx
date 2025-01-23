@@ -680,7 +680,7 @@ void Tray_SetStartPaneActive(BOOL fActive)
 
 // Allow us to do stuff on a "button-down".
 
-LRESULT WINAPI CTray::StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT WINAPI CTray::StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uid, DWORD_PTR ref)
 {
     return c_tray._StartButtonSubclassWndProc(hwnd, uMsg, wParam, lParam);
 }
@@ -861,7 +861,7 @@ HWND CTray::_CreateStartButton()
 
         // Subclass it.
         _hwndStart = hwnd;
-        _pfnButtonProc = SubclassWindow(hwnd, StartButtonSubclassWndProc);
+        _pfnButtonProc = SetWindowSubclass(hwnd, StartButtonSubclassWndProc, 0,0);
 
         _StartButtonReset();
     }

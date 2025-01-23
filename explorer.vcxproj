@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cowsite.h" />
+    <ClInclude Include="desktop2.h" />
     <ClInclude Include="desktopp.h" />
     <ClInclude Include="ntperf.h" />
     <ClInclude Include="ntwmi.h" />

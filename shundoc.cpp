@@ -183,7 +183,7 @@ INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWork
 VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)() = nullptr;
 VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent) = nullptr;
 VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent) = nullptr;
-BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall) = nullptr;
+//BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall) = nullptr;
 DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi) = nullptr;
 
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color) = nullptr;
@@ -311,222 +311,7 @@ STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf)
     }
 }
 
-HANDLE SetJobCompletionPort(HANDLE hJob)
-{
-    HANDLE hRet = NULL;
-    HANDLE hIOPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
-
-    if (hIOPort != NULL)
-    {
-        JOBOBJECT_ASSOCIATE_COMPLETION_PORT CompletionPort;
-
-        CompletionPort.CompletionKey = hJob;
-        CompletionPort.CompletionPort = hIOPort;
-
-        if (SetInformationJobObject(hJob,
-            JobObjectAssociateCompletionPortInformation,
-            &CompletionPort,
-            sizeof(CompletionPort)))
-        {
-            hRet = hIOPort;
-        }
-        else
-        {
-            CloseHandle(hIOPort);
-        }
-    }
-
-    return hRet;
-
-}
-
-STDAPI_(DWORD) WaitingThreadProc(void* pv)
-{
-    HANDLE hIOPort = (HANDLE)pv;
-
-    if (hIOPort)
-    {
-        while (TRUE)
-        {
-            DWORD dwCompletionCode;
-            ULONG_PTR pCompletionKey;
-            LPOVERLAPPED pOverlapped;
-
-            if (!GetQueuedCompletionStatus(hIOPort, &dwCompletionCode, &pCompletionKey, &pOverlapped, INFINITE) ||
-                (dwCompletionCode == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO))
-            {
-                break;
-            }
-        }
-    }
-
-    return 0;
-}
-
-BOOL _CreateRegJob(LPCTSTR pszCmd, BOOL bWait)
-{
-    BOOL bRet = FALSE;
-    HANDLE hJobObject = CreateJobObjectW(NULL, NULL);
-
-    if (hJobObject)
-    {
-        HANDLE hIOPort = SetJobCompletionPort(hJobObject);
-
-        if (hIOPort)
-        {
-            DWORD dwID;
-            HANDLE hThread = CreateThread(NULL,
-                0,
-                WaitingThreadProc,
-                (void*)hIOPort,
-                CREATE_SUSPENDED,
-                &dwID);
-
-            if (hThread)
-            {
-                PROCESS_INFORMATION pi = { 0 };
-                STARTUPINFO si = { 0 };
-                UINT fMask = SEE_MASK_FLAG_NO_UI;
-                DWORD dwCreationFlags = CREATE_SUSPENDED;
-                TCHAR sz[MAX_PATH * 2];
-
-                wnsprintf(sz, ARRAYSIZE(sz), TEXT("RunDLL32.EXE Shell32.DLL,ShellExec_RunDLL ?0x%X?%s"), fMask, pszCmd);
-
-                si.cb = sizeof(si);
-
-                if (CreateProcess(NULL,
-                    sz,
-                    NULL,
-                    NULL,
-                    FALSE,
-                    dwCreationFlags,
-                    NULL,
-                    NULL,
-                    &si,
-                    &pi))
-                {
-                    if (AssignProcessToJobObject(hJobObject, pi.hProcess))
-                    {
-                        // success!
-                        bRet = TRUE;
-
-                        ResumeThread(pi.hThread);
-                        ResumeThread(hThread);
-
-                        if (bWait)
-                        {
-                            SHProcessMessagesUntilEvent(NULL, hThread, INFINITE);
-                        }
-                    }
-                    else
-                    {
-                        TerminateProcess(pi.hProcess, ERROR_ACCESS_DENIED);
-                    }
-
-                    CloseHandle(pi.hProcess);
-                    CloseHandle(pi.hThread);
-                }
-
-                if (!bRet)
-                {
-                    TerminateThread(hThread, ERROR_ACCESS_DENIED);
-                }
-
-                CloseHandle(hThread);
-            }
-
-            CloseHandle(hIOPort);
-        }
-
-        CloseHandle(hJobObject);
-    }
-
-    return bRet;
-}
-
-BOOL _ShellExecRegApp(LPCTSTR pszCmd, BOOL fNoUI, BOOL fWait)
-{
-    TCHAR szQuotedCmdLine[MAX_PATH + 2];
-    LPTSTR pszArgs;
-    SHELLEXECUTEINFO ei = { 0 };
-
-    // Gross, but if the process command fails, copy the command line to let
-    // shell execute report the errors
-    if (PathProcessCommand((LPWSTR)pszCmd,
-        (LPWSTR)szQuotedCmdLine,
-        ARRAYSIZE(szQuotedCmdLine),
-        PPCF_ADDARGUMENTS | PPCF_FORCEQUALIFY) == -1)
-    {
-        lstrcpy(szQuotedCmdLine, pszCmd);
-    }
-
-    pszArgs = PathGetArgs(szQuotedCmdLine);
-    if (*pszArgs)
-    {
-        // Strip args
-        *(pszArgs - 1) = 0;
-    }
-
-    PathUnquoteSpaces(szQuotedCmdLine);
-
-    ei.cbSize = sizeof(SHELLEXECUTEINFO);
-    ei.lpFile = szQuotedCmdLine;
-    ei.lpParameters = pszArgs;
-    ei.nShow = SW_SHOWNORMAL;
-    ei.fMask = SEE_MASK_NOCLOSEPROCESS;
-
-    if (fNoUI)
-    {
-        ei.fMask |= SEE_MASK_FLAG_NO_UI;
-    }
-
-    if (ShellExecuteEx(&ei))
-    {
-        if (ei.hProcess)
-        {
-            if (fWait)
-            {
-                SHProcessMessagesUntilEvent(NULL, ei.hProcess, INFINITE);
-            }
-
-            CloseHandle(ei.hProcess);
-        }
-
-        return TRUE;
-    }
-    else
-    {
-        return FALSE;
-    }
-}
-
-
-STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, UINT fFlags)
-{
-    BOOL bRet = FALSE;
-
-    if (!pszCmdLine || !*pszCmdLine)
-    {
-        // Don't let empty strings through, they will endup doing something dumb
-        // like opening a command prompt or the like
-        return bRet;
-    }
-
-#if (_WIN32_WINNT >= 0x0500)
-    if (fFlags & RRA_USEJOBOBJECTS)
-    {
-        bRet = _CreateRegJob(pszCmdLine, fFlags & RRA_WAIT);
-    }
-#endif
-
-    if (!bRet)
-    {
-        //  fallback if necessary.
-        bRet = _ShellExecRegApp(pszCmdLine, fFlags & RRA_NOUI, fFlags & RRA_WAIT);
-    }
-
-    return bRet;
-}
+// moved to runonce.cpp
 
 
 STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask)
@@ -711,13 +496,7 @@ STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter)
     return fRet;
 }
 
-BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce) = nullptr;
-
-
-inline unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft)
-{
-    return ((unsigned __int64)pft->dwHighDateTime << 32) + pft->dwLowDateTime;
-}
+//BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce) = nullptr;
 
 #define FILETIMEtoInt64(ft) _FILETIMEtoInt64(&(ft))
 
@@ -1446,6 +1225,17 @@ if (!FUNCTION)                                                               \
 *(FARPROC *)&FUNCNAME = GetProcAddress(MODULE_VARNAME(MODULE), (LPCSTR)ORDINAL);  \
 if (!FUNCNAME)                                                                    \
 	return false;
+
+STDAPI_(BOOL) SHWinHelp(HWND hwndMain, LPCTSTR lpszHelp, UINT usCommand, ULONG_PTR ulData)
+{
+    // Try to show help
+    if (!WinHelp(hwndMain, lpszHelp, usCommand, ulData))
+    {
+        // Problem.
+        return FALSE;
+    }
+    return TRUE;
+}
 
 bool SHUndocInit(void)
 {

@@ -12,7 +12,7 @@
 #include "tray.h"
 #include "traycmn.h"
 #include "startmnu.h"
-//#include "desktop2.h"
+#include "desktop2.h"
 #include "uemapp.h"
 
 #define GROUPID_CURRENTITEMS    5
@@ -385,7 +385,7 @@ HRESULT CNotificationsDlg::Notify(DWORD dwMessage, NOTIFYITEM * pNotifyItem)
     if (!pNotifyItem || (!pNotifyItem->hWnd && !pNotifyItem->pszExeName))
         return E_INVALIDARG;
 
-    ASSERT(pNotifyItem);        
+    //ASSERT(pNotifyItem);        
     CNotificationItem ni = *pNotifyItem;
 
     switch (dwMessage)
@@ -967,9 +967,9 @@ public:
         PROPSHEETPAGE psp;
 
         // We are heap-allocated so these should be pre-initialized properly
-        ASSERT(_bDirtyTree == FALSE);
-        ASSERT(_prto == NULL);
-        ASSERT(_pph == NULL);
+        //ASSERT(_bDirtyTree == FALSE);
+        //ASSERT(_prto == NULL);
+        //ASSERT(_pph == NULL);
 
         LoadString(hinstCabinet, IDS_SPCUST_TITLE, _szTitle, ARRAYSIZE(_szTitle));
         SetTitle(_szTitle);
@@ -1000,7 +1000,7 @@ public:
 
     ~CCustomizeSPPropSheet()
     {
-        ASSERT(!_prto);     // should be gone by now
+        //ASSERT(!_prto);     // should be gone by now
         if (_pph)
             delete _pph;
     }

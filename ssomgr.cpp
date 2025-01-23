@@ -3,6 +3,7 @@
 #include "tray.h"
 #include "ssomgr.h"
 #include <regstr.h>
+#include <runonce.cpp>
 
 HRESULT CShellServiceObjectMgr::_LoadObject(REFCLSID rclsid, DWORD dwFlags)
 {

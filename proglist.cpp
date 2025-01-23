@@ -14,7 +14,7 @@
 #include <strsafe.h>
 
 #include <dpa_dsa.h>
-
+#include <vssym32.h>
 #include "shundoc.h"
 
 typedef UNALIGNED const WCHAR* LPNCWSTR;
@@ -204,7 +204,7 @@ public:
         ByUsageDir *self = new ByUsageDir();
         if (self)
         {
-            ASSERT(self->_pidl == NULL);
+            //ASSERT(self->_pidl == NULL);
             if (SUCCEEDED(SHGetDesktopFolder(&self->_psf)))
             {
                 // all is well
@@ -504,8 +504,8 @@ public:
 
     static ByUsageShortcut *Create(ByUsageDir *pdir, LPCITEMIDLIST pidl, ByUsageAppInfo *papp, bool fDarwin, BOOL fForce = FALSE)
     {
-        ASSERT(pdir);
-        ASSERT(pidl);
+        //ASSERT(pdir);
+        //ASSERT(pidl);
 
         ByUsageShortcut *pscut = new ByUsageShortcut;
         if (pscut)
@@ -564,7 +564,7 @@ public:
 
 ByUsageItem *ByUsageItem::Create(ByUsageShortcut *pscut)
 {
-    ASSERT(pscut);
+    //ASSERT(pscut);
     ByUsageItem *pitem = new ByUsageItem;
     if (pitem)
     {

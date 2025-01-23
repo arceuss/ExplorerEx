@@ -256,7 +256,7 @@ LRESULT CClockCtl::_DoPaint(BOOL fPaint)
     DWORD dtNextTick = 0;
     BOOL fDoTimer;
     HDC hdc;
-    HBITMAP hMemBm, hOldBm = NULL;
+    HBITMAP hMemBm, hOldBm = { 0 };
 
     //
     // If we are asked to paint and the clock is not running then start it.
@@ -327,7 +327,7 @@ LRESULT CClockCtl::_DoPaint(BOOL fPaint)
             //
             GetClientRect(_hwnd, &rcClient);
 
-            HFONT hfontOld;
+            HFONT hfontOld = { 0 };
 
             if (_hfontCapNormal)
                 hfontOld = (HFONT)SelectObject(hdc, _hfontCapNormal);

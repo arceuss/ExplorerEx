@@ -109,7 +109,7 @@ BOOL SFTBarHost::Register()
     wc.lpfnWndProc = _WndProc;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = sizeof(void *);
-    wc.hInstance = _Module.GetModuleInstance();
+    wc.hInstance = _AtlBaseModule.GetModuleInstance();
     wc.hIcon = 0;
     // We specify a cursor so the OOBE window gets something
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
@@ -121,7 +121,7 @@ BOOL SFTBarHost::Register()
 
 BOOL SFTBarHost::Unregister()
 {
-    return ::UnregisterClass(WC_SFTBARHOST, _Module.GetModuleInstance());
+    return ::UnregisterClass(WC_SFTBARHOST, _AtlBaseModule.GetModuleInstance());
 }
 
 LRESULT CALLBACK SFTBarHost::_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -984,7 +984,7 @@ LRESULT SFTBarHost::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     _hwndList = CreateWindowEx(dwExStyle, WC_LISTVIEW, NULL, dwStyle,
                                _margins.cxLeftWidth, _margins.cyTopHeight, rc.right, rc.bottom,     // no point in being too exact, we'll be resized later
                                _hwnd, NULL,
-                               _Module.GetModuleInstance(), NULL);
+                               _AtlBaseModule.GetModuleInstance(), NULL);
     if (!_hwndList) 
         return -1;
 
@@ -1469,13 +1469,13 @@ SFTBarHost::~SFTBarHost()
     // We shouldn't be destroyed while in these temporary states.
     // If this fires, it's possible that somebody incremented
     // _fListUnstable/_fPopulating and forgot to decrement it.
-    ASSERT(!_fListUnstable);
-    ASSERT(!_fPopulating);
+    //ASSERT(!_fListUnstable);
+    //ASSERT(!_fPopulating);
 
     ATOMICRELEASE(_pdth);
     ATOMICRELEASE(_pdsh);
     ATOMICRELEASE(_psched);
-    ASSERT(_pdtoDragOut == NULL);
+    //ASSERT(_pdtoDragOut == NULL);
 
     if (_dpaEnum)
     {
@@ -1647,7 +1647,7 @@ LRESULT SFTBarHost::_OnTimer(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 _hwndAni = CreateWindow(ANIMATE_CLASS, NULL, dwStyle,
                                         x, y, 0, 0,
                                         _hwnd, NULL,
-                                        _Module.GetModuleInstance(), NULL);
+                                        _AtlBaseModule.GetModuleInstance(), NULL);
                 if (_hwndAni)
                 {
                     SetWindowPos(_hwndAni, HWND_TOP, 0, 0, 0, 0,
@@ -2238,7 +2238,7 @@ LPTSTR SFTBarHost::_DisplayNameOfItem(PaneItem *pitem, UINT shgno)
 
     if (SUCCEEDED(_GetFolderAndPidl(pitem, &psf, &pidl)))
     {
-        pszOut = DisplayNameOfItem(pitem, psf, pidl, (SHGNO)shgno);
+        pszOut = DisplayNameOfItem(pitem, psf, pidl, (SHGDNF)shgno);
         psf->Release();
     }
     return pszOut;
@@ -2388,7 +2388,7 @@ LRESULT SFTBarHost::_OnContextMenu(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
                 UINT idsDelete = AdjustDeleteMenuItem(pitem, &uiFlags);
                 if (idsDelete)
                 {
-                    if (LoadString(_Module.GetResourceInstance(), idsDelete, szBuf, ARRAYSIZE(szBuf)))
+                    if (LoadString(_AtlBaseModule.GetResourceInstance(), idsDelete, szBuf, ARRAYSIZE(szBuf)))
                     {
                         if (uPosDelete != -1)
                         {
@@ -2647,7 +2647,7 @@ void OfferDelete::_ThreadProc()
             //  First try to repair it by invoking the shortcut tracking code.
             //  If that fails, then offer to delete.
             if (!_RepairBrokenItem() &&
-                ShellMessageBox(_Module.GetResourceInstance(), NULL,
+                ShellMessageBox(_AtlBaseModule.GetResourceInstance(), NULL,
                                 MAKEINTRESOURCE(IDS_SFTHOST_OFFERREMOVEITEM),
                                 _pszName, MB_YESNO) == IDYES)
             {

@@ -7,7 +7,7 @@
 #include "cwndproc.h"
 #include "dpa.h"
 #include "commoncontrols.h"
-
+#include <winuserp.h>
 class CTray;
 class CGroupItemContextMenu;
 

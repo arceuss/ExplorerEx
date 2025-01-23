@@ -392,7 +392,7 @@ protected:
     void _SlideStep(HWND hwnd, const RECT *prcMonitor, const RECT *prcOld, const RECT *prcNew);
     void _DoExitWindows(HWND hwnd);
 
-    static LRESULT WINAPI StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    static LRESULT WINAPI StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR);
     LRESULT _StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void _ResizeStuckRects(RECT *arStuckRects);

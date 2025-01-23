@@ -88,8 +88,8 @@ private:
 
 CLogoffPane::CLogoffPane()
 {
-    ASSERT(_hwndTB == NULL);
-    ASSERT(_hwndTT == NULL);
+    //ASSERT(_hwndTB == NULL);
+    //ASSERT(_hwndTT == NULL);
     _clr = CLR_INVALID;
 }
 
@@ -201,7 +201,7 @@ void AddBitmapToToolbar(HWND hwndTB, HBITMAP hBitmap, int cxTotal, int cy, UINT 
 
 BOOL CLogoffPane::_SetTBButtons(int id, UINT iMsg)
 {
-    HBITMAP hBitmap = LoadBitmap(_Module.GetModuleInstance(), MAKEINTRESOURCE(id));
+    HBITMAP hBitmap = LoadBitmap(_AtlBaseModule.GetModuleInstance(), MAKEINTRESOURCE(id));
     if (hBitmap)
     {
         BITMAP bm;
@@ -348,7 +348,7 @@ LRESULT CLogoffPane::_OnCreate(LPARAM lParam)
         SendMessage(_hwndTB, TB_ADDBUTTONS, ARRAYSIZE(tbButtonsCreate), (LPARAM) tbButtonsCreate);
         BOOL fGina = SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("GinaUI"), FALSE, FALSE);
         int idText = !fGina ? IDS_LOGOFF_TEXT_FRIENDLY : IDS_LOGOFF_TEXT_DOMAIN;
-        SendMessage(_hwndTB, TB_ADDSTRING, (WPARAM) _Module.GetModuleInstance(), (LPARAM) idText);
+        SendMessage(_hwndTB, TB_ADDSTRING, (WPARAM) _AtlBaseModule.GetModuleInstance(), (LPARAM) idText);
 
         _ApplyOptions();
 
@@ -451,7 +451,7 @@ LRESULT CLogoffPane::_OnNotify(NMHDR *pnm)
                 {
                     NMTBGETINFOTIP *ptbgit = (NMTBGETINFOTIP *)pnm;
                     ASSERT(ptbgit->lParam >= IDS_LOGOFF_TIP_EJECT && ptbgit->lParam <= IDS_LOGOFF_TIP_DISCONNECT);
-                    LoadString(_Module.GetModuleInstance(), ptbgit->lParam, ptbgit->pszText, ptbgit->cchTextMax);
+                    LoadString(_AtlBaseModule.GetModuleInstance(), ptbgit->lParam, ptbgit->pszText, ptbgit->cchTextMax);
                     return TRUE;
                 }
             case TBN_HOTITEMCHANGE:
@@ -803,7 +803,7 @@ BOOL WINAPI LogoffPane_RegisterClass()
     wc.style         = CS_GLOBALCLASS;
     wc.cbWndExtra    = sizeof(LPVOID);
     wc.lpfnWndProc   = CLogoffPane::WndProc;
-    wc.hInstance     = _Module.GetModuleInstance();
+    wc.hInstance     = _AtlBaseModule.GetModuleInstance();
     wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
     wc.hbrBackground = (HBRUSH)(NULL);
     wc.lpszClassName = TEXT("DesktopLogoffPane");

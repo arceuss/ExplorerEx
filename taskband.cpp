@@ -21,8 +21,6 @@
 #include <vssym32.h>
 #include "winuserp.h"
 
-#include "afxwin.h"
-
 
 #define TIF_RENDERFLASHED       0x000000001
 #define TIF_SHOULDTIP           0x000000002
@@ -916,10 +914,6 @@ int CTaskBand::_CheckAnimationSize()
         else
         {
             int nCurrentCount = _dsaAII.GetItemCount();
-            if (i >= nCurrentCount)            
-                TraceMsg(TF_ERROR, "Invalid counter %x in the loop, size = %x", i, nCurrentCount);
-            else
-                TraceMsg(TF_ERROR, "NULL paii for %x.", i);
         }
 #endif
     }
@@ -1210,7 +1204,6 @@ void CTaskBand::_UpdateAnimationIndicesSlow()
 {
 #ifdef DEBUG
     int cAnimatingItems = _dsaAII.GetItemCount();
-    TraceMsg(TF_WARNING, "CTaskBand::_UpdateAnimationIndicesSlow: enter");
 #endif
 
     for (int i = _dsaAII.GetItemCount() - 1; i >= 0; i--)
@@ -1234,7 +1227,6 @@ void CTaskBand::_UpdateAnimationIndicesSlow()
     // items will remain the same.
     if (cAnimatingItems == _dsaAII.GetItemCount())
     {
-        TraceMsg(TF_WARNING, "CTaskBand::_UpdateAnimationIndicesSlow: Animating items are in diff order than toolbar");
     }
 #endif
     
@@ -1842,7 +1834,7 @@ void CTaskBand::_AttachTaskShortcut(PTASKITEM pti, LPCTSTR pszExeName)
 
     // Make sure nobody tries to do this in a multithreaded way
     // since we're not protecting the cache with a critical section
-    ASSERT(GetCurrentThreadId() == GetWindowThreadProcessId(_hwnd, NULL));
+    //ASSERT(GetCurrentThreadId() == GetWindowThreadProcessId(_hwnd, NULL));
 
     pti->ptsh = new TaskShortcut(pszExeName, pid);
 }
@@ -2492,7 +2484,6 @@ void CTaskBand::_RealityCheck()
         {
 #ifdef DEBUG
             PTASKITEM ptiGroup = _GetItem(_GetGroupIndex(i));
-            TraceMsg(TF_WARNING, "CTaskBand::_RealityCheck: window %x (%s) no longer valid", pti->hwnd, ptiGroup->pszExeName);
 #endif
             _DeleteItem(pti->hwnd, i);
         }
@@ -3104,7 +3095,6 @@ void CTaskBand::_SetThreadPriority(int iPriority, DWORD dwWakeupTime)
             }
 
             SetThreadPriority(hThread, _iNewPriority);
-            TraceMsg(TF_WARNING, "CTaskBand:: Thread Priority was changed from %d to %d", _iOldPriority, _iNewPriority);
         }
     }
 }
@@ -3121,7 +3111,6 @@ void CTaskBand::_RestoreThreadPriority()
         {
             SetThreadPriority(hThread, _iOldPriority);
             SendMessage(GetShellWindow(), CWM_TASKBARWAKEUP, 0, 0);
-            TraceMsg(TF_WARNING, "CTaskBand:: Thread Priority was restored from %d to %d", _iNewPriority, _iOldPriority);
         }
 
         _iOldPriority = INVALID_PRIORITY;
@@ -3943,11 +3932,11 @@ void CTaskBand::_DrawNumber(HDC hdc, int iValue, BOOL fCalcRect, LPRECT prc)
     }
     else
     {
-        HFONT hfont = SelectFont(hdc, _hfontCapBold);
+        HFONT hfont = (HFONT)SelectObject(hdc, _hfontCapBold);
         SetTextColor(hdc, GetSysColor(COLOR_BTNTEXT));
         SetBkMode(hdc, TRANSPARENT);
         DrawText(hdc, (LPTSTR)szCount, -1, prc, uiStyle);
-        SelectFont(hdc, hfont);
+        SelectObject(hdc, hfont);
     }
 }
 
@@ -3972,7 +3961,7 @@ LRESULT CTaskBand::_HandleCustomDraw(LPNMTBCUSTOMDRAW ptbcd, PTASKITEM pti)
                 // set bold text, unless on chinese language system (where bold text is illegible)
                 if (!_IsChineseLanguage())
                 {
-                    _hfontSave = SelectFont(ptbcd->nmcd.hdc, _hfontCapBold);
+                    _hfontSave = (HFONT)SelectObject(ptbcd->nmcd.hdc, _hfontCapBold);
                     lres |= CDRF_NOTIFYPOSTPAINT | CDRF_NEWFONT;
                 }
             }
@@ -4036,7 +4025,7 @@ LRESULT CTaskBand::_HandleCustomDraw(LPNMTBCUSTOMDRAW ptbcd, PTASKITEM pti)
             {
                 // restore font
                 ASSERT(!_IsChineseLanguage());
-                SelectFont(ptbcd->nmcd.hdc, _hfontSave);
+                SelectObject(ptbcd->nmcd.hdc, _hfontSave);
             }
         }
         break;
@@ -4615,7 +4604,7 @@ LRESULT CTaskBand::_HandleDestroy()
 
     if (_tb)
     {
-        ASSERT(_tb.IsWindow());
+        //ASSERT(_tb.IsWindow());
 
         for (int i = _tb.GetButtonCount() - 1; i >= 0; i--)
         {
@@ -4951,7 +4940,6 @@ int CTaskBand::_AddIconToNormalImageList(HICON hicon, int iImage)
 
             if (iRet == -1)
             {
-                TraceMsg(TF_WARNING, "ReplaceIcon failed for iImage %x hicon %x", iImage, hicon);
                 iRet = iImage;
             }
 

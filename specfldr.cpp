@@ -556,7 +556,7 @@ public:
         {
             // Make sure that SFD_SEPARATOR isn't accidentally recognized
             // as a separator.
-            ASSERT(!_psfd->IsCSIDL());
+            //ASSERT(!_psfd->IsCSIDL());
 
             _iPinPos = PINPOS_SEPARATOR;
         }
@@ -721,7 +721,7 @@ DWORD WINAPI SpecialFolderList::_HasEnoughChildrenThreadProc(void *pvData)
 
             if (pdesc->IsCacheable() && pdesc->_ShowFolder)
             {
-                ASSERT(pdesc->_pszShow);
+                //ASSERT(pdesc->_pszShow);
 
                 // We need to recount now
                 if (!bIgnoreRule && pdesc->_ShowFolder())
@@ -750,7 +750,7 @@ DWORD WINAPI SpecialFolderList::_HasEnoughChildrenThreadProc(void *pvData)
                     // We don't have enough kids but we might gain them dynamically.
                     // Register for notifications that can indicate that there are new
                     // items.
-                    ASSERT(pThis->_cNotify < SFTHOST_MAXNOTIFY);
+                    //ASSERT(pThis->_cNotify < SFTHOST_MAXNOTIFY);
                     if (pThis->RegisterNotify(pThis->_cNotify, SHCNE_CREATE | SHCNE_MKDIR | SHCNE_UPDATEDIR,
                                        pitem->_pidl, FALSE))
                     {
@@ -900,7 +900,7 @@ int SpecialFolderList::AddImageForItem(PaneItem *p, IShellFolder *psf, LPCITEMID
     return iIcon;
 }
 
-LPTSTR SpecialFolderList::DisplayNameOfItem(PaneItem *p, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGNO shgno)
+LPTSTR SpecialFolderList::DisplayNameOfItem(PaneItem *p, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGDNF shgno)
 {
     LPTSTR psz = NULL;
     SpecialFolderListItem *pitem = static_cast<SpecialFolderListItem *>(p);
@@ -948,7 +948,7 @@ void SpecialFolderList::GetItemInfoTip(PaneItem *p, LPTSTR pszText, DWORD cch)
 {
     SpecialFolderListItem *pitem = (SpecialFolderListItem*)p;
     if (pitem->_psfd->_iToolTip)
-        LoadString(_Module.GetResourceInstance(), pitem->_psfd->_iToolTip, pszText, cch);
+        LoadString(_AtlBaseModule.GetResourceInstance(), pitem->_psfd->_iToolTip, pszText, cch);
     else
         SFTBarHost::GetItemInfoTip(p, pszText, cch);    // call the base class
 }
@@ -1511,6 +1511,7 @@ BOOL IsNetConPidlRAS(IShellFolder2 *psfNetCon, LPCITEMIDLIST pidlNetConItem)
             
             if (SUCCEEDED(psfNetCon->GetDetailsEx(pidlNetConItem, &scidSubMediaType, &v)))
             {
+                
                 if (NCSM_WIRELESS == (NETCON_SUBMEDIATYPE)v.lVal)
                     bRet = TRUE;
             }
@@ -1574,7 +1575,7 @@ HRESULT CConnectToShellMenuCallback::_OnEndEnum(SMDATA *psmd)
     if (psmd->punk && SUCCEEDED(hr = psmd->punk->QueryInterface(IID_PPV_ARGS(&psm))))
     {
         // load the static portion of the connect to menu, and add it to the bottom
-        HMENU hmStatic = LoadMenu(_Module.GetResourceInstance(), MAKEINTRESOURCE(MENU_CONNECTTO));
+        HMENU hmStatic = LoadMenu(_AtlBaseModule.GetResourceInstance(), MAKEINTRESOURCE(MENU_CONNECTTO));
 
         if (hmStatic)
         {
@@ -1648,7 +1649,7 @@ BOOL SpecialFolderDesc::LoadStringAsOLESTR(LPTSTR *ppsz) const
 {
     BOOL bRet = FALSE;
     TCHAR szTmp[MAX_PATH];
-    if (_idsCustomName && LoadString(_Module.GetResourceInstance(), _idsCustomName, szTmp, ARRAYSIZE(szTmp)))
+    if (_idsCustomName && LoadString(_AtlBaseModule.GetResourceInstance(), _idsCustomName, szTmp, ARRAYSIZE(szTmp)))
     {
         if (ppsz)
             SHStrDup(szTmp, ppsz);

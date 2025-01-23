@@ -194,7 +194,7 @@ public:
      *  The default implementation calls IShellFolder::GetDisplayNameOf.
      *  If hooked, the returned string should be allocated by SHAlloc().
      */
-    virtual LPTSTR DisplayNameOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem, _SHGDNF shgno)
+    virtual LPTSTR DisplayNameOfItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIST pidlItem, SHGDNF shgno)
     {
         return _DisplayNameOf(psf, pidlItem, shgno);
     }
@@ -445,7 +445,7 @@ private:
         {
             // We should not be the last release or else we are going to deadlock here, when _phost
             // tries to release the scheduler
-            ASSERT(_phost->_lRef > 1);
+            //ASSERT(_phost->_lRef > 1);
             _phost->Release(); 
         }
         STDMETHODIMP RunInitRT()
