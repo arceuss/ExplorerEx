@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cowsite.h" />
     <ClInclude Include="runtask.h" />
     <ClInclude Include="wtl\atlapp.h" />
     <ClInclude Include="wtl\atlcrack.h" />

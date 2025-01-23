@@ -168,3 +168,14 @@ IAugmentedShellFolder2 : IAugmentedShellFolder
 {
      STDMETHOD(UnWrapIDList)(THIS_ LPCITEMIDLIST, LONG, IShellFolder**, LPITEMIDLIST*, LPITEMIDLIST*, LONG*) PURE;
 };
+
+MIDL_INTERFACE("D8F6AD5B-B44F-4BCC-88FD-EB3473DB7502") //Revised version with QueryGuid
+IAssociationElement : IUnknown
+{
+    STDMETHOD(QueryString)(ASSOCQUERY query, PCWSTR lpValueName, PWSTR* ppszOut) PURE;
+    STDMETHOD(QueryDword)(ASSOCQUERY query, PCWSTR lpValueName, DWORD* pdwOut) PURE;
+    STDMETHOD(QueryGuid)(ASSOCQUERY query, PCWSTR lpValueName, GUID *pGuidOut) PURE;
+    STDMETHOD(QueryExists)(ASSOCQUERY query, PCWSTR lpValueName) PURE;
+    STDMETHOD(QueryDirect)(ASSOCQUERY query, PCWSTR lpValueName, FLAGGED_BYTE_BLOB** ) PURE;
+    STDMETHOD(QueryObject)(ASSOCQUERY query, PCWSTR lpValueName, REFIID riid, void** ppvObject) PURE;
+};

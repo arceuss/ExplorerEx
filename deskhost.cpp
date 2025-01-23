@@ -9,6 +9,8 @@
 #include "deskhost.h"
 #include "shdguid.h"
 
+#include <vssym32.h>
+
 #define REGSTR_EXPLORER_ADVANCED REGSTR_PATH_EXPLORER TEXT("\\Advanced")
 
 #define TF_DV2HOST  0
@@ -849,7 +851,7 @@ void CDesktopHost::_MaybeShowClipBalloon()
 
 void CDesktopHost::OnContextMenu(LPARAM lParam)
 {
-    if (!IsRestrictedOrUserSetting(HKEY_CURRENT_USER, REST_NOTRAYCONTEXTMENU, TEXT("Advanced"), TEXT("TaskbarContextMenu"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
+    if (!IsRestrictedOrUserSettingW(HKEY_CURRENT_USER, REST_NOTRAYCONTEXTMENU, TEXT("Advanced"), TEXT("TaskbarContextMenu"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
     {
         HMENU hmenu = SHLoadMenuPopup(hinstCabinet, MENU_STARTPANECONTEXT);
         if (hmenu)
@@ -2475,7 +2477,7 @@ HRESULT CDeskHostShellMenuCallback::CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM 
             return _pdh->_MenuMouseFilter(psmd, (BOOL)wParam, (MSG*)lParam);
 
     case SMC_GETSFINFOTIP:
-        if (!FeatureEnabled(TEXT("ShowInfoTip")))
+        if (!FeatureEnabled((LPTSTR)TEXT("ShowInfoTip")))
             return E_FAIL;  // E_FAIL means don't show. S_FALSE means show default
         break;
 
@@ -2633,6 +2635,6 @@ HBITMAP CreateMirroredBitmap( HBITMAP hbmOrig)
 
         ReleaseDC(NULL, hdc);
     }
-
+    
     return hbm;
 }

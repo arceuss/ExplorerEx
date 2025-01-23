@@ -5,7 +5,7 @@
 #include <mshtml.h>
 #include "dpa.h"
 #include "startmnu.h"
-//#include <cowsite.h>
+#include "cowsite.h"
 
 #define WC_DV2      TEXT("DV2ControlHost")
 
@@ -135,9 +135,9 @@ class CDesktopHost
 
     public:
         // *** IUnknown ***
-        STDMETHODIMP QueryInterface(REFIID riid, void** ppvObj);
-        STDMETHODIMP_(ULONG) AddRef(void) { return CUnknown::AddRef(); }
-        STDMETHODIMP_(ULONG) Release(void) { return CUnknown::Release(); }
+        STDMETHODIMP QueryInterface(REFIID riid, void** ppvObj) override;
+        STDMETHODIMP_(ULONG) AddRef() override { return CUnknown::AddRef(); }
+        STDMETHODIMP_(ULONG) Release() override { return CUnknown::Release(); }
 
         // *** IOleWindow methods ***
         STDMETHODIMP GetWindow(HWND * phwnd) { *phwnd = _hwnd; return S_OK; }

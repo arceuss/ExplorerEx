@@ -36,14 +36,14 @@ class CStartMenuHost : public ITrayPriv,
 {
 public:
     // *** IUnknown methods ***
-    STDMETHODIMP QueryInterface (REFIID riid, LPVOID * ppvObj);
-    STDMETHODIMP_(ULONG) AddRef () ;
-    STDMETHODIMP_(ULONG) Release ();
+    STDMETHODIMP QueryInterface (REFIID riid, LPVOID * ppvObj) override;
+    STDMETHODIMP_(ULONG) AddRef () override;
+    STDMETHODIMP_(ULONG) Release () override;
 
     // *** ITrayPriv methods ***
-    STDMETHODIMP ExecItem (IShellFolder* psf, LPCITEMIDLIST pidl);
-    STDMETHODIMP GetFindCM(HMENU hmenu, UINT idFirst, UINT idLast, IContextMenu** ppcmFind);
-    STDMETHODIMP GetStaticStartMenu(HMENU* phmenu);
+    STDMETHODIMP ExecItem (IShellFolder* psf, LPCITEMIDLIST pidl) override;
+    STDMETHODIMP GetFindCM(HMENU hmenu, UINT idFirst, UINT idLast, IContextMenu** ppcmFind) override;
+    STDMETHODIMP GetStaticStartMenu(HMENU* phmenu) override;
 
     // *** IServiceProvider ***
     STDMETHODIMP QueryService (REFGUID guidService, REFIID riid, void ** ppvObject);
