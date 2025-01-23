@@ -4,6 +4,8 @@
 
 #include "strsafe.h"
 
+#include "shundoc.h"
+
 //
 // CTrayItem members...
 //

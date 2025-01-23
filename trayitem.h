@@ -116,7 +116,7 @@ class CTrayItemManager
         
         void SetTBBtnText(INT_PTR iIndex, LPTSTR pszText);
 
-        BOOL SetTBBtnStateHelper(INT_PTR iIndex, BYTE fsState, BOOL* bSet);
+        BOOL SetTBBtnStateHelper(INT_PTR iIndex, BYTE fsState, BOOL_PTR bSet);
 
         BOOL GetTrayItem(INT_PTR nIndex, CNotificationItem * pni, BOOL * pbStat);
 
