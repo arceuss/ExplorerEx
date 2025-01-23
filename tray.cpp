@@ -1834,7 +1834,7 @@ void CTray::_CreateTrayWindow()
     // If you create a layered window on a non-active desktop then the window goes black
     dwExStyle |= IS_BIDI_LOCALIZED_SYSTEM() ? WS_EX_LAYOUTRTL : 0L;
 
-    CreateWindowEx(dwExStyle, TEXT(WNDCLASS_TRAYNOTIFY), NULL,
+    CreateWindowEx(dwExStyle, TEXT("Shell_TrayWnd"), NULL,
                    WS_CLIPCHILDREN | WS_POPUP,
                    0, 0, 0, 0, NULL, NULL, hinstCabinet, (void*)this);
 
@@ -5571,7 +5571,7 @@ int CTray::_OnTimerService(UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (EVAL(IDT_SERVICE0 <= wParam && wParam <= IDT_SERVICE0 + TSVC_NTIMER - 1)) {
             i = (int)TSVC_IDToIndex(wParam);
             pfn = g_timerService[i].pfnSvc;
-            if (EVAL(IS_VALID_CODE_PTR(pfn, TIMERPROC)))
+            if (EVAL(IS_VALID_CODE_PTR(pfn)))
                 (*pfn)(_hwnd, WM_TIMER, wParam, GetTickCount());
         }
         return 0;
@@ -6891,7 +6891,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (uMsg == GetDDEExecMsg())
         {
             ASSERT(lParam && 0 == ((LPNMHDR)lParam)->idFrom);
-            DDEHandleViewFolderNotify(NULL, _hwnd, (LPNMVIEWFOLDER)lParam);
+            //DDEHandleViewFolderNotify(NULL, _hwnd, (LPNMVIEWFOLDER)lParam);
             LocalFree((LPNMVIEWFOLDER)lParam);
             return TRUE;
         }
@@ -8525,11 +8525,11 @@ STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState,
     if (Tray_StartPanelEnabled())
     {
         // if we've disabled dragging and dropping, don't do anything, but if only the pin list is restricted, then still start the timer
-        if (!IsRestrictedOrUserSetting(HKEY_CURRENT_USER, REST_NOCHANGESTARMENU, TEXT("Advanced"), TEXT("Start_EnableDragDrop"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
+        if (!IsRestrictedOrUserSettingW(HKEY_CURRENT_USER, REST_NOCHANGESTARMENU, TEXT("Advanced"), TEXT("Start_EnableDragDrop"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
         {
             // Personal mode: Treat it as an add to the pin list.
             // IsPinnable checks REST_NOSMPINNEDLIST
-            if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, SMPINNABLE_REJECTSLOWMEDIA, NULL) == S_OK)
+            if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, 0x00000002, NULL) == S_OK)   //SMPINNABLE_REJECTSLOWMEDIA
             {
                 _dwEffectsAllowed = DROPEFFECT_LINK;
             }
@@ -8544,7 +8544,7 @@ STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState,
     }
     else
     {
-        if (!IsRestrictedOrUserSetting(HKEY_CURRENT_USER, REST_NOCHANGESTARMENU, TEXT("Advanced"), TEXT("StartMenuChange"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
+        if (!IsRestrictedOrUserSettingW(HKEY_CURRENT_USER, REST_NOCHANGESTARMENU, TEXT("Advanced"), TEXT("StartMenuChange"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
         {
             // Classic mode: Treat it as a drop on the Start Menu folder.
             IDropTarget* ptgt;
@@ -8595,7 +8595,7 @@ STDMETHODIMP CStartDropTarget::Drop(IDataObject *pdtobj, DWORD grfKeyState, POIN
     {
         // Personal mode: Treat it as an add to the pin list.
         LPITEMIDLIST pidl;
-        if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, SMPINNABLE_REJECTSLOWMEDIA, &pidl) == S_OK)
+        if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, 0x00000002, &pidl) == S_OK) //SMPINNABLE_REJECTSLOWMEDIA
         {
             // Delete it from the pin list if it's already there because
             // we want to move it to the bottom.

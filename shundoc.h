@@ -20,11 +20,45 @@ const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 // Structs
 // 
 
+typedef enum {
+    RRA_DEFAULT = 0x0000,
+    RRA_DELETE = 0x0001,
+    RRA_WAIT = 0x0002,
+} RRA_FLAGS;
+
+
+
+typedef struct _SHDDEERR {      // sde (Software Design Engineer, Not!)
+    UINT idMsg;
+    TCHAR szParam[MAX_PATH];
+} SHDDEERR, * PSHDDEERR;
+
+typedef struct tagDDECONV {
+    void*          head;           // HM header
+    struct tagDDECONV* snext;
+    struct tagDDECONV* spartnerConv;  // siamese twin
+    void*                spwnd;          // associated pwnd
+    void*                spwndPartner;   // associated partner pwnd
+    struct tagXSTATE* spxsOut;       // transaction info queue - out point
+    struct tagXSTATE* spxsIn;        // transaction info queue - in point
+    struct tagFREELIST* pfl;           // free list
+    DWORD               flags;          // CXF_ flags
+    struct tagDDEIMP* pddei;         // impersonation information
+} DDECONV, * PDDECONV;
+
+typedef BOOL(*DDECOMMAND)(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec);
+typedef struct _DDECOMMANDINFO
+{
+    LPCTSTR     pszCommand;
+    DDECOMMAND lpfnCommand;
+} DDECOMMANDINFO;
+
 typedef struct {
     NMHDR  hdr;
     CHAR   szCmd[MAX_PATH * 2];
     DWORD  dwHotKey;
 } NMVIEWFOLDERA, FAR* LPNMVIEWFOLDERA;
+
 typedef struct {
     NMHDR  hdr;
     WCHAR  szCmd[MAX_PATH * 2];
@@ -268,6 +302,10 @@ typedef struct _tagSHELLREMINDER
 #define SMC_CALLBACKMASK        0xF0000000  // Mask of comutationally intense messages
 
 //
+
+#define LOGONID_CURRENT     ((ULONG)-1)
+#define LOGONID_NONE        ((ULONG)-2)
+#define SERVERNAME_CURRENT  ((HANDLE)NULL)
  
 
 #define UEIM_HIT        0x01
@@ -276,6 +314,7 @@ typedef struct _tagSHELLREMINDER
 #define SHCNFI_MAIN_WNDPROC               6
 #define SHCNFI_EVENT_WNDPROC              3   // e.wndproc
 
+#define IDS_CANTFINDDIR                 0x7666
 
 #define WINMMDEVICECHANGEMSGSTRING L"winmm_devicechange"
 
@@ -451,12 +490,61 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define DCX_NORECOMPUTE     0x00100000L /* ;Internal */
 #define DCX_VALIDATE        0x00200000L /* ;Internal */
 
+#define ROUS_DEFAULTALLOW       0x0000
+#define ROUS_DEFAULTRESTRICT    0x0001
+#define ROUS_KEYALLOWS          0x0000
+#define ROUS_KEYRESTRICTS       0x0002
+
 #define TTF_EXCLUDETOOLAREA     0x4000
+
+#define RRA_USEJOBOBJECTS         0x0020        // wait on job objects instead of process handles
+#define RRA_NOUI                  0x0008        // prevents ShellExecuteEx from displaying error dialogs
+
+#define SHCNFI_GLOBALHOTKEY               0
+#define SHCNFI_TRAYCOMMAND                1
+#define SHCNFI_TRAY_WNDPROC               3
 
 
 //
 // Enums
 // 
+
+typedef enum _WINSTATIONINFOCLASS {
+    WinStationCreateData,         // query WinStation create data
+    WinStationConfiguration,      // query/set WinStation parameters
+    WinStationPdParams,           // query/set PD parameters
+    WinStationWd,                 // query WD config (only one can be loaded)
+    WinStationPd,                 // query PD config (many can be loaded)
+    WinStationPrinter,            // query/set LPT mapping to printer queues
+    WinStationClient,             // query information about client
+    WinStationModules,            // query information about all client modules
+    WinStationInformation,        // query information about WinStation
+    WinStationTrace,              // enable/disable winstation tracing
+    WinStationBeep,               // beep the WinStation
+    WinStationEncryptionOff,      // turn off encryption
+    WinStationEncryptionPerm,     // encryption is permanent on
+    WinStationNtSecurity,         // select winlogon security desktop
+    WinStationUserToken,          // User token
+    WinStationUnused1,            // *** AVAILABLE *** (old IniMapping)
+    WinStationVideoData,          // query hres, vres, color depth
+    WinStationInitialProgram,     // Identify Initial Program
+    WinStationCd,                 // query CD config (only one can be loaded)
+    WinStationSystemTrace,        // enable/disable system tracing
+    WinStationVirtualData,        // query client virtual data
+    WinStationClientData,         // send data to client
+    WinStationSecureDesktopEnter, // turn encryption on, if enabled
+    WinStationSecureDesktopExit,  // turn encryption off, if enabled
+    WinStationLoadBalanceSessionTarget,  // Load balance info from redirected client.
+    WinStationLoadIndicator,      // query load capacity information
+    WinStationShadowInfo,     // query/set Shadow state & parameters
+    WinStationDigProductId,   // get the outermost digital product id, the client's product id, and the current product id
+    WinStationLockedState,        // winlogon sets this for notifing apps/services.
+    WinStationRemoteAddress,     // Query client IP address
+    WinStationLastReconnectType,   // If last reconnect for this winstation was manual or auto reconnect.      
+    WinStationDisallowAutoReconnect,     // Allow/Disallow AutoReconnect for this WinStation
+    WinStationMprNotifyInfo       // Mprnotify info from Winlogon for notifying 3rd party network providers
+} WINSTATIONINFOCLASS;
+
 typedef enum
 {
     RR_ALLOW = 1,
@@ -509,6 +597,8 @@ extern HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lPara
 extern HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd);
 extern LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 extern BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags);
+extern BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength);
+extern BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd);
 extern BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile);
 extern HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent);
 extern INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal);
@@ -521,6 +611,8 @@ extern COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORR
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
 STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);
+STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags);
+STDAPI_(BOOL) IsRestrictedOrUserSettingW(HKEY hkeyRoot, enum RESTRICTIONS rest, LPCWSTR pszSubKey, LPCWSTR pszValue, UINT flags);
 STDAPI SHCoInitialize(void);
 STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask);
 BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
@@ -539,6 +631,10 @@ BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce);
 
 BOOL IsBiDiLocalizedSystem(void);
 BOOL Mirror_IsWindowMirroredRTL(HWND hWnd);
+
+VOID MuSecurity(VOID);
+
+STDAPI_(LPNMVIEWFOLDER) DDECreatePostNotify(LPNMVIEWFOLDER pnm);
 
 inline unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft);
 inline void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64);
@@ -689,7 +785,7 @@ IStartMenuPin : IUnknown
     //  dwFlags is an SMPINNABLE_* flag
     //  *ppidl receives pidl being pinned
     //
-    HRESULT IsPinnable(IDataObject* pdto, DWORD dwFlags, LPITEMIDLIST* ppidl); // S_FALSE if not
+    STDMETHOD(IsPinnable)(IDataObject* pdto, DWORD dwFlags, LPITEMIDLIST* ppidl) PURE; // S_FALSE if not
 
     //
     //  Find the pidl on the pin list and resolve the shortcut that

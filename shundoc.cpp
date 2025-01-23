@@ -6,6 +6,7 @@
 //  File:       shundoc.cpp
 //
 //  History:    Oct-11-24   aubymori  Created
+//              Jan-22-25   kfh83     Modified
 //
 //--------------------------------------------------------------------------
 #include "shundoc.h"
@@ -20,6 +21,8 @@
 #include "Shlwapi.h"
 
 #include "msi.h"
+#include "port32.h"
+
 
 
 //
@@ -54,7 +57,7 @@ public:
         }
         else
         {
-            _state = -2;
+            _state = (INSTALLSTATE)-2;
         }
 
         // Note: Cannot use ParseDarwinID since that bumps the usage count
@@ -169,6 +172,8 @@ HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf,
 HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd) = nullptr;
 BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags) = nullptr;
+BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength) = nullptr;
+BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd) = nullptr;
 BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile) = nullptr;
 LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) = nullptr;
@@ -305,6 +310,224 @@ STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf)
             plf->lfWeight = FW_NORMAL;
     }
 }
+
+HANDLE SetJobCompletionPort(HANDLE hJob)
+{
+    HANDLE hRet = NULL;
+    HANDLE hIOPort = CreateIoCompletionPort(INVALID_HANDLE_VALUE, NULL, 0, 1);
+
+    if (hIOPort != NULL)
+    {
+        JOBOBJECT_ASSOCIATE_COMPLETION_PORT CompletionPort;
+
+        CompletionPort.CompletionKey = hJob;
+        CompletionPort.CompletionPort = hIOPort;
+
+        if (SetInformationJobObject(hJob,
+            JobObjectAssociateCompletionPortInformation,
+            &CompletionPort,
+            sizeof(CompletionPort)))
+        {
+            hRet = hIOPort;
+        }
+        else
+        {
+            CloseHandle(hIOPort);
+        }
+    }
+
+    return hRet;
+
+}
+
+STDAPI_(DWORD) WaitingThreadProc(void* pv)
+{
+    HANDLE hIOPort = (HANDLE)pv;
+
+    if (hIOPort)
+    {
+        while (TRUE)
+        {
+            DWORD dwCompletionCode;
+            ULONG_PTR pCompletionKey;
+            LPOVERLAPPED pOverlapped;
+
+            if (!GetQueuedCompletionStatus(hIOPort, &dwCompletionCode, &pCompletionKey, &pOverlapped, INFINITE) ||
+                (dwCompletionCode == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO))
+            {
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
+
+BOOL _CreateRegJob(LPCTSTR pszCmd, BOOL bWait)
+{
+    BOOL bRet = FALSE;
+    HANDLE hJobObject = CreateJobObjectW(NULL, NULL);
+
+    if (hJobObject)
+    {
+        HANDLE hIOPort = SetJobCompletionPort(hJobObject);
+
+        if (hIOPort)
+        {
+            DWORD dwID;
+            HANDLE hThread = CreateThread(NULL,
+                0,
+                WaitingThreadProc,
+                (void*)hIOPort,
+                CREATE_SUSPENDED,
+                &dwID);
+
+            if (hThread)
+            {
+                PROCESS_INFORMATION pi = { 0 };
+                STARTUPINFO si = { 0 };
+                UINT fMask = SEE_MASK_FLAG_NO_UI;
+                DWORD dwCreationFlags = CREATE_SUSPENDED;
+                TCHAR sz[MAX_PATH * 2];
+
+                wnsprintf(sz, ARRAYSIZE(sz), TEXT("RunDLL32.EXE Shell32.DLL,ShellExec_RunDLL ?0x%X?%s"), fMask, pszCmd);
+
+                si.cb = sizeof(si);
+
+                if (CreateProcess(NULL,
+                    sz,
+                    NULL,
+                    NULL,
+                    FALSE,
+                    dwCreationFlags,
+                    NULL,
+                    NULL,
+                    &si,
+                    &pi))
+                {
+                    if (AssignProcessToJobObject(hJobObject, pi.hProcess))
+                    {
+                        // success!
+                        bRet = TRUE;
+
+                        ResumeThread(pi.hThread);
+                        ResumeThread(hThread);
+
+                        if (bWait)
+                        {
+                            SHProcessMessagesUntilEvent(NULL, hThread, INFINITE);
+                        }
+                    }
+                    else
+                    {
+                        TerminateProcess(pi.hProcess, ERROR_ACCESS_DENIED);
+                    }
+
+                    CloseHandle(pi.hProcess);
+                    CloseHandle(pi.hThread);
+                }
+
+                if (!bRet)
+                {
+                    TerminateThread(hThread, ERROR_ACCESS_DENIED);
+                }
+
+                CloseHandle(hThread);
+            }
+
+            CloseHandle(hIOPort);
+        }
+
+        CloseHandle(hJobObject);
+    }
+
+    return bRet;
+}
+
+BOOL _ShellExecRegApp(LPCTSTR pszCmd, BOOL fNoUI, BOOL fWait)
+{
+    TCHAR szQuotedCmdLine[MAX_PATH + 2];
+    LPTSTR pszArgs;
+    SHELLEXECUTEINFO ei = { 0 };
+
+    // Gross, but if the process command fails, copy the command line to let
+    // shell execute report the errors
+    if (PathProcessCommand((LPWSTR)pszCmd,
+        (LPWSTR)szQuotedCmdLine,
+        ARRAYSIZE(szQuotedCmdLine),
+        PPCF_ADDARGUMENTS | PPCF_FORCEQUALIFY) == -1)
+    {
+        lstrcpy(szQuotedCmdLine, pszCmd);
+    }
+
+    pszArgs = PathGetArgs(szQuotedCmdLine);
+    if (*pszArgs)
+    {
+        // Strip args
+        *(pszArgs - 1) = 0;
+    }
+
+    PathUnquoteSpaces(szQuotedCmdLine);
+
+    ei.cbSize = sizeof(SHELLEXECUTEINFO);
+    ei.lpFile = szQuotedCmdLine;
+    ei.lpParameters = pszArgs;
+    ei.nShow = SW_SHOWNORMAL;
+    ei.fMask = SEE_MASK_NOCLOSEPROCESS;
+
+    if (fNoUI)
+    {
+        ei.fMask |= SEE_MASK_FLAG_NO_UI;
+    }
+
+    if (ShellExecuteEx(&ei))
+    {
+        if (ei.hProcess)
+        {
+            if (fWait)
+            {
+                SHProcessMessagesUntilEvent(NULL, ei.hProcess, INFINITE);
+            }
+
+            CloseHandle(ei.hProcess);
+        }
+
+        return TRUE;
+    }
+    else
+    {
+        return FALSE;
+    }
+}
+
+
+STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags)
+{
+    BOOL bRet = FALSE;
+
+    if (!pszCmdLine || !*pszCmdLine)
+    {
+        // Don't let empty strings through, they will endup doing something dumb
+        // like opening a command prompt or the like
+        return bRet;
+    }
+
+#if (_WIN32_WINNT >= 0x0500)
+    if (fFlags & RRA_USEJOBOBJECTS)
+    {
+        bRet = _CreateRegJob(pszCmdLine, fFlags & RRA_WAIT);
+    }
+#endif
+
+    if (!bRet)
+    {
+        //  fallback if necessary.
+        bRet = _ShellExecRegApp(pszCmdLine, fFlags & RRA_NOUI, fFlags & RRA_WAIT);
+    }
+
+    return bRet;
+}
+
 
 STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask)
 {
@@ -550,6 +773,21 @@ BOOL ConvertHexStringToIntW(WCHAR* pszHexNum, int* piNum)
     return (psz != pszHexNum);
 }
 
+VOID MuSecurity(VOID)
+{
+    //
+    // Do nothing on the console
+    //
+
+    if (SHGetMachineInfo(GMI_TSCLIENT))
+    {
+        WinStationSetInformationW(SERVERNAME_CURRENT,
+            LOGONID_CURRENT,
+            WinStationNtSecurity,
+            NULL, 0);
+    }
+}
+
 BOOL CALLBACK Mirror_EnumUILanguagesProc(LPTSTR lpUILanguageString, LONG_PTR lParam)
 {
     int langID = 0;
@@ -639,6 +877,589 @@ BOOL IsBiDiLocalizedSystem(void)
     return IsBiDiLocalizedSystemEx(NULL);
 }
 
+BOOL GetExplorerUserSetting(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue)
+{
+    TCHAR szPath[MAX_PATH];
+    TCHAR szPathExplorer[MAX_PATH];
+    DWORD cbSize = ARRAYSIZE(szPath);
+    DWORD dwType;
+
+    PathCombine(szPathExplorer, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer", pszSubKey);
+    if (ERROR_SUCCESS == SHGetValue(hkeyRoot, szPathExplorer, pszValue,
+        &dwType, szPath, &cbSize))
+    {
+        // Zero in the DWORD case or NULL in the string case
+        // indicates that this item is not available.
+        if (dwType == REG_DWORD)
+            return *((DWORD*)szPath) != 0;
+        else
+            return (TCHAR)szPath[0] != 0;
+    }
+
+    return -1;
+}
+
+STDAPI_(BOOL) IsRestrictedOrUserSetting(HKEY hkeyRoot, RESTRICTIONS rest, LPCTSTR pszSubKey, LPCTSTR pszValue, UINT flags)
+{
+    // See if the system policy restriction trumps
+
+    DWORD dwRest = SHRestricted(rest);
+
+    if (dwRest == 1)
+        return TRUE;
+
+    if (dwRest == 2)
+        return FALSE;
+
+    //
+    //  Restriction not in place or defers to user setting.
+    //
+    BOOL fValidKey = GetExplorerUserSetting(hkeyRoot, pszSubKey, pszValue);
+
+    switch (fValidKey)
+    {
+    case 0:     // Key is present and zero
+        if (flags & ROUS_KEYRESTRICTS)
+            return FALSE;       // restriction not present
+        else
+            return TRUE;        // ROUS_KEYALLOWS, value is 0 -> restricted
+
+    case 1:     // Key is present and nonzero
+
+        if (flags & ROUS_KEYRESTRICTS)
+            return TRUE;        // restriction present -> restricted
+        else
+            return FALSE;       // ROUS_KEYALLOWS, value is 1 -> not restricted
+
+    default:
+        // Fall through
+
+    case -1:    // Key is not present
+        return (flags & ROUS_DEFAULTRESTRICT);
+    }
+
+    /*NOTREACHED*/
+}
+
+// DDE shit
+
+TCHAR const c_szCreateGroup[] = TEXT("CreateGroup");
+TCHAR const c_szShowGroup[] = TEXT("ShowGroup");
+TCHAR const c_szAddItem[] = TEXT("AddItem");
+TCHAR const c_szExitProgman[] = TEXT("ExitProgman");
+TCHAR const c_szDeleteGroup[] = TEXT("DeleteGroup");
+TCHAR const c_szDeleteItem[] = TEXT("DeleteItem");
+TCHAR const c_szReplaceItem[] = TEXT("ReplaceItem");
+TCHAR const c_szReload[] = TEXT("Reload");
+TCHAR const c_szFindFolder[] = TEXT("FindFolder");
+TCHAR const c_szOpenFindFile[] = TEXT("OpenFindFile");
+TCHAR const c_szTrioDataFax[] = TEXT("DDEClient");
+TCHAR const c_szTalkToPlus[] = TEXT("ddeClass");
+TCHAR const c_szStartUp[] = TEXT("StartUp");
+TCHAR const c_szCCMail[] = TEXT("ccInsDDE");
+TCHAR const c_szBodyWorks[] = TEXT("BWWFrame");
+TCHAR const c_szMediaRecorder[] = TEXT("DDEClientWndClass");
+TCHAR const c_szDiscis[] = TEXT("BACKSCAPE");
+TCHAR const c_szMediaRecOld[] = TEXT("MediaRecorder");
+TCHAR const c_szMediaRecNew[] = TEXT("Media Recorder");
+TCHAR const c_szDialog[] = TEXT("#32770");
+TCHAR const c_szJourneyMan[] = TEXT("Sender");
+TCHAR const c_szCADDE[] = TEXT("CA_DDECLASS");
+TCHAR const c_szFaxServe[] = TEXT("Install");
+TCHAR const c_szMakePMG[] = TEXT("Make Program Manager Group");
+TCHAR const c_szViewFolder[] = TEXT("ViewFolder");
+TCHAR const c_szExploreFolder[] = TEXT("ExploreFolder");
+TCHAR const c_szRUCabinet[] = TEXT("ConfirmCabinetID");
+CHAR const c_szNULLA[] = "";
+TCHAR const c_szGetIcon[] = TEXT("GetIcon");
+TCHAR const c_szGetDescription[] = TEXT("GetDescription");
+TCHAR const c_szGetWorkingDir[] = TEXT("GetWorkingDir");
+TCHAR const c_szShellFile[] = TEXT("ShellFile");
+
+BOOL DDE_CreateGroup(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ShowGroup(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_AddItem(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ExitProgman(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_DeleteGroup(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_DeleteItem(LPTSTR, UINT*, PDDECONV);
+#define DDE_ReplaceItem DDE_DeleteItem
+BOOL DDE_Reload(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ViewFolder(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ExploreFolder(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_FindFolder(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_OpenFindFile(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec);
+BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec);
+BOOL DDE_Beep(LPTSTR, UINT*, PDDECONV);
+
+DDECOMMANDINFO const c_sDDECommands[] =
+{
+    { c_szCreateGroup  , DDE_CreateGroup   },
+    { c_szShowGroup    , DDE_ShowGroup     },
+    { c_szAddItem      , DDE_AddItem       },
+    { c_szExitProgman  , DDE_ExitProgman   },
+    { c_szDeleteGroup  , DDE_DeleteGroup   },
+    { c_szDeleteItem   , DDE_DeleteItem    },
+    { c_szReplaceItem  , DDE_ReplaceItem   },
+    { c_szReload       , DDE_Reload        },
+    { c_szViewFolder   , DDE_ViewFolder    },
+    { c_szExploreFolder, DDE_ExploreFolder },
+    { c_szFindFolder,    DDE_FindFolder    },
+    { c_szOpenFindFile,  DDE_OpenFindFile  },
+    { c_szRUCabinet,     DDE_ConfirmID},
+    { c_szShellFile,     DDE_ShellFile},
+#ifdef DEBUG
+    { c_szBeep         , DDE_Beep          },
+#endif
+    { 0, 0 },
+};
+
+LPTSTR SkipWhite(LPTSTR lpsz)
+{
+    /* prevent sign extension in case of DBCS */
+    while (*lpsz && (TUCHAR)*lpsz <= TEXT(' '))
+        lpsz++;
+
+    return(lpsz);
+}
+
+LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, UINT* lpW)
+{
+    TCHAR chT;
+    UINT iCmd = 0;
+    LPTSTR lpT;
+
+    /* Eat any white space. */
+    lpT = lpCmd = SkipWhite(lpCmd);
+
+    /* Find the end of the token. */
+    while (IsCharAlpha(*lpCmd))
+        lpCmd = CharNext(lpCmd);
+
+    /* Temporarily NULL terminate it. */
+    chT = *lpCmd;
+    *lpCmd = 0;
+
+    /* Look up the token in a list of commands. */
+    *lpW = (UINT)-1;
+    while (lpsCommands->pszCommand)
+    {
+        if (!lstrcmpi(lpsCommands->pszCommand, lpT))
+        {
+            *lpW = iCmd;
+            break;
+        }
+        iCmd++;
+        ++lpsCommands;
+    }
+
+    *lpCmd = chT;
+
+    return(lpCmd);
+}
+
+LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, UINT* lpW)
+{
+    TCHAR chT;
+    UINT iCmd = 0;
+    LPTSTR lpT;
+
+    /* Eat any white space. */
+    lpT = lpCmd = SkipWhite(lpCmd);
+
+    /* Find the end of the token. */
+    while (IsCharAlpha(*lpCmd))
+        lpCmd = CharNext(lpCmd);
+
+    /* Temporarily NULL terminate it. */
+    chT = *lpCmd;
+    *lpCmd = 0;
+
+    /* Look up the token in a list of commands. */
+    *lpW = (UINT)-1;
+    while (lpsCommands->pszCommand)
+    {
+        if (!lstrcmpi(lpsCommands->pszCommand, lpT))
+        {
+            *lpW = iCmd;
+            break;
+        }
+        iCmd++;
+        ++lpsCommands;
+    }
+
+    *lpCmd = chT;
+
+    return(lpCmd);
+}
+
+LPTSTR GetOneParameter(LPCTSTR lpCmdStart, LPTSTR lpCmd,
+    UINT* lpW, BOOL fIncludeQuotes)
+{
+    LPTSTR     lpT;
+
+    switch (*lpCmd)
+    {
+    case TEXT(','):
+        *lpW = (UINT)(lpCmd - lpCmdStart);  // compute offset
+        *lpCmd++ = 0;                /* comma: becomes a NULL string */
+        break;
+
+    case TEXT('"'):
+        if (fIncludeQuotes)
+        {
+
+            // quoted string... don't trim off "
+            *lpW = (UINT)(lpCmd - lpCmdStart);  // compute offset
+            ++lpCmd;
+            while (*lpCmd && *lpCmd != TEXT('"'))
+                lpCmd = CharNext(lpCmd);
+            if (!*lpCmd)
+                return(NULL);
+            lpT = lpCmd;
+            ++lpCmd;
+
+            goto skiptocomma;
+        }
+        else
+        {
+            // quoted string... trim off "
+            ++lpCmd;
+            *lpW = (UINT)(lpCmd - lpCmdStart);  // compute offset
+            while (*lpCmd && *lpCmd != TEXT('"'))
+                lpCmd = CharNext(lpCmd);
+            if (!*lpCmd)
+                return(NULL);
+            *lpCmd++ = 0;
+            lpCmd = SkipWhite(lpCmd);
+
+            // If there's a comma next then skip over it, else just go on as
+            // normal.
+            if (*lpCmd == TEXT(','))
+                lpCmd++;
+        }
+        break;
+
+    case TEXT(')'):
+        return(lpCmd);                /* we ought not to hit this */
+
+    case TEXT('('):
+    case TEXT('['):
+    case TEXT(']'):
+        return(NULL);                 /* these are illegal */
+
+    default:
+        lpT = lpCmd;
+        *lpW = (UINT)(lpCmd - lpCmdStart);  // compute offset
+    skiptocomma:
+        while (*lpCmd && *lpCmd != TEXT(',') && *lpCmd != TEXT(')'))
+        {
+            /* Check for illegal characters. */
+            if (*lpCmd == TEXT(']') || *lpCmd == TEXT('[') || *lpCmd == TEXT('('))
+                return(NULL);
+
+            /* Remove trailing whitespace */
+            /* prevent sign extension */
+            if ((TUCHAR)*lpCmd > TEXT(' '))
+                lpT = lpCmd;
+
+            lpCmd = CharNext(lpCmd);
+        }
+
+        /* Eat any trailing comma. */
+        if (*lpCmd == TEXT(','))
+            lpCmd++;
+
+        /* NULL terminator after last nonblank character -- may write over
+         * terminating ')' but the caller checks for that because this is
+         * a hack.
+         */
+
+#ifdef UNICODE
+        lpT[1] = 0;
+#else
+        lpT[IsDBCSLeadByte(*lpT) ? 2 : 1] = 0;
+#endif
+        break;
+    }
+
+    // Return next unused character.
+    return(lpCmd);
+}
+
+UINT* GetDDECommands(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, BOOL fLFN)
+{
+    UINT cParm, cCmd = 0;
+    UINT* lpW;
+    UINT* lpRet;
+    LPCTSTR lpCmdStart = lpCmd;
+    BOOL fIncludeQuotes = FALSE;
+
+    lpRet = lpW = (UINT*)GlobalAlloc(GPTR, 512L);
+    if (!lpRet)
+        return 0;
+
+    while (*lpCmd)
+    {
+        /* Skip leading whitespace. */
+        lpCmd = SkipWhite(lpCmd);
+
+        /* Are we at a NULL? */
+        if (!*lpCmd)
+        {
+            /* Did we find any commands yet? */
+            if (cCmd)
+                goto GDEExit;
+            else
+                goto GDEErrExit;
+        }
+
+        /* Each command should be inside square brackets. */
+        if (*lpCmd != TEXT('['))
+            goto GDEErrExit;
+        lpCmd++;
+
+        /* Get the command name. */
+        lpCmd = GetCommandName(lpCmd, lpsCommands, lpW);
+        if (*lpW == (UINT)-1)
+            goto GDEErrExit;
+
+        // We need to leave quotes in for the first param of an AddItem.
+        if (fLFN && *lpW == 2)
+        {
+            fIncludeQuotes = TRUE;
+        }
+
+        lpW++;
+
+        /* Start with zero parms. */
+        cParm = 0;
+        lpCmd = SkipWhite(lpCmd);
+
+        /* Check for opening '(' */
+        if (*lpCmd == TEXT('('))
+        {
+            lpCmd++;
+
+            /* Skip white space and then find some parameters (may be none). */
+            lpCmd = SkipWhite(lpCmd);
+
+            while (*lpCmd != TEXT(')'))
+            {
+                if (!*lpCmd)
+                    goto GDEErrExit;
+
+                // Only the first param of the AddItem command needs to
+                // handle quotes from LFN guys.
+                if (fIncludeQuotes && (cParm != 0))
+                    fIncludeQuotes = FALSE;
+
+                /* Get the parameter. */
+                if (!(lpCmd = GetOneParameter(lpCmdStart, lpCmd, lpW + (++cParm), fIncludeQuotes)))
+                    goto GDEErrExit;
+
+                /* HACK: Did GOP replace a ')' with a NULL? */
+                if (!*lpCmd)
+                    break;
+
+                /* Find the next one or ')' */
+                lpCmd = SkipWhite(lpCmd);
+            }
+
+            // Skip closing bracket.
+            lpCmd++;
+
+            /* Skip the terminating stuff. */
+            lpCmd = SkipWhite(lpCmd);
+        }
+
+        /* Set the count of parameters and then skip the parameters. */
+        *lpW++ = cParm;
+        lpW += cParm;
+
+        /* We found one more command. */
+        cCmd++;
+
+        /* Commands must be in square brackets. */
+        if (*lpCmd != TEXT(']'))
+            goto GDEErrExit;
+        lpCmd++;
+    }
+
+GDEExit:
+    /* Terminate the command list with -1. */
+    *lpW = (UINT)-1;
+
+    return lpRet;
+
+GDEErrExit:
+    GlobalFree(lpW);
+    return(0);
+}
+
+STDAPI_(LPNMVIEWFOLDER) DDECreatePostNotify(LPNMVIEWFOLDER pnm)
+{
+    LPNMVIEWFOLDER pnmPost = NULL;
+    TCHAR szCmd[MAX_PATH * 2];
+    StrCpyN(szCmd, pnm->szCmd, SIZECHARS(szCmd));
+    UINT* pwCmd = GetDDECommands(szCmd, c_sDDECommands, FALSE);
+
+    // -1 means there aren't any commands we understand.  Oh, well
+    if (pwCmd && (-1 != *pwCmd))
+    {
+        LPCTSTR pszCommand = c_sDDECommands[*pwCmd].pszCommand;
+
+        //
+        //  these are the only commands handled by a PostNotify
+        if (pszCommand == TEXT("ViewFolder")
+            || pszCommand == TEXT("ExploreFolder")
+            || pszCommand == TEXT("ShellFile"))
+        {
+            pnmPost = (LPNMVIEWFOLDER)LocalAlloc(LPTR, sizeof(NMVIEWFOLDER));
+
+            if (pnmPost)
+                memcpy(pnmPost, pnm, sizeof(NMVIEWFOLDER));
+        }
+
+        GlobalFree(pwCmd);
+    }
+
+    return pnmPost;
+}
+
+// Helper function to convert passed in command parameters into the
+// appropriate Id list
+LPITEMIDLIST _GetPIDLFromDDEArgs(UINT nArg, LPTSTR lpszBuf, UINT* lpwCmd, PSHDDEERR psde, LPCITEMIDLIST* ppidlGlobal)
+{
+    LPTSTR lpsz;
+    LPITEMIDLIST pidl = NULL;
+
+    // Switch from 0-based to 1-based 
+    ++nArg;
+    if (*lpwCmd < nArg)
+    {
+        return NULL;
+    }
+
+    // Skip to the right argument
+    lpwCmd += nArg;
+    lpsz = &lpszBuf[*lpwCmd];
+
+    // REVIEW: all associations will go through here.  this
+    // is probably not what we want for normal cmd line type operations
+
+    // A colon at the begining of the path means that this is either
+    // a pointer to a pidl (win95 classic) or a handle:pid (all other
+    // platforms including win95+IE4).  Otherwise, it's a regular path.
+
+    if (lpsz[0] == TEXT(':'))
+    {
+        HANDLE hMem;
+        DWORD  dwProcId;
+        LPTSTR pszNextColon;
+
+        // Convert the string into a pidl.
+
+        hMem = LongToHandle(StrToLong((LPTSTR)(lpsz + 1)));
+        pszNextColon = StrChr(lpsz + 1, TEXT(':'));
+        if (pszNextColon)
+        {
+            LPITEMIDLIST pidlShared;
+
+            dwProcId = (DWORD)StrToLong(pszNextColon + 1);
+            pidlShared = (LPITEMIDLIST)SHLockShared(hMem, dwProcId);
+            if (pidlShared && !IsBadReadPtr(pidlShared, 1))
+            {
+                pidl = ILClone(pidlShared);
+                SHUnlockShared(pidlShared);
+            }
+            else
+            {
+            }
+            SHFreeShared(hMem, dwProcId);
+        }
+        else if (hMem && !IsBadReadPtr(hMem, sizeof(WORD)))
+        {
+            // this is likely to be browser only mode on win95 with the old pidl arguments which is
+            // going to be in shared memory.... (must be cloned into local memory)...
+            pidl = ILClone((LPITEMIDLIST)hMem);
+
+            // this will get freed if we succeed.
+            *ppidlGlobal = (LPITEMIDLIST)hMem;
+        }
+
+        return pidl;
+    }
+    else
+    {
+        TCHAR tszQual[MAX_PATH];
+
+        // We must copy to a temp buffer because the PathQualify may
+        // result in a string longer than our input buffer and faulting
+        // seems like a bad way of handling that situation.
+        lstrcpyn(tszQual, lpsz, ARRAYSIZE(tszQual));
+        lpsz = tszQual;
+
+        /* Fuck you
+        // Is this a URL?
+        if (!PathIsURL(lpsz))
+        {
+            // No; qualify it
+            PathQualifyDef(lpsz, NULL, PQD_NOSTRIPDOTS);
+        }
+        */ 
+        pidl = ILCreateFromPath(lpsz);
+
+        if (pidl == NULL && psde)
+        {
+            psde->idMsg = IDS_CANTFINDDIR;
+            lstrcpyn(psde->szParam, lpsz, ARRAYSIZE(psde->szParam));
+        }
+        return pidl;
+    }
+}
+
+LPITEMIDLIST GetPIDLFromDDEArgs(LPTSTR lpszBuf, UINT* lpwCmd, PSHDDEERR psde, LPCITEMIDLIST* ppidlGlobal)
+{
+    LPITEMIDLIST pidl = _GetPIDLFromDDEArgs(1, lpszBuf, lpwCmd, psde, ppidlGlobal);
+    if (!pidl)
+    {
+        pidl = _GetPIDLFromDDEArgs(0, lpszBuf, lpwCmd, psde, ppidlGlobal);
+    }
+
+    return pidl;
+}
+
+STDAPI_(BOOL) DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWFOLDER pnm)
+{
+    BOOL fRet = FALSE;
+    UINT* pwCmd = GetDDECommands(pnm->szCmd, c_sDDECommands, FALSE);
+
+    // -1 means there aren't any commands we understand.  Oh, well
+    if (pwCmd && (-1 != *pwCmd))
+    {
+        UINT* pwCmdSave = pwCmd;
+        UINT c = *pwCmd++;
+
+        LPCTSTR pszCommand = c_sDDECommands[c].pszCommand;
+
+        if (pszCommand == c_szViewFolder ||
+            pszCommand == c_szExploreFolder)
+        {
+            //fRet = DoDDE_ViewFolder(psb, hwnd, pnm->szCmd, pwCmd,
+                //pszCommand == c_szExploreFolder, pnm->dwHotKey, pnm->hMonitor);
+        }
+        else if (pszCommand == c_szShellFile)
+        {
+            fRet = DDE_ShellFile(pnm->szCmd, pwCmd, 0);
+        }
+
+        GlobalFree(pwCmdSave);
+    }
+
+    return fRet;
+}
+
 
 //
 // Function loader
@@ -700,9 +1521,8 @@ bool SHUndocInit(void)
 
     LOAD_MODULE(winsta);
     LOAD_FUNCTION(winsta, WinStationRegisterConsoleNotification);
-
-
-
+    LOAD_FUNCTION(winsta, WinStationSetInformationW);
+    LOAD_FUNCTION(winsta, WinStationUnRegisterConsoleNotification);
 
 
 	return true;
