@@ -73,13 +73,3 @@
 #ifdef _M_IA64
 #pragma warning(disable:4268) /* 'variable' : 'const' static/global data initialized with compiler generated default constructor fills the object with zeros */
 #endif
-
-/*
- * VC6.0 temporary hack
- */
-
-/*
-#pragma warning(disable:4189) // local variable initialized but not used 
-#pragma warning(disable:4701) // local variable used and may not have been initialized
-#pragma warning(disable:4096) // __cdecl must be used with ...
-*/
