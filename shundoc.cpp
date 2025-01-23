@@ -1023,40 +1023,6 @@ LPTSTR SkipWhite(LPTSTR lpsz)
     return(lpsz);
 }
 
-LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, UINT* lpW)
-{
-    TCHAR chT;
-    UINT iCmd = 0;
-    LPTSTR lpT;
-
-    /* Eat any white space. */
-    lpT = lpCmd = SkipWhite(lpCmd);
-
-    /* Find the end of the token. */
-    while (IsCharAlpha(*lpCmd))
-        lpCmd = CharNext(lpCmd);
-
-    /* Temporarily NULL terminate it. */
-    chT = *lpCmd;
-    *lpCmd = 0;
-
-    /* Look up the token in a list of commands. */
-    *lpW = (UINT)-1;
-    while (lpsCommands->pszCommand)
-    {
-        if (!lstrcmpi(lpsCommands->pszCommand, lpT))
-        {
-            *lpW = iCmd;
-            break;
-        }
-        iCmd++;
-        ++lpsCommands;
-    }
-
-    *lpCmd = chT;
-
-    return(lpCmd);
-}
 
 LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, UINT* lpW)
 {
