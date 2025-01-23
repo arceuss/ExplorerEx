@@ -354,6 +354,8 @@ typedef struct _tagSHELLREMINDER
 
 #define SIZECHARS(x)    (sizeof((x))/sizeof(WCHAR))
 
+#define IS_WM_CONTEXTMENU_KEYBOARD(lParam) ((DWORD)(lParam) == 0xFFFFFFFF)
+
 #define IntToPtr_(T, i) ((T)IntToPtr(i))
 
 #define _IOffset(class, itf)         ((UINT)(UINT_PTR)&(((class *)0)->itf))
@@ -808,6 +810,7 @@ STDAPI_(BOOL) IsRestrictedOrUserSettingW(HKEY hkeyRoot, enum RESTRICTIONS rest, 
 STDAPI SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast); 
 STDAPI SHCoInitialize(void);
 STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask);
+STDAPI_(TCHAR) SHFindMnemonic(LPCTSTR psz);
 BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
 BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
 
@@ -833,6 +836,8 @@ inline unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft);
 inline void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64);
 inline void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
+
+__inline CHAR CharUpperCharA(CHAR c);
 
 typedef HANDLE LPSHChangeNotificationLock;
 typedef INT_PTR BOOL_PTR;

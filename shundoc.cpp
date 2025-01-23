@@ -1427,9 +1427,38 @@ STDAPI_(BOOL) DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWF
     return fRet;
 }
 
+STDAPI_(TCHAR) SHFindMnemonic(LPCTSTR psz)
+{
+    ASSERT(psz);
+    TCHAR tchDefault = *psz;                // Default is first character
+    LPCTSTR pszAmp;
+
+    while ((pszAmp = StrChr(psz, TEXT('&'))) != NULL)
+    {
+        switch (pszAmp[1])
+        {
+        case TEXT('&'):         // Skip over &&
+            psz = pszAmp + 2;
+            continue;
+
+        case TEXT('\0'):        // Ignore trailing ampersand
+            return tchDefault;
+
+        default:
+            return pszAmp[1];
+        }
+    }
+    return tchDefault;
+}
+
 STDAPI SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast)
 {
     return SHBindToFolderIDListParent(NULL, pidl, riid, ppv, ppidlLast);
+}
+
+__inline CHAR CharUpperCharA(CHAR c)
+{
+    return (CHAR)(DWORD_PTR)CharUpperA((LPSTR)(DWORD_PTR)(c));
 }
 
 
