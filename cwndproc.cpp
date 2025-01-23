@@ -3,6 +3,8 @@
 #include <ShlObj.h>
 #include "shundoc.h"
 
+
+
 #define ID_NOTIFY_SUBCLASS (DWORD)'CHN'     // CHN change notify
 //
 // CImpWndProc
@@ -104,7 +106,7 @@ LRESULT CALLBACK CNotifySubclassWndProc::_SubclassWndProc(
             LPITEMIDLIST *ppidl;
             LONG lEvent;
 
-            if (g_fNewNotify && (wParam || lParam))
+            if (TRUE && (wParam || lParam))
             {
                 // New style of notifications need to lock and unlock in order to free the memory...
                 pshcnl = SHChangeNotification_Lock((HANDLE)wParam, (DWORD) lParam, &ppidl, &lEvent);
