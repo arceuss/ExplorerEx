@@ -141,6 +141,69 @@
     <ClInclude Include="criticalsection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wtl\atlapp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlcrack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrls.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrlw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrlx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlddx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atldlgs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlfind.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlgdi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlmisc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlprint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlres.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlresce.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlscrl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlsplit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atltheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atluser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlwince.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlwinx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="runtask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">
@@ -148,6 +211,9 @@
     </None>
     <None Include="resource.rcv">
       <Filter>Resource Files</Filter>
+    </None>
+    <None Include="interfacesp.inc">
+      <Filter>Header Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

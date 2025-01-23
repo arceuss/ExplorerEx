@@ -8,7 +8,7 @@
 #define __SFTHOST_H__
 
 #include "uemapp.h"
-//#include "runtask.h"
+#include "runtask.h"
 #include "hostutil.h"
 //#include "dobjutil.h"
 
@@ -404,7 +404,7 @@ public:
     //  It is pointless to move an object to a place adjacent to itself,
     //  because the end result is that nothing happens.
     //
-    inline IsInsertMarkPointless(int iInsert)
+    inline BOOL IsInsertMarkPointless(int iInsert)
     {
         return _fDragToSelf &&
                IsInRange(iInsert, _iPosDragOut, _iPosDragOut + 1);
@@ -431,7 +431,8 @@ private:
     /*
      *  Background enumeration stuff...
      */
-    class CBGEnum : public CRunnableTask {
+    class CBGEnum : public CRunnableTask
+    {
     public:
         CBGEnum(SFTBarHost *phost, BOOL fUrgent)
             : CRunnableTask(RTF_DEFAULT)
@@ -531,7 +532,8 @@ private:
     void _SetTileWidth(int cxTile);
     BOOL _CreateMarlett();
     void _CreateBoldFont();
-    int  _GetLVCurSel() {
+    int  _GetLVCurSel()
+    {
             return ListView_GetNextItem(_hwndList, -1, LVNI_FOCUSED);
     }
     BOOL _OnCascade(int iItem, DWORD dwFlags);

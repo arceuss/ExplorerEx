@@ -8,6 +8,9 @@
 #include "rcids.h"          // for IDM_PROGRAMS etc.
 #include <strsafe.h>
 
+#include <vsstyle.h>
+#include <vssym32.h>
+
 //
 //  Unfortunately, WTL #undef's SelectFont, so we have to define it again.
 //
@@ -691,7 +694,7 @@ LRESULT CMorePrograms::_OnContextMenu(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
 LRESULT CALLBACK CMorePrograms::s_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CMorePrograms *self = reinterpret_cast<CMorePrograms *>(GetWindowPtr(hwnd, GWLP_USERDATA));
+    CMorePrograms *self = reinterpret_cast<CMorePrograms *>(GetWindowLongPtr(hwnd, GWLP_USERDATA));
 
     switch (uMsg)
     {

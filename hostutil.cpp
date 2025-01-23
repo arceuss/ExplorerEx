@@ -365,7 +365,8 @@ LRESULT CALLBACK CAccessible::s_SubclassProc(
     {
 
     case WM_GETOBJECT:
-        if ((DWORD)lParam == OBJID_CLIENT) {
+        if ((DWORD)lParam == OBJID_CLIENT)
+        {
             HRESULT hr;
 
             // Create the accessibility object for the inner listview if we haven't already
@@ -373,14 +374,18 @@ LRESULT CALLBACK CAccessible::s_SubclassProc(
             if (!self->_paccInner)
             {
                 hr = CreateStdAccessibleObject(hwnd, (DWORD)lParam, IID_PPV_ARGS(&self->_paccInner));
-            } else {
+            }
+            else
+            {
                 hr = S_OK;
             }
 
             if (SUCCEEDED(hr))
             {
                 return LresultFromObject(IID_IAccessible, wParam, SAFECAST(self, IAccessible *));
-            } else {
+            }
+            else
+            {
                 return hr;
             }
         };

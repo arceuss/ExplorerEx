@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="runtask.h" />
     <ClInclude Include="wtl\atlapp.h" />
     <ClInclude Include="wtl\atlcrack.h" />
     <ClInclude Include="wtl\atlctrls.h" />
@@ -204,6 +205,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv" />
+    <None Include="interfacesp.inc" />
     <None Include="resource.rcv" />
   </ItemGroup>
   <ItemGroup>
