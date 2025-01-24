@@ -5,6 +5,7 @@
 #include "startmnu.h"
 #include <vssym32.h>
 
+
 #define TF_HOST     0x00000010
 #define TF_HOSTDD   0x00000040 // drag/drop
 #define TF_HOSTPIN  0x00000080 // pin
@@ -492,7 +493,7 @@ int SFTBarHost::AddImageForItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIS
     {
         // system image list: Make the shell do the work.
         int iIndex;
-        SHMapIDListToImageListIndexAsync(_psched, psf, pidl, 0, SetIconAsync, _hwnd, pitem, &iIndex, NULL);
+        //SHMapIDListToImageListIndexAsync(_psched, psf, pidl, 0, SetIconAsync, _hwnd, pitem, &iIndex, NULL);
         return iIndex;
     }
 }

@@ -6,7 +6,7 @@
 #include "raserror.h"
 #include "netcon.h"
 //#include "netconp.h"
-//#include <cowsite.h>
+#include "cowsite.h"
 
 //
 //  This definition is stolen from shell32\unicpp\dcomp.h

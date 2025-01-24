@@ -1271,8 +1271,8 @@ public:
             
             // Pre-load the icons in the cache
             int iIndex;
-            SHMapIDListToImageListIndexAsync(_pScheduler, pscut->ParentFolder(), pscut->RelativePidl(), 0, 
-                                                    DummyCallBack, NULL, NULL, &iIndex, NULL);
+            //SHMapIDListToImageListIndexAsync(_pScheduler, pscut->ParentFolder(), pscut->RelativePidl(), 0, 
+                                                   // DummyCallBack, NULL, NULL, &iIndex, NULL);
             
             // Register Darwin shortcut so that they can be grayed out if not installed
             // and so we can map them to local paths as necessary

@@ -1,6 +1,8 @@
 #ifndef _COWSITE_H_
 #define _COWSITE_H_
 
+#include <shundoc.h>
+
 class CObjectWithSite : public IObjectWithSite
 {
 public:

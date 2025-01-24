@@ -1935,6 +1935,41 @@ STDAPI_(LPITEMIDLIST) SHLogILFromFSIL(LPCITEMIDLIST pidlFS)
     return pidlOut;
 }
 
+STDAPI DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal)
+{
+    FORMATETC fmte = { (CLIPFORMAT)cf, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    STGMEDIUM medium = { 0 };
+
+    medium.tymed = TYMED_HGLOBAL;
+    medium.hGlobal = hGlobal;
+    medium.pUnkForRelease = NULL;
+
+    // give the data object ownership of ths
+    return pdtobj->SetData(&fmte, &medium, TRUE);
+}
+
+STDAPI_(BOOL) GetInfoTip(IShellFolder* psf, LPCITEMIDLIST pidl, LPTSTR pszText, int cchTextMax)
+{
+    *pszText = 0;
+    return FALSE;
+}
+
+STDAPI SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void** ppv)
+{
+    *ppv = NULL;
+
+    LPCITEMIDLIST pidlChild;
+    IShellFolder* psf;
+    HRESULT hr = SHBindToIDListParent(pidl, IID_PPV_ARG(IShellFolder, &psf), &pidlChild);
+    if (SUCCEEDED(hr))
+    {
+        hr = psf->GetUIObjectOf(hwnd, 1, &pidlChild, riid, NULL, ppv);
+        psf->Release();
+    }
+
+    return hr;
+}
+
 
 //
 // This is a helper function for finding a specific verb's index in a context menu

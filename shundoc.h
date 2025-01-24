@@ -965,6 +965,9 @@ STDAPI DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags,
 STDAPI_(LPITEMIDLIST) ILCloneParent(LPCITEMIDLIST pidl);
 STDAPI SHGetIDListFromUnk(IUnknown* punk, LPITEMIDLIST* ppidl);
 STDAPI_(void) _SHPrettyMenu(HMENU hm);
+STDAPI DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal);
+STDAPI_(BOOL) GetInfoTip(IShellFolder* psf, LPCITEMIDLIST pidl, LPTSTR pszText, int cchTextMax);
+STDAPI SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void** ppv);
 
 
 BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags);

@@ -1,5 +1,5 @@
 #include "cabinet.h"
-#include <desktray.h>
+//#include <desktray.h>
 #include "uemapp.h"
 
 #pragma warning(disable:4229)  // No warnings when modifiers used on data
