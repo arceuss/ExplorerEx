@@ -8446,7 +8446,7 @@ STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState,
     if (Tray_StartPanelEnabled())
     {
         // if we've disabled dragging and dropping, don't do anything, but if only the pin list is restricted, then still start the timer
-        if (!IsRestrictedOrUserSettingW(HKEY_CURRENT_USER, REST_NOCHANGESTARMENU, TEXT("Advanced"), TEXT("Start_EnableDragDrop"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
+        if (!IsRestrictedOrUserSetting(HKEY_CURRENT_USER, REST_NOCHANGESTARMENU, TEXT("Advanced"), TEXT("Start_EnableDragDrop"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
         {
             // Personal mode: Treat it as an add to the pin list.
             // IsPinnable checks REST_NOSMPINNEDLIST
@@ -8465,7 +8465,7 @@ STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState,
     }
     else
     {
-        if (!IsRestrictedOrUserSettingW(HKEY_CURRENT_USER, REST_NOCHANGESTARMENU, TEXT("Advanced"), TEXT("StartMenuChange"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
+        if (!IsRestrictedOrUserSetting(HKEY_CURRENT_USER, REST_NOCHANGESTARMENU, TEXT("Advanced"), TEXT("StartMenuChange"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
         {
             // Classic mode: Treat it as a drop on the Start Menu folder.
             IDropTarget* ptgt;

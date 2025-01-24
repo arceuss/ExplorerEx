@@ -142,7 +142,6 @@
     <ClInclude Include="cowsite.h" />
     <ClInclude Include="desktop2.h" />
     <ClInclude Include="desktopp.h" />
-    <ClInclude Include="msistuff.h" />
     <ClInclude Include="ntperf.h" />
     <ClInclude Include="ntwmi.h" />
     <ClInclude Include="path.h" />
@@ -294,7 +293,6 @@
     <ClCompile Include="logoff.cpp" />
     <ClCompile Include="mixer.cpp" />
     <ClCompile Include="moreprog.cpp" />
-    <ClCompile Include="msistuff.cpp" />
     <ClCompile Include="muext.c" />
     <ClCompile Include="path.cpp" />
     <ClCompile Include="proglist.cpp" />
