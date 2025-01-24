@@ -875,8 +875,50 @@ RtlUniform (
 #define LOGONID_CURRENT     ((ULONG)-1)
 #define SERVERNAME_CURRENT  ((HANDLE)NULL)
 
-typedef enum _WINSTATIONINFOCLASS {
-    WinStationInformation = 8
+typedef enum _WINSTATIONINFOCLASS
+{
+    WinStationCreateData, // q: WINSTATIONCREATE
+    WinStationConfiguration, // qs: WINSTACONFIGWIRE + USERCONFIG
+    WinStationPdParams, // qs: PDPARAMS
+    WinStationWd, // q: WDCONFIG
+    WinStationPd, // q: PDCONFIG2 + PDPARAMS
+    WinStationPrinter, // qs: Not supported.
+    WinStationClient, // q: WINSTATIONCLIENT
+    WinStationModules, // q:
+    WinStationInformation, // q: WINSTATIONINFORMATION
+    WinStationTrace, // qs:
+    WinStationBeep, // s: // 10
+    WinStationEncryptionOff, // s:
+    WinStationEncryptionPerm,
+    WinStationNtSecurity, // s: (open secure desktop ctrl+alt+del)
+    WinStationUserToken, // q: WINSTATIONUSERTOKEN
+    WinStationUnused1,
+    WinStationVideoData, // q: WINSTATIONVIDEODATA
+    WinStationInitialProgram, // s: (set current process as initial program)
+    WinStationCd, // q: CDCONFIG
+    WinStationSystemTrace, // qs:
+    WinStationVirtualData, // q: // 20
+    WinStationClientData, // WINSTATIONCLIENTDATA
+    WinStationSecureDesktopEnter, // qs:
+    WinStationSecureDesktopExit, // qs:
+    WinStationLoadBalanceSessionTarget, // q: ULONG
+    WinStationLoadIndicator, // q: WINSTATIONLOADINDICATORDATA
+    WinStationShadowInfo, // qs: WINSTATIONSHADOW
+    WinStationDigProductId, // WINSTATIONPRODID
+    WinStationLockedState, // BOOL
+    WinStationRemoteAddress, // WINSTATIONREMOTEADDRESS
+    WinStationIdleTime, // ULONG // 30
+    WinStationLastReconnectType, // ULONG
+    WinStationDisallowAutoReconnect, // qs: BOOLEAN
+    WinStationMprNotifyInfo,
+    WinStationExecSrvSystemPipe, // WCHAR[48]
+    WinStationSmartCardAutoLogon, // BOOLEAN
+    WinStationIsAdminLoggedOn, // BOOLEAN
+    WinStationReconnectedFromId, // ULONG
+    WinStationEffectsPolicy, // ULONG
+    WinStationType, // ULONG
+    WinStationInformationEx, // WINSTATIONINFORMATIONEX // 40
+    WinStationValidationInfo
 } WINSTATIONINFOCLASS;
 
 

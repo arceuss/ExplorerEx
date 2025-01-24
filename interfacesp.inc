@@ -3,6 +3,21 @@
 // COM Interfaces
 // 
 
+MIDL_INTERFACE("AF4F6511-F982-11d0-8595-00AA004CD6D8")
+IRegTreeOptions : IUnknown
+{
+    // *** IUnknown methods ***
+    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
+    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
+    STDMETHOD_(ULONG, Release) (THIS) PURE;
+
+    // *** IRegTreeOptions specific methods ***
+    STDMETHOD(InitTree)(THIS_ HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey, LPCSTR pszParam) PURE;
+    STDMETHOD(WalkTree)(THIS_ WALK_TREE_CMD cmd) PURE;
+    STDMETHOD(ToggleItem)(THIS_ HTREEITEM hti) PURE;
+    STDMETHOD(ShowHelp)(THIS_ HTREEITEM hti, DWORD dwFlags) PURE;
+};
+
 MIDL_INTERFACE("D12F26B1-D90A-11d0-830D-00AA005B4383")
 IRestrict : public IUnknown
 {

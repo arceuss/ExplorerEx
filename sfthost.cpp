@@ -116,7 +116,7 @@ BOOL SFTBarHost::Register()
     wc.hbrBackground = NULL;
     wc.lpszMenuName = 0;
     wc.lpszClassName = WC_SFTBARHOST;
-    return ::SHRegisterClass(&wc);
+    return ::RegisterClass(&wc);
 }
 
 BOOL SFTBarHost::Unregister()
@@ -204,7 +204,7 @@ LRESULT SFTBarHost::_OnNcCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
     if (self)
     {
-        SetWindowLongPtr(hwnd, (LONG_PTR)self);
+        (void *)SetWindowLongPtr(hwnd, 0,(LONG_PTR)self);
 
         self->_hwnd = hwnd;
         self->_hTheme = pspld->hTheme;

@@ -443,7 +443,7 @@ BOOL _ShowStartMenuEject()
         
     // CanShowEject Queries the user's permission to eject,
     // IsEjectAllowed queries the hardware.
-    return SHTestTokenPrivilege(NULL, SE_UNDOCK_NAME) &&
+    return SHTestTokenPrivilegeW(NULL, SE_UNDOCK_NAME) &&
            IsEjectAllowed(FALSE) &&
            !GetSystemMetrics(SM_REMOTESESSION);
 }
@@ -463,7 +463,7 @@ BOOL _ShowStartMenuShutdown()
     return  !SHRestricted(REST_NOCLOSE) &&
             (IsOS(OS_ANYSERVER) ||
                 (!GetSystemMetrics(SM_REMOTESESSION) &&
-                    (!IsOS(OS_FRIENDLYLOGONUI) || SHTestTokenPrivilege(NULL, SE_SHUTDOWN_NAME))));
+                    (!IsOS(OS_FRIENDLYLOGONUI) || SHTestTokenPrivilegeW(NULL, SE_SHUTDOWN_NAME))));
     // if friendly logon is active, then don't show shutdown unless they have privileges, since shutdown "only" shuts you down.
     // if they're not using friendly logon ui, then shutdown also contains options to log you off/hibernate, so show it...
 }
@@ -586,7 +586,7 @@ HMENU GetStaticStartMenu(BOOL fEdit)
         //  If the user has the SE_SHUTDOWN_NAME privilege
         //  then rename the menu item.
 
-        if (SHTestTokenPrivilege(NULL, SE_SHUTDOWN_NAME) && !GetSystemMetrics(SM_REMOTESESSION))
+        if (SHTestTokenPrivilegeW(NULL, SE_SHUTDOWN_NAME) && !GetSystemMetrics(SM_REMOTESESSION))
         {
             MENUITEMINFO    mii;
             TCHAR           szMenuText[256];

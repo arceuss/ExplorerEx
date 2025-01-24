@@ -848,7 +848,7 @@ using fnSHLoadMenuPopup = HMENU(WINAPI*)(HINSTANCE, WORD);
 fnSHLoadMenuPopup SHLoadMenuPopup;
 void CDesktopHost::OnContextMenu(LPARAM lParam)
 {
-    if (!IsRestrictedOrUserSettingW(HKEY_CURRENT_USER, REST_NOTRAYCONTEXTMENU, TEXT("Advanced"), TEXT("TaskbarContextMenu"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
+    if (!IsRestrictedOrUserSetting(HKEY_CURRENT_USER, REST_NOTRAYCONTEXTMENU, TEXT("Advanced"), TEXT("TaskbarContextMenu"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
     {
         if (!SHLoadMenuPopup)
             SHLoadMenuPopup = reinterpret_cast<fnSHLoadMenuPopup>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(177)));

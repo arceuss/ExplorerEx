@@ -22,6 +22,8 @@
 
 #include "winter.h"
 
+#include "ieguidp.h"
+
 
 // path.cpp (private stuff) ---------------------
 
@@ -113,6 +115,12 @@ const DWORD dwExStyleRTLMirrorWnd = WS_EX_LAYOUTRTL;
 //
 // Structs
 // 
+
+typedef struct {
+    LPITEMIDLIST pidl;                          // IDlist for this item
+    int          nOrder;                        // Ordinal indicating user preference
+    DWORD        lParam;                        // store custom order info.
+} ORDERITEM, * PORDERITEM;
 
 // From comctrlp.h
 typedef struct tagNMTBWRAPHOTITEM
@@ -397,8 +405,25 @@ typedef struct _tagSHELLREMINDER
 #define UEIM_HIT        0x01
 #define UEIM_FILETIME   0x02
 
+#define SHCNFI_CABINET_WNDPROC            0
+#define SHCNFI_DESKTOP_WNDPROC            1
+#define SHCNFI_PROXYDESKTOP_WNDPROC       2
+#define SHCNFI_TRAY_WNDPROC               3
+#define SHCNFI_DRIVES_WNDPROC             4
+#define SHCNFI_ONETREE_WNDPROC            5
 #define SHCNFI_MAIN_WNDPROC               6
+#define SHCNFI_FOLDEROPTIONS_DLGPROC      7
+#define SHCNFI_VIEWOPTIONS_DLGPROC        8
+#define SHCNFI_FT_DLGPROC                 9
+#define SHCNFI_FTEdit_DLGPROC            10
+#define SHCNFI_FTCmd_DLGPROC             11
+#define SHCNFI_TASKMAN_DLGPROC           12
+#define SHCNFI_TRAYVIEWOPTIONS_DLGPROC   13
+#define SHCNFI_INITSTARTMENU_DLGPROC     14
+#define SHCNFI_PRINTERQUEUE_DLGPROC      15
+
 #define SHCNFI_EVENT_WNDPROC              3   // e.wndproc
+
 
 #define IDS_CANTFINDDIR                 0x7666
 
@@ -425,6 +450,9 @@ typedef struct _tagSHELLREMINDER
 #define IS_WM_CONTEXTMENU_KEYBOARD(lParam) ((DWORD)(lParam) == 0xFFFFFFFF)
 
 #define NtCurrentPeb() ((PPEB)NtCurrentTeb()->ProcessEnvironmentBlock)
+
+#define IS_VALID_STRING_PTRA(ptr, cch) \
+   ((IsBadReadPtr((ptr), sizeof(char)) || IsBadStringPtrA((ptr), (UINT_PTR)(cch))) ? \
 
 #define IntToPtr_(T, i) ((T)IntToPtr(i))
 
@@ -650,6 +678,37 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define SMPINNABLE_EXEONLY          0x00000001 // allow only EXEs to be pinned
 #define SMPINNABLE_REJECTSLOWMEDIA  0x00000002 // reject slow media
 
+#define STRREG_SHELLUI          TEXT("ShellUIHandler")
+#define STRREG_SHELL            TEXT("Shell")
+#define STRREG_DEFICON          TEXT("DefaultIcon")
+#define STRREG_SHEX             TEXT("shellex")
+#define STRREG_SHEX_PROPSHEET   STRREG_SHEX TEXT("\\PropertySheetHandlers")
+#define STRREG_SHEX_DDHANDLER   STRREG_SHEX TEXT("\\DragDropHandlers")
+#define STRREG_SHEX_MENUHANDLER STRREG_SHEX TEXT("\\ContextMenuHandlers")
+#define STRREG_SHEX_COPYHOOK    TEXT("Directory\\") STRREG_SHEX TEXT("\\CopyHookHandlers")
+#define STRREG_SHEX_PRNCOPYHOOK TEXT("Printers\\") STRREG_SHEX TEXT("\\CopyHookHandlers")
+#define STRREG_STARTMENU        TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MenuOrder\\Start Menu")
+#define STRREG_STARTMENU2       TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MenuOrder\\Start Menu2")
+#define STRREG_FAVORITES        TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\MenuOrder\\Favorites")
+#define STRREG_DISCARDABLE      TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Discardable")
+#define STRREG_POSTSETUP        TEXT("\\PostSetup")
+
+// BEGINNING OF IE 5.00 MESSAGES
+
+#define DTM_GETVIEWAREAS            (WM_USER + 91)  // View area is WorkArea minus toolbar areas.
+#define DTM_DESKTOPCONTEXTMENU      (WM_USER + 92)
+#define DTM_UPDATENOW               (WM_USER + 93)
+
+#define DTM_QUERYHKCRCHANGED        (WM_USER + 94)  // ask the desktop if HKCR has changed
+
+#define DTM_MAKEHTMLCHANGES         (WM_USER + 95)  // Make changes to desktop html using dynamic HTML
+
+#define DTM_STARTPAGEONOFF          (WM_USER + 96)  // Turn on/off the StartPage.
+
+#define DTM_REFRESHACTIVEDESKTOP    (WM_USER + 97)  // Refresh the active desktop.
+
+#define DTM_SETAPPSTARTCUR          (WM_USER + 98)  // UI feedback that we are starting an explorer window.
+
 //
 //  FT_ONEHOUR is the number of FILETIME units in an hour.
 //  FT_ONEDAY is the number of FILETIME units in a day.
@@ -696,6 +755,8 @@ __inline UINT64 _FILETIMEtoInt64(const FILETIME* pft)
 //
 // Enums
 //
+
+
 
 typedef enum tagASSOCQUERY
 {
@@ -869,6 +930,7 @@ extern BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WI
 extern BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd);
 extern UINT(WINAPI* MsiDecomposeDescriptorW)(LPCWSTR	szDescriptor, LPWSTR szProductCode, LPWSTR szFeatureId, LPWSTR szComponentCode, DWORD* pcchArgsOffset);
 extern BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile);
+extern BOOL(STDMETHODCALLTYPE* SHTestTokenPrivilegeW)(HANDLE hToken, LPCWSTR pszPrivilegeName);
 extern HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent);
 extern INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal);
 extern INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags);
@@ -877,6 +939,7 @@ extern VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)();
 extern VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent);
 extern VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent);
 extern COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
+extern HMENU(STDMETHODCALLTYPE* SHGetMenuFromID)(HMENU hmMain, UINT uID);
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2);
 STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
@@ -891,6 +954,11 @@ BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdat
 BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
 DWORD Mirror_SetLayout(HDC hdc, DWORD dwLayout);
 STDAPI VariantChangeTypeForRead(VARIANT* pvar, VARTYPE vtDesired);
+BOOL GetExplorerUserSetting(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue);
+STDAPI SHBindToObjectEx(IShellFolder* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut);
+STDAPI SHLoadLegacyRegUIString(HKEY hk, LPCTSTR pszSubkey, LPTSTR pszOutBuf, UINT cchOutBuf);
+STDAPI SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut);
+STDAPI_(void) SHReValidateDarwinCache();
 
 BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags);
 
@@ -1016,19 +1084,6 @@ typedef enum tagWALK_TREE_CMD
     WALK_TREE_REFRESH
 } WALK_TREE_CMD;
 
-DECLARE_INTERFACE_(IRegTreeOptions, IUnknown)
-{
-    // *** IUnknown methods ***
-    STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
-    STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
-    STDMETHOD_(ULONG, Release) (THIS) PURE;
-
-    // *** IRegTreeOptions specific methods ***
-    STDMETHOD(InitTree)(THIS_ HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey, LPCSTR pszParam) PURE;
-    STDMETHOD(WalkTree)(THIS_ WALK_TREE_CMD cmd) PURE;
-    STDMETHOD(ToggleItem)(THIS_ HTREEITEM hti) PURE;
-    STDMETHOD(ShowHelp)(THIS_ HTREEITEM hti, DWORD dwFlags) PURE;
-};
 
 WINSHELLAPI BOOL WINAPI SHWinHelp(HWND hwndMain, LPCSTR lpszHelp, UINT usCommand, DWORD ulData);
 

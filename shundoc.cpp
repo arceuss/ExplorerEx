@@ -27,9 +27,92 @@
 
 
 
+
 //
 // Classes
 //
+
+class CConvertStrW
+{
+public:
+    operator WCHAR* ();
+
+protected:
+    CConvertStrW();
+    ~CConvertStrW();
+    void Free();
+
+    LPWSTR   _pwstr;
+    WCHAR    _awch[MAX_PATH * sizeof(WCHAR)];
+};
+
+inline
+CConvertStrW::CConvertStrW()
+{
+    _pwstr = NULL;
+}
+
+inline
+CConvertStrW::~CConvertStrW()
+{
+    Free();
+}
+
+inline
+CConvertStrW::operator WCHAR* ()
+{
+    return _pwstr;
+}
+
+
+
+class CStrInW : public CConvertStrW
+{
+public:
+    CStrInW(LPCSTR pstr) { Init(pstr, -1); }
+    CStrInW(LPCSTR pstr, int cch) { Init(pstr, cch); }
+    int strlen();
+
+protected:
+    CStrInW();
+    void Init(LPCSTR pstr, int cch);
+
+    int _cwchLen;
+};
+
+inline
+CStrInW::CStrInW()
+{
+}
+
+inline int
+CStrInW::strlen()
+{
+    return _cwchLen;
+}
+
+
+
+class CStrOutW : public CConvertStrW
+{
+public:
+    CStrOutW(LPSTR pstr, int cchBuf);
+    ~CStrOutW();
+
+    int     BufSize();
+    int     ConvertIncludingNul();
+    int     ConvertExcludingNul();
+
+private:
+    LPSTR  	_pstr;
+    int     _cchBuf;
+};
+
+inline int
+CStrOutW::BufSize()
+{
+    return _cchBuf;
+}
 
 
 class CDarwinAd
@@ -178,6 +261,7 @@ BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVO
 BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength) = nullptr;
 BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd) = nullptr;
 BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile) = nullptr;
+BOOL(STDMETHODCALLTYPE* SHTestTokenPrivilegeW)(HANDLE hToken, LPCWSTR pszPrivilegeName) = nullptr;
 LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = nullptr;
 UINT(WINAPI* MsiDecomposeDescriptorW)(LPCWSTR	szDescriptor, LPWSTR szProductCode, LPWSTR szFeatureId, LPWSTR szComponentCode, DWORD* pcchArgsOffset) = nullptr;
 HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) = nullptr;
@@ -189,6 +273,7 @@ VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent) = nullptr;
 VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent) = nullptr;
 //BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall) = nullptr;
 DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi) = nullptr;
+HMENU(STDMETHODCALLTYPE* SHGetMenuFromID)(HMENU hmMain, UINT uID) = nullptr;
 
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color) = nullptr;
 
@@ -301,6 +386,48 @@ BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdat
     LEAVECRITICAL_DARWINADS;
 
     return fRetVal;
+}
+
+STDAPI SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut)
+{
+    HRESULT hr = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
+
+    if (g_hdpaDarwinAds)
+    {
+        ENTERCRITICAL_DARWINADS;
+        int chdpa = DPA_GetPtrCount(g_hdpaDarwinAds);
+        for (int ihdpa = 0; ihdpa < chdpa; ihdpa++)
+        {
+            CDarwinAd* pda = (CDarwinAd*)DPA_FastGetPtr(g_hdpaDarwinAds, ihdpa);
+            if (pda && pda->_pszLocalPath && pda->_pszDescriptor &&
+                StrCmpCW(pszDarwinDescriptor, pda->_pszDescriptor) == 0)
+            {
+                hr = SHStrDupW(pda->_pszLocalPath, ppwszOut);
+                break;
+            }
+        }
+        LEAVECRITICAL_DARWINADS;
+    }
+
+    return hr;
+}
+
+STDAPI_(void) SHReValidateDarwinCache()
+{
+    if (g_hdpaDarwinAds)
+    {
+        ENTERCRITICAL_DARWINADS;
+        int chdpa = DPA_GetPtrCount(g_hdpaDarwinAds);
+        for (int ihdpa = 0; ihdpa < chdpa; ihdpa++)
+        {
+            CDarwinAd* pda = (CDarwinAd*)DPA_FastGetPtr(g_hdpaDarwinAds, ihdpa);
+            if (pda)
+            {
+                pda->CheckInstalled();
+            }
+        }
+        LEAVECRITICAL_DARWINADS;
+    }
 }
 
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf)
@@ -430,6 +557,84 @@ STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2)
     return bRet;
 }
 
+
+STDAPI SHLoadLegacyRegUIString(HKEY hk, LPCTSTR pszSubkey, LPTSTR pszOutBuf, UINT cchOutBuf)
+{
+    HKEY hkClose = NULL;
+
+    ASSERT(cchOutBuf);
+    pszOutBuf[0] = TEXT('\0');
+
+    if (pszSubkey && *pszSubkey)
+    {
+        DWORD dwError = RegOpenKeyEx(hk, pszSubkey, 0, KEY_QUERY_VALUE, &hkClose);
+        if (dwError != ERROR_SUCCESS)
+        {
+            return HRESULT_FROM_WIN32(dwError);
+        }
+        hk = hkClose;
+    }
+
+    HRESULT hr = SHLoadRegUIStringW(hk, TEXT("LocalizedString"), pszOutBuf, cchOutBuf);
+    if (FAILED(hr) || pszOutBuf[0] == TEXT('\0'))
+    {
+        hr = SHLoadRegUIStringW(hk, TEXT(""), pszOutBuf, cchOutBuf);
+    }
+
+    if (hkClose)
+    {
+        RegCloseKey(hkClose);
+    }
+
+    return hr;
+}
+
+STDAPI SHBindToObjectEx(IShellFolder* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut)
+{
+    HRESULT hr;
+    IShellFolder* psfRelease;
+
+    if (!psf)
+    {
+        SHGetDesktopFolder(&psf);
+        psfRelease = psf;
+    }
+    else
+    {
+        psfRelease = NULL;
+    }
+
+    if (psf)
+    {
+        if (!pidl || ILIsEmpty(pidl))
+        {
+            hr = psf->QueryInterface(riid, ppvOut);
+        }
+        else
+        {
+            hr = psf->BindToObject(pidl, pbc, riid, ppvOut);
+        }
+    }
+    else
+    {
+        *ppvOut = NULL;
+        hr = E_FAIL;
+    }
+
+    if (psfRelease)
+    {
+        psfRelease->Release();
+    }
+
+    if (SUCCEEDED(hr) && (*ppvOut == NULL))
+    {
+        // Some shell extensions (eg WS_FTP) will return success and a null out pointer
+        hr = E_FAIL;
+    }
+
+    return hr;
+}
+
 STDAPI_(BOOL) SetWindowZorder(HWND hwnd, HWND hwndInsertAfter)
 {
     return SetWindowPos(hwnd, hwndInsertAfter, 0, 0, 0, 0,
@@ -494,6 +699,29 @@ STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2)
         return SUCCEEDED(hr) && (punkI1 == punkI2);
     }
 }
+
+BOOL GetExplorerUserSetting(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue)
+{
+    TCHAR szPath[MAX_PATH];
+    TCHAR szPathExplorer[MAX_PATH];
+    DWORD cbSize = ARRAYSIZE(szPath);
+    DWORD dwType;
+
+    PathCombine(szPathExplorer, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer", pszSubKey);
+    if (ERROR_SUCCESS == SHGetValue(hkeyRoot, szPathExplorer, pszValue,
+        &dwType, szPath, &cbSize))
+    {
+        // Zero in the DWORD case or NULL in the string case
+        // indicates that this item is not available.
+        if (dwType == REG_DWORD)
+            return *((DWORD*)szPath) != 0;
+        else
+            return (TCHAR)szPath[0] != 0;
+    }
+
+    return -1;
+}
+
 
 STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter)
 {
@@ -712,27 +940,6 @@ BOOL IsBiDiLocalizedSystem(void)
     return IsBiDiLocalizedSystemEx(NULL);
 }
 
-BOOL GetExplorerUserSetting(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue)
-{
-    TCHAR szPath[MAX_PATH];
-    TCHAR szPathExplorer[MAX_PATH];
-    DWORD cbSize = ARRAYSIZE(szPath);
-    DWORD dwType;
-
-    PathCombine(szPathExplorer, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer", pszSubKey);
-    if (ERROR_SUCCESS == SHGetValue(hkeyRoot, szPathExplorer, pszValue,
-        &dwType, szPath, &cbSize))
-    {
-        // Zero in the DWORD case or NULL in the string case
-        // indicates that this item is not available.
-        if (dwType == REG_DWORD)
-            return *((DWORD*)szPath) != 0;
-        else
-            return (TCHAR)szPath[0] != 0;
-    }
-
-    return -1;
-}
 
 STDAPI_(BOOL) IsRestrictedOrUserSetting(HKEY hkeyRoot, RESTRICTIONS rest, LPCTSTR pszSubKey, LPCTSTR pszValue, UINT flags)
 {
@@ -1410,6 +1617,7 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shlwapi, SHMessageBoxCheckExW, 292);
     LOAD_ORDINAL(shlwapi, SHDefWindowProc, 240);
     LOAD_ORDINAL(shlwapi, IUnknown_TranslateAcceleratorIO, 478);
+    LOAD_ORDINAL(shlwapi, SHGetMenuFromID, 192);
     LOAD_FUNCTION(shlwapi, SHIsChildOrSelf);
 
 	LOAD_MODULE(shell32);
@@ -1421,6 +1629,7 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shell32, LogoffWindowsDialog, 54);
     LOAD_ORDINAL(shell32, DisconnectWindowsDialog, 254);
     LOAD_ORDINAL(shell32, SHFindComputer, 91);
+    LOAD_ORDINAL(shell32, SHTestTokenPrivilegeW, 236);
     LOAD_FUNCTION(shell32, SHUpdateRecycleBinIcon);
 
 	LOAD_MODULE(shcore);
