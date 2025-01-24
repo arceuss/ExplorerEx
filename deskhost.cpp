@@ -2617,7 +2617,7 @@ HBITMAP CreateMirroredBitmap( HBITMAP hbmOrig)
         hOld_bm1 = (HBITMAP)SelectObject(hdcMem1, hbmOrig);
         hOld_bm2 = (HBITMAP)SelectObject(hdcMem2 , hbm );
 
-        SET_DC_RTL_MIRRORED(hdcMem2);
+        Mirror_SetLayout(hdcMem2, LAYOUT_RTL);
         BitBlt(hdcMem2, IncOne, 0, bm.bmWidth, bm.bmHeight, hdcMem1, 0, 0, SRCCOPY);
 
         SelectObject(hdcMem1, hOld_bm1 );

@@ -3911,7 +3911,7 @@ void CTaskBand::_DrawNumber(HDC hdc, int iValue, BOOL fCalcRect, LPRECT prc)
 {
     DWORD uiStyle = DT_LEFT | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX | DT_CENTER;
     WCHAR szCount[14];
-    _itow(iValue, szCount, 10);
+    _itow_s(iValue, szCount, 10);
     if (fCalcRect)
     {
         StringCchCat(szCount, ARRAYSIZE(szCount), L"0");

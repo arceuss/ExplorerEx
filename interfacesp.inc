@@ -3,6 +3,26 @@
 // COM Interfaces
 // 
 
+MIDL_INTERFACE("8bfcb27d-cf1a-11d0-b93d-00a0c90312e1")
+IOrderList : public IUnknown
+{
+    // *** IOrderList Methods ***
+    STDMETHOD(GetOrderList)(THIS_ HDPA * phdpa) PURE;
+    STDMETHOD(SetOrderList)(THIS_ HDPA hdpa, IShellFolder * psf) PURE;
+    STDMETHOD(FreeOrderList)(THIS_ HDPA hdpa) PURE;
+    STDMETHOD(SortOrderList)(THIS_ HDPA hdpa, DWORD dw) PURE;
+    STDMETHOD(AllocOrderItem)(THIS_ PORDERITEM * ppoi, LPCITEMIDLIST pidl) PURE;
+    STDMETHOD(FreeOrderItem)(THIS_ PORDERITEM poi) PURE;
+};
+
+MIDL_INTERFACE("AFA7AD8A-51A7-11d2-83A1-00C04FD918D0")
+IOrderList2: IOrderList
+{
+    // *** IOrderList2
+    STDMETHOD(LoadFromStream)(THIS_ IStream * pstm, HDPA * phdpa, IShellFolder * psf) PURE;
+    STDMETHOD(SaveToStream)(THIS_ IStream * pstm, HDPA hdpa) PURE;
+};
+
 MIDL_INTERFACE("AF4F6511-F982-11d0-8595-00AA004CD6D8")
 IRegTreeOptions : IUnknown
 {

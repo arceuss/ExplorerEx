@@ -245,6 +245,7 @@
     <None Include="interfacesp.inc">
       <Filter>Header Files</Filter>
     </None>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="startpane.rc">

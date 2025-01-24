@@ -2637,7 +2637,7 @@ BOOL OfferDelete::_RepairBrokenItem()
 
 void OfferDelete::_ThreadProc()
 {
-    _hwnd = SHCreateWorkerWindow(NULL, NULL, 0, 0, NULL, NULL);
+    _hwnd = SHCreateWorkerWindowW(NULL, NULL, 0, 0, NULL, NULL);
     if (_hwnd)
     {
         if (SUCCEEDED(CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,

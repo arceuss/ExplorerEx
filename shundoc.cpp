@@ -257,6 +257,7 @@ HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf,
 HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd) = nullptr;
 HRESULT(STDMETHODCALLTYPE* SHLoadRegUIStringW)(HKEY     hkey, LPCWSTR  pszValue, LPWSTR   pszOutBuf, UINT     cchOutBuf) = nullptr;
+HWND(STDMETHODCALLTYPE* SHCreateWorkerWindowW)(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void* p) = nullptr;
 BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags) = nullptr;
 BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength) = nullptr;
 BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd) = nullptr;
@@ -266,6 +267,7 @@ LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 UINT(WINAPI* MsiDecomposeDescriptorW)(LPCWSTR	szDescriptor, LPWSTR szProductCode, LPWSTR szFeatureId, LPWSTR szComponentCode, DWORD* pcchArgsOffset) = nullptr;
 HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) = nullptr;
 UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) = nullptr;
+UINT(WINAPI* ImageList_GetFlags)(HIMAGELIST himl) = nullptr;
 INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal) = nullptr;
 INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags) = nullptr;
 VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)() = nullptr;
@@ -430,6 +432,26 @@ STDAPI_(void) SHReValidateDarwinCache()
     }
 }
 
+
+STDAPI DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPWSTR* ppsz)
+{
+    *ppsz = NULL;
+    STRRET sr;
+    HRESULT hr = psf->GetDisplayNameOf(pidl, flags, &sr);
+    if (SUCCEEDED(hr))
+        hr = StrRetToStrW(&sr, pidl, ppsz);
+    return hr;
+}
+
+STDAPI_(LPITEMIDLIST) ILCloneParent(LPCITEMIDLIST pidl)
+{
+    LPITEMIDLIST pidlParent = ILClone(pidl);
+    if (pidlParent)
+        ILRemoveLastID(pidlParent);
+
+    return pidlParent;
+}
+
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf)
 {
     if (plf->lfCharSet == SHIFTJIS_CHARSET ||
@@ -440,6 +462,98 @@ STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf)
         if (plf->lfWeight > FW_NORMAL)
             plf->lfWeight = FW_NORMAL;
     }
+}
+
+STDAPI_(BOOL) _SHIsMenuSeparator2(HMENU hm, int i, BOOL* pbIsNamed)
+{
+    MENUITEMINFO mii;
+    BOOL bLocal;
+
+    if (!pbIsNamed)
+        pbIsNamed = &bLocal;
+
+    *pbIsNamed = FALSE;
+
+    mii.cbSize = sizeof(mii);
+    mii.fMask = MIIM_TYPE | MIIM_ID;
+    mii.cch = 0;    // WARNING: We MUST initialize it to 0!!!
+    if (GetMenuItemInfo(hm, i, TRUE, &mii) && (mii.fType & MFT_SEPARATOR))
+    {
+        // NOTE that there is a bug in either 95 or NT user!!!
+        // 95 returns 16 bit ID's and NT 32 bit therefore there is a
+        // the following may fail, on win9x, to evaluate to false
+        // without casting
+        *pbIsNamed = ((WORD)mii.wID != (WORD)-1);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+STDAPI_(void) _SHPrettyMenu(HMENU hm)
+{
+    BOOL bSeparated = TRUE;
+    BOOL bWasNamed = TRUE;
+
+    for (int i = GetMenuItemCount(hm) - 1; i > 0; --i)
+    {
+        BOOL bIsNamed;
+        if (_SHIsMenuSeparator2(hm, i, &bIsNamed))
+        {
+            if (bSeparated)
+            {
+                // if we have two separators in a row, only one of which is named
+                // remove the non named one!
+                if (bIsNamed && !bWasNamed)
+                {
+                    DeleteMenu(hm, i + 1, MF_BYPOSITION);
+                    bWasNamed = bIsNamed;
+                }
+                else
+                {
+                    DeleteMenu(hm, i, MF_BYPOSITION);
+                }
+            }
+            else
+            {
+                bWasNamed = bIsNamed;
+                bSeparated = TRUE;
+            }
+        }
+        else
+        {
+            bSeparated = FALSE;
+        }
+    }
+
+    // The above loop does not handle the case of many separators at
+    // the beginning of the menu
+    while (_SHIsMenuSeparator2(hm, 0, NULL))
+    {
+        DeleteMenu(hm, 0, MF_BYPOSITION);
+    }
+}
+
+STDAPI SHGetIDListFromUnk(IUnknown* punk, LPITEMIDLIST* ppidl)
+{
+    *ppidl = NULL;
+
+    HRESULT hr = E_NOINTERFACE;
+    if (punk)
+    {
+        IPersistFolder2* ppf;
+        IPersistIDList* pperid;
+        if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARG(IPersistIDList, &pperid))))
+        {
+            hr = pperid->GetIDList(ppidl);
+            pperid->Release();
+        }
+        else if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARG(IPersistFolder2, &ppf))))
+        {
+            hr = ppf->GetCurFolder(ppidl);
+            ppf->Release();
+        }
+    }
+    return hr;
 }
 
 // moved to runonce.cpp
@@ -1636,6 +1750,7 @@ bool SHUndocInit(void)
 	LOAD_ORDINAL(shcore, IUnknown_GetClassID, 142);
     LOAD_ORDINAL(shcore, SHQueueUserWorkItem, 162)
     LOAD_ORDINAL(shcore, SHLoadRegUIStringW, 126);
+    LOAD_ORDINAL(shcore, SHCreateWorkerWindowW, 188);
 
     LOAD_MODULE(user32);
     LOAD_FUNCTION(user32, EndTask);
@@ -1647,6 +1762,9 @@ bool SHUndocInit(void)
     LOAD_FUNCTION(winsta, WinStationRegisterConsoleNotification);
     LOAD_FUNCTION(winsta, WinStationSetInformationW);
     LOAD_FUNCTION(winsta, WinStationUnRegisterConsoleNotification);
+
+    LOAD_MODULE(comctl32);
+    LOAD_FUNCTION(comctl32, ImageList_GetFlags);
 
 
 	return true;
