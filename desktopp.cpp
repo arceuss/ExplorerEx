@@ -2,7 +2,8 @@
 
 HANDLE SHCreateDesktop(IDeskTray* pdtray)
 {
-    return HANDLE();
+	static HANDLE(*fSHCreateDesktop)(IDeskTray * pdtray) = (decltype(fSHCreateDesktop))GetProcAddress(LoadLibrary(L"shell32.dll"), (LPSTR)200);
+	return fSHCreateDesktop(pdtray);
 }
 
 BOOL CreateFromDesktop(PNEWFOLDERINFO pfi)
@@ -17,7 +18,8 @@ BOOL SHCreateFromDesktop(PNEWFOLDERINFO pfi)
 
 BOOL SHDesktopMessageLoop(HANDLE hDesktop)
 {
-    return 0;
+	static BOOL(*fSHDesktopMessageLoop)(HANDLE hDesktop) = (decltype(fSHDesktopMessageLoop))GetProcAddress(LoadLibrary(L"shell32.dll"), (LPSTR)201);
+	return fSHDesktopMessageLoop(hDesktop);
 }
 
 BOOL SHExplorerParseCmdLine(PNEWFOLDERINFO pfi)

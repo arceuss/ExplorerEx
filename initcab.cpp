@@ -1317,7 +1317,8 @@ HRESULT WaitForSCMToInitialize()
         SHGetAllAccessSA = reinterpret_cast<fnSHGetAllAccessSA>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(563)));
 
 
-    SECURITY_ATTRIBUTES* psa = SHGetAllAccessSA();
+    //SECURITY_ATTRIBUTES* psa = SHGetAllAccessSA();
+    SECURITY_ATTRIBUTES* psa = nullptr;
 
     // on NT5 we need a global event that is shared between TS sessions
     HANDLE hEvent = CreateEvent(psa, TRUE, FALSE, SZ_SCMCREATEDEVENT_NT5);
@@ -1770,7 +1771,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
 
     typedef void(__stdcall* ShellDDEInit_t)(bool bInit);
     ShellDDEInit_t ShellDDEInit;
-    ShellDDEInit = (ShellDDEInit_t)GetProcAddress(GetModuleHandle(L"Shdocvw.dll") ,(LPSTR)118);
+    ShellDDEInit = (ShellDDEInit_t)GetProcAddress(GetModuleHandle(L"shell32.dll") ,(LPSTR)188);
     
     typedef void(__stdcall* FileIconInit_t)(bool);
     FileIconInit_t FileIconInit;

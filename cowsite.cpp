@@ -1,36 +1,54 @@
 #include "cowsite.h"
 
-STDMETHODIMP_(HRESULT __stdcall) CObjectWithSite::SetSite(IUnknown* punkSite)
+HRESULT CObjectWithSite::SetSite(IUnknown* punkSite)
 {
-    return E_NOTIMPL;
+	IUnknown_Set(&_punkSite, punkSite);
+	return S_OK;
 }
 
-STDMETHODIMP_(HRESULT __stdcall) CObjectWithSite::GetSite(REFIID riid, void** ppvSite)
+HRESULT CObjectWithSite::GetSite(REFIID riid, void** ppvSite)
 {
-    return E_NOTIMPL;
+	if (_punkSite)
+		return _punkSite->QueryInterface(riid, ppvSite);
+
+	*ppvSite = NULL;
+	return E_FAIL;
 }
 
-STDMETHODIMP_(HRESULT __stdcall) CSafeServiceSite::QueryInterface(REFIID riid, void** ppv)
+HRESULT CSafeServiceSite::QueryInterface(REFIID riid, void** ppv)
 {
-    return E_NOTIMPL;
+	static const QITAB qit[] = {
+		QITABENT(CSafeServiceSite, IServiceProvider),
+		{ 0 },
+	};
+	return QISearch(this, qit, riid, ppv);
 }
 
-STDMETHODIMP_(ULONG __stdcall) CSafeServiceSite::AddRef()
+ULONG CSafeServiceSite::AddRef()
 {
-    return 0;
+	return InterlockedIncrement(&_cRef);
 }
 
-STDMETHODIMP_(ULONG __stdcall) CSafeServiceSite::Release()
+ULONG CSafeServiceSite::Release()
 {
-    return 0;
+	if (InterlockedDecrement(&_cRef))
+		return _cRef;
+
+	delete this;
+	return 0;
 }
 
-STDMETHODIMP_(HRESULT __stdcall) CSafeServiceSite::QueryService(REFGUID guidService, REFIID riid, void** ppvObj)
+HRESULT CSafeServiceSite::QueryService(REFGUID guidService, REFIID riid, void** ppvObj)
 {
-    return E_NOTIMPL;
+	if (_psp)
+		return _psp->QueryService(guidService, riid, ppvObj);
+
+	*ppvObj = NULL;
+	return E_NOINTERFACE;
 }
 
 HRESULT CSafeServiceSite::SetProviderWeakRef(IServiceProvider* psp)
 {
-    return E_NOTIMPL;
+	_psp = psp;
+	return S_OK;
 }
