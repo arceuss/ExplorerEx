@@ -44,6 +44,8 @@
 #include <CommCtrl.h>
 #include "startids.h"
 
+#include "debug.h"
+
 #define DM_FOCUS        0           // focus
 #define DM_SHUTDOWN     TF_TRAY     // shutdown
 #define DM_UEMTRACE     TF_TRAY     // timer service, other UEM stuff

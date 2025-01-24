@@ -404,6 +404,14 @@ EXTERN_C DWORD   TraceWin32(DWORD dwTest, LPCSTR pszExpr, LPCSTR pszFile, int iL
 #define TPTR(x)     (TracePtr((x), #x, __FILE__, __LINE__))
 #define TW32(x)     (TraceWin32((x), #x, __FILE__, __LINE__))
 
+#else  // DEBUG
+
+#define THR(x)          (x)
+#define TBOOL(x)        (x)
+#define TINT(x)         (x)
+#define TPTR(x)         (x)
+#define TW32(x)         (x)
+
 #endif // DEBUG
 
 
