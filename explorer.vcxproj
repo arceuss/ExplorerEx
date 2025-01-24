@@ -216,8 +216,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="explorer.fakemanifest" />
     <None Include="explorer.rcv" />
-    <None Include="interfacesp.inc" />
     <None Include="resource.rcv" />
   </ItemGroup>
   <ItemGroup>
@@ -290,14 +290,14 @@
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="defaultmfu.cpp" />
     <ClCompile Include="deskhost.cpp" />
-    <ClCompile Include="dllload.c" />
+    <ClCompile Include="dllload.cpp" />
     <ClCompile Include="hostutil.cpp" />
     <ClCompile Include="initcab.cpp" />
     <ClCompile Include="libx.cpp" />
     <ClCompile Include="logoff.cpp" />
     <ClCompile Include="mixer.cpp" />
     <ClCompile Include="moreprog.cpp" />
-    <ClCompile Include="muext.c" />
+    <ClCompile Include="muext.cpp" />
     <ClCompile Include="path.cpp" />
     <ClCompile Include="proglist.cpp" />
     <ClCompile Include="runonce.cpp" />

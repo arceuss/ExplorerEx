@@ -5,10 +5,10 @@
 // Generated from the TEXTINCLUDE 2 resource.
 //
 #ifndef APSTUDIO_INVOKED
-#include "cabinet.h"
+//#include "cabinet.h"
+#include <winres.h>
 #else
-#include <winuser.h>
-#include <commctrl.h>
+#include <winres.h>
 #endif
 
 #include "rcids.h"
@@ -36,7 +36,7 @@ BEGIN
     DEFPUSHBUTTON   "&Ignore",IDIGNORE,215,60,50,14
     PUSHBUTTON      "&Rename",IDC_RENAME,159,60,50,14
     CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,51,258,1
-    CONTROL         "&Don't perform this check at startup",IDC_MESSAGEBOXCHECKEX,
+    CONTROL         "&Don't perform this check at startup", 0x1202,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,62,139,10
     ICON            IDI_WARNING,IDC_STATIC,7,7,21,20
     LTEXT           "There is a file or folder on your computer called ""%s"" which could cause certain applications to not function correctly.  Renaming it to ""%s"" would solve this problem.  Would you like to rename it now?",
@@ -128,6 +128,8 @@ IDB_TRAYCHEVRONVERTOPEN  BITMAP DISCARDABLE PURE "traycvo.bmp"
 //
 // Accelerator
 //
+#define FCIDM_BROWSERFIRST          0xa000
+#define FCIDM_BROWSERLAST           0xbf00
 
 ACCEL_TRAY ACCELERATORS DISCARDABLE
 BEGIN
@@ -387,8 +389,8 @@ END
 #include "explorer.rcv"
 #include "dlg.rc"
 
-#include "desktop2\resource.h"
-#include "desktop2\StartPane.rc"
+#include "resource.h"
+#include "StartPane.rc"
 
 /////////////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

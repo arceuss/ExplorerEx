@@ -1,5 +1,7 @@
 //This file is included from the webvw.rc so all paths to files in this file 
 // should be relative to webvw directory instead of this directory
+#include "resource.h"
+#include "windows.h"
 
 STRINGTABLE
 BEGIN
@@ -83,5 +85,5 @@ BEGIN
 END
 
 
-IDB_LOGOFF_NORMAL BITMAP "desktop2\\LogoffButtons.bmp"
-IDB_LOGOFF_HOT    BITMAP "desktop2\\LogoffButtonsHot.bmp"
+IDB_LOGOFF_NORMAL BITMAP "LogoffButtons.bmp"
+IDB_LOGOFF_HOT    BITMAP "LogoffButtonsHot.bmp"

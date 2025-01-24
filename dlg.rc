@@ -1,6 +1,8 @@
 //Microsoft Developer Studio generated resource script.
 //
 #include "dlg.h"
+#include "rcids.h"
+#include <winres.h>
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -113,7 +115,7 @@ BEGIN
     PUSHBUTTON      "&Clear",IDC_KILLDOCUMENTS,162,94,53,14
     LTEXT           "Advanced S&tart menu options:",
                     IDC_STARTMENUSETTINGSTEXT,8,129,150,8
-    CONTROL         "StartMenuSe&ttings",IDC_STARTMENUSETTINGS,WC_TREEVIEW,
+    CONTROL         "StartMenuSe&ttings",IDC_STARTMENUSETTINGS, L"SysTreeView32",
                     WS_BORDER | WS_TABSTOP | 0x1,8,139,218,72,
                     WS_EX_CLIENTEDGE
     DEFPUSHBUTTON   "OK",IDOK,122,220,50,14
@@ -177,7 +179,7 @@ BEGIN
     LTEXT           "&Number of programs on Start menu:",IDC_STATIC,14,86,
                     112,8
     EDITTEXT        IDC_SPCUST_MINPROGS,133,84,27,12, ES_RIGHT | WS_TABSTOP | WS_GROUP | ES_NUMBER
-    CONTROL         "",IDC_SPCUST_MINPROGS_ARROW,UPDOWN_CLASS,WS_BORDER |
+    CONTROL         "",IDC_SPCUST_MINPROGS_ARROW, L"msctls_updown32",WS_BORDER |
                     WS_GROUP | UDS_AUTOBUDDY | UDS_ALIGNRIGHT | UDS_ARROWKEYS |
                     UDS_SETBUDDYINT | UDS_NOTHOUSANDS,160,84,11,12
                     
