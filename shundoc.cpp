@@ -192,7 +192,7 @@ DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi) = nullptr;
 
 COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color) = nullptr;
 
-BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags) = nullptr;
+extern BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags) = nullptr;
 
 // SHRegisterDarwinLink takes ownership of the pidl
 

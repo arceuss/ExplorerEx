@@ -656,7 +656,7 @@ LRESULT CALLBACK CNotificationsDlg::s_ListViewSubClassWndProc( HWND hwnd, UINT u
     WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData )
 {
     CNotificationsDlg * pNotificationsDlg = reinterpret_cast<CNotificationsDlg*>(dwRefData);
-    AssertMsg((pNotificationsDlg != NULL), TEXT("pNotificationsDlg SHOULD NOT be NULL."));
+    ASSERT((pNotificationsDlg != NULL));
 
     switch (uMsg)
     {
@@ -684,7 +684,7 @@ LRESULT CALLBACK CNotificationsDlg::s_ComboBoxSubClassWndProc( HWND hwnd, UINT u
     WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData )
 {
     CNotificationsDlg * pNotificationsDlg = reinterpret_cast<CNotificationsDlg*>(dwRefData);
-    AssertMsg((pNotificationsDlg != NULL), TEXT("pNotificationsDlg SHOULD NOT be NULL."));
+    ASSERT((pNotificationsDlg != NULL));
 
     switch (uMsg)
     {

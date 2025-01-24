@@ -1291,7 +1291,7 @@ LRESULT CALLBACK CTrayNotify::ChevronSubClassWndProc(HWND hwnd, UINT uMsg, WPARA
     LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
 {
     CTrayNotify * pTrayNotify = reinterpret_cast<CTrayNotify*>(dwRefData);
-    AssertMsg((pTrayNotify != NULL), TEXT("pTrayNotify SHOULD NOT be NULL, as passed to ChevronSubClassWndProc."));
+    ASSERT((pTrayNotify != NULL));
 
     if (pTrayNotify->_fNoTrayItemsDisplayPolicyEnabled)
     {
@@ -1409,7 +1409,7 @@ LRESULT CALLBACK CTrayNotify::s_ToolbarWndProc(HWND hwnd, UINT uMsg, WPARAM wPar
     BOOL fClickDown = FALSE;
 
     CTrayNotify * pTrayNotify = reinterpret_cast<CTrayNotify*>(dwRefData);
-    AssertMsg((pTrayNotify != NULL), TEXT("pTrayNotify SHOULD NOT be NULL, as passed to s_ToolbarWndProc."));
+    ASSERT((pTrayNotify != NULL));
 
     if (pTrayNotify->_fNoTrayItemsDisplayPolicyEnabled)
     {
@@ -1768,8 +1768,8 @@ LRESULT CTrayNotify::_Destroy()
     }
     else
     {
-        AssertMsg((_pinfo == NULL), TEXT("_pinfo is being leaked"));
-        AssertMsg((!_himlIcons || (ImageList_GetImageCount(_himlIcons) == 0)), TEXT("image list info being leaked"));
+        ASSERT((_pinfo == NULL));
+        ASSERT((!_himlIcons || (ImageList_GetImageCount(_himlIcons) == 0)));
     }
 
     if (_dpaInfo)
@@ -2253,7 +2253,7 @@ LRESULT CTrayNotify::_OnTimer(UINT_PTR uTimerID)
     }
     else
     {
-        AssertMsg(FALSE, TEXT("CTrayNotify::_OnTimer() not possible"));
+        ASSERT(FALSE);
     }
 
     return 0;
@@ -2643,7 +2643,7 @@ void CTrayNotify::_OnCommand(UINT id, UINT uCmd)
 {
     if (id == IDC_TRAYNOTIFY_CHEVRON)
     {
-        AssertMsg(!_fNoTrayItemsDisplayPolicyEnabled, TEXT("Impossible-the chevron shouldnt be shown"));
+        ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
         switch(uCmd)
         {
             case BN_SETFOCUS:
@@ -4056,7 +4056,7 @@ BOOL CTrayNotify::_ShouldDestroyTimer(int nTimerFlag)
             return (!_GetQueueCount());
 
         default:
-            AssertMsg(TF_ERROR, TEXT("No other timer ids are possible"));
+            ASSERT(TF_ERROR);
             return FALSE;
     }
 }
@@ -4079,7 +4079,7 @@ IUserEventTimer * CTrayNotify::_CreateTimer(int nTimerFlag)
             break;
 
         default:
-            AssertMsg(TF_ERROR, TEXT("No other Timers are possible"));
+            ASSERT(TF_ERROR);
             return NULL;
     }
 

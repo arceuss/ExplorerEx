@@ -881,6 +881,7 @@ BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
 
 BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags);
 
+
 #define GMI_DOCKSTATE           0x0000
 // Return values for SHGetMachineInfo(GMI_DOCKSTATE)
 #define GMID_NOTDOCKABLE         0  // Cannot be docked
