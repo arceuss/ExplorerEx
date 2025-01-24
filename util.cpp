@@ -538,7 +538,7 @@ void DoCleanup()
 // function pointer.  atexit saves the pointers off in __onexitbegin.
 // DoCleanup iterates through __onexitbegin and calls each destructor.
 //
-EXTERN_C int __cdecl atexit(_PVFV pf)
+EXTERN_C static int __cdecl atexit(_PVFV pf)
 {
     if (__onexitbegin == NULL)
     {
@@ -801,7 +801,7 @@ int Toolbar_GetUniqueID(HWND hwndTB)
 
 BYTE ToolBar_GetStateByIndex(HWND hwnd, INT_PTR iIndex)
 {
-    TBBUTTONINFO tbb;
+    TBBUTTONINFO tbb = {};
     tbb.cbSize = sizeof(TBBUTTONINFO);
     tbb.dwMask = TBIF_STATE | TBIF_BYINDEX;
     ToolBar_GetButtonInfo(hwnd, iIndex, &tbb);

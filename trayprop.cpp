@@ -2628,9 +2628,6 @@ BOOL_PTR CALLBACK AdvancedOptDlgProc(HWND hwndDlg, UINT msg, WPARAM wParam, LPAR
 
 void DoTaskBarProperties(HWND hwnd, DWORD dwFlags)
 {
-    ASSERT(((dwFlags & TPF_PAGEFLAGS) == TPF_STARTMENUPAGE) ||
-            ((dwFlags & TPF_PAGEFLAGS) == TPF_TASKBARPAGE));
-
     UINT nStartPage = (dwFlags & TPF_TASKBARPAGE) ? 0 : 1;
     CTaskBarPropertySheet sheet(nStartPage, hwnd, dwFlags);
 

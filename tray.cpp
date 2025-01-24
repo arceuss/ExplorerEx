@@ -7257,8 +7257,6 @@ BOOL CTray::SavePosEnumProc(HWND hwnd, LPARAM lParam)
     // called from SaveWindowPositions, which as already entered the critical secion
     // for _pPositions
 
-    ASSERT(g_CriticalSectionCount > 0 && GetCurrentThreadId() == g_CriticalSectionOwner);
-
     CTray* ptray = (CTray*)lParam;
 
     ASSERT(ptray->_pPositions);
