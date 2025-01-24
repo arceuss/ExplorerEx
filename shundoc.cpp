@@ -53,7 +53,7 @@ public:
         TCHAR szFeature[38];
         TCHAR szComponent[38];
 
-        if (MsiDecomposeDescriptor(_pszDescriptor, szProduct, szFeature, szComponent, NULL) == ERROR_SUCCESS)
+        if (MsiDecomposeDescriptorW(_pszDescriptor, szProduct, szFeature, szComponent, NULL) == ERROR_SUCCESS)
         {
             _state = MsiQueryFeatureState(szProduct, szFeature);
         }
@@ -179,6 +179,7 @@ BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIO
 BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd) = nullptr;
 BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile) = nullptr;
 LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) = nullptr;
+UINT(WINAPI* MsiDecomposeDescriptorW)(LPCWSTR	szDescriptor, LPWSTR szProductCode, LPWSTR szFeatureId, LPWSTR szComponentCode, DWORD* pcchArgsOffset) = nullptr;
 HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) = nullptr;
 UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) = nullptr;
 INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal) = nullptr;
@@ -1312,6 +1313,9 @@ bool SHUndocInit(void)
 
     LOAD_MODULE(user32);
     LOAD_FUNCTION(user32, EndTask);
+
+    LOAD_MODULE(msi);
+    LOAD_FUNCTION(msi, MsiDecomposeDescriptorW);
 
     LOAD_MODULE(winsta);
     LOAD_FUNCTION(winsta, WinStationRegisterConsoleNotification);
