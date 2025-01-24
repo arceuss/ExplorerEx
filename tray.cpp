@@ -7562,7 +7562,7 @@ DWORD CTray::_RunDlgThreadProc(HANDLE hdata)
         LPITEMIDLIST pidlWorkingDir = NULL;
 
         // Subclass it.
-        SubclassWindow(hwnd, RunDlgStaticSubclassWndProc);
+        SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LPARAM)RunDlgStaticSubclassWndProc);
 
         if (hdata)
             SetProp(hwnd, TEXT("WaitingThreadID"), hdata);
