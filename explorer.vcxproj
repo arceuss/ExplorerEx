@@ -145,8 +145,10 @@
     <ClInclude Include="ntperf.h" />
     <ClInclude Include="ntwmi.h" />
     <ClInclude Include="path.h" />
+    <ClInclude Include="qsort.h" />
     <ClInclude Include="runonce.h" />
     <ClInclude Include="runtask.h" />
+    <ClInclude Include="winter.h" />
     <ClInclude Include="wmiumkm.h" />
     <ClInclude Include="wtl\atlapp.h" />
     <ClInclude Include="wtl\atlcrack.h" />

@@ -863,7 +863,7 @@ HWND CTray::_CreateStartButton()
 
         // Subclass it.
         _hwndStart = hwnd;
-        _pfnButtonProc = SetWindowSubclass(hwnd, StartButtonSubclassWndProc, 0,0);
+        _pfnButtonProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LPARAM)StartButtonSubclassWndProc);
 
         _StartButtonReset();
     }

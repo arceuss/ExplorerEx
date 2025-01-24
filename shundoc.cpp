@@ -600,6 +600,27 @@ BOOL Mirror_IsUILanguageInstalled(LANGID langId)
     return MUILangInstalled.bInstalled;
 }
 
+typedef DWORD(WINAPI* PFNSETLAYOUT)(HDC, DWORD);            // gdi32!SetLayout
+
+DWORD Mirror_SetLayout(HDC hdc, DWORD dwLayout)
+{
+    DWORD dwRet = 0;
+    static PFNSETLAYOUT pfnSetLayout = NULL;
+
+    if (NULL == pfnSetLayout)
+    {
+        HMODULE hmod = GetModuleHandleA("GDI32");
+
+        if (hmod)
+            pfnSetLayout = (PFNSETLAYOUT)GetProcAddress(hmod, "SetLayout");
+    }
+
+    if (pfnSetLayout)
+        dwRet = pfnSetLayout(hdc, dwLayout);
+
+    return dwRet;
+}
+
 BOOL IsBiDiLocalizedSystemEx(LANGID* pLangID)
 {
     int           iLCID = 0L;
@@ -840,6 +861,71 @@ LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, UINT* lpW
     *lpCmd = chT;
 
     return(lpCmd);
+}
+
+STDAPI VariantChangeTypeForRead(VARIANT* pvar, VARTYPE vtDesired)
+{
+    HRESULT hr = S_OK;
+
+    if ((pvar->vt != vtDesired) && (vtDesired != VT_EMPTY))
+    {
+        VARIANT varTmp;
+        VARIANT varSrc;
+
+        // cache a copy of [in]pvar in varSrc - we will free this later
+        CopyMemory(&varSrc, pvar, sizeof(varTmp));
+        VARIANT* pvarToCopy = &varSrc;
+
+        // oleaut's VariantChangeType doesn't support
+        // hex number string -> number conversion, which we want,
+        // so convert those to another format they understand.
+        //
+        // if we're in one of these cases, varTmp will be initialized
+        // and pvarToCopy will point to it instead
+        //
+        if (VT_BSTR == varSrc.vt)
+        {
+            switch (vtDesired)
+            {
+            case VT_I1:
+            case VT_I2:
+            case VT_I4:
+            case VT_INT:
+            {
+                if (StrToIntExW(varSrc.bstrVal, STIF_SUPPORT_HEX, &varTmp.intVal))
+                {
+                    varTmp.vt = VT_INT;
+                    pvarToCopy = &varTmp;
+                }
+                break;
+            }
+
+            case VT_UI1:
+            case VT_UI2:
+            case VT_UI4:
+            case VT_UINT:
+            {
+                if (StrToIntExW(varSrc.bstrVal, STIF_SUPPORT_HEX, (int*)&varTmp.uintVal))
+                {
+                    varTmp.vt = VT_UINT;
+                    pvarToCopy = &varTmp;
+                }
+                break;
+            }
+            }
+        }
+
+        // clear our [out] buffer, in case VariantChangeType fails
+        VariantInit(pvar);
+
+        hr = VariantChangeType(pvar, pvarToCopy, 0, vtDesired);
+
+        // clear the cached [in] value
+        VariantClear(&varSrc);
+        // if initialized, varTmp is VT_UINT or VT_UINT, neither of which need VariantClear
+    }
+
+    return hr;
 }
 
 LPTSTR GetOneParameter(LPCTSTR lpCmdStart, LPTSTR lpCmd,

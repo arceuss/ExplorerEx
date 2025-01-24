@@ -225,6 +225,15 @@
     <ClInclude Include="path.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="desktop2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="qsort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="winter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">

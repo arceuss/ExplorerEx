@@ -8,7 +8,7 @@
 #define DECL_CRTFREE
 //#include <crtfree.h>
 
-//#include <qsort.h>
+#include "qsort.h"
 
 #include <ddraw.h>      // DirectDraw stuff..
 
@@ -16,6 +16,12 @@
 #define STRSAFE_NO_DEPRECATE
 #include <strsafe.h>
 #include "ssomgr.h"
+
+#include "shundoc.h"
+
+
+
+
 //////////////////////////////////////////////////////////////////////////
 //
 // util.cpp
@@ -77,12 +83,12 @@ void _MirrorBitmapInDC(HDC hdc , HBITMAP hbmOrig)
     // Flip the bitmap
     //
     SelectObject(hdcMem , hbm);
-    SET_DC_RTL_MIRRORED(hdcMem);
+    Mirror_SetLayout(hdcMem, LAYOUT_RTL);
 
     BitBlt(hdcMem , 0 , 0 , bm.bmWidth , bm.bmHeight ,
           hdc , 0 , 0 , SRCCOPY);
 
-    SET_DC_LAYOUT(hdcMem,0);
+    Mirror_SetLayout(hdcMem,0);
 
     //
     // The offset by 1 in hdcMem is to solve the off-by-one problem. Removed.

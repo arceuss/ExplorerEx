@@ -20,6 +20,9 @@
 #include <DocObj.h>
 #include <winuserp.h>
 
+#include "winter.h"
+
+
 // path.cpp (private stuff) ---------------------
 
 #define PQD_NOSTRIPDOTS 0x00000001
@@ -421,6 +424,8 @@ typedef struct _tagSHELLREMINDER
 
 #define IS_WM_CONTEXTMENU_KEYBOARD(lParam) ((DWORD)(lParam) == 0xFFFFFFFF)
 
+#define NtCurrentPeb() ((PPEB)NtCurrentTeb()->ProcessEnvironmentBlock)
+
 #define IntToPtr_(T, i) ((T)IntToPtr(i))
 
 #define _IOffset(class, itf)         ((UINT)(UINT_PTR)&(((class *)0)->itf))
@@ -433,6 +438,15 @@ typedef struct _tagSHELLREMINDER
 
 #define SHProcessMessagesUntilEvent(hwnd, hEvent, dwTimeout)        SHProcessMessagesUntilEventEx(hwnd, hEvent, dwTimeout, QS_ALLINPUT)
 #define SHProcessSentMessagesUntilEvent(hwnd, hEvent, dwTimeout)    SHProcessMessagesUntilEventEx(hwnd, hEvent, dwTimeout, QS_SENDMESSAGE)
+
+#define ToolBar_ButtonCount(hwnd)  \
+    (BOOL)SNDMSG((hwnd), TB_BUTTONCOUNT, 0, 0)
+
+#define ToolBar_GetButtonInfo(hwnd, idBtn, lptbbi)  \
+
+#define ARGUMENT_PRESENT(ArgumentPointer)    (\
+    (CHAR *)(ArgumentPointer) != (CHAR *)(NULL) )
+
 
 #define INSTRUMENT_STATECHANGE(t)
 
@@ -535,6 +549,26 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define WMTRAY_QUERY_MENU           (WM_USER + 235)
 #define WMTRAY_QUERY_VIEW           (WM_USER + 236)     // 236=0xec
 #define WMTRAY_TOGGLEQL             (WM_USER + 237)
+
+#define COF_NORMAL              0x00000000
+#define COF_CREATENEWWINDOW     0x00000001      // "/N"
+#define COF_USEOPENSETTINGS     0x00000002      // "/A"
+#define COF_WAITFORPENDING      0x00000004      // Should wait for Pending
+#define COF_EXPLORE             0x00000008      // "/E"
+#define COF_NEWROOT             0x00000010      // "/ROOT"
+#define COF_ROOTCLASS           0x00000020      // "/ROOT,<GUID>"
+#define COF_SELECT              0x00000040      // "/SELECT"
+#define COF_AUTOMATION          0x00000080      // The user is trying to use automation
+#define COF_OPENMASK            0x000000FF
+#define COF_NOTUSERDRIVEN       0x00000100      // Not user driven
+#define COF_NOTRANSLATE         0x00000200      // Don't ILCombine(pidlRoot, pidl)
+#define COF_INPROC              0x00000400      // not used
+#define COF_CHANGEROOTOK        0x00000800      // Try Desktop root if not in our root
+#define COF_NOUI                0x00001000      // Start background desktop only (no folder/explorer)
+#define COF_SHDOCVWFORMAT       0x00002000      // indicates this struct has been converted to abide by shdocvw format. 
+                                                // this flag is temporary until we rip out all the 
+#define COF_NOFINDWINDOW        0x00004000      // Don't try to find the window
+#define COF_HASHMONITOR         0x00008000      // pidlRoot in IETHREADPARAM struct contains an HMONITOR
 
 //
 //  GMI_TSCLIENT tells you whether you are running as a Terminal Server
@@ -820,15 +854,6 @@ typedef enum
     RA_MOVE,
 } RESTRICT_ACTIONS;
 
-enum INSTALLSTATE
-{
-    installingNone,
-    installingDone,
-    installingBoth,
-    installingDocObject,
-    installingHandler
-};
-
 
 //
 // Function definitions
@@ -878,6 +903,8 @@ STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwT
 STDAPI_(TCHAR) SHFindMnemonic(LPCTSTR psz);
 BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
 BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
+DWORD Mirror_SetLayout(HDC hdc, DWORD dwLayout);
+STDAPI VariantChangeTypeForRead(VARIANT* pvar, VARTYPE vtDesired);
 
 BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags);
 
