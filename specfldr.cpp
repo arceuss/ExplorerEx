@@ -1,3 +1,4 @@
+#include "shundoc.h"
 #include "stdafx.h"
 #include "specfldr.h"
 #include "hostutil.h"

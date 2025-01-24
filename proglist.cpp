@@ -1,3 +1,4 @@
+#include "shundoc.h"
 #include "stdafx.h"
 #include "proglist.h"
 #include "uemapp.h"
@@ -15,7 +16,6 @@
 
 #include <dpa_dsa.h>
 #include <vssym32.h>
-#include "shundoc.h"
 
 typedef UNALIGNED const WCHAR* LPNCWSTR;
 typedef UNALIGNED WCHAR* LPNWSTR;

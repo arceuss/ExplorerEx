@@ -1,8 +1,8 @@
+#include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
 #include "userpane.h"
 
-#include "shundoc.h"
 
 #include "vssym32.h"
 
@@ -272,7 +272,7 @@ LRESULT CALLBACK CUserPane::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
             {
                 // wow this is slow, should we shellexec "mshta.exe res://nusrmgr.cpl/nusrmgr.hta" ourselves, 
                 // since this will only happen when we know we are not on a domain.
-                SHRunControlPanel(TEXT("nusrmgr.cpl ,initialTask=ChangePicture"), _hwnd);
+                SHRunControlPanelCustom(TEXT("nusrmgr.cpl ,initialTask=ChangePicture"), _hwnd);
                 return 0;
             }
             break;

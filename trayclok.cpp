@@ -256,7 +256,7 @@ LRESULT CClockCtl::_DoPaint(BOOL fPaint)
     DWORD dtNextTick = 0;
     BOOL fDoTimer;
     HDC hdc;
-    HBITMAP hMemBm, hOldBm = { 0 };
+    HBITMAP hMemBm = { 0 }; HBITMAP hOldBm = {0};
 
     //
     // If we are asked to paint and the clock is not running then start it.
@@ -557,7 +557,7 @@ LRESULT CClockCtl::_CalcMinSize(int cxMax, int cyMax)
 {
     RECT rc;
     HDC  hdc;
-    HFONT hfontOld;
+    HFONT hfontOld = 0;
 
     if (!(GetWindowLong(_hwnd, GWL_STYLE) & WS_VISIBLE))
         return 0L;

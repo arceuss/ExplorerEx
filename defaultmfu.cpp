@@ -1,3 +1,4 @@
+#include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
 #include "uemapp.h"
@@ -388,7 +389,7 @@ void CreateInitialMFU(BOOL fReset)
         // SHCoUninitialize()
         MFUExclusion mex;
         int iSlot;
-        LPITEMIDLIST rgpidlMFU[REGSTR_VAL_DV2_MINMFU_DEFAULT] = { 0 };
+        LPCITEMIDLIST rgpidlMFU[REGSTR_VAL_DV2_MINMFU_DEFAULT] = { 0 };
 
         // Assert that the slots are evenly shared between MSFT and the OEM
         COMPILETIME_ASSERT(ARRAYSIZE(rgpidlMFU) % 2 == 0);
@@ -471,7 +472,7 @@ void CreateInitialMFU(BOOL fReset)
         // Clean up
         for (iSlot = 0; iSlot < ARRAYSIZE(rgpidlMFU); iSlot++)
         {
-            ILFree(rgpidlMFU[iSlot]);
+            ILFree(const_cast<LPITEMIDLIST>(rgpidlMFU[iSlot]));
         }
 
         // MFUExclusion destructor runs here

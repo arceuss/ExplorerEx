@@ -748,7 +748,7 @@ int Toolbar_GetUniqueID(HWND hwndTB)
 
     int *rgCmds = (int *)malloc(iCount * sizeof(*rgCmds));
 
-    TBBUTTONINFO tbbi;
+    TBBUTTONINFO tbbi{};
     tbbi.cbSize = sizeof(TBBUTTONINFO);
     tbbi.dwMask = TBIF_BYINDEX | TBIF_COMMAND;
 
@@ -810,7 +810,7 @@ BYTE ToolBar_GetStateByIndex(HWND hwnd, INT_PTR iIndex)
 
 int ToolBar_IndexToCommand(HWND hwnd, INT_PTR iIndex)
 {
-    TBBUTTONINFO tbbi;
+    TBBUTTONINFO tbbi{};
     tbbi.cbSize = sizeof(TBBUTTONINFO);
     tbbi.dwMask = TBIF_COMMAND | TBIF_BYINDEX;
     ToolBar_GetButtonInfo(hwnd, iIndex, &tbbi);

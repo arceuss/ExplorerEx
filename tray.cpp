@@ -30,7 +30,7 @@
 //#include <uxthemep.h>
 
 #define NO_NOTIFYSUBCLASSWNDPROC
-#include "cwndproc.cpp"
+#include "cwndproc.h"
 
 #include "desktop2.h"
 #include "mixer.h"
@@ -57,11 +57,21 @@ const GUID CLSID_MSUTBDeskBand = {0x540d8a8b, 0x1c3f, 0x4e32, 0x81, 0x32, 0x53, 
 HRESULT AddMenuItemsCacheTask(IShellTaskScheduler* pSystemScheduler, BOOL fKeepCacheWhenFinished);
 
 // import the WIN31 Compatibility HACKs from the shell32.dll
-STDAPI_(void) CheckWinIniForAssocs(void);
+void CheckWinIniForAssocs(void)
+{
+    //NOT IMPLEMENTED
+}
 
 // hooks to Shell32.dll
-STDAPI CheckDiskSpace();
-STDAPI CheckStagingArea();
+void CheckDiskSpace()
+{
+    //NOT IMPLEMENTED
+}
+void CheckStagingArea()
+{
+    //NOT IMPLEMENTED
+}
+
 
 // startmnu.cpp
 void HandleFirstTime();
@@ -1937,7 +1947,7 @@ DWORD CTray::_SyncThreadProc()
     if (g_dwProfileCAP & 0x00020000)
         StopCAP();
 
-    if (g_dwStopWatchMode)
+    //if (g_dwStopWatchMode)
         //StopWatch_StopTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
 
     return FALSE;
@@ -4393,7 +4403,7 @@ void CTray::_HandleHotKey(int nID)
             }
             else
             {
-                HCURSOR hcursor_wait_cursor_save;
+                HCURSOR hcursor_wait_cursor_save = 0;
                 // Exec the item.
                 SetCursor(LoadCursor(0, IDC_WAIT));
                 ASSERT(phki->pidlFolder && phki->pidlItem);
@@ -8140,7 +8150,7 @@ void CTray::_Command(UINT idCmd)
 
     case IDM_SETTIME:
         // run the default applet in timedate.cpl
-        SHRunControlPanel(TEXT("timedate.cpl"), _hwnd);
+        SHRunControlPanelCustom(TEXT("timedate.cpl"), _hwnd);
         break;
 
     case IDM_NOTIFYCUST:
@@ -8635,7 +8645,7 @@ void CTray::_HandleGlobalHotkey(WPARAM wParam)
 
     case GHID_SYSPROPERTIES:
 #define IDS_SYSDMCPL            0x2334  // from shelldll
-        SHRunControlPanel(MAKEINTRESOURCE(IDS_SYSDMCPL), _hwnd);
+        SHRunControlPanelCustom(MAKEINTRESOURCE(IDS_SYSDMCPL), _hwnd);
         break;
     }
 }

@@ -117,18 +117,18 @@ typedef struct
     CLSID clsidInProc;          // Only used if COF_INPROC
 } NEWFOLDERINFO, * PNEWFOLDERINFO;
 
-STDAPI_(HANDLE) SHCreateDesktop(IDeskTray* pdtray);
-STDAPI_(BOOL) CreateFromDesktop(PNEWFOLDERINFO pfi);
-STDAPI_(BOOL) SHCreateFromDesktop(PNEWFOLDERINFO pfi);
-STDAPI_(BOOL) SHDesktopMessageLoop(HANDLE hDesktop);
-STDAPI_(BOOL) SHExplorerParseCmdLine(PNEWFOLDERINFO pfi);
+HANDLE SHCreateDesktop(IDeskTray* pdtray);
+BOOL CreateFromDesktop(PNEWFOLDERINFO pfi);
+BOOL SHCreateFromDesktop(PNEWFOLDERINFO pfi);
+BOOL SHDesktopMessageLoop(HANDLE hDesktop);
+BOOL SHExplorerParseCmdLine(PNEWFOLDERINFO pfi);
 
 #define IDT_DDETIMEOUT      1
 #define IDT_ENUMHKCR        2
 
 // for the desktop to handle DDE
-STDAPI_(LRESULT) DDEHandleMsgs(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-STDAPI_(void) DDEHandleTimeout(HWND hwnd);
+LRESULT DDEHandleMsgs(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void DDEHandleTimeout(HWND hwnd);
 
 
 #endif

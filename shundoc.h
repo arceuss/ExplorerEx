@@ -1,3 +1,4 @@
+#pragma once
 //+-------------------------------------------------------------------------
 //
 //  ExplorerEx - Windows XP Explorer
@@ -10,9 +11,8 @@
 //  History:    Jan-20-25   olive6841 Add COM Interaces
 //
 //--------------------------------------------------------------------------
-#pragma once
-#include <Windows.h>
 #include <shobjidl_core.h>
+#include <Windows.h>
 
 #include "criticalsection.h"
 
@@ -29,19 +29,19 @@
 
 #define PQD_NOSTRIPDOTS 0x00000001
 
-STDAPI_(void) PathQualifyDef(LPTSTR psz, LPCTSTR szDefDir, DWORD dwFlags);
+//void PathQualifyDef(LPTSTR psz, LPCTSTR szDefDir, DWORD dwFlags);
 
-STDAPI_(BOOL) PathIsRemovable(LPCTSTR pszPath);
-STDAPI_(BOOL) PathIsRemote(LPCTSTR pszPath);
-STDAPI_(BOOL) PathIsTemporary(LPCTSTR pszPath);
-STDAPI_(BOOL) PathIsWild(LPCTSTR pszPath);
-STDAPI_(BOOL) PathIsLnk(LPCTSTR pszFile);
+BOOL PathIsRemovable(LPCTSTR pszPath);
+BOOL PathIsRemote(LPCTSTR pszPath);
+BOOL PathIsTemporary(LPCTSTR pszPath);
+BOOL PathIsWild(LPCTSTR pszPath);
+BOOL PathIsLnk(LPCTSTR pszFile);
 //STDAPI_(BOOL) PathIsSlow(LPCTSTR pszFile, DWORD dwFileAttr);
-STDAPI_(BOOL) PathIsInvalid(LPCTSTR pPath);
-STDAPI_(BOOL) PathIsBinaryExe(LPCTSTR szFile);
-STDAPI_(BOOL) PathMergePathName(LPTSTR pPath, LPCTSTR pName);
-STDAPI_(BOOL) PathGetMountPointFromPath(LPCTSTR pcszPath, LPTSTR pszMountPoint, int cchMountPoint);
-STDAPI_(BOOL) PathIsShortcutToProgram(LPCTSTR pszFile);
+//BOOL PathIsInvalid(LPCTSTR pPath);
+BOOL PathIsBinaryExe(LPCTSTR szFile);
+//BOOL PathMergePathName(LPTSTR pPath, LPCTSTR pName);
+BOOL PathGetMountPointFromPath(LPCTSTR pcszPath, LPTSTR pszMountPoint, int cchMountPoint);
+BOOL PathIsShortcutToProgram(LPCTSTR pszFile);
 
 //
 // Constants
@@ -900,76 +900,6 @@ typedef enum
     RA_MOVE,
 } RESTRICT_ACTIONS;
 
-
-//
-// Function definitions
-//
-
-extern HRESULT(STDMETHODCALLTYPE* IUnknown_Exec)(IUnknown* punk, const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut);
-extern HRESULT(STDMETHODCALLTYPE* IUnknown_GetClassID)(IUnknown* punk, CLSID* pclsid);
-extern HRESULT(STDMETHODCALLTYPE* IUnknown_OnFocusChangeIS)(IUnknown* punk, IUnknown* punkSrc, BOOL fSetFocus);
-extern HRESULT(STDMETHODCALLTYPE* IUnknown_QueryStatus)(IUnknown* punk, const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext);
-extern HRESULT(STDMETHODCALLTYPE* IUnknown_UIActivateIO)(IUnknown* punk, BOOL fActivate, LPMSG lpMsg);
-extern HRESULT(STDMETHODCALLTYPE* IUnknown_TranslateAcceleratorIO)(IUnknown* punk, LPMSG lpMsg);
-STDAPI IUnknown_DragEnter(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-STDAPI IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
-STDAPI IUnknown_DragLeave(IUnknown* punk);
-
-extern HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg, WPARAM wParam, LPARAM lParam, int iFlags);
-extern HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen);
-extern HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
-extern HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue);
-extern HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient);
-extern HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem);
-extern HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam);
-extern HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd);
-extern HRESULT(STDMETHODCALLTYPE* SHLoadRegUIStringW)(HKEY     hkey, LPCWSTR  pszValue, LPWSTR   pszOutBuf, UINT     cchOutBuf);
-extern HWND(STDMETHODCALLTYPE* SHCreateWorkerWindowW)(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void* p);
-extern LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-extern BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags);
-extern BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength);
-extern BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd);
-extern UINT(WINAPI* MsiDecomposeDescriptorW)(LPCWSTR	szDescriptor, LPWSTR szProductCode, LPWSTR szFeatureId, LPWSTR szComponentCode, DWORD* pcchArgsOffset);
-extern BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile);
-extern BOOL(STDMETHODCALLTYPE* SHTestTokenPrivilegeW)(HANDLE hToken, LPCWSTR pszPrivilegeName);
-extern HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent);
-extern INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal);
-extern INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags);
-extern UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
-extern VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)();
-extern VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent);
-extern VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent);
-extern COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
-extern HMENU(STDMETHODCALLTYPE* SHGetMenuFromID)(HMENU hmMain, UINT uID);
-extern UINT(WINAPI* ImageList_GetFlags)(HIMAGELIST himl);
-STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
-STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2);
-STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
-STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);
-STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, UINT fFlags);
-STDAPI_(BOOL) IsRestrictedOrUserSetting(HKEY hkeyRoot, enum RESTRICTIONS rest, LPCWSTR pszSubKey, LPCWSTR pszValue, UINT flags);
-STDAPI SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast); 
-STDAPI SHCoInitialize(void);
-STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask);
-STDAPI_(TCHAR) SHFindMnemonic(LPCTSTR psz);
-BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
-extern BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
-DWORD Mirror_SetLayout(HDC hdc, DWORD dwLayout);
-STDAPI VariantChangeTypeForRead(VARIANT* pvar, VARTYPE vtDesired);
-BOOL GetExplorerUserSetting(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue);
-STDAPI SHBindToObjectEx(IShellFolder* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut);
-STDAPI SHLoadLegacyRegUIString(HKEY hk, LPCTSTR pszSubkey, LPTSTR pszOutBuf, UINT cchOutBuf);
-STDAPI SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut);
-STDAPI_(void) SHReValidateDarwinCache();
-STDAPI DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPWSTR* ppsz);
-STDAPI_(LPITEMIDLIST) ILCloneParent(LPCITEMIDLIST pidl);
-STDAPI SHGetIDListFromUnk(IUnknown* punk, LPITEMIDLIST* ppidl);
-STDAPI_(void) _SHPrettyMenu(HMENU hm);
-STDAPI DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal);
-STDAPI_(BOOL) GetInfoTip(IShellFolder* psf, LPCITEMIDLIST pidl, LPTSTR pszText, int cchTextMax);
-STDAPI SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void** ppv);
-
-
 // Cabinet_EnumRegApps flags 
 #define RRA_DEFAULT               0x0000
 #define RRA_DELETE                0x0001        // delete each reg value when we're done with it
@@ -982,6 +912,77 @@ STDAPI SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, voi
 
 typedef UINT RRA_FLAGS;
 
+//
+// Function definitions
+//
+
+inline HRESULT(STDMETHODCALLTYPE* IUnknown_Exec)(IUnknown* punk, const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut);
+inline HRESULT(STDMETHODCALLTYPE* IUnknown_GetClassID)(IUnknown* punk, CLSID* pclsid);
+inline HRESULT(STDMETHODCALLTYPE* IUnknown_OnFocusChangeIS)(IUnknown* punk, IUnknown* punkSrc, BOOL fSetFocus);
+inline HRESULT(STDMETHODCALLTYPE* IUnknown_QueryStatus)(IUnknown* punk, const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext);
+inline HRESULT(STDMETHODCALLTYPE* IUnknown_UIActivateIO)(IUnknown* punk, BOOL fActivate, LPMSG lpMsg);
+inline HRESULT(STDMETHODCALLTYPE* IUnknown_TranslateAcceleratorIO)(IUnknown* punk, LPMSG lpMsg);
+HRESULT IUnknown_DragEnter(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+HRESULT IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
+HRESULT IUnknown_DragLeave(IUnknown* punk);
+
+inline HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg, WPARAM wParam, LPARAM lParam, int iFlags);
+inline HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen);
+inline HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
+inline HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue);
+inline HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient);
+inline HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem);
+inline HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam);
+inline HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd);
+inline HRESULT(STDMETHODCALLTYPE* SHLoadRegUIStringW)(HKEY     hkey, LPCWSTR  pszValue, LPWSTR   pszOutBuf, UINT     cchOutBuf);
+inline HWND(STDMETHODCALLTYPE* SHCreateWorkerWindowW)(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void* p);
+inline LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+inline BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags);
+inline BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength);
+inline BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd);
+inline UINT(WINAPI* MsiDecomposeDescriptorW)(LPCWSTR	szDescriptor, LPWSTR szProductCode, LPWSTR szFeatureId, LPWSTR szComponentCode, DWORD* pcchArgsOffset);
+inline BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile);
+inline BOOL(STDMETHODCALLTYPE* SHTestTokenPrivilegeW)(HANDLE hToken, LPCWSTR pszPrivilegeName);
+inline HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent);
+inline INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal);
+inline INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags);
+inline UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void);
+inline VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)();
+inline VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent);
+inline VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent);
+inline COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
+inline HMENU(STDMETHODCALLTYPE* SHGetMenuFromID)(HMENU hmMain, UINT uID);
+inline UINT(WINAPI* ImageList_GetFlags)(HIMAGELIST himl);
+void  SHAdjustLOGFONT(IN OUT LOGFONT* plf);
+BOOL  SHIsSameObject(IUnknown* punk1, IUnknown* punk2);
+BOOL  SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
+BOOL  SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);
+BOOL  ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags);
+BOOL  IsRestrictedOrUserSetting(HKEY hkeyRoot, enum RESTRICTIONS rest, LPCTSTR pszSubKey, LPCTSTR pszValue, UINT flags);
+HRESULT SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast); 
+HRESULT SHCoInitialize(void);
+DWORD  SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask);
+TCHAR  SHFindMnemonic(LPCTSTR psz);
+BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
+inline BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
+DWORD Mirror_SetLayout(HDC hdc, DWORD dwLayout);
+HRESULT VariantChangeTypeForRead(VARIANT* pvar, VARTYPE vtDesired);
+BOOL GetExplorerUserSetting(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue);
+HRESULT SHBindToObjectEx(IShellFolder* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut);
+HRESULT SHLoadLegacyRegUIString(HKEY hk, LPCTSTR pszSubkey, LPTSTR pszOutBuf, UINT cchOutBuf);
+HRESULT SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut);
+void  SHReValidateDarwinCache();
+HRESULT DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPWSTR* ppsz);
+LPITEMIDLIST ILCloneParent(LPCITEMIDLIST pidl);
+HRESULT SHGetIDListFromUnk(IUnknown* punk, LPITEMIDLIST* ppidl);
+void _SHPrettyMenu(HMENU hm);
+HRESULT DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal);
+BOOL GetInfoTip(IShellFolder* psf, LPCITEMIDLIST pidl, LPTSTR pszText, int cchTextMax);
+HRESULT SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void** ppv);
+
+
+
+
 typedef struct {
     TCHAR szSubkey[MAX_PATH];
     TCHAR szValueName[MAX_PATH];
@@ -989,20 +990,20 @@ typedef struct {
 } REGAPP_INFO;
 
 // legacy from ripping this code out of explorer\initcab.cpp
-extern BOOL g_fCleanBoot;   // are we running in SAFE-MODE?
-extern BOOL g_fEndSession;  // did we process a WM_ENDSESSION?
+inline BOOL g_fCleanBoot;   // are we running in SAFE-MODE?
+inline BOOL g_fEndSession;  // did we process a WM_ENDSESSION?
 
 
 typedef BOOL(WINAPI* PFNREGAPPSCALLBACK)(LPCTSTR szSubkey, LPCTSTR szCmdLine, RRA_FLAGS fFlags, LPARAM lParam);
 
 
-STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags);
-STDAPI_(BOOL) Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS fFlags, PFNREGAPPSCALLBACK pfnCallback, LPARAM lParam);
-STDAPI_(BOOL) ExecuteRegAppEnumProc(LPCTSTR szSubkey, LPCTSTR szCmdLine, RRA_FLAGS fFlags, LPARAM lParam);
+BOOL ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags);
+BOOL Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS fFlags, PFNREGAPPSCALLBACK pfnCallback, LPARAM lParam);
+BOOL ExecuteRegAppEnumProc(LPCTSTR szSubkey, LPCTSTR szCmdLine, RRA_FLAGS fFlags, LPARAM lParam);
 
-STDAPI_(BOOL) SHSetTermsrvAppInstallMode(BOOL bState);
+BOOL SHSetTermsrvAppInstallMode(BOOL bState);
 
-extern BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags);
+inline BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags);
 
 
 #define GMI_DOCKSTATE           0x0000
@@ -1010,23 +1011,24 @@ extern BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hS
 #define GMID_NOTDOCKABLE         0  // Cannot be docked
 #define GMID_UNDOCKED            1  // Is undocked
 #define GMID_DOCKED              2  // Is docked
-extern DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi);
+inline DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi);
 
-extern BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce);
+inline BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce);
 
 BOOL IsBiDiLocalizedSystem(void);
 BOOL Mirror_IsWindowMirroredRTL(HWND hWnd);
 
 VOID MuSecurity(VOID);
 
-STDAPI_(LPNMVIEWFOLDER) DDECreatePostNotify(LPNMVIEWFOLDER pnm);
+LPNMVIEWFOLDER DDECreatePostNotify(LPNMVIEWFOLDER pnm);
 
-inline unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft);
-inline void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64);
-inline void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
-inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
+unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft);
+void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64);
+void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
+void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust);
 
-__inline CHAR CharUpperCharA(CHAR c);
+CHAR CharUpperCharA(CHAR c);
+WCHAR CharUpperCharW(WCHAR c);
 
 typedef HANDLE LPSHChangeNotificationLock;
 typedef INT_PTR BOOL_PTR;
@@ -1127,12 +1129,12 @@ typedef enum tagWALK_TREE_CMD
 } WALK_TREE_CMD;
 
 
-WINSHELLAPI BOOL WINAPI SHWinHelp(HWND hwndMain, LPCSTR lpszHelp, UINT usCommand, DWORD ulData);
-STDAPI_(PCIDHIDDEN) ILFindHiddenIDOn(LPCITEMIDLIST pidl, IDLHID id, BOOL fOnLast);
+BOOL WINAPI SHWinHelp(HWND hwndMain, LPCTSTR lpszHelp, UINT usCommand, ULONG_PTR ulData);
+PCIDHIDDEN ILFindHiddenIDOn(LPCITEMIDLIST pidl, IDLHID id, BOOL fOnLast);
 #define ILFindHiddenID(p, i)    ILFindHiddenIDOn((p), (i), TRUE)
-STDAPI_(void) ILExpungeRemovedHiddenIDs(LPITEMIDLIST pidl);
-STDAPI_(BOOL) ILRemoveHiddenID(LPITEMIDLIST pidl, IDLHID id);
-STDAPI_(LPITEMIDLIST) ILAppendHiddenID(LPITEMIDLIST pidl, PCIDHIDDEN pidhid);
+void ILExpungeRemovedHiddenIDs(LPITEMIDLIST pidl);
+BOOL ILRemoveHiddenID(LPITEMIDLIST pidl, IDLHID id);
+LPITEMIDLIST ILAppendHiddenID(LPITEMIDLIST pidl, PCIDHIDDEN pidhid);
 
 enum
 {
@@ -1144,14 +1146,14 @@ enum
 };
 #define XLATEALIAS_ALL  ((DWORD)0x0000ffff)
 #define SHID_FS_COMMONITEM        0x38  // Common item ("8" is the bit)
-STDAPI_(LPITEMIDLIST) SHLogILFromFSIL(LPCITEMIDLIST pidlFS);
+LPITEMIDLIST SHLogILFromFSIL(LPCITEMIDLIST pidlFS);
 
 #define LVM_KEYBOARDSELECTED    (LVM_FIRST + 178)
 #define ListView_KeyboardSelected(hwnd, i) \
     (BOOL)SNDMSG((hwnd), LVM_KEYBOARDSELECTED, (WPARAM)(i), 0)
-STDAPI ContextMenu_GetCommandStringVerb(IContextMenu* pcm, UINT idCmd, LPWSTR pszVerb, int cchVerb);
-STDAPI_(UINT) GetMenuIndexForCanonicalVerb(HMENU hMenu, IContextMenu* pcm, UINT idCmdFirst, LPCWSTR pwszVerb);
-STDAPI ContextMenu_DeleteCommandByName(IContextMenu* pcm, HMENU hpopup, UINT idFirst, LPCWSTR pszCommand);
+HRESULT ContextMenu_GetCommandStringVerb(IContextMenu* pcm, UINT idCmd, LPWSTR pszVerb, int cchVerb);
+UINT GetMenuIndexForCanonicalVerb(HMENU hMenu, IContextMenu* pcm, UINT idCmdFirst, LPCWSTR pwszVerb);
+HRESULT ContextMenu_DeleteCommandByName(IContextMenu* pcm, HMENU hpopup, UINT idFirst, LPCWSTR pszCommand);
 enum {
     OBJCOMPATF_OTNEEDSSFCACHE = 0x00000001,
     OBJCOMPATF_NO_WEBVIEW = 0x00000002,
@@ -1214,11 +1216,15 @@ typedef struct {
 } FLAGMAP;
 typedef DWORD OBJCOMPATFLAGS;
 
-STDAPI SHGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UINT cchName, DWORD* pdwAttribs);
-STDAPI DisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPTSTR psz, UINT cch);
+HRESULT SHGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UINT cchName, DWORD* pdwAttribs);
+HRESULT DisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPTSTR psz, UINT cch);
 #define SHGetAttributesOf(pidl, prgfInOut) SHGetNameAndFlags(pidl, 0, NULL, 0, prgfInOut)
 #define ToolBar_CommandToIndex(hwnd, idBtn)  \
     (BOOL)SNDMSG((hwnd), TB_COMMANDTOINDEX, (WPARAM)(idBtn), 0)
+
+
+BOOL SHRunControlPanelCustom(PCWSTR lpcszCmdLine, HWND hwndMsgParent);
+
 //
 // Function loader
 //
@@ -1226,7 +1232,8 @@ bool SHUndocInit(void);
 
 const CLSID CLSID_TrayNotify = { 0x25DEAD04, 0x1EAC, 0x4911,{ 0x9E, 0x3A, 0xAD, 0x0A, 0x4A, 0xB5, 0x60, 0xFD } };
 const CLSID CLSID_FadeTask = { 0x7EB5FBE4, 0x2100, 0x49E6, { 0x85, 0x93, 0x17, 0xE1, 0x30, 0x12, 0x2F, 0x91} };
-DEFINE_GUID(IID_IShellService, 0x5836FB00L, 0x8187, 0x11CF, 0xA1, 0x2B, 0x00, 0xAA, 0x00, 0x4A, 0xE8, 0x37);
-EXTERN_C const IID IID_IAssociationElement;
+//DEFINE_GUID(IID_IShellService, 0x5836FB00L, 0x8187, 0x11CF, 0xA1, 0x2B, 0x00, 0xAA, 0x00, 0x4A, 0xE8, 0x37);
+
+DEFINE_GUID(IID_IAssociationElement, 0xD8F6AD5B, 0xB44F, 0x4BCC, 0x88, 0xFD, 0xEB, 0x34, 0x73, 0xDB, 0x75, 0x02);
 
 #include "interfacesp.inc"

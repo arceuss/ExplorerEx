@@ -1,3 +1,4 @@
+#define INITGUID
 //+-------------------------------------------------------------------------
 //
 //  TaskMan - NT TaskManager
@@ -10,7 +11,7 @@
 //
 //--------------------------------------------------------------------------
 #include "shundoc.h"
-#include "Windows.h"
+#include <windows.h>
 
 #include "docobj.h"
 
@@ -185,15 +186,15 @@ public:
 // Function definitions
 // 
 
-HRESULT(STDMETHODCALLTYPE* IUnknown_Exec)(IUnknown* punk, const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut) = nullptr;
-HRESULT(STDMETHODCALLTYPE* IUnknown_GetClassID)(IUnknown* punk, CLSID* pclsid) = nullptr;
-HRESULT(STDMETHODCALLTYPE* IUnknown_OnFocusChangeIS)(IUnknown* punk, IUnknown* punkSrc, BOOL fSetFocus) = nullptr;
-HRESULT(STDMETHODCALLTYPE* IUnknown_QueryStatus)(IUnknown* punk, const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext) = nullptr;
-HRESULT(STDMETHODCALLTYPE* IUnknown_UIActivateIO)(IUnknown* punk, BOOL fActivate, LPMSG lpMsg) = nullptr;
-HRESULT(STDMETHODCALLTYPE* IUnknown_TranslateAcceleratorIO)(IUnknown* punk, LPMSG lpMsg) = nullptr;
+//HRESULT(STDMETHODCALLTYPE* IUnknown_Exec)(IUnknown* punk, const GUID* pguidCmdGroup, DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut) = nullptr;
+//HRESULT(STDMETHODCALLTYPE* IUnknown_GetClassID)(IUnknown* punk, CLSID* pclsid) = nullptr;
+//HRESULT(STDMETHODCALLTYPE* IUnknown_OnFocusChangeIS)(IUnknown* punk, IUnknown* punkSrc, BOOL fSetFocus) = nullptr;
+//HRESULT(STDMETHODCALLTYPE* IUnknown_QueryStatus)(IUnknown* punk, const GUID* pguidCmdGroup, ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext) = nullptr;
+//HRESULT(STDMETHODCALLTYPE* IUnknown_UIActivateIO)(IUnknown* punk, BOOL fActivate, LPMSG lpMsg) = nullptr;
+//HRESULT(STDMETHODCALLTYPE* IUnknown_TranslateAcceleratorIO)(IUnknown* punk, LPMSG lpMsg) = nullptr;
 
 
-STDAPI IUnknown_DragEnter(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
+HRESULT IUnknown_DragEnter(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
     HRESULT hr = E_FAIL;
     if (punk)
@@ -213,7 +214,7 @@ STDAPI IUnknown_DragEnter(IUnknown* punk, IDataObject* pdtobj, DWORD grfKeyState
     return hr;
 }
 
-STDAPI IUnknown_DragLeave(IUnknown* punk)
+HRESULT IUnknown_DragLeave(IUnknown* punk)
 {
     HRESULT hr = E_FAIL;
     if (punk)
@@ -229,7 +230,7 @@ STDAPI IUnknown_DragLeave(IUnknown* punk)
     return hr;
 }
 
-STDAPI IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
+HRESULT IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
     HRESULT hr = E_FAIL;
     if (punk)
@@ -250,38 +251,38 @@ STDAPI IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* pd
 }
 
 
-HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg, WPARAM wParam, LPARAM lParam, int iFlags);
-HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen);
-HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
-HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue);
-HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient);
-HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem) ;
-HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam) ;
-HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd) ;
-HRESULT(STDMETHODCALLTYPE* SHLoadRegUIStringW)(HKEY     hkey, LPCWSTR  pszValue, LPWSTR   pszOutBuf, UINT     cchOutBuf) ;
-HWND(STDMETHODCALLTYPE* SHCreateWorkerWindowW)(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void* p) ;
-BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags) ;
-BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength) ;
-BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd) ;
-BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile) ;
-BOOL(STDMETHODCALLTYPE* SHTestTokenPrivilegeW)(HANDLE hToken, LPCWSTR pszPrivilegeName) ;
-LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) ;
-UINT(WINAPI* MsiDecomposeDescriptorW)(LPCWSTR	szDescriptor, LPWSTR szProductCode, LPWSTR szFeatureId, LPWSTR szComponentCode, DWORD* pcchArgsOffset) ;
-HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) ;
-UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) ;
-UINT(WINAPI* ImageList_GetFlags)(HIMAGELIST himl) ;
-INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal) ;
-INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags) ;
-VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)() ;
-VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent) ;
-VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent) ;
-BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall) ;
-DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi) ;
-HMENU(STDMETHODCALLTYPE* SHGetMenuFromID)(HMENU hmMain, UINT uID) ;
+//HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg, WPARAM wParam, LPARAM lParam, int iFlags);
+//HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen);
+//HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
+//HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue);
+//HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient);
+//HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem) ;
+//HRESULT(STDMETHODCALLTYPE* SHSettingsChanged)(WPARAM wParam, LPARAM lParam) ;
+//HRESULT(STDMETHODCALLTYPE* SHIsChildOrSelf)(HWND hwndParent, HWND hwnd) ;
+//HRESULT(STDMETHODCALLTYPE* SHLoadRegUIStringW)(HKEY     hkey, LPCWSTR  pszValue, LPWSTR   pszOutBuf, UINT     cchOutBuf) ;
+//HWND(STDMETHODCALLTYPE* SHCreateWorkerWindowW)(WNDPROC pfnWndProc, HWND hwndParent, DWORD dwExStyle, DWORD dwFlags, HMENU hmenu, void* p) ;
+//BOOL(WINAPI* SHQueueUserWorkItem)(IN LPTHREAD_START_ROUTINE pfnCallback, IN LPVOID pContext, IN LONG lPriority, IN DWORD_PTR dwTag, OUT DWORD_PTR* pdwId OPTIONAL, IN LPCSTR pszModule OPTIONAL, IN DWORD dwFlags) ;
+//BOOL(WINAPI* WinStationSetInformationW)(HANDLE hServer, ULONG LogonId, WINSTATIONINFOCLASS WinStationInformationClass, PVOID  pWinStationInformation, ULONG WinStationInformationLength) ;
+//BOOL(WINAPI* WinStationUnRegisterConsoleNotification)(HANDLE hServer, HWND hWnd) ;
+//BOOL(STDMETHODCALLTYPE* SHFindComputer)(LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlSaveFile) ;
+//BOOL(STDMETHODCALLTYPE* SHTestTokenPrivilegeW)(HANDLE hToken, LPCWSTR pszPrivilegeName) ;
+//LRESULT(WINAPI* SHDefWindowProc)(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) ;
+//UINT(WINAPI* MsiDecomposeDescriptorW)(LPCWSTR	szDescriptor, LPWSTR szProductCode, LPWSTR szFeatureId, LPWSTR szComponentCode, DWORD* pcchArgsOffset) ;
+//HRESULT(STDMETHODCALLTYPE* ExitWindowsDialog)(HWND hwndParent) ;
+//UINT(STDMETHODCALLTYPE* SHGetCurColorRes)(void) ;
+//UINT(WINAPI* ImageList_GetFlags)(HIMAGELIST himl) ;
+//INT(STDMETHODCALLTYPE* SHMessageBoxCheckExW)(HWND hwnd, HINSTANCE hinst, LPCWSTR pszTemplateName, DLGPROC pDlgProc, LPVOID pData, int iDefault, LPCWSTR pszRegVal) ;
+//INT(STDMETHODCALLTYPE* RunFileDlg)(HWND hwndParent, HICON hIcon, LPCTSTR pszWorkingDir, LPCTSTR pszTitle, LPCTSTR pszPrompt, DWORD dwFlags) ;
+//VOID(STDMETHODCALLTYPE* SHUpdateRecycleBinIcon)() ;
+//VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent) ;
+//VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent) ;
+//BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall) ;
+//DWORD_PTR(WINAPI* SHGetMachineInfo)(UINT gmi) ;
+//HMENU(STDMETHODCALLTYPE* SHGetMenuFromID)(HMENU hmMain, UINT uID) ;
 
-COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color) ;
+//COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color) ;
 
-BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags) ;
+//BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags) ;
 
 // SHRegisterDarwinLink takes ownership of the pidl
 
@@ -392,7 +393,7 @@ BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdat
     return fRetVal;
 }
 
-STDAPI SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut)
+HRESULT SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut)
 {
     HRESULT hr = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 
@@ -416,7 +417,7 @@ STDAPI SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut)
     return hr;
 }
 
-STDAPI_(void) SHReValidateDarwinCache()
+void SHReValidateDarwinCache()
 {
     if (g_hdpaDarwinAds)
     {
@@ -435,7 +436,7 @@ STDAPI_(void) SHReValidateDarwinCache()
 }
 
 
-STDAPI DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPWSTR* ppsz)
+HRESULT DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPWSTR* ppsz)
 {
     *ppsz = NULL;
     STRRET sr;
@@ -445,7 +446,7 @@ STDAPI DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags,
     return hr;
 }
 
-STDAPI_(LPITEMIDLIST) ILCloneParent(LPCITEMIDLIST pidl)
+LPITEMIDLIST ILCloneParent(LPCITEMIDLIST pidl)
 {
     LPITEMIDLIST pidlParent = ILClone(pidl);
     if (pidlParent)
@@ -454,7 +455,7 @@ STDAPI_(LPITEMIDLIST) ILCloneParent(LPCITEMIDLIST pidl)
     return pidlParent;
 }
 
-STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf)
+void SHAdjustLOGFONT(IN OUT LOGFONT* plf)
 {
     if (plf->lfCharSet == SHIFTJIS_CHARSET ||
         plf->lfCharSet == HANGEUL_CHARSET ||
@@ -466,7 +467,7 @@ STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf)
     }
 }
 
-STDAPI_(BOOL) _SHIsMenuSeparator2(HMENU hm, int i, BOOL* pbIsNamed)
+BOOL _SHIsMenuSeparator2(HMENU hm, int i, BOOL* pbIsNamed)
 {
     MENUITEMINFO mii;
     BOOL bLocal;
@@ -491,7 +492,7 @@ STDAPI_(BOOL) _SHIsMenuSeparator2(HMENU hm, int i, BOOL* pbIsNamed)
     return FALSE;
 }
 
-STDAPI_(void) _SHPrettyMenu(HMENU hm)
+void _SHPrettyMenu(HMENU hm)
 {
     BOOL bSeparated = TRUE;
     BOOL bWasNamed = TRUE;
@@ -535,7 +536,7 @@ STDAPI_(void) _SHPrettyMenu(HMENU hm)
     }
 }
 
-STDAPI SHGetIDListFromUnk(IUnknown* punk, LPITEMIDLIST* ppidl)
+HRESULT SHGetIDListFromUnk(IUnknown* punk, LPITEMIDLIST* ppidl)
 {
     *ppidl = NULL;
 
@@ -561,7 +562,7 @@ STDAPI SHGetIDListFromUnk(IUnknown* punk, LPITEMIDLIST* ppidl)
 // moved to runonce.cpp
 
 
-STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask)
+DWORD SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask)
 {
     DWORD dwEndTime = GetTickCount() + dwTimeout;
     LONG lWait = (LONG)dwTimeout;
@@ -612,7 +613,7 @@ STDAPI_(DWORD) SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwT
 // Determine if the images represented by the two icons are the same
 // (NOTE: this does not compare ICON masks, but this should never be a distinguishing factor)
 //
-STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2)
+BOOL SHAreIconsEqual(HICON hIcon1, HICON hIcon2)
 {
     BOOL bRet = FALSE;
 
@@ -674,7 +675,7 @@ STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2)
 }
 
 
-STDAPI SHLoadLegacyRegUIString(HKEY hk, LPCTSTR pszSubkey, LPTSTR pszOutBuf, UINT cchOutBuf)
+HRESULT SHLoadLegacyRegUIString(HKEY hk, LPCTSTR pszSubkey, LPTSTR pszOutBuf, UINT cchOutBuf)
 {
     HKEY hkClose = NULL;
 
@@ -705,7 +706,7 @@ STDAPI SHLoadLegacyRegUIString(HKEY hk, LPCTSTR pszSubkey, LPTSTR pszOutBuf, UIN
     return hr;
 }
 
-STDAPI SHBindToObjectEx(IShellFolder* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut)
+HRESULT SHBindToObjectEx(IShellFolder* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut)
 {
     HRESULT hr;
     IShellFolder* psfRelease;
@@ -751,7 +752,7 @@ STDAPI SHBindToObjectEx(IShellFolder* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID 
     return hr;
 }
 
-STDAPI_(BOOL) SetWindowZorder(HWND hwnd, HWND hwndInsertAfter)
+BOOL SetWindowZorder(HWND hwnd, HWND hwndInsertAfter)
 {
     return SetWindowPos(hwnd, hwndInsertAfter, 0, 0, 0, 0,
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER);
@@ -775,7 +776,7 @@ BOOL CALLBACK _FixZorderEnumProc(HWND hwnd, LPARAM lParam)
     return TRUE;
 }
 
-STDAPI SHCoInitialize(void)
+HRESULT SHCoInitialize(void)
 {
     HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
     if (FAILED(hr))
@@ -785,7 +786,7 @@ STDAPI SHCoInitialize(void)
     return hr;
 }
 
-STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2)
+BOOL SHIsSameObject(IUnknown* punk1, IUnknown* punk2)
 {
     if (!punk1 || !punk2)
     {
@@ -800,8 +801,8 @@ STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2)
     }
     else
     {
-        IUnknown* punkI1;
-        IUnknown* punkI2;
+        IUnknown* punkI1 = nullptr;
+        IUnknown* punkI2 = nullptr;
 
         // Some apps don't implement QueryInterface! (SecureFile)
         HRESULT hr = punk1->QueryInterface(IID_PPV_ARG(IUnknown, &punkI1));
@@ -839,7 +840,7 @@ BOOL GetExplorerUserSetting(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue)
 }
 
 
-STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter)
+BOOL SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter)
 {
     BOOL fRet = SetWindowZorder(hwnd, hwndInsertAfter);
 
@@ -875,22 +876,22 @@ STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter)
     return fRet;
 }
 
-BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce) = nullptr;
+//BOOL(WINAPI* EndTask)(HWND hWnd, BOOL fShutDown, BOOL fForce) = nullptr;
 
 #define FILETIMEtoInt64(ft) _FILETIMEtoInt64(&(ft))
 
-inline void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64)
+void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64)
 {
     pft->dwLowDateTime = (DWORD)i64;
     pft->dwHighDateTime = (DWORD)(i64 >> 32);
 }
 
-inline void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust)
+void IncrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust)
 {
     SetFILETIMEfromInt64(pft, _FILETIMEtoInt64(pft) + iAdjust);
 }
 
-inline void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust)
+void DecrementFILETIME(FILETIME* pft, unsigned __int64 iAdjust)
 {
     SetFILETIMEfromInt64(pft, _FILETIMEtoInt64(pft) - iAdjust);
 }
@@ -1057,7 +1058,7 @@ BOOL IsBiDiLocalizedSystem(void)
 }
 
 
-STDAPI_(BOOL) IsRestrictedOrUserSetting(HKEY hkeyRoot, RESTRICTIONS rest, LPCTSTR pszSubKey, LPCTSTR pszValue, UINT flags)
+BOOL IsRestrictedOrUserSetting(HKEY hkeyRoot, RESTRICTIONS rest, LPCTSTR pszSubKey, LPCTSTR pszValue, UINT flags)
 {
     // See if the system policy restriction trumps
 
@@ -1134,21 +1135,77 @@ TCHAR const c_szGetDescription[] = TEXT("GetDescription");
 TCHAR const c_szGetWorkingDir[] = TEXT("GetWorkingDir");
 TCHAR const c_szShellFile[] = TEXT("ShellFile");
 
-BOOL DDE_CreateGroup(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_ShowGroup(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_AddItem(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_ExitProgman(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_DeleteGroup(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_DeleteItem(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_CreateGroup(LPTSTR, UINT*, PDDECONV)
+{
+    //MUST IMPLEMENT
+    return 0;
+}
+BOOL DDE_ShowGroup(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_AddItem(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_ExitProgman(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_DeleteGroup(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_DeleteItem(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
 #define DDE_ReplaceItem DDE_DeleteItem
-BOOL DDE_Reload(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_ViewFolder(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_ExploreFolder(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_FindFolder(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_OpenFindFile(LPTSTR, UINT*, PDDECONV);
-BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec);
-BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec);
-BOOL DDE_Beep(LPTSTR, UINT*, PDDECONV);
+BOOL DDE_Reload(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_ViewFolder(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_ExploreFolder(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_FindFolder(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_OpenFindFile(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
+BOOL DDE_Beep(LPTSTR, UINT*, PDDECONV)
+{
+	//MUST IMPLEMENT
+	return 0;
+}
 
 DDECOMMANDINFO const c_sDDECommands[] =
 {
@@ -1217,7 +1274,7 @@ LPTSTR GetCommandName(LPTSTR lpCmd, const DDECOMMANDINFO* lpsCommands, UINT* lpW
     return(lpCmd);
 }
 
-STDAPI VariantChangeTypeForRead(VARIANT* pvar, VARTYPE vtDesired)
+HRESULT VariantChangeTypeForRead(VARIANT* pvar, VARTYPE vtDesired)
 {
     HRESULT hr = S_OK;
 
@@ -1486,7 +1543,7 @@ GDEErrExit:
     return(0);
 }
 
-STDAPI_(LPNMVIEWFOLDER) DDECreatePostNotify(LPNMVIEWFOLDER pnm)
+LPNMVIEWFOLDER DDECreatePostNotify(LPNMVIEWFOLDER pnm)
 {
     LPNMVIEWFOLDER pnmPost = NULL;
     TCHAR szCmd[MAX_PATH * 2];
@@ -1619,7 +1676,7 @@ LPITEMIDLIST GetPIDLFromDDEArgs(LPTSTR lpszBuf, UINT* lpwCmd, PSHDDEERR psde, LP
     return pidl;
 }
 
-STDAPI_(BOOL) DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWFOLDER pnm)
+BOOL DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWFOLDER pnm)
 {
     BOOL fRet = FALSE;
     UINT* pwCmd = GetDDECommands(pnm->szCmd, c_sDDECommands, FALSE);
@@ -1649,7 +1706,7 @@ STDAPI_(BOOL) DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWF
     return fRet;
 }
 
-STDAPI_(TCHAR) SHFindMnemonic(LPCTSTR psz)
+TCHAR SHFindMnemonic(LPCTSTR psz)
 {
     ASSERT(psz);
     TCHAR tchDefault = *psz;                // Default is first character
@@ -1673,14 +1730,19 @@ STDAPI_(TCHAR) SHFindMnemonic(LPCTSTR psz)
     return tchDefault;
 }
 
-STDAPI SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast)
+HRESULT SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITEMIDLIST* ppidlLast)
 {
     return SHBindToFolderIDListParent(NULL, pidl, riid, ppv, ppidlLast);
 }
 
-__inline CHAR CharUpperCharA(CHAR c)
+CHAR CharUpperCharA(CHAR c)
 {
     return (CHAR)(DWORD_PTR)CharUpperA((LPSTR)(DWORD_PTR)(c));
+}
+
+WCHAR CharUpperCharW(WCHAR c)
+{
+    return (WCHAR)(DWORD_PTR)CharUpperW((LPWSTR)(DWORD_PTR)(c));
 }
 
 //  the last word of the pidl is where we store the hidden offset
@@ -1688,7 +1750,7 @@ __inline CHAR CharUpperCharA(CHAR c)
 #define _ILSetHiddenOffset(pidl, cb)   ((*((WORD UNALIGNED *)(((BYTE *)_ILNext(pidl)) - sizeof(WORD)))) = (WORD)cb)
 #define _ILIsHidden(pidhid)     (HIWORD(pidhid->id) == HIWORD(IDLHID_EMPTY))
 
-STDAPI_(PCIDHIDDEN) _ILNextHidden(PCIDHIDDEN pidhid, LPCITEMIDLIST pidlLimit)
+PCIDHIDDEN _ILNextHidden(PCIDHIDDEN pidhid, LPCITEMIDLIST pidlLimit)
 {
     PCIDHIDDEN pidhidNext = (PCIDHIDDEN)_ILNext((LPCITEMIDLIST)pidhid);
 
@@ -1703,7 +1765,7 @@ STDAPI_(PCIDHIDDEN) _ILNextHidden(PCIDHIDDEN pidhid, LPCITEMIDLIST pidlLimit)
     ASSERT((BYTE*)pidhidNext == (BYTE*)pidlLimit);
     return NULL;
 }
-STDAPI_(PCIDHIDDEN) _ILFirstHidden(LPCITEMIDLIST pidl)
+PCIDHIDDEN _ILFirstHidden(LPCITEMIDLIST pidl)
 {
     WORD cbHidden = _ILHiddenOffset(pidl);
 
@@ -1726,7 +1788,7 @@ STDAPI_(PCIDHIDDEN) _ILFirstHidden(LPCITEMIDLIST pidl)
     return NULL;
 }
 
-STDAPI_(PCIDHIDDEN) ILFindHiddenIDOn(LPCITEMIDLIST pidl, IDLHID id, BOOL fOnLast)
+PCIDHIDDEN ILFindHiddenIDOn(LPCITEMIDLIST pidl, IDLHID id, BOOL fOnLast)
 {
     if (!ILIsEmpty(pidl))
     {
@@ -1753,7 +1815,7 @@ STDAPI_(PCIDHIDDEN) ILFindHiddenIDOn(LPCITEMIDLIST pidl, IDLHID id, BOOL fOnLast
     return NULL;
 }
 
-STDAPI_(BOOL) ILRemoveHiddenID(LPITEMIDLIST pidl, IDLHID id)
+BOOL ILRemoveHiddenID(LPITEMIDLIST pidl, IDLHID id)
 {
     PIDHIDDEN pidhid = (PIDHIDDEN)ILFindHiddenID(pidl, id);
 
@@ -1765,7 +1827,7 @@ STDAPI_(BOOL) ILRemoveHiddenID(LPITEMIDLIST pidl, IDLHID id)
     return FALSE;
 }
 
-STDAPI_(void) ILExpungeRemovedHiddenIDs(LPITEMIDLIST pidl)
+void ILExpungeRemovedHiddenIDs(LPITEMIDLIST pidl)
 {
     if (pidl)
     {
@@ -1791,7 +1853,7 @@ STDAPI_(void) ILExpungeRemovedHiddenIDs(LPITEMIDLIST pidl)
     }
 }
 
-STDAPI ILCloneWithHiddenID(LPCITEMIDLIST pidl, PCIDHIDDEN pidhid, LPITEMIDLIST* ppidl)
+HRESULT ILCloneWithHiddenID(LPCITEMIDLIST pidl, PCIDHIDDEN pidhid, LPITEMIDLIST* ppidl)
 {
     HRESULT hr;
 
@@ -1846,7 +1908,7 @@ STDAPI ILCloneWithHiddenID(LPCITEMIDLIST pidl, PCIDHIDDEN pidhid, LPITEMIDLIST* 
     return hr;
 }
 
-STDAPI_(LPITEMIDLIST) ILAppendHiddenID(LPITEMIDLIST pidl, PCIDHIDDEN pidhid)
+LPITEMIDLIST ILAppendHiddenID(LPITEMIDLIST pidl, PCIDHIDDEN pidhid)
 {
     //
     // FEATURE - we dont handle collisions of multiple hidden ids
@@ -1866,7 +1928,7 @@ STDAPI_(LPITEMIDLIST) ILAppendHiddenID(LPITEMIDLIST pidl, PCIDHIDDEN pidhid)
     return pidl;
 }
 
-STDAPI SHILCombine(LPCITEMIDLIST pidl1, LPCITEMIDLIST pidl2, LPITEMIDLIST* ppidlOut)
+HRESULT SHILCombine(LPCITEMIDLIST pidl1, LPCITEMIDLIST pidl2, LPITEMIDLIST* ppidlOut)
 {
     *ppidlOut = ILCombine(pidl1, pidl2);
     return *ppidlOut ? S_OK : E_OUTOFMEMORY;
@@ -1924,19 +1986,19 @@ BOOL _ReparentAliases(HWND hwnd, HANDLE hToken, LPCITEMIDLIST pidl, LPITEMIDLIST
 }
 
 
-STDAPI SHILAliasTranslate(LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlAlias, DWORD dwXlateAliases)
+HRESULT SHILAliasTranslate(LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlAlias, DWORD dwXlateAliases)
 {
     return _ReparentAliases(NULL, NULL, pidl, ppidlAlias, dwXlateAliases) ? S_OK : E_FAIL;
 }
 
-STDAPI_(LPITEMIDLIST) SHLogILFromFSIL(LPCITEMIDLIST pidlFS)
+LPITEMIDLIST SHLogILFromFSIL(LPCITEMIDLIST pidlFS)
 {
     LPITEMIDLIST pidlOut;
     SHILAliasTranslate(pidlFS, &pidlOut, XLATEALIAS_ALL); // will set pidlOut=NULL on failure
     return pidlOut;
 }
 
-STDAPI DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal)
+HRESULT DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal)
 {
     FORMATETC fmte = { (CLIPFORMAT)cf, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
     STGMEDIUM medium = { 0 };
@@ -1949,13 +2011,13 @@ STDAPI DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal)
     return pdtobj->SetData(&fmte, &medium, TRUE);
 }
 
-STDAPI_(BOOL) GetInfoTip(IShellFolder* psf, LPCITEMIDLIST pidl, LPTSTR pszText, int cchTextMax)
+BOOL GetInfoTip(IShellFolder* psf, LPCITEMIDLIST pidl, LPTSTR pszText, int cchTextMax)
 {
     *pszText = 0;
     return FALSE;
 }
 
-STDAPI SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void** ppv)
+HRESULT SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void** ppv)
 {
     *ppv = NULL;
 
@@ -1975,7 +2037,7 @@ STDAPI SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, voi
 //
 // This is a helper function for finding a specific verb's index in a context menu
 //
-STDAPI_(UINT) GetMenuIndexForCanonicalVerb(HMENU hMenu, IContextMenu* pcm, UINT idCmdFirst, LPCWSTR pwszVerb)
+UINT GetMenuIndexForCanonicalVerb(HMENU hMenu, IContextMenu* pcm, UINT idCmdFirst, LPCWSTR pwszVerb)
 {
     int cMenuItems = GetMenuItemCount(hMenu);
     int iItem;
@@ -2027,7 +2089,7 @@ STDAPI_(UINT) GetMenuIndexForCanonicalVerb(HMENU hMenu, IContextMenu* pcm, UINT 
     return iItem;
 }
 
-STDAPI ContextMenu_GetCommandStringVerb(IContextMenu* pcm, UINT idCmd, LPWSTR pszVerb, int cchVerb)
+HRESULT ContextMenu_GetCommandStringVerb(IContextMenu* pcm, UINT idCmd, LPWSTR pszVerb, int cchVerb)
 {
     // Ulead SmartSaver Pro has a 60 character verb, and 
     // over writes out stack, ignoring the cch param and we fault. 
@@ -2057,7 +2119,7 @@ STDAPI ContextMenu_GetCommandStringVerb(IContextMenu* pcm, UINT idCmd, LPWSTR ps
     return hr;
 }
 
-STDAPI ContextMenu_DeleteCommandByName(IContextMenu* pcm, HMENU hpopup, UINT idFirst, LPCWSTR pszCommand)
+HRESULT ContextMenu_DeleteCommandByName(IContextMenu* pcm, HMENU hpopup, UINT idFirst, LPCWSTR pszCommand)
 {
     UINT ipos = GetMenuIndexForCanonicalVerb(hpopup, pcm, idFirst, pszCommand);
     if (ipos != -1)
@@ -2128,7 +2190,7 @@ typedef struct _CLSIDCOMPAT
     OBJCOMPATFLAGS flags;
 }CLSIDCOMPAT, * PCLSIDCOMPAT;
 
-STDAPI_(OBJCOMPATFLAGS) SHGetObjectCompatFlags(IUnknown* punk, const CLSID* pclsid)
+OBJCOMPATFLAGS SHGetObjectCompatFlags(IUnknown* punk, const CLSID* pclsid)
 {
     HRESULT hr = E_INVALIDARG;
     OBJCOMPATFLAGS ocf = 0;
@@ -2213,7 +2275,7 @@ STDAPI_(OBJCOMPATFLAGS) SHGetObjectCompatFlags(IUnknown* punk, const CLSID* pcls
 //      goofy cast for 1 item case
 //      masks off results to only return what you asked for
 
-STDAPI_(DWORD) SHGetAttributes(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD dwAttribs)
+DWORD SHGetAttributes(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD dwAttribs)
 {
     // like SHBindToObject, if psf is NULL, use absolute pidl
     LPCITEMIDLIST pidlChild;
@@ -2251,7 +2313,7 @@ STDAPI_(DWORD) SHGetAttributes(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD dwAt
     return dw;
 }
 
-STDAPI DisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPTSTR psz, UINT cch)
+HRESULT DisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPTSTR psz, UINT cch)
 {
     *psz = 0;
     STRRET sr;
@@ -2268,7 +2330,7 @@ STDAPI DisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPTSTR 
 // in/out:
 //      *pdwAttribs (optional) return flags
 
-STDAPI SHGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UINT cchName, DWORD* pdwAttribs)
+HRESULT SHGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UINT cchName, DWORD* pdwAttribs)
 {
     if (pszName)
     {
@@ -2319,7 +2381,7 @@ if (!FUNCTION)                                                               \
 if (!FUNCNAME)                                                                    \
 	return false;
 
-STDAPI_(BOOL) SHWinHelp(HWND hwndMain, LPCTSTR lpszHelp, UINT usCommand, ULONG_PTR ulData)
+BOOL SHWinHelp(HWND hwndMain, LPCTSTR lpszHelp, UINT usCommand, ULONG_PTR ulData)
 {
     // Try to show help
     if (!WinHelp(hwndMain, lpszHelp, usCommand, ulData))
@@ -2342,7 +2404,7 @@ typedef BOOL(*PFNGETTERMSRVCOMPATFLAGSEX)(LPWSTR pwszApp, DWORD* pdwFlags, TERMS
 
 // even though this function is in kernel32.lib, we need to have a LoadLibrary/GetProcAddress 
 // thunk for downlevel components who include this
-STDAPI_(BOOL) SHSetTermsrvAppInstallMode(BOOL bState)
+BOOL SHSetTermsrvAppInstallMode(BOOL bState)
 {
     static PFNGSETTERMSRVAPPINSTALLMODE pfn = NULL;
 
@@ -2372,7 +2434,7 @@ STDAPI_(BOOL) SHSetTermsrvAppInstallMode(BOOL bState)
 }
 
 
-STDAPI_(ULONG) SHGetTermsrCompatFlagsEx(LPWSTR pwszApp, DWORD* pdwFlags, TERMSRV_COMPATIBILITY_CLASS tscc)
+ULONG SHGetTermsrCompatFlagsEx(LPWSTR pwszApp, DWORD* pdwFlags, TERMSRV_COMPATIBILITY_CLASS tscc)
 {
     static PFNGETTERMSRVCOMPATFLAGSEX pfn = NULL;
 
@@ -2432,7 +2494,7 @@ HANDLE SetJobCompletionPort(HANDLE hJob)
 }
 
 
-STDAPI_(DWORD) WaitingThreadProc(void* pv)
+DWORD WaitingThreadProc(void* pv)
 {
     HANDLE hIOPort = (HANDLE)pv;
 
@@ -2645,7 +2707,7 @@ BOOL _ShellExecRegApp(LPCTSTR pszCmd, BOOL fNoUI, BOOL fWait)
 
 // The following handles running an application and optionally waiting for it
 // to terminate.
-STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags)
+BOOL ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags)
 {
     BOOL bRet = FALSE;
 
@@ -2673,7 +2735,7 @@ STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, RRA_FLAGS fFlags)
 }
 
 
-STDAPI_(BOOL) Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS fFlags, PFNREGAPPSCALLBACK pfnCallback, LPARAM lParam)
+BOOL Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS fFlags, PFNREGAPPSCALLBACK pfnCallback, LPARAM lParam)
 {
     HKEY hkey;
     BOOL bRet = TRUE;
@@ -2847,7 +2909,7 @@ STDAPI_(BOOL) Cabinet_EnumRegApps(HKEY hkeyParent, LPCTSTR pszSubkey, RRA_FLAGS 
     return bRet;
 }
 
-STDAPI_(BOOL) ExecuteRegAppEnumProc(LPCTSTR szSubkey, LPCTSTR szCmdLine, RRA_FLAGS fFlags, LPARAM lParam)
+BOOL ExecuteRegAppEnumProc(LPCTSTR szSubkey, LPCTSTR szCmdLine, RRA_FLAGS fFlags, LPARAM lParam)
 {
     BOOL bRet;
     RRA_FLAGS flagsTemp = fFlags;
@@ -2874,6 +2936,11 @@ STDAPI_(BOOL) ExecuteRegAppEnumProc(LPCTSTR szSubkey, LPCTSTR szCmdLine, RRA_FLA
     return bRet;
 }
 
+//IMPLEMENT!!
+BOOL SHRunControlPanelCustom(PCWSTR lpcszCmdLine, HWND hwndMsgParent)
+{
+    return 0;
+}
 
 bool SHUndocInit(void)
 {

@@ -1,3 +1,4 @@
+#include "shundoc.h"
 #include "stdafx.h"
 //#include <browseui.h>
 #include "sfthost.h"
@@ -492,7 +493,7 @@ int SFTBarHost::AddImageForItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIS
     else
     {
         // system image list: Make the shell do the work.
-        int iIndex;
+        int iIndex = 0;
         //SHMapIDListToImageListIndexAsync(_psched, psf, pidl, 0, SetIconAsync, _hwnd, pitem, &iIndex, NULL);
         return iIndex;
     }

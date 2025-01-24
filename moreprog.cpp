@@ -1,3 +1,4 @@
+#include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
 #include "hostutil.h"
@@ -11,7 +12,6 @@
 #include <vsstyle.h>
 #include <vssym32.h>
 
-#include "shundoc.h"
 
 //
 //  Unfortunately, WTL #undef's SelectFont, so we have to define it again.
@@ -131,7 +131,7 @@ LRESULT CMorePrograms::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     }
 
     // Find the accelerator
-    _chMnem = CharUpperCharA(SHFindMnemonic(_szMessage));
+    _chMnem = CharUpperCharW(SHFindMnemonic(_szMessage));
 
     _hf = LoadControlFont(_hTheme, SPP_MOREPROGRAMS, FALSE, 0);
 
@@ -523,7 +523,7 @@ LRESULT CMorePrograms::_OnSMNFindItem(PSMNDIALOGMESSAGE pdm)
 
     case SMNDM_FINDFIRSTMATCH:
         {
-            TCHAR tch = CharUpperCharA((TCHAR)pdm->pmsg->wParam);
+            TCHAR tch = CharUpperCharW((TCHAR)pdm->pmsg->wParam);
             if (tch == _chMnem)
             {
                 pdm->itemID = 0;

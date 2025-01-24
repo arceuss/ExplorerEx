@@ -22,7 +22,7 @@
 #define SZ_ORIGINALDPI          TEXT("OriginalDPI")
 
 // exports from shdocvw.dll
-STDAPI_(void) RunInstallUninstallStubs(void);
+void RunInstallUninstallStubs(void);
 
 int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int nCmdShow);
 
@@ -100,7 +100,7 @@ HKEY g_hkeyExplorer = NULL;
 BOOL g_fLogonCycle = FALSE;
 BOOL g_fCleanShutdown = TRUE;
 BOOL g_fExitExplorer = TRUE; // set to FALSE on WM_ENDSESSION shutdown case
-BOOL g_fEndSession = FALSE;             // set to TRUE if we rx a WM_ENDSESSION during RunOnce etc
+//BOOL g_fEndSession = FALSE;             // set to TRUE if we rx a WM_ENDSESSION during RunOnce etc
 BOOL g_fFakeShutdown = FALSE;           // set to TRUE if we do Ctrl+Alt+Shift+Cancel shutdown
 
 DWORD g_dwStopWatchMode;                // to minimize impact of perf logging on retail
@@ -905,7 +905,7 @@ int g_cxFrame=0;
 int g_cyFrame=0;
 
 int g_cxMinimized=0;
-int g_fCleanBoot=0;
+//int g_fCleanBoot=0;
 int g_cxVScroll=0;
 int g_cyHScroll=0;
 UINT g_uDoubleClick=0;
@@ -1900,7 +1900,8 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
             {
                 HANDLE hCanRegister = CreateEvent(NULL, TRUE, TRUE, TEXT("_fCanRegisterWithShellService"));
 
-                RunInstallUninstallStubs();
+                //dont need for now, its dead anyways
+                //RunInstallUninstallStubs();
 
                 if (hCanRegister)
                 {

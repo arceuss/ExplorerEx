@@ -1,3 +1,4 @@
+#include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
 #include "uxtheme.h"
@@ -641,7 +642,7 @@ TCHAR CLogoffPane::_GetButtonAccelerator(int i)
     {
         if (SendMessage(_hwndTB, TB_GETBUTTONTEXT, tbButtonsCreate[i].idCommand, (LPARAM)szText) > 0)
         {
-            return CharUpperCharA(SHFindMnemonic(szText));
+            return CharUpperCharW(SHFindMnemonic(szText));
         }
     }
     return 0;
@@ -727,7 +728,7 @@ LRESULT CLogoffPane::_OnSMNFindItemWorker(PSMNDIALOGMESSAGE pdm)
                 i = _GetCurButton() + 1;
             }
 
-            TCHAR tch = CharUpperCharA((TCHAR)pdm->pmsg->wParam);
+            TCHAR tch = CharUpperCharW((TCHAR)pdm->pmsg->wParam);
             for ( ; i < ARRAYSIZE(tbButtonsCreate); i++)
             {
                 if (_IsButtonHidden(i))

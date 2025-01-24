@@ -852,7 +852,7 @@ BOOL PathIsEqualOrSubFolder(LPCTSTR pszFolder, LPCTSTR pszSubFolder)
 
 #define IsPathSep(ch)  ((ch) == TEXT('\\') || (ch) == TEXT('/'))
 
-STDAPI_(BOOL) PathIsRemovable(LPCTSTR pszPath)
+BOOL PathIsRemovable(LPCTSTR pszPath)
 {
     BOOL fIsEjectable = FALSE;
     int iDrive = PathGetDriveNumber(pszPath);
@@ -872,7 +872,7 @@ STDAPI_(BOOL) PathIsRemovable(LPCTSTR pszPath)
     return fIsEjectable;
 }
 
-STDAPI_(BOOL) PathIsRemote(LPCTSTR pszPath)
+BOOL PathIsRemote(LPCTSTR pszPath)
 {
     BOOL fIsRemote = FALSE;
     if (PathIsUNC(pszPath))
@@ -904,7 +904,7 @@ STDAPI_(BOOL) PathIsRemote(LPCTSTR pszPath)
 // Files from the internet cache directory
 // Files in the CD burning area
 //---------------------------------------------------------------------------
-STDAPI_(BOOL) PathIsTemporary(LPCTSTR pszPath)
+BOOL PathIsTemporary(LPCTSTR pszPath)
 {
     BOOL bRet = FALSE;
     DWORD dwAttrib = GetFileAttributes(pszPath);
@@ -1038,7 +1038,7 @@ STDAPI_(int) PathCleanupSpecEx(LPCTSTR pszDir, LPTSTR pszSpec)
 }
 
 
-STDAPI_(BOOL) PathIsWild(LPCTSTR pszPath)
+BOOL PathIsWild(LPCTSTR pszPath)
 {
     while (*pszPath)
     {
@@ -1095,7 +1095,7 @@ BOOL OnExtList(LPCTSTR pszExtList, LPCTSTR pszExt)
 #define BINARY_EXE_OFFSET 20
 const TCHAR c_achExes[] = TEXT(".cmd\0.bat\0.pif\0.scf\0.exe\0.com\0.scr\0");
 
-STDAPI_(BOOL) PathIsBinaryExe(LPCTSTR szFile)
+BOOL PathIsBinaryExe(LPCTSTR szFile)
 {
     ASSERT(BINARY_EXE_OFFSET < ARRAYSIZE(c_achExes) &&
         c_achExes[BINARY_EXE_OFFSET] == TEXT('.'));
@@ -1107,7 +1107,7 @@ STDAPI_(BOOL) PathIsBinaryExe(LPCTSTR szFile)
 //
 // determine if a path is a .lnk file by looking at the extension
 //
-STDAPI_(BOOL) PathIsLnk(LPCTSTR szFile)
+BOOL PathIsLnk(LPCTSTR szFile)
 {
     if (szFile)
     {
@@ -1789,7 +1789,7 @@ BOOL PathGetMountPointFromPath(LPCTSTR pcszPath, LPTSTR pszMountPoint, int cchMo
 // The current algorithm is just to make sure the target is an exe and is
 // located under "program files"
 
-STDAPI_(BOOL) PathIsShortcutToProgram(LPCTSTR pszFile)
+BOOL PathIsShortcutToProgram(LPCTSTR pszFile)
 {
     BOOL bRet = FALSE;
     if (PathIsShortcut(pszFile, -1))

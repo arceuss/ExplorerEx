@@ -115,7 +115,7 @@ HRESULT UEMRegisterNotify(UEMCallback pfnUEMCB, void *param);
 //***   obsolete -- old exports, nuke after all callers fixed
 //
 
-STDAPI_(void) UEMEvalMsg(const GUID *pguidGrp, int uemCmd, WPARAM wParam, LPARAM lParam);
+void UEMEvalMsg(const GUID *pguidGrp, int uemCmd, WPARAM wParam, LPARAM lParam);
 
 // obsolete! use UEMEvalMsg
 //STDAPI_(void) UEMTrace(int uemCmd, LPARAM lParam);
@@ -123,7 +123,7 @@ STDAPI_(void) UEMEvalMsg(const GUID *pguidGrp, int uemCmd, WPARAM wParam, LPARAM
 
 #define UEIA_RARE       0x01    // rare (demotion candidate)
 
-STDAPI_(BOOL) UEMGetInfo(const GUID *pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui);
+BOOL UEMGetInfo(const GUID *pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui);
 #endif // }
 
 // }
