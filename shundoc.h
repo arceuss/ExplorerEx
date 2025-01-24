@@ -36,7 +36,7 @@ STDAPI_(BOOL) PathIsRemote(LPCTSTR pszPath);
 STDAPI_(BOOL) PathIsTemporary(LPCTSTR pszPath);
 STDAPI_(BOOL) PathIsWild(LPCTSTR pszPath);
 STDAPI_(BOOL) PathIsLnk(LPCTSTR pszFile);
-STDAPI_(BOOL) PathIsSlow(LPCTSTR pszFile, DWORD dwFileAttr);
+//STDAPI_(BOOL) PathIsSlow(LPCTSTR pszFile, DWORD dwFileAttr);
 STDAPI_(BOOL) PathIsInvalid(LPCTSTR pPath);
 STDAPI_(BOOL) PathIsBinaryExe(LPCTSTR szFile);
 STDAPI_(BOOL) PathMergePathName(LPTSTR pPath, LPCTSTR pName);
