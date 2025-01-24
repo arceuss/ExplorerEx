@@ -1761,6 +1761,10 @@ void CheckForServerAdminUI()
 
 int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int nCmdShow)
 {
+
+    if (!SHUndocInit())
+        return -1;
+
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
     //SHFusionInitializeFromModule(hInstance);
