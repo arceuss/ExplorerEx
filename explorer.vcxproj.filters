@@ -216,9 +216,6 @@
     <ClInclude Include="wmiumkm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="runonce.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="desktopp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -242,10 +239,8 @@
     <None Include="resource.rcv">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="interfacesp.inc">
-      <Filter>Header Files</Filter>
-    </None>
     <None Include="cpp.hint" />
+    <None Include="explorer.fakemanifest" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="startpane.rc">
@@ -432,9 +427,6 @@
     <ClCompile Include="deskhost.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dllload.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="hostutil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -451,9 +443,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="moreprog.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="muext.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="proglist.cpp">
@@ -525,10 +514,10 @@
     <ClCompile Include="cwndproc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="runonce.cpp">
+    <ClCompile Include="path.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="path.cpp">
+    <ClCompile Include="dllload.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

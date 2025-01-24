@@ -298,7 +298,6 @@
     <ClCompile Include="logoff.cpp" />
     <ClCompile Include="mixer.cpp" />
     <ClCompile Include="moreprog.cpp" />
-    <ClCompile Include="muext.cpp" />
     <ClCompile Include="path.cpp" />
     <ClCompile Include="proglist.cpp" />
     <ClCompile Include="sfthost.cpp" />

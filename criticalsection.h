@@ -29,8 +29,7 @@ typedef struct _nonreentrantcriticalsection
     CRITICAL_SECTION critsec;
 
     BOOL bEntered;
-}
-NONREENTRANTCRITICALSECTION;
+} NONREENTRANTCRITICALSECTION;
 
 //
 //  Function Definitions
@@ -38,14 +37,14 @@ NONREENTRANTCRITICALSECTION;
 
 /* critical section used for access serialization */
 
-NONREENTRANTCRITICALSECTION s_nrcs =
+static NONREENTRANTCRITICALSECTION s_nrcs =
 {
    { 0 },
    FALSE
 };
 
 
-BOOL EnterNonReentrantCriticalSection(
+static BOOL EnterNonReentrantCriticalSection(
     NONREENTRANTCRITICALSECTION pnrcs)
 {
     BOOL bEntered;
@@ -71,7 +70,7 @@ BOOL EnterNonReentrantCriticalSection(
 }
 
 
-void LeaveNonReentrantCriticalSection(
+static void LeaveNonReentrantCriticalSection(
     NONREENTRANTCRITICALSECTION pnrcs)
 {
     //ASSERT(IS_VALID_STRUCT_PTR(pnrcs, CNONREENTRANTCRITICALSECTION));
@@ -85,27 +84,27 @@ void LeaveNonReentrantCriticalSection(
     return;
 }
 
-BOOL BeginExclusiveAccess(void)
+static BOOL BeginExclusiveAccess(void)
 {
     return(EnterNonReentrantCriticalSection(s_nrcs));
 }
 
 
-void EndExclusiveAccess(void)
+static void EndExclusiveAccess(void)
 {
     LeaveNonReentrantCriticalSection(s_nrcs);
 
     return;
 }
 
-void Shell_EnterCriticalSection(void)
+static void Shell_EnterCriticalSection(void)
 {
     BeginExclusiveAccess();
 
     return;
 }
 
-void Shell_LeaveCriticalSection(void)
+static void Shell_LeaveCriticalSection(void)
 {
     EndExclusiveAccess();
 
