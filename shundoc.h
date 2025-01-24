@@ -1093,7 +1093,97 @@ typedef enum tagWALK_TREE_CMD
 
 
 WINSHELLAPI BOOL WINAPI SHWinHelp(HWND hwndMain, LPCSTR lpszHelp, UINT usCommand, DWORD ulData);
+STDAPI_(PCIDHIDDEN) ILFindHiddenIDOn(LPCITEMIDLIST pidl, IDLHID id, BOOL fOnLast);
+#define ILFindHiddenID(p, i)    ILFindHiddenIDOn((p), (i), TRUE)
+STDAPI_(void) ILExpungeRemovedHiddenIDs(LPITEMIDLIST pidl);
+STDAPI_(BOOL) ILRemoveHiddenID(LPITEMIDLIST pidl, IDLHID id);
+STDAPI_(LPITEMIDLIST) ILAppendHiddenID(LPITEMIDLIST pidl, PCIDHIDDEN pidhid);
 
+enum
+{
+    XLATEALIAS_MYDOCS = 0x00000001,
+    XLATEALIAS_DESKTOP = 0x00000002,
+    XLATEALIAS_COMMONDOCS = 0x00000003,   // REVIEW: XLATEALIAS_DESKTOP & XLATEALIAS_MYDOCS ?
+    //  XLATEALIAS_MYPICS,    
+    //  XLATEALIAS_NETHOOD,
+};
+#define XLATEALIAS_ALL  ((DWORD)0x0000ffff)
+#define SHID_FS_COMMONITEM        0x38  // Common item ("8" is the bit)
+STDAPI_(LPITEMIDLIST) SHLogILFromFSIL(LPCITEMIDLIST pidlFS);
+
+#define LVM_KEYBOARDSELECTED    (LVM_FIRST + 178)
+#define ListView_KeyboardSelected(hwnd, i) \
+    (BOOL)SNDMSG((hwnd), LVM_KEYBOARDSELECTED, (WPARAM)(i), 0)
+STDAPI ContextMenu_GetCommandStringVerb(IContextMenu* pcm, UINT idCmd, LPWSTR pszVerb, int cchVerb);
+STDAPI_(UINT) GetMenuIndexForCanonicalVerb(HMENU hMenu, IContextMenu* pcm, UINT idCmdFirst, LPCWSTR pwszVerb);
+STDAPI ContextMenu_DeleteCommandByName(IContextMenu* pcm, HMENU hpopup, UINT idFirst, LPCWSTR pszCommand);
+enum {
+    OBJCOMPATF_OTNEEDSSFCACHE = 0x00000001,
+    OBJCOMPATF_NO_WEBVIEW = 0x00000002,
+    OBJCOMPATF_UNBINDABLE = 0x00000004,
+    OBJCOMPATF_PINDLL = 0x00000008,
+    OBJCOMPATF_NEEDSFILESYSANCESTOR = 0x00000010,
+    OBJCOMPATF_NOTAFILESYSTEM = 0x00000020,
+    OBJCOMPATF_CTXMENU_NOVERBS = 0x00000040,
+    OBJCOMPATF_CTXMENU_LIMITEDQI = 0x00000080,
+    OBJCOMPATF_COCREATESHELLFOLDERONLY = 0x00000100,
+    OBJCOMPATF_NEEDSSTORAGEANCESTOR = 0x00000200,
+    OBJCOMPATF_NOLEGACYWEBVIEW = 0x00000400,
+    OBJCOMPATF_BLOCKSHELLSERVICEOBJECT = 0x00000800,
+};
+
+// {E9779583-939D-11CE-8A77-444553540000}
+static const GUID GUID_AECOZIPARCHIVE =
+{ 0xE9779583, 0x939D, 0x11ce, { 0x8a, 0x77, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00} };
+// {49707377-6974-6368-2E4A-756E6F644A01}
+static const GUID CLSID_WS_FTP_PRO_EXPLORER =
+{ 0x49707377, 0x6974, 0x6368, {0x2E, 0x4A,0x75, 0x6E, 0x6F, 0x64, 0x4A, 0x01} };
+// {49707377-6974-6368-2E4A-756E6F644A0A}
+static const GUID CLSID_WS_FTP_PRO =
+{ 0x49707377, 0x6974, 0x6368, {0x2E, 0x4A,0x75, 0x6E, 0x6F, 0x64, 0x4A, 0x0A} };
+// {2bbbb600-3f0a-11d1-8aeb-00c04fd28d85}
+static const GUID CLSID_KODAK_DC260_ZOOM_CAMERA =
+{ 0x2bbbb600, 0x3f0a, 0x11d1, {0x8a, 0xeb, 0x00, 0xc0, 0x4f, 0xd2, 0x8d, 0x85} };
+// {00F43EE0-EB46-11D1-8443-444553540000}
+static const GUID GUID_MACINDOS =
+{ 0x00F43EE0, 0xEB46, 0x11D1, { 0x84, 0x43, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00} };
+static const GUID CLSID_EasyZIP =
+{ 0xD1069700, 0x932E, 0x11cf, { 0xAB, 0x59, 0x00, 0x60, 0x8C, 0xBF, 0x2C, 0xE0} };
+
+static const GUID CLSID_PAGISPRO_FOLDER =
+{ 0x7877C8E0, 0x8B13, 0x11D0, { 0x92, 0xC2, 0x00, 0xAA, 0x00, 0x4B, 0x25, 0x6F} };
+// {61E285C0-DCF4-11cf-9FF4-444553540000}
+static const GUID CLSID_FILENET_IDMDS_NEIGHBORHOOD =
+{ 0x61e285c0, 0xdcf4, 0x11cf, { 0x9f, 0xf4, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00} };
+
+// These guys call CoFreeUnusedLibraries inside their Release() handler, so
+// if you are releasing the last object, they end up FreeLibrary()ing
+// themselves!
+
+// {b8777200-d640-11ce-b9aa-444553540000}
+static const GUID CLSID_NOVELLX =
+{ 0xb8777200, 0xd640, 0x11ce, { 0xb9, 0xaa, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00} };
+
+static const GUID CLSID_PGP50_CONTEXTMENU =  //{969223C0-26AA-11D0-90EE-444553540000}
+{ 0x969223C0, 0x26AA, 0x11D0, { 0x90, 0xEE, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00} };
+
+static const GUID CLSID_QUICKFINDER_CONTEXTMENU = //  {CD949A20-BDC8-11CE-8919-00608C39D066}
+{ 0xCD949A20, 0xBDC8, 0x11CE, { 0x89, 0x19, 0x00, 0x60, 0x8C, 0x39, 0xD0, 0x66} };
+
+static const GUID CLSID_HERCULES_HCTNT_V1001 = // {921BD320-8CB5-11CF-84CF-885835D9DC01}
+{ 0x921BD320, 0x8CB5, 0x11CF, { 0x84, 0xCF, 0x88, 0x58, 0x35, 0xD9, 0xDC, 0x01} };
+
+typedef struct {
+    DWORD flag;
+    LPCTSTR psz;
+} FLAGMAP;
+typedef DWORD OBJCOMPATFLAGS;
+
+STDAPI SHGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UINT cchName, DWORD* pdwAttribs);
+STDAPI DisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPTSTR psz, UINT cch);
+#define SHGetAttributesOf(pidl, prgfInOut) SHGetNameAndFlags(pidl, 0, NULL, 0, prgfInOut)
+#define ToolBar_CommandToIndex(hwnd, idBtn)  \
+    (BOOL)SNDMSG((hwnd), TB_COMMANDTOINDEX, (WPARAM)(idBtn), 0)
 //
 // Function loader
 //

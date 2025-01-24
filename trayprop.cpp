@@ -2320,7 +2320,7 @@ void StartMenuSort()
                 psfUser = BindToFolder(pidl);
                 if (psfUser)
                 {
-                    pasf->AddNameSpace(NULL, psfUser, pidl, ASFF_DEFAULT | ASFF_DEFNAMESPACE_ALL);
+                    pasf->AddNameSpace(NULL, psfUser, pidl, ASFF_DEFAULT | ASFF_DEFNAMESPACE_ALL, 2);
                     psfUser->Release();
                 }
 
@@ -2328,7 +2328,7 @@ void StartMenuSort()
 
                 if (psfCommon)
                 {
-                    pasf->AddNameSpace(NULL, psfCommon, pidl2, ASFF_DEFAULT);
+                    pasf->AddNameSpace(NULL, psfCommon, pidl2, ASFF_DEFAULT, 2);
                     psfCommon->Release();
                 }
 

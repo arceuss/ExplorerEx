@@ -24,6 +24,7 @@
 #include "port32.h"
 
 #include "path.h"
+#include <strsafe.h>
 
 
 
@@ -1680,6 +1681,586 @@ __inline CHAR CharUpperCharA(CHAR c)
 {
     return (CHAR)(DWORD_PTR)CharUpperA((LPSTR)(DWORD_PTR)(c));
 }
+
+//  the last word of the pidl is where we store the hidden offset
+#define _ILHiddenOffset(pidl)   (*((WORD UNALIGNED *)(((BYTE *)_ILNext(pidl)) - sizeof(WORD))))
+#define _ILSetHiddenOffset(pidl, cb)   ((*((WORD UNALIGNED *)(((BYTE *)_ILNext(pidl)) - sizeof(WORD)))) = (WORD)cb)
+#define _ILIsHidden(pidhid)     (HIWORD(pidhid->id) == HIWORD(IDLHID_EMPTY))
+
+STDAPI_(PCIDHIDDEN) _ILNextHidden(PCIDHIDDEN pidhid, LPCITEMIDLIST pidlLimit)
+{
+    PCIDHIDDEN pidhidNext = (PCIDHIDDEN)_ILNext((LPCITEMIDLIST)pidhid);
+
+    if ((BYTE*)pidhidNext < (BYTE*)pidlLimit && _ILIsHidden(pidhidNext))
+    {
+        return pidhidNext;
+    }
+
+    //  if we ever go past the limit,
+    //  then this is not really a hidden id
+    //  or we have messed up on some calculation.
+    ASSERT((BYTE*)pidhidNext == (BYTE*)pidlLimit);
+    return NULL;
+}
+STDAPI_(PCIDHIDDEN) _ILFirstHidden(LPCITEMIDLIST pidl)
+{
+    WORD cbHidden = _ILHiddenOffset(pidl);
+
+    if (cbHidden && cbHidden + sizeof(HIDDENITEMID) < pidl->mkid.cb)
+    {
+        //  this means it points to someplace inside the pidl
+        //  maybe this has hidden ids
+        PCIDHIDDEN pidhid = (PCIDHIDDEN)(((BYTE*)pidl) + cbHidden);
+
+        if (_ILIsHidden(pidhid)
+            && (pidhid->cb + cbHidden <= pidl->mkid.cb))
+        {
+            //  this is more than likely a hidden id
+            //  we could walk the chain and verify
+            //  that it adds up right...
+            return pidhid;
+        }
+    }
+
+    return NULL;
+}
+
+STDAPI_(PCIDHIDDEN) ILFindHiddenIDOn(LPCITEMIDLIST pidl, IDLHID id, BOOL fOnLast)
+{
+    if (!ILIsEmpty(pidl))
+    {
+        if (fOnLast)
+            pidl = ILFindLastID(pidl);
+
+        PCIDHIDDEN pidhid = _ILFirstHidden(pidl);
+
+        //  reuse pidl to become the limit.
+        //  so that we cant ever walk out of 
+        //  the pidl.
+        pidl = _ILNext(pidl);
+
+        while (pidhid)
+        {
+            if (pidhid->id == id)
+                break;
+
+            pidhid = _ILNextHidden(pidhid, pidl);
+        }
+        return pidhid;
+    }
+
+    return NULL;
+}
+
+STDAPI_(BOOL) ILRemoveHiddenID(LPITEMIDLIST pidl, IDLHID id)
+{
+    PIDHIDDEN pidhid = (PIDHIDDEN)ILFindHiddenID(pidl, id);
+
+    if (pidhid)
+    {
+        pidhid->id = IDLHID_EMPTY;
+        return TRUE;
+    }
+    return FALSE;
+}
+
+STDAPI_(void) ILExpungeRemovedHiddenIDs(LPITEMIDLIST pidl)
+{
+    if (pidl)
+    {
+        pidl = ILFindLastID(pidl);
+
+        // Note: Each IDHIDDEN has a WORD appended to it, equal to
+        // _ILHiddenOffset, so we can just keep deleting IDHIDDENs
+        // and if we delete them all, everything is cleaned up; if
+        // there are still unremoved IDHIDDENs left, they will provide
+        // the _ILHiddenOffset.
+
+        PIDHIDDEN pidhid;
+        BOOL fAnyDeleted = FALSE;
+        while ((pidhid = (PIDHIDDEN)ILFindHiddenID(pidl, IDLHID_EMPTY)) != NULL)
+        {
+            fAnyDeleted = TRUE;
+            LPBYTE pbAfter = (LPBYTE)pidhid + pidhid->cb;
+            WORD cbDeleted = pidhid->cb;
+            MoveMemory(pidhid, pbAfter,
+                (LPBYTE)pidl + pidl->mkid.cb + sizeof(WORD) - pbAfter);
+            pidl->mkid.cb -= cbDeleted;
+        }
+    }
+}
+
+STDAPI ILCloneWithHiddenID(LPCITEMIDLIST pidl, PCIDHIDDEN pidhid, LPITEMIDLIST* ppidl)
+{
+    HRESULT hr;
+
+    // If this ASSERT fires, then the caller did not set the pidhid->id
+    // value properly.  For example, the packing settings might be incorrect.
+
+    ASSERT(_ILIsHidden(pidhid));
+
+    if (ILIsEmpty(pidl))
+    {
+        *ppidl = NULL;
+        hr = E_INVALIDARG;
+    }
+    else
+    {
+        UINT cbUsed = ILGetSize(pidl);
+        UINT cbRequired = cbUsed + pidhid->cb + sizeof(pidhid->cb);
+
+        *ppidl = (LPITEMIDLIST)SHAlloc(cbRequired);
+        if (*ppidl)
+        {
+            hr = S_OK;
+
+            CopyMemory(*ppidl, pidl, cbUsed);
+
+            LPITEMIDLIST pidlLast = ILFindLastID(*ppidl);
+            WORD cbHidden = _ILFirstHidden(pidlLast) ? _ILHiddenOffset(pidlLast) : pidlLast->mkid.cb;
+            PIDHIDDEN pidhidCopy = (PIDHIDDEN)_ILSkip(*ppidl, cbUsed - sizeof((*ppidl)->mkid.cb));
+
+            // Append it, overwriting the terminator
+            MoveMemory(pidhidCopy, pidhid, pidhid->cb);
+
+            //  grow the copy to allow the hidden offset.
+            pidhidCopy->cb += sizeof(pidhid->cb);
+
+            //  now we need to readjust pidlLast to encompass 
+            //  the hidden bits and the hidden offset.
+            pidlLast->mkid.cb += pidhidCopy->cb;
+
+            //  set the hidden offset so that we can find our hidden IDs later
+            _ILSetHiddenOffset((LPITEMIDLIST)pidhidCopy, cbHidden);
+
+            // We must put zero-terminator because of LMEM_ZEROINIT.
+            _ILSkip(*ppidl, cbRequired - sizeof((*ppidl)->mkid.cb))->mkid.cb = 0;
+            ASSERT(ILGetSize(*ppidl) == cbRequired);
+        }
+        else
+        {
+            hr = E_OUTOFMEMORY;
+        }
+    }
+    return hr;
+}
+
+STDAPI_(LPITEMIDLIST) ILAppendHiddenID(LPITEMIDLIST pidl, PCIDHIDDEN pidhid)
+{
+    //
+    // FEATURE - we dont handle collisions of multiple hidden ids
+    //          maybe remove IDs of the same IDLHID?
+    //
+    // Note: We do not remove IDLHID_EMPTY hidden ids.
+    // Callers need to call ILExpungeRemovedHiddenIDs explicitly
+    // if they want empty hidden ids to be compressed out.
+    //
+
+    if (!ILIsEmpty(pidl))
+    {
+        LPITEMIDLIST pidlSave = pidl;
+        ILCloneWithHiddenID(pidl, pidhid, &pidl);
+        ILFree(pidlSave);
+    }
+    return pidl;
+}
+
+STDAPI SHILCombine(LPCITEMIDLIST pidl1, LPCITEMIDLIST pidl2, LPITEMIDLIST* ppidlOut)
+{
+    *ppidlOut = ILCombine(pidl1, pidl2);
+    return *ppidlOut ? S_OK : E_OUTOFMEMORY;
+}
+
+
+// NOTE: possibly we need a csidlSkip param to avoid recursion?
+BOOL _ReparentAliases(HWND hwnd, HANDLE hToken, LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlAlias, DWORD dwXlateAliases)
+{
+    static const struct { DWORD dwXlate; int idPath; int idAlias; BOOL fCommon; } s_rgidAliases[] =
+    {
+        { XLATEALIAS_MYDOCS, CSIDL_PERSONAL | CSIDL_FLAG_NO_ALIAS, CSIDL_PERSONAL, FALSE},
+        { XLATEALIAS_COMMONDOCS, CSIDL_COMMON_DOCUMENTS | CSIDL_FLAG_NO_ALIAS, CSIDL_COMMON_DOCUMENTS, FALSE},
+        { XLATEALIAS_DESKTOP, CSIDL_DESKTOPDIRECTORY, CSIDL_DESKTOP, FALSE},
+        { XLATEALIAS_DESKTOP, CSIDL_COMMON_DESKTOPDIRECTORY, CSIDL_DESKTOP, TRUE},
+    };
+    BOOL fContinue = TRUE;
+    *ppidlAlias = NULL;
+
+    for (int i = 0; fContinue && i < ARRAYSIZE(s_rgidAliases); i++)
+    {
+        LPITEMIDLIST pidlPath;
+        if ((dwXlateAliases & s_rgidAliases[i].dwXlate) &&
+            (S_OK == SHGetFolderLocation(hwnd, s_rgidAliases[i].idPath, hToken, 0, &pidlPath)))
+        {
+            LPCITEMIDLIST pidlChild = ILFindChild(pidlPath, pidl);
+            if (pidlChild)
+            {
+                //  ok we need to use the alias instead of the path
+                LPITEMIDLIST pidlAlias;
+                if (S_OK == SHGetFolderLocation(hwnd, s_rgidAliases[i].idAlias, hToken, 0, &pidlAlias))
+                {
+                    if (SUCCEEDED(SHILCombine(pidlAlias, pidlChild, ppidlAlias)))
+                    {
+                        if (s_rgidAliases[i].fCommon && !ILIsEmpty(*ppidlAlias))
+                        {
+                            // find the size of the special part (subtacting for null pidl terminator)
+                            UINT cbSize = ILGetSize(pidlAlias) - sizeof(pidlAlias->mkid.cb);
+                            LPITEMIDLIST pidlChildFirst = _ILSkip(*ppidlAlias, cbSize);
+
+                            // We set the first ID under the common path to have the SHID_FS_COMMONITEM so that when we bind we
+                            // can hand this to the proper merged psf
+                            pidlChildFirst->mkid.abID[0] |= SHID_FS_COMMONITEM;
+                        }
+                        ILFree(pidlAlias);
+                    }
+                    fContinue = FALSE;
+                }
+            }
+            ILFree(pidlPath);
+        }
+    }
+
+    return (*ppidlAlias != NULL);
+}
+
+
+STDAPI SHILAliasTranslate(LPCITEMIDLIST pidl, LPITEMIDLIST* ppidlAlias, DWORD dwXlateAliases)
+{
+    return _ReparentAliases(NULL, NULL, pidl, ppidlAlias, dwXlateAliases) ? S_OK : E_FAIL;
+}
+
+STDAPI_(LPITEMIDLIST) SHLogILFromFSIL(LPCITEMIDLIST pidlFS)
+{
+    LPITEMIDLIST pidlOut;
+    SHILAliasTranslate(pidlFS, &pidlOut, XLATEALIAS_ALL); // will set pidlOut=NULL on failure
+    return pidlOut;
+}
+
+
+//
+// This is a helper function for finding a specific verb's index in a context menu
+//
+STDAPI_(UINT) GetMenuIndexForCanonicalVerb(HMENU hMenu, IContextMenu* pcm, UINT idCmdFirst, LPCWSTR pwszVerb)
+{
+    int cMenuItems = GetMenuItemCount(hMenu);
+    int iItem;
+    for (iItem = 0; iItem < cMenuItems; iItem++)
+    {
+        MENUITEMINFO mii = { 0 };
+
+        mii.cbSize = sizeof(mii);
+        mii.fMask = MIIM_TYPE | MIIM_ID;
+
+        // IS_INTRESOURCE guards against mii.wID == -1 **and** against
+        // buggy shell extensions which set their menu item IDs out of range.
+        if (GetMenuItemInfo(hMenu, iItem, MF_BYPOSITION, &mii) &&
+            !(mii.fType & MFT_SEPARATOR) && IS_INTRESOURCE(mii.wID) &&
+            (mii.wID >= idCmdFirst))
+        {
+            union {
+                WCHAR szItemNameW[80];
+                char szItemNameA[80];
+            };
+            CHAR aszVerb[80];
+
+            // try both GCS_VERBA and GCS_VERBW in case it only supports one of them
+            SHUnicodeToAnsi(pwszVerb, aszVerb, ARRAYSIZE(aszVerb));
+
+            if (SUCCEEDED(pcm->GetCommandString(mii.wID - idCmdFirst, GCS_VERBA, NULL, szItemNameA, ARRAYSIZE(szItemNameA))))
+            {
+                if (StrCmpICA(szItemNameA, aszVerb) == 0)
+                {
+                    break;  // found it
+                }
+            }
+            else
+            {
+                if (SUCCEEDED(pcm->GetCommandString(mii.wID - idCmdFirst, GCS_VERBW, NULL, (LPSTR)szItemNameW, ARRAYSIZE(szItemNameW))) &&
+                    (StrCmpICW(szItemNameW, pwszVerb) == 0))
+                {
+                    break;  // found it
+                }
+            }
+        }
+
+    }
+    if (iItem == cMenuItems)
+    {
+        iItem = -1; // went through all the menuitems and didn't find it
+    }
+    
+    return iItem;
+}
+
+STDAPI ContextMenu_GetCommandStringVerb(IContextMenu* pcm, UINT idCmd, LPWSTR pszVerb, int cchVerb)
+{
+    // Ulead SmartSaver Pro has a 60 character verb, and 
+    // over writes out stack, ignoring the cch param and we fault. 
+    // so make sure this buffer is at least 60 chars
+
+    TCHAR wszVerb[64];
+    wszVerb[0] = 0;
+
+    HRESULT hr = pcm->GetCommandString(idCmd, GCS_VERBW, NULL, (LPSTR)wszVerb, ARRAYSIZE(wszVerb));
+    if (FAILED(hr))
+    {
+        // be extra paranoid about requesting the ansi version -- we've
+        // found IContextMenu implementations that return a UNICODE buffer
+        // even though we ask for an ANSI string on NT systems -- hopefully
+        // they will have answered the above request already, but just in
+        // case let's not let them overrun our stack!
+        char szVerbAnsi[128];
+        hr = pcm->GetCommandString(idCmd, GCS_VERBA, NULL, szVerbAnsi, ARRAYSIZE(szVerbAnsi) / 2);
+        if (SUCCEEDED(hr))
+        {
+            SHAnsiToUnicode(szVerbAnsi, wszVerb, ARRAYSIZE(wszVerb));
+        }
+    }
+
+    StrCpyNW(pszVerb, wszVerb, cchVerb);
+
+    return hr;
+}
+
+STDAPI ContextMenu_DeleteCommandByName(IContextMenu* pcm, HMENU hpopup, UINT idFirst, LPCWSTR pszCommand)
+{
+    UINT ipos = GetMenuIndexForCanonicalVerb(hpopup, pcm, idFirst, pszCommand);
+    if (ipos != -1)
+    {
+        DeleteMenu(hpopup, ipos, MF_BYPOSITION);
+        return S_OK;
+    }
+    else
+    {
+        return HRESULT_FROM_WIN32(ERROR_NOT_FOUND);
+    }
+}
+
+#define OCFMAPPING(ocf)     {OBJCOMPATF_##ocf, TEXT(#ocf)}
+#define GUIDSTR_MAX 38
+
+DWORD _GetMappedFlags(HKEY hk, const FLAGMAP* pmaps, DWORD cmaps)
+{
+    DWORD dwRet = 0;
+    for (DWORD i = 0; i < cmaps; i++)
+    {
+        if (NOERROR == SHGetValue(hk, NULL, pmaps[i].psz, NULL, NULL, NULL))
+            dwRet |= pmaps[i].flag;
+    }
+
+    return dwRet;
+}
+
+DWORD _GetRegistryObjectCompatFlags(REFGUID clsid)
+{
+    DWORD dwRet = 0;
+    TCHAR szGuid[GUIDSTR_MAX];
+    TCHAR sz[MAX_PATH];
+    HKEY hk;
+
+    using fnSHStringFromGUID = int(WINAPI*)(REFGUID, LPWSTR, int);
+    fnSHStringFromGUID SHStringFromGUID;
+    SHStringFromGUID = reinterpret_cast<fnSHStringFromGUID>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(24)));
+    SHStringFromGUID(clsid, szGuid, ARRAYSIZE(szGuid));
+    wnsprintf(sz, ARRAYSIZE(sz), TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\ShellCompatibility\\Objects\\%s"), szGuid);
+
+    if (NOERROR == RegOpenKeyEx(HKEY_LOCAL_MACHINE, sz, 0, KEY_QUERY_VALUE, &hk))
+    {
+        static const FLAGMAP rgOcfMaps[] = {
+            OCFMAPPING(OTNEEDSSFCACHE),
+            OCFMAPPING(NO_WEBVIEW),
+            OCFMAPPING(UNBINDABLE),
+            OCFMAPPING(PINDLL),
+            OCFMAPPING(NEEDSFILESYSANCESTOR),
+            OCFMAPPING(NOTAFILESYSTEM),
+            OCFMAPPING(CTXMENU_NOVERBS),
+            OCFMAPPING(CTXMENU_LIMITEDQI),
+            OCFMAPPING(COCREATESHELLFOLDERONLY),
+            OCFMAPPING(NEEDSSTORAGEANCESTOR),
+            OCFMAPPING(NOLEGACYWEBVIEW),
+        };
+
+        dwRet = _GetMappedFlags(hk, rgOcfMaps, ARRAYSIZE(rgOcfMaps));
+        RegCloseKey(hk);
+    }
+
+    return dwRet;
+}
+
+typedef struct _CLSIDCOMPAT
+{
+    const GUID* pclsid;
+    OBJCOMPATFLAGS flags;
+}CLSIDCOMPAT, * PCLSIDCOMPAT;
+
+STDAPI_(OBJCOMPATFLAGS) SHGetObjectCompatFlags(IUnknown* punk, const CLSID* pclsid)
+{
+    HRESULT hr = E_INVALIDARG;
+    OBJCOMPATFLAGS ocf = 0;
+    CLSID clsid;
+    if (punk)
+        hr = IUnknown_GetClassID(punk, &clsid);
+    else if (pclsid)
+    {
+        clsid = *pclsid;
+        hr = S_OK;
+    }
+
+    if (SUCCEEDED(hr))
+    {
+        static const CLSIDCOMPAT s_rgCompat[] =
+        {
+            {&CLSID_WS_FTP_PRO_EXPLORER,
+                OBJCOMPATF_OTNEEDSSFCACHE | OBJCOMPATF_PINDLL },
+            {&CLSID_WS_FTP_PRO,
+                OBJCOMPATF_UNBINDABLE},
+            {&GUID_AECOZIPARCHIVE,
+                OBJCOMPATF_OTNEEDSSFCACHE | OBJCOMPATF_NO_WEBVIEW},
+            {&CLSID_KODAK_DC260_ZOOM_CAMERA,
+                OBJCOMPATF_OTNEEDSSFCACHE | OBJCOMPATF_PINDLL},
+            {&GUID_MACINDOS,
+                OBJCOMPATF_NO_WEBVIEW},
+            {&CLSID_EasyZIP,
+                OBJCOMPATF_NO_WEBVIEW},
+            {&CLSID_PAGISPRO_FOLDER,
+                OBJCOMPATF_NEEDSFILESYSANCESTOR},
+            {&CLSID_FILENET_IDMDS_NEIGHBORHOOD,
+                OBJCOMPATF_NOTAFILESYSTEM},
+            {&CLSID_NOVELLX,
+                OBJCOMPATF_PINDLL},
+            {&CLSID_PGP50_CONTEXTMENU,
+                OBJCOMPATF_CTXMENU_LIMITEDQI},
+            {&CLSID_QUICKFINDER_CONTEXTMENU,
+                OBJCOMPATF_CTXMENU_NOVERBS},
+            {&CLSID_HERCULES_HCTNT_V1001,
+                OBJCOMPATF_PINDLL},
+                //
+                //  WARNING DONT ADD NEW COMPATIBILITY HERE - ZekeL - 18-OCT-99
+                //  Add new entries to the registry.  each component 
+                //  that needs compatibility flags should register 
+                //  during selfregistration.  (see the RegExternal
+                //  section of selfreg.inx in shell32 for an example.)  
+                //  all new flags should be added to the FLAGMAP array.
+                //
+                //  the register under:
+                //  HKLM\SW\MS\Win\CV\ShellCompatibility\Objects
+                //      \{CLSID}
+                //          FLAGNAME    //  requires no value
+                //
+                //  NOTE: there is no version checking
+                //  but we could add it as the data attached to 
+                //  the flags, and compare with the version 
+                //  of the LocalServer32 dll.
+                //  
+                {NULL, 0}
+        };
+
+        for (int i = 0; s_rgCompat[i].pclsid; i++)
+        {
+            if (IsEqualGUID(clsid, *(s_rgCompat[i].pclsid)))
+            {
+                //  we could check version based
+                //  on what is in under HKCR\CLSID\{clsid}
+                ocf = s_rgCompat[i].flags;
+                break;
+            }
+        }
+
+        ocf |= _GetRegistryObjectCompatFlags(clsid);
+
+    }
+
+    return ocf;
+}
+// deals with goofyness of IShellFolder::GetAttributesOf() including 
+//      in/out param issue
+//      failures
+//      goofy cast for 1 item case
+//      masks off results to only return what you asked for
+
+STDAPI_(DWORD) SHGetAttributes(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD dwAttribs)
+{
+    // like SHBindToObject, if psf is NULL, use absolute pidl
+    LPCITEMIDLIST pidlChild;
+    if (!psf)
+    {
+        SHBindToParent(pidl, IID_PPV_ARG(IShellFolder, &psf), &pidlChild);
+    }
+    else
+    {
+        psf->AddRef();
+        pidlChild = pidl;
+    }
+
+    DWORD dw = 0;
+    if (psf)
+    {
+        dw = dwAttribs;
+        dw = SUCCEEDED(psf->GetAttributesOf(1, (LPCITEMIDLIST*)&pidlChild, &dw)) ? (dwAttribs & dw) : 0;
+        if ((dw & SFGAO_FOLDER) && (dw & SFGAO_CANMONIKER) && !(dw & SFGAO_STORAGEANCESTOR) && (dwAttribs & SFGAO_STORAGEANCESTOR))
+        {
+            if (OBJCOMPATF_NEEDSSTORAGEANCESTOR & SHGetObjectCompatFlags(psf, NULL))
+            {
+                //  switch SFGAO_CANMONIKER -> SFGAO_STORAGEANCESTOR
+                dw |= SFGAO_STORAGEANCESTOR;
+                dw &= ~SFGAO_CANMONIKER;
+            }
+        }
+    }
+
+    if (psf)
+    {
+        psf->Release();
+    }
+
+    return dw;
+}
+
+STDAPI DisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPTSTR psz, UINT cch)
+{
+    *psz = 0;
+    STRRET sr;
+    HRESULT hr = psf->GetDisplayNameOf(pidl, flags, &sr);
+    if (SUCCEEDED(hr))
+        hr = StrRetToBuf(&sr, pidl, psz, cch);
+    return hr;
+}
+
+// get the name and flags of an absolute IDlist
+// in:
+//      dwFlags     SHGDN_ flags as hints to the name space GetDisplayNameOf() function
+//
+// in/out:
+//      *pdwAttribs (optional) return flags
+
+STDAPI SHGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UINT cchName, DWORD* pdwAttribs)
+{
+    if (pszName)
+    {
+        *pszName = 0;
+    }
+
+    HRESULT hrInit = SHCoInitialize();
+
+    IShellFolder* psf;
+    LPCITEMIDLIST pidlLast;
+    HRESULT hr = SHBindToIDListParent(pidl, IID_PPV_ARG(IShellFolder, &psf), &pidlLast);
+    if (SUCCEEDED(hr))
+    {
+        if (pszName)
+            hr = DisplayNameOf(psf, pidlLast, dwFlags, pszName, cchName);
+
+        if (SUCCEEDED(hr) && pdwAttribs)
+        {
+            *pdwAttribs = SHGetAttributes(psf, pidlLast, *pdwAttribs);
+        }
+
+        psf->Release();
+    }
+
+    SHCoUninitialize(hrInit);
+    return hr;
+}
+
 
 
 //

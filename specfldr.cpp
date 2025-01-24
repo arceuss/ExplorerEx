@@ -1243,7 +1243,7 @@ HRESULT CRecentShellMenuCallback::_FilterRecentPidl(IShellFolder *psf, LPCITEMID
     if (_nShown < _iMaxRecentDocs)
     {
         IShellLink *psl;
-        if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlItem, IID_X_PPV_ARG(IShellLink, NULL, &psl))))
+        if (SUCCEEDED(psf->GetUIObjectOf(NULL, 1, &pidlItem, IID_IShellLink, NULL, reinterpret_cast<void**>(static_cast<IShellLinkW**>(&psl)))))
         {
             LPITEMIDLIST pidlTarget;
             if (SUCCEEDED(psl->GetIDList(&pidlTarget)) && pidlTarget)

@@ -1849,7 +1849,7 @@ ByUsageAppInfo *CMenuItemsCache::GetAppInfoFromHiddenData(ByUsageHiddenData *phd
             //  Need to expand the path because it may contain environment
             //  variables.
             //
-            SHExpandEnvironmentStrings(phd->_pwszTargetPath, szPath, ARRAYSIZE(szPath));
+            ExpandEnvironmentStrings(phd->_pwszTargetPath, szPath, ARRAYSIZE(szPath));
         }
     }
 

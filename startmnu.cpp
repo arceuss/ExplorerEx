@@ -121,7 +121,7 @@ STDMETHODIMP CStartMenuHost::GetWindow(HWND * lphwnd)
 Purpose: IMenuPopup::Popup method
 
 */
-STDMETHODIMP CStartMenuHost::Popup(POINTL *ppt, RECTL *prcExclude, DWORD dwFlags)
+STDMETHODIMP CStartMenuHost::Popup(POINTL *ppt, RECTL *prcExclude, MP_POPUPFLAGS dwFlags)
 {
     return E_NOTIMPL;
 }

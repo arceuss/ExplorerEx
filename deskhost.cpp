@@ -740,7 +740,7 @@ HRESULT CDesktopHost::_Popup(POINT *ppt, RECT *prcExclude, DWORD dwFlags)
     }
 }
 
-HRESULT CDesktopHost::Popup(POINTL *pptl, RECTL *prclExclude, DWORD dwFlags)
+HRESULT CDesktopHost::Popup(POINTL *pptl, RECTL *prclExclude, MP_POPUPFLAGS dwFlags)
 {
     COMPILETIME_ASSERT(sizeof(POINTL) == sizeof(POINT));
     POINT *ppt = reinterpret_cast<POINT*>(pptl);

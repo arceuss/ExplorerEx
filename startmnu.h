@@ -61,7 +61,7 @@ public:
     STDMETHODIMP OnPosRectChangeDB (LPRECT prc) { return E_NOTIMPL; }
 
     // *** IMenuPopup methods ***
-    STDMETHODIMP Popup             (POINTL *ppt, RECTL *prcExclude, DWORD dwFlags);
+    STDMETHODIMP Popup             (POINTL *ppt, RECTL *prcExclude, MP_POPUPFLAGS dwFlags);
     STDMETHODIMP OnSelect          (DWORD dwSelectType);
     STDMETHODIMP SetSubMenu        (IMenuPopup* pmp, BOOL fSet);
 
