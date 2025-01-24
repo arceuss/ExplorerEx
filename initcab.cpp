@@ -12,7 +12,6 @@
 #include "util.h"
 #include "atlstuff.h"
 #include <strsafe.h>
-#include "runonce.cpp"    // shared runonce processing code
 #include <dsrole.h>  // DsRoleGetPrimaryDomainInformation, DsRoleFreeMemory
 
 // global so that it is shared between TS sessions
