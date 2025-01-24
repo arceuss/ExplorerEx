@@ -246,10 +246,10 @@
     <ResourceCompile Include="startpane.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="dlg.rc">
+    <ResourceCompile Include="explorer.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="explorer.rc">
+    <ResourceCompile Include="dlg.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
