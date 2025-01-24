@@ -447,6 +447,9 @@ typedef struct _tagSHELLREMINDER
 #define ARGUMENT_PRESENT(ArgumentPointer)    (\
     (CHAR *)(ArgumentPointer) != (CHAR *)(NULL) )
 
+#define CbFromCchW(cch)             ((cch)*sizeof(WCHAR))
+#define CbFromCchA(cch)             ((cch)*sizeof(CHAR))
+
 
 #define INSTRUMENT_STATECHANGE(t)
 
@@ -659,6 +662,23 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
 #define FT_ONEHOUR             ((unsigned __int64)10000000 * 3600)
 #define FT_ONEDAY              ((unsigned __int64)10000000 * 3600 * 24)
 
+enum
+{
+    ASFF_DEFAULT = 0x00000000, // There are no applicable Flags
+    ASFF_SORTDOWN = 0x00000001, // Sort the items in this ISF to the bottom.
+    ASFF_MERGESAMEGUID = 0x00000002, // Merge only namespaces with the same pguidObjects
+    ASFF_COMMON = 0x00000004, // this is a "Common" or "All Users" folder
+    // the following should all be collapsed to one ASFF_DEFNAMESPACE
+    ASFF_DEFNAMESPACE_BINDSTG = 0x00000100, // The namespace is the default handler for BindToStorage() for merged child items.
+    ASFF_DEFNAMESPACE_COMPARE = 0x00000200, // The namespace is the default handler for CompareIDs() for merged child items.
+    ASFF_DEFNAMESPACE_VIEWOBJ = 0x00000400, // The namespace is the default handler for CreateViewObject() for merged child items.
+    ASFF_DEFNAMESPACE_ATTRIB = 0x00001800, // The namespace is the default handler for GetAttributesOf() for merged child items.
+    ASFF_DEFNAMESPACE_DISPLAYNAME = 0x00001000, // The namespace is the default handler for GetDisplayNameOf(), SetNameOf() and ParseDisplayName() for merged child items.
+    ASFF_DEFNAMESPACE_UIOBJ = 0x00002000, // The namespace is the default handler for GetUIObjectOf() for merged child items.
+    ASFF_DEFNAMESPACE_ITEMDATA = 0x00004000, // The namespace is the default handler for GetItemData() for merged child items.
+    ASFF_DEFNAMESPACE_ALL = 0x0000FF00  // The namespace is the primary handler for all IShellFolder operations on merged child items.
+};
+
 //
 //  FILETIME helpers
 //
@@ -793,41 +813,6 @@ enum {
     SHDVID_ISEXPLORERBARVISIBLE, // is any explorer bar visible?
 };
 
-typedef enum _WINSTATIONINFOCLASS {
-    WinStationCreateData,         // query WinStation create data
-    WinStationConfiguration,      // query/set WinStation parameters
-    WinStationPdParams,           // query/set PD parameters
-    WinStationWd,                 // query WD config (only one can be loaded)
-    WinStationPd,                 // query PD config (many can be loaded)
-    WinStationPrinter,            // query/set LPT mapping to printer queues
-    WinStationClient,             // query information about client
-    WinStationModules,            // query information about all client modules
-    WinStationInformation,        // query information about WinStation
-    WinStationTrace,              // enable/disable winstation tracing
-    WinStationBeep,               // beep the WinStation
-    WinStationEncryptionOff,      // turn off encryption
-    WinStationEncryptionPerm,     // encryption is permanent on
-    WinStationNtSecurity,         // select winlogon security desktop
-    WinStationUserToken,          // User token
-    WinStationUnused1,            // *** AVAILABLE *** (old IniMapping)
-    WinStationVideoData,          // query hres, vres, color depth
-    WinStationInitialProgram,     // Identify Initial Program
-    WinStationCd,                 // query CD config (only one can be loaded)
-    WinStationSystemTrace,        // enable/disable system tracing
-    WinStationVirtualData,        // query client virtual data
-    WinStationClientData,         // send data to client
-    WinStationSecureDesktopEnter, // turn encryption on, if enabled
-    WinStationSecureDesktopExit,  // turn encryption off, if enabled
-    WinStationLoadBalanceSessionTarget,  // Load balance info from redirected client.
-    WinStationLoadIndicator,      // query load capacity information
-    WinStationShadowInfo,     // query/set Shadow state & parameters
-    WinStationDigProductId,   // get the outermost digital product id, the client's product id, and the current product id
-    WinStationLockedState,        // winlogon sets this for notifing apps/services.
-    WinStationRemoteAddress,     // Query client IP address
-    WinStationLastReconnectType,   // If last reconnect for this winstation was manual or auto reconnect.      
-    WinStationDisallowAutoReconnect,     // Allow/Disallow AutoReconnect for this WinStation
-    WinStationMprNotifyInfo       // Mprnotify info from Winlogon for notifying 3rd party network providers
-} WINSTATIONINFOCLASS;
 
 #define CONTEXTMENU_IDCMD_FIRST    1        // minimal QueryContextMenu idCmdFirst value //
 #define CONTEXTMENU_IDCMD_LAST     0x7fff   // maximal QueryContextMenu idCmdLast value  //
@@ -893,6 +878,7 @@ extern VOID(STDMETHODCALLTYPE* LogoffWindowsDialog)(HWND hwndParent);
 extern VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent);
 extern COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
 STDAPI_(void) SHAdjustLOGFONT(IN OUT LOGFONT* plf);
+STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2);
 STDAPI_(BOOL) SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
 STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter);
 STDAPI_(BOOL) ShellExecuteRegApp(LPCTSTR pszCmdLine, UINT fFlags);

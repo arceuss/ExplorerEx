@@ -464,6 +464,37 @@ STDAPI SHCoInitialize(void)
     return hr;
 }
 
+STDAPI_(BOOL) SHIsSameObject(IUnknown* punk1, IUnknown* punk2)
+{
+    if (!punk1 || !punk2)
+    {
+        return FALSE;
+    }
+    else if (punk1 == punk2)
+    {
+        // Quick shortcut -- if they're the same pointer
+        // already then they must be the same object
+        //
+        return TRUE;
+    }
+    else
+    {
+        IUnknown* punkI1;
+        IUnknown* punkI2;
+
+        // Some apps don't implement QueryInterface! (SecureFile)
+        HRESULT hr = punk1->QueryInterface(IID_PPV_ARG(IUnknown, &punkI1));
+        if (SUCCEEDED(hr))
+        {
+            punkI1->Release();
+            hr = punk2->QueryInterface(IID_PPV_ARG(IUnknown, &punkI2));
+            if (SUCCEEDED(hr))
+                punkI2->Release();
+        }
+        return SUCCEEDED(hr) && (punkI1 == punkI2);
+    }
+}
+
 STDAPI_(BOOL) SHForceWindowZorder(HWND hwnd, HWND hwndInsertAfter)
 {
     BOOL fRet = SetWindowZorder(hwnd, hwndInsertAfter);

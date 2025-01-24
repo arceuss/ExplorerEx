@@ -641,7 +641,7 @@ TCHAR CLogoffPane::_GetButtonAccelerator(int i)
     {
         if (SendMessage(_hwndTB, TB_GETBUTTONTEXT, tbButtonsCreate[i].idCommand, (LPARAM)szText) > 0)
         {
-            return CharUpperChar(SHFindMnemonic(szText));
+            return CharUpperCharA(SHFindMnemonic(szText));
         }
     }
     return 0;
@@ -727,7 +727,7 @@ LRESULT CLogoffPane::_OnSMNFindItemWorker(PSMNDIALOGMESSAGE pdm)
                 i = _GetCurButton() + 1;
             }
 
-            TCHAR tch = CharUpperChar((TCHAR)pdm->pmsg->wParam);
+            TCHAR tch = CharUpperCharA((TCHAR)pdm->pmsg->wParam);
             for ( ; i < ARRAYSIZE(tbButtonsCreate); i++)
             {
                 if (_IsButtonHidden(i))

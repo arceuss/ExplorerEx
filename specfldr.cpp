@@ -923,7 +923,7 @@ LPTSTR SpecialFolderList::DisplayNameOfItem(PaneItem *p, IShellFolder *psf, LPCI
         SHFree(pitem->_pszAccelerator);
         pitem->_pszAccelerator = NULL;
         SHStrDup(psz, &pitem->_pszAccelerator); // if it fails, then tough, no mnemonic
-        pitem->_chMnem = CharUpperChar(SHStripMneumonic(psz));
+        pitem->_chMnem = CharUpperCharA(SHStripMneumonic(psz));
     }
 
     return psz;

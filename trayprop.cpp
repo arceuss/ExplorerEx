@@ -681,7 +681,7 @@ LRESULT CALLBACK CNotificationsDlg::s_ListViewSubClassWndProc( HWND hwnd, UINT u
 }
 
 LRESULT CALLBACK CNotificationsDlg::s_ComboBoxSubClassWndProc( HWND hwnd, UINT uMsg, 
-    WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData )aren
+    WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData )
 {
     CNotificationsDlg * pNotificationsDlg = reinterpret_cast<CNotificationsDlg*>(dwRefData);
     ASSERT((pNotificationsDlg != NULL));

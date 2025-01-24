@@ -3071,7 +3071,7 @@ TCHAR SFTBarHost::GetItemAccelerator(PaneItem *pitem, int iItemStart)
 {
     TCHAR sz[2];
     ListView_GetItemText(_hwndList, iItemStart, 0, sz, ARRAYSIZE(sz));
-    return CharUpperChar(sz[0]);
+    return CharUpperCharA(sz[0]);
 }
 
 LRESULT SFTBarHost::_OnSMNFindItemWorker(PSMNDIALOGMESSAGE pdm)
@@ -3124,7 +3124,7 @@ LRESULT SFTBarHost::_OnSMNFindItemWorker(PSMNDIALOGMESSAGE pdm)
             {
                 iItemStart = _GetLVCurSel() + 1;
             }
-            TCHAR tch = CharUpperChar((TCHAR)pdm->pmsg->wParam);
+            TCHAR tch = CharUpperCharA((TCHAR)pdm->pmsg->wParam);
             int iItems = ListView_GetItemCount(_hwndList);
             for (iItemStart; iItemStart < iItems; iItemStart++)
             {
