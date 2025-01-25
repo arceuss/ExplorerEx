@@ -126,6 +126,10 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <StackCommitSize>36864</StackCommitSize>
+      <ManifestFile>WindowsShell.manifest</ManifestFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,6 +146,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <StackCommitSize>57344</StackCommitSize>
+      <ManifestFile>WindowsShell.manifest</ManifestFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|Win32'">
@@ -158,6 +166,10 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <StackCommitSize>36864</StackCommitSize>
+      <ManifestFile>WindowsShell.manifest</ManifestFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -172,6 +184,10 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <StackCommitSize>36864</StackCommitSize>
+      <ManifestFile>WindowsShell.manifest</ManifestFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -189,8 +205,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EntryPointSymbol>ExplorerWinMain</EntryPointSymbol>
+      <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
       <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;ShLwApi.Lib;shell32.lib;shcore.lib;user32.lib;msi.lib;wtsapi32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <StackCommitSize>57344</StackCommitSize>
+      <ManifestFile>WindowsShell.manifest</ManifestFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">
@@ -211,8 +230,11 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EntryPointSymbol>ExplorerWinMain</EntryPointSymbol>
+      <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
       <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;ShLwApi.Lib;shell32.lib;shcore.lib;user32.lib;msi.lib;wtsapi32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <FixedBaseAddress>false</FixedBaseAddress>
+      <StackCommitSize>36864</StackCommitSize>
+      <ManifestFile>WindowsShell.manifest</ManifestFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
