@@ -1875,9 +1875,9 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
             g_fLogonCycle = IsFirstInstanceAfterLogon();
             g_fCleanShutdown = ReadCleanShutdown();
 
-            CheckDefaultUIFonts();
-            ChangeUIfontsToNewDPI(); //Check dpi values and update the fonts if needed.
-            CheckForServerAdminUI();
+            //CheckDefaultUIFonts();
+            //ChangeUIfontsToNewDPI(); //Check dpi values and update the fonts if needed.
+            //CheckForServerAdminUI();
 
             if (g_fLogonCycle)
             {
