@@ -232,7 +232,14 @@ HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB)
                 {
                     if (bStat)
                     {
-                        pNotifyCB->Notify(NIM_ADD, &ni);
+						//try
+						//{
+                            pNotifyCB->Notify(NIM_ADD, &ni);
+                        //}
+                        //catch (...)
+                        //{
+                        //}
+                        
                         //_TickleForTooltip(&ni);
                     }
                 }
@@ -3467,26 +3474,33 @@ LRESULT CTrayNotify::v_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
     case TNM_NOTIFY:
         {
-            ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
-            CNotificationItem* pni = (CNotificationItem*)lParam;
-            if (pni)
-            {
-                if (_pNotifyCB)
-                {
-                    INotificationCB* cb = 0;
-                    if (SUCCEEDED(_pNotifyCB->QueryInterface(&cb)))
-                    {
-
-						_pNotifyCB->Notify((UINT)wParam, pni);
-						if (wParam == NIM_ADD)
-						{
-							//_TickleForTooltip(pni);
-						}
-                    }
-                    
-                }
-                delete pni;
-            }
+        return (LRESULT)_pNotifyCB;
+		//ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
+		//CNotificationItem* pni = (CNotificationItem*)lParam;
+		//if (pni)
+		//{
+		//    if (_pNotifyCB)
+		//    {
+		//        INotificationCB* cb = 0;
+		//        if (SUCCEEDED(_pNotifyCB->QueryInterface(&cb)))
+		//        {
+		//            try {
+		//			    _pNotifyCB->Notify((UINT)wParam,pni);
+		//
+		//            }
+		//            catch (...)
+		//            {
+		//
+		//            }
+		//			if (wParam == NIM_ADD)
+		//			{
+		//				//_TickleForTooltip(pni);
+		//			}
+		//        }
+		//        
+		//    }
+		//    delete pni;
+		//}
         }
         break;
 
