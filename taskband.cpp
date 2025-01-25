@@ -2600,7 +2600,7 @@ void CTaskBand::_UpdateItemIcon(int iIndex)
         { CTaskBand::GetDefaultIconCB,  0,              },
     };
 
-    TBBUTTONINFO tbbi;
+    TBBUTTONINFO tbbi{};
     PTASKITEM pti = _GetItem(iIndex, &tbbi);
 
     if (pti)
@@ -4110,7 +4110,7 @@ void CTaskBand::_GetDispInfo(LPNMTBDISPINFO lptbdi)
         int iIndex = _tb.CommandToIndex(lptbdi->idCommand);
         _UpdateItemIcon(iIndex);
 
-        TBBUTTONINFO tbbi;
+        TBBUTTONINFO tbbi{};
         tbbi.cbSize = sizeof(tbbi);
         tbbi.dwMask = TBIF_BYINDEX | TBIF_IMAGE;
         _tb.GetButtonInfo(iIndex, &tbbi);

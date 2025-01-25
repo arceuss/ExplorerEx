@@ -471,7 +471,9 @@ typedef struct _tagSHELLREMINDER
 #define ToolBar_ButtonCount(hwnd)  \
     (BOOL)SNDMSG((hwnd), TB_BUTTONCOUNT, 0, 0)
 
+// returns -1 on failure, button index on success
 #define ToolBar_GetButtonInfo(hwnd, idBtn, lptbbi)  \
+    (int)(SNDMSG((hwnd), TB_GETBUTTONINFO, (WPARAM)(idBtn), (LPARAM)(lptbbi)))
 
 #define ARGUMENT_PRESENT(ArgumentPointer)    (\
     (CHAR *)(ArgumentPointer) != (CHAR *)(NULL) )

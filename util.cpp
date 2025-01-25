@@ -16,6 +16,7 @@
 #define STRSAFE_NO_CB_FUNCTIONS
 #define STRSAFE_NO_DEPRECATE
 #include <strsafe.h>
+#include <malloc.h>
 #include "ssomgr.h"
 
 #include "shundoc.h"
@@ -745,59 +746,34 @@ void RECTtoRECTL(LPRECT prc, LPRECTL lprcl)
 
 int Toolbar_GetUniqueID(HWND hwndTB)
 {
-    int iCount = ToolBar_ButtonCount(hwndTB);
+	int iCount = ToolBar_ButtonCount(hwndTB);
 
-    int *rgCmds = (int *)malloc(iCount * sizeof(*rgCmds));
+	ASSERTMSG(iCount < 1024 * 16, "Toolbar_GetUniqueID: toolbar is huge, we don't want to use alloca here");
+
+	int* rgCmds = (int*)_alloca(iCount * sizeof(*rgCmds));
 
     TBBUTTONINFO tbbi{};
-    tbbi.cbSize = sizeof(TBBUTTONINFO);
-    tbbi.dwMask = TBIF_BYINDEX | TBIF_COMMAND;
+	tbbi.cbSize = sizeof(TBBUTTONINFO);
+	tbbi.dwMask = TBIF_BYINDEX | TBIF_COMMAND;
 
-    int iCmd = 0;
+	for (int i = 0; i < iCount; i++)
+	{
+		ToolBar_GetButtonInfo(hwndTB, i, &tbbi);
+        printf("ToolBar_GetButtonInfo returns %i \n", tbbi.idCommand);
+		rgCmds[i] = tbbi.idCommand;
+	}
 
-    if (rgCmds)
-    {
-        int i;
-        for (i = 0; i < iCount; i++)
-        {
-            ToolBar_GetButtonInfo(hwndTB, i, &tbbi);
-            rgCmds[i] = tbbi.idCommand;
-        }
+	QSort<int>(rgCmds, iCount, TRUE);
 
-        QSort<int>(rgCmds, iCount, TRUE);
-
-        for (i = 0; i < iCount; i++)
-        {
-            if (iCmd != rgCmds[i])
-                break;
-            iCmd++;
-        }
-        free(rgCmds);
-    }
-    else // malloc failed, do it the slow way!
-    {
-        int i;
-        for (;;) // loop till break;
-        {
-            BOOL fFoundGoodCmd = TRUE;
-            for (i = 0; i < iCount; i++)
-            {
-                ToolBar_GetButtonInfo(hwndTB, i, &tbbi);
-                
-                if (iCmd == tbbi.idCommand) // Collision, skip to the next iCmd
-                {
-                    fFoundGoodCmd = FALSE;
-                    break;
-                }
-            }
-            if (fFoundGoodCmd)
-                break;
-
-            iCmd++; // Try next value
-        }
-    }
-
-    return iCmd;
+	int iCmd = 0;
+	for (int i = 0; i < iCount; i++)
+	{
+		if (iCmd != rgCmds[i])
+			break;
+		iCmd++;
+	}
+    printf("Toolbar_GetUniqueID hwnd %p iCmd %i\n",hwndTB,iCmd);
+	return iCmd;
 }
 
 BYTE ToolBar_GetStateByIndex(HWND hwnd, INT_PTR iIndex)

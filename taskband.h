@@ -14,7 +14,7 @@ class CGroupItemContextMenu;
 class TASKITEM
 {
 public:
-    TASKITEM() {};
+    TASKITEM() { ZeroMemory(this, sizeof(TASKITEM)); };
     TASKITEM(TASKITEM* pti);
     ~TASKITEM();
     HWND hwnd;  // NULL if this item is a group of application entries
