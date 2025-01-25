@@ -964,6 +964,9 @@ inline HRESULT(WINAPI *SHMapIDListToSystemImageListIndexAsync)(
     int *outIndex1,
     int *outIndex2
 );
+inline BOOL(WINAPI *IsShellManagedWindow)(HWND hwnd);
+inline BOOL(WINAPI *IsShellFrameWindow)(HWND hwnd);
+inline HWND(WINAPI *GhostWindowFromHungWindow)(HWND hwnd);
 void  SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 BOOL  SHIsSameObject(IUnknown* punk1, IUnknown* punk2);
 BOOL  SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
