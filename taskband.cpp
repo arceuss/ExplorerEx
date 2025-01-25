@@ -20,6 +20,7 @@
 #include "dpa.h"
 
 #include <vssym32.h>
+#include <dwmapi.h>
 #include "winuserp.h"
 
 
@@ -4293,8 +4294,21 @@ BOOL WINAPI CTaskBand::BuildEnumProc(HWND hwnd, LPARAM lParam)
     if (IsWindow(hwnd) && IsWindowVisible(hwnd) && !::GetWindow(hwnd, GW_OWNER) &&
         (!(GetWindowLong(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW)))
     {
-        ptasks->_AddWindow(hwnd);
+        BOOL bCloaked;
+        DwmGetWindowAttribute(hwnd, DWMWA_CLOAKED, &bCloaked, sizeof(BOOL));
+        if (bCloaked)
+            return TRUE;
 
+        if (IsShellFrameWindow(hwnd) && !GhostWindowFromHungWindow(hwnd))
+        {
+            ptasks->_AddWindow(hwnd);
+            return TRUE;
+        }
+
+        if (IsShellManagedWindow(hwnd) && GetPropW(hwnd, L"Microsoft.Windows.ShellManagedWindowAsNormalWindow") == NULL)
+            return TRUE;
+
+        ptasks->_AddWindow(hwnd);
     }
     return TRUE;
 }

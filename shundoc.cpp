@@ -3042,6 +3042,9 @@ bool SHUndocInit(void)
 
     LOAD_MODULE(user32);
     LOAD_FUNCTION(user32, EndTask);
+    LOAD_ORDINAL(user32, IsShellManagedWindow, 2574);
+    LOAD_ORDINAL(user32, IsShellFrameWindow, 2573);
+    LOAD_FUNCTION(user32, GhostWindowFromHungWindow);
 
     LOAD_MODULE(msi);
     LOAD_FUNCTION(msi, MsiDecomposeDescriptorW);

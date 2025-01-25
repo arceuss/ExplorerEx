@@ -130,6 +130,7 @@
       <FixedBaseAddress>false</FixedBaseAddress>
       <StackCommitSize>36864</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -150,6 +151,7 @@
       <FixedBaseAddress>false</FixedBaseAddress>
       <StackCommitSize>57344</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|Win32'">
@@ -170,6 +172,7 @@
       <FixedBaseAddress>false</FixedBaseAddress>
       <StackCommitSize>36864</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
+      <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -183,7 +186,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
       <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
       <FixedBaseAddress>false</FixedBaseAddress>
       <StackCommitSize>36864</StackCommitSize>
@@ -206,7 +209,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
-      <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;ShLwApi.Lib;shell32.lib;shcore.lib;user32.lib;msi.lib;wtsapi32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;ShLwApi.Lib;shell32.lib;shcore.lib;user32.lib;msi.lib;wtsapi32.lib;comctl32.lib;%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
       <FixedBaseAddress>false</FixedBaseAddress>
       <StackCommitSize>57344</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
@@ -231,7 +234,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
-      <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;ShLwApi.Lib;shell32.lib;shcore.lib;user32.lib;msi.lib;wtsapi32.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;ShLwApi.Lib;shell32.lib;shcore.lib;user32.lib;msi.lib;wtsapi32.lib;comctl32.lib;%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
       <FixedBaseAddress>false</FixedBaseAddress>
       <StackCommitSize>36864</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
