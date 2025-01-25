@@ -1108,6 +1108,10 @@ LPTSTR _SkipCmdLineCrap(LPTSTR pszCmdLine)
 
 STDAPI_(int) ModuleEntry()
 {
+
+    if (!SHUndocInit())
+        return -1;
+
     PERFSETMARK("ExplorerStartup");
 
     DoInitialization();
@@ -1761,9 +1765,6 @@ void CheckForServerAdminUI()
 
 int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int nCmdShow)
 {
-
-    if (!SHUndocInit())
-        return -1;
 
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
