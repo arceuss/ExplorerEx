@@ -99,14 +99,14 @@ static void EndExclusiveAccess(void)
 
 static void Shell_EnterCriticalSection(void)
 {
-    BeginExclusiveAccess();
+    //BeginExclusiveAccess();
 
     return;
 }
 
 static void Shell_LeaveCriticalSection(void)
 {
-    EndExclusiveAccess();
+    //EndExclusiveAccess();
 
     return;
 }
