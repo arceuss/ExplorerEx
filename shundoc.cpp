@@ -2990,6 +2990,7 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shell32, SHFindComputer, 91);
     LOAD_ORDINAL(shell32, SHTestTokenPrivilegeW, 236);
     LOAD_FUNCTION(shell32, SHUpdateRecycleBinIcon);
+    LOAD_ORDINAL(shell32, SHMapIDListToSystemImageListIndexAsync, 787);
 
 	LOAD_MODULE(shcore);
 	LOAD_ORDINAL(shcore, IUnknown_GetClassID, 142);

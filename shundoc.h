@@ -954,6 +954,16 @@ inline VOID(STDMETHODCALLTYPE* DisconnectWindowsDialog)(HWND hwndParent);
 inline COLORREF(STDMETHODCALLTYPE* SHFillRectClr)(HDC hdc, LPRECT lprect, COLORREF color);
 inline HMENU(STDMETHODCALLTYPE* SHGetMenuFromID)(HMENU hmMain, UINT uID);
 inline UINT(WINAPI* ImageList_GetFlags)(HIMAGELIST himl);
+inline HRESULT(WINAPI *SHMapIDListToSystemImageListIndexAsync)(
+    void *psts,
+    void *psf,
+    LPCITEMIDLIST pidlChild,
+    void (CALLBACK *pfnCallback)(LPCITEMIDLIST pidl, LPVOID pvData, LPVOID pvHint, INT iIconIndex, INT iOpenIconIndex),
+    void *pvCallbackData,
+    void *pvCallbackHint,
+    int *outIndex1,
+    int *outIndex2
+);
 void  SHAdjustLOGFONT(IN OUT LOGFONT* plf);
 BOOL  SHIsSameObject(IUnknown* punk1, IUnknown* punk2);
 BOOL  SHAreIconsEqual(HICON hIcon1, HICON hIcon2);
@@ -980,7 +990,6 @@ void _SHPrettyMenu(HMENU hm);
 HRESULT DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal);
 BOOL GetInfoTip(IShellFolder* psf, LPCITEMIDLIST pidl, LPTSTR pszText, int cchTextMax);
 HRESULT SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void** ppv);
-
 
 
 
