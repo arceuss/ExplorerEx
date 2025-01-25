@@ -416,7 +416,7 @@ void RunSystemMonitor(void)
 
     if (GetSystemDirectory(szTaskMan, ARRAYSIZE(szTaskMan)))
     {
-        if (PathAppend(szTaskMan, TEXT("taskmgr.exe")))
+        if (PathAppend(szTaskMan, TEXT("launchtm.exe")))
         {
             PathQuoteSpaces(szTaskMan);
 
