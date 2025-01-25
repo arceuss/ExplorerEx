@@ -536,4 +536,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Manifest Include="WindowsShell.manifest">
+      <Filter>Header Files</Filter>
+    </Manifest>
+  </ItemGroup>
 </Project>
