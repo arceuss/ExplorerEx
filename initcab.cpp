@@ -1105,16 +1105,19 @@ LPTSTR _SkipCmdLineCrap(LPTSTR pszCmdLine)
 
     return pszCmdLine;
 }
-
+EXTERN_C BOOL WINAPI _CRT_INIT(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved);
 STDAPI_(int) ModuleEntry()
 {
 
-    if (!SHUndocInit())
-        return -1;
+
 
     PERFSETMARK("ExplorerStartup");
 
-    DoInitialization();
+    _CRT_INIT(GetModuleHandle(0),DLL_PROCESS_ATTACH,NULL);
+    //DoInitialization();
+
+	if (!SHUndocInit())
+		return -1;
 
     // We don't want the "No disk in drive X:" requesters, so we set
     // the critical error mask such that calls will just silently fail
@@ -1131,7 +1134,8 @@ STDAPI_(int) ModuleEntry()
     int nCmdShow = si.dwFlags & STARTF_USESHOWWINDOW ? si.wShowWindow : SW_SHOWDEFAULT;
     int iRet = ExplorerWinMain(GetModuleHandle(NULL), NULL, pszCmdLine, nCmdShow);
 
-    DoCleanup();
+    _CRT_INIT(GetModuleHandle(0),DLL_PROCESS_DETACH,NULL);
+    //DoCleanup();
 
     // Since we now have a way for an extension to tell us when it is finished,
     // we will terminate all processes when the main thread goes away.
@@ -1955,9 +1959,9 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
                 // Enable display of balloons in the tray...
                 PostMessage(v_hwndTray, TM_SHOWTRAYBALLOON, TRUE, 0);
 
-                _CheckScreenResolution();
+                //_CheckScreenResolution();
 
-                _OfferTour();
+                //_OfferTour();
 
                 _FixWordMailRegKey();
 

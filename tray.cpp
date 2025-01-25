@@ -398,7 +398,8 @@ BOOL CTray::_InitTrayClass()
 {
     WNDCLASS wc = {0};
 
-    wc.lpszClassName = (LPWSTR)L"WNDCLASS_TRAYNOTIFY";
+    //used to be WNDCLASS_TRAYNOTIFY, but WNDCLASS_TRAYNOTIFY is macroed by the xp compiler, why why why why?????
+    wc.lpszClassName = (LPWSTR)L"Shell_TrayWnd";
     wc.style = CS_DBLCLKS;
     wc.lpfnWndProc = s_WndProc;
     wc.hInstance = hinstCabinet;
@@ -1710,7 +1711,7 @@ void CTray::_MessageLoop()
 BOOL CTray::Init()
 {
     // use _COINIT to make sure COM is inited disabling the OLE1 support
-    return SHCreateThread(MainThreadProc, this, CTF_COINIT, SyncThreadProc) && (_hwnd != NULL);
+    return SHCreateThread(MainThreadProc, this, CTF_COINIT, SyncThreadProc)  && (_hwnd != NULL);
 }
 
 int CTray::_GetPart(BOOL fSizingBar, UINT uStuckPlace)
@@ -1858,8 +1859,8 @@ DWORD WINAPI CTray::SyncThreadProc(void *pv)
 
 DWORD CTray::_SyncThreadProc()
 {
-    if (g_dwStopWatchMode)
-        //StopWatch_StartTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+    //if (g_dwStopWatchMode)
+    //    //StopWatch_StartTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
 
     if (g_dwProfileCAP & 0x00000002)
         StartCAP();
