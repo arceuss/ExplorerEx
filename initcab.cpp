@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "cabinet.h"
 #include "rcids.h"
 
@@ -1790,6 +1791,11 @@ void CheckForServerAdminUI()
 
 int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int nCmdShow)
 {
+	AllocConsole();
+	FILE* pFile;
+	freopen_s(&pFile, "CONOUT$", "w", stdout);
+
+    printf("Hello world!\n");
 
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
@@ -1947,7 +1953,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
 
                 // Put the active desktop in safe mode if we faulted 3 times previously and this is a subsequent instance
 
-                if (ShouldDisplaySafeMode() && SUCCEEDED(CoCreateInstance(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&piadp))))
+                if (ShouldDisplaySafeMode() && SUCCEEDED(CoCreateInstanceHook(CLSID_ActiveDesktop, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&piadp))))
                 {
                     piadp->SetSafeMode(SSM_SET | SSM_UPDATE);
                     piadp->Release();

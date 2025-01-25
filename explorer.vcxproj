@@ -238,6 +238,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cocreateinstancehook.h" />
     <ClInclude Include="cowsite.h" />
     <ClInclude Include="desktop2.h" />
     <ClInclude Include="desktopp.h" />
@@ -397,6 +398,7 @@
   <ItemGroup>
     <ClCompile Include="bandsite.cpp" />
     <ClCompile Include="classfac.cpp" />
+    <ClCompile Include="cocreateinstancehook.cpp" />
     <ClCompile Include="cowsite.cpp" />
     <ClCompile Include="cwndproc.cpp" />
     <ClCompile Include="debug.cpp" />

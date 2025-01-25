@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #include "proglist.h"
@@ -1094,7 +1095,7 @@ HRESULT ByUsage::Initialize()
 {
     HRESULT hr;
 
-    hr = CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
+    hr = CoCreateInstanceHook(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
                           IID_PPV_ARGS(&_psmpin));
     if (FAILED(hr))
     {

@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
@@ -244,7 +245,7 @@ LRESULT CMorePrograms::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     _InitMetrics();
 
     // We can survive if this fails to be created
-    CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
+    CoCreateInstanceHook(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
                      IID_PPV_ARGS(&_pdth));
 
     //
@@ -436,7 +437,7 @@ void CMorePrograms::_TrackShellMenu(DWORD dwFlags)
     tsm.dwFlags = dwFlags;
     if (!_psmPrograms)
     {
-        CoCreateInstance(CLSID_PersonalStartMenu, NULL, CLSCTX_INPROC,
+        CoCreateInstanceHook(CLSID_PersonalStartMenu, NULL, CLSCTX_INPROC,
             IID_PPV_ARGS(&_psmPrograms));
     }
 

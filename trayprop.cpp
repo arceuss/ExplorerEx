@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
 // This file contains Taskbar and Start Menu property sheet code
 //---------------------------------------------------------------------------
+#include "cocreateinstancehook.h"
 #include "cabinet.h"
 #include "rcids.h"
 #include "util.h"
@@ -142,7 +143,7 @@ CPinHelper::CPinHelper()
 {
     _pidlBrowser = ILCreateFromPath(TEXT("shell:::{2559a1f4-21d7-11d4-bdaf-00c04f60b9f0}"));
     _pidlEmail   = ILCreateFromPath(TEXT("shell:::{2559a1f5-21d7-11d4-bdaf-00c04f60b9f0}"));
-    CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
+    CoCreateInstanceHook(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
                      IID_PPV_ARGS(&_psmp));
 }
 
@@ -518,7 +519,7 @@ LRESULT CNotificationsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam,
     }
 
     // localserver for tray notify
-    if (SUCCEEDED(CoCreateInstance(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&_pTrayNotify))))
+    if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&_pTrayNotify))))
     {
         INotificationCB* pCB;
 
@@ -1550,7 +1551,7 @@ void CCustomizeSPPropSheet::_SaveMagicEntries()
 
 BOOL CCustomizeSPPropSheet::AdvancedTabInit(HWND hDlg)
 {
-    if (SUCCEEDED(CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_prto))))
+    if (SUCCEEDED(CoCreateInstanceHook(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_prto))))
     {
         HRESULT hr;
         HWND hwndTV = ::GetDlgItem(hDlg, IDC_STARTMENUSETTINGS);
@@ -1833,7 +1834,7 @@ BOOL_PTR CTaskBarPropertySheet::StartMenuDlgProc(HWND hDlg, UINT uMsg, WPARAM wP
             }
             case IDC_OLDSTARTCUSTOMIZE:
             {
-                if (FAILED(CoCreateInstance(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_Adv.pTO))))
+                if (FAILED(CoCreateInstanceHook(CLSID_CRegTreeOptions, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_Adv.pTO))))
                 {
                     break;
                 }
@@ -1889,7 +1890,7 @@ void _UpdateNotifySetting(BOOL fNotifySetting)
 {
     ITrayNotify * pTrayNotify = NULL;
     // localserver for tray notify
-    if (SUCCEEDED(CoCreateInstance(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&pTrayNotify))))
+    if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&pTrayNotify))))
     {
         pTrayNotify->EnableAutoTray(fNotifySetting);
         pTrayNotify->Release();
@@ -2263,7 +2264,7 @@ void MenuOrderSort(HKEY hkeyRoot, IShellFolder* psf)
     if (pstm)
     {
         IOrderList2* pol2;
-        if (SUCCEEDED(CoCreateInstance(CLSID_OrderListExport, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pol2))))
+        if (SUCCEEDED(CoCreateInstanceHook(CLSID_OrderListExport, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pol2))))
         {
             HDPA hdpa;
             if (SUCCEEDED(pol2->LoadFromStream(pstm, &hdpa, psf)))
@@ -2313,7 +2314,7 @@ void StartMenuSort()
             IAugmentedShellFolder2* pasf;
             IShellFolder* psfCommon;
             IShellFolder* psfUser;
-            HRESULT hres = CoCreateInstance(CLSID_MergedFolder, NULL, CLSCTX_INPROC_SERVER,
+            HRESULT hres = CoCreateInstanceHook(CLSID_MergedFolder, NULL, CLSCTX_INPROC_SERVER,
                                     IID_PPV_ARGS(&pasf));
             if (SUCCEEDED(hres))
             {

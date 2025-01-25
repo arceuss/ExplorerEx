@@ -1,4 +1,4 @@
-
+#include "cocreateinstancehook.h"
 #include "cabinet.h"
 #include "tray.h"
 #include "ssomgr.h"
@@ -19,7 +19,7 @@ HRESULT CShellServiceObjectMgr::_LoadObject(REFCLSID rclsid, DWORD dwFlags)
 
             // SECURITY: this clsid was given to us by another application and we are pulling them into
             // our process
-            hr = CoCreateInstance(rclsid, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER,
+            hr = CoCreateInstanceHook(rclsid, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER,
                                     IID_PPV_ARGS(&sso.pct));
 
             if (SUCCEEDED(hr))
@@ -40,7 +40,7 @@ HRESULT CShellServiceObjectMgr::_LoadObject(REFCLSID rclsid, DWORD dwFlags)
     {
         // just ask for IUnknown for these dudes
         IUnknown *punk;
-        hr = CoCreateInstance(rclsid, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER,
+        hr = CoCreateInstanceHook(rclsid, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER,
                                 IID_PPV_ARGS(&punk));
         if (SUCCEEDED(hr))
         {

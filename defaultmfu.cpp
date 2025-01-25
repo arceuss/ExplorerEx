@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
@@ -125,7 +126,7 @@ MFUExclusion::MFUExclusion() : _cExcluded(0)
     IStartMenuPin *psmpin;
     HRESULT hr;
 
-    hr = CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
+    hr = CoCreateInstanceHook(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
                           IID_PPV_ARGS(&psmpin));
     if (SUCCEEDED(hr))
     {

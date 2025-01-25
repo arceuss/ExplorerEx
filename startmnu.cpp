@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "cabinet.h"
 #include "rcids.h"
 #include "shguidp.h"
@@ -204,7 +205,7 @@ HRESULT StartMenuHost_Create(IMenuPopup** ppmp, IMenuBand** ppmb)
     CStartMenuHost *psmh = new CStartMenuHost();
     if (psmh)
     {
-        hres = CoCreateInstance(CLSID_StartMenuBar, NULL, CLSCTX_INPROC_SERVER, 
+        hres = CoCreateInstanceHook(CLSID_StartMenuBar, NULL, CLSCTX_INPROC_SERVER,
                                 IID_IMenuPopup, (LPVOID*)&pmp);
         if (SUCCEEDED(hres))
         {

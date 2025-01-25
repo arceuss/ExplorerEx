@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "stdafx.h"
 #include "startids.h"           // for IDM_PROGRAMS et al
 #include "regstr.h"
@@ -51,14 +52,14 @@ HRESULT CPopupMenu::Initialize(IShellMenu *psm, IUnknown *punkSite, HWND hwnd)
     ASSERT(_pmb == NULL);
     ASSERT(_psm == NULL);
 
-    hr = CoCreateInstance(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER,
+    hr = CoCreateInstanceHook(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER,
                           IID_PPV_ARGS(&_pmp));
     if (SUCCEEDED(hr))
     {
         IUnknown_SetSite(_pmp, punkSite);
 
         IBandSite *pbs;
-        hr = CoCreateInstance(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER,
+        hr = CoCreateInstanceHook(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER,
                               IID_PPV_ARGS(&pbs));
         if (SUCCEEDED(hr))
         {
@@ -2011,7 +2012,7 @@ LRESULT CDesktopHost::OnCommandInvoked(NMHDR *pnm)
     {
         if (!_ptFader)
         {
-            CoCreateInstance(CLSID_FadeTask, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_ptFader));
+            CoCreateInstanceHook(CLSID_FadeTask, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_ptFader));
         }
         if (_ptFader)
         {

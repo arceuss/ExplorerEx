@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "cabinet.h"
 
 #include <wtsapi32.h>   // for NOTIFY_FOR_THIS_SESSION
@@ -1935,7 +1936,7 @@ DWORD CTray::_SyncThreadProc()
 
         // get the system background scheduler thread
         IShellTaskScheduler* pScheduler;
-        if (SUCCEEDED(CoCreateInstance(CLSID_SharedTaskScheduler, NULL, CLSCTX_INPROC,
+        if (SUCCEEDED(CoCreateInstanceHook(CLSID_SharedTaskScheduler, NULL, CLSCTX_INPROC,
                                        IID_PPV_ARGS(&pScheduler))))
         {
             AddMenuItemsCacheTask(pScheduler, Tray_StartPanelEnabled());
@@ -7794,7 +7795,7 @@ int CTray::_ToggleQL(int iVisible)
                 {
                     IFolderBandPriv *pfbp;
                     // create an ISF band to show folders as hotlinks
-                    if (SUCCEEDED(CoCreateInstance(CLSID_ISFBand, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfbp))))
+                    if (SUCCEEDED(CoCreateInstanceHook(CLSID_ISFBand, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfbp))))
                     {
                         IShellFolderBand* psfb;
                         if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARGS(&psfb))))
@@ -8576,7 +8577,7 @@ void CTray::_RegisterDropTargets()
 
     // It is not a serious error if this fails; it just means that
     // drag/drop to the Start Button will not add to the pin list
-    CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
+    CoCreateInstanceHook(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
                      IID_PPV_ARGS(&_psmpin));
 }
 
@@ -8776,7 +8777,7 @@ BOOL CTray::_ToggleLanguageBand(BOOL fShowIt)
     if (fShowIt && !fFound)
     {
         IDeskBand* pdb;
-        HRESULT hr = CoCreateInstance(CLSID_MSUTBDeskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
+        HRESULT hr = CoCreateInstanceHook(CLSID_MSUTBDeskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
         if (SUCCEEDED(hr))
         {
             hr = _ptbs->AddBand(pdb);

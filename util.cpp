@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "util.h"
 #include "rcids.h"
 #include "psapi.h"
@@ -1592,7 +1593,7 @@ BOOL _IsDirectXExclusiveMode()
 
     IDirectDraw7 *pIDirectDraw7 = NULL;
 
-    HRESULT hr = CoCreateInstance(CLSID_DirectDraw7, NULL, CLSCTX_INPROC_SERVER,
+    HRESULT hr = CoCreateInstanceHook(CLSID_DirectDraw7, NULL, CLSCTX_INPROC_SERVER,
         IID_IDirectDraw7, (void**)&pIDirectDraw7);
 
     if (SUCCEEDED(hr))

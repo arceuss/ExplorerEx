@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #include "specfldr.h"
@@ -1011,7 +1012,7 @@ HRESULT SpecialFolderList::GetCascadeMenu(PaneItem *p, IShellMenu **ppsm)
     if (SUCCEEDED(hr))
     {
         IShellMenu *psm;
-        hr = CoCreateInstance(CLSID_MenuBand, NULL, CLSCTX_INPROC_SERVER,
+        hr = CoCreateInstanceHook(CLSID_MenuBand, NULL, CLSCTX_INPROC_SERVER,
                               IID_PPV_ARGS(&psm));
         if (SUCCEEDED(hr))
         {

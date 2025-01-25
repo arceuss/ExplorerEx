@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "cabinet.h"
 #include "taskband.h"
 #include "shguidp.h"
@@ -4446,16 +4447,16 @@ HRESULT CTaskBand::_CreatePopupMenu(POINTL* ppt, RECTL* prcl)
     CTaskBandSMC* ptbc = new CTaskBandSMC(this);
     if (ptbc)
     {
-        if (SUCCEEDED(CoCreateInstance(CLSID_MenuBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_psmPopup))) &&
+        if (SUCCEEDED(CoCreateInstanceHook(CLSID_MenuBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_psmPopup))) &&
             SUCCEEDED(_psmPopup->Initialize(ptbc, 0, 0, SMINIT_CUSTOMDRAW | SMINIT_VERTICAL | SMINIT_TOPLEVEL | SMINIT_USEMESSAGEFILTER)) &&
-            SUCCEEDED(CoCreateInstance(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_pmpPopup))) &&
+            SUCCEEDED(CoCreateInstanceHook(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_pmpPopup))) &&
             SUCCEEDED(_psmPopup->SetMenu(_menuPopup, _hwnd, SMSET_USEPAGER | SMSET_NOPREFIX)) &&
             SUCCEEDED(_psmPopup->QueryInterface(IID_PPV_ARGS(&_pmbPopup))))
         {
             _psmPopup->SetMinWidth(RECTWIDTH(*prcl));
 
             IBandSite* pbs;
-            if (SUCCEEDED(CoCreateInstance(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pbs))))
+            if (SUCCEEDED(CoCreateInstanceHook(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pbs))))
             {
                 if (SUCCEEDED(_pmpPopup->SetClient(pbs)))
                 {
@@ -5762,7 +5763,7 @@ DWORD WINAPI HardErrorBalloonThread(PVOID pv)
         {
             IUserNotification *pun;
             HRESULT hr;
-            hr = CoCreateInstance(CLSID_UserNotification, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pun));
+            hr = CoCreateInstanceHook(CLSID_UserNotification, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pun));
             if (SUCCEEDED(hr))
             {
                 pun->SetBalloonRetry(120 * 1000, 0, 0);

@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "cabinet.h"
 #include "rcids.h"
 #include "shguidp.h"
@@ -293,7 +294,7 @@ HRESULT CTrayBandSite::GetBandSiteInfo (BANDSITEINFO * pbsinfo)
 HRESULT CTrayBandSite::_AddRequiredBands()
 {
     IDeskBand* pdb;
-    HRESULT hr = CoCreateInstance(CLSID_TaskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
+    HRESULT hr = CoCreateInstanceHook(CLSID_TaskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
     if (SUCCEEDED(hr))
     {
         hr = AddBand(pdb);
@@ -441,7 +442,7 @@ IContextMenu3* CTrayBandSite::GetContextMenu()
 {
     if (!_pcm)
     {
-        if (SUCCEEDED(CoCreateInstance(CLSID_BandSiteMenu, NULL,CLSCTX_INPROC_SERVER, 
+        if (SUCCEEDED(CoCreateInstanceHook(CLSID_BandSiteMenu, NULL,CLSCTX_INPROC_SERVER,
                          IID_PPV_ARGS(&_pcm))))
         {
             IShellService* pss;
@@ -516,7 +517,7 @@ IBandSite* BandSite_CreateView()
     CTrayBandSite *ptbs = new CTrayBandSite;
     if (ptbs)
     {
-        hr = CoCreateInstance(CLSID_RebarBandSite, (IBandSite*)ptbs, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&punk));
+        hr = CoCreateInstanceHook(CLSID_RebarBandSite, (IBandSite*)ptbs, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&punk));
         if (SUCCEEDED(hr))
         {
             ptbs->SetInner(punk);    // paired w/ Release in outer (TBS::Release)
@@ -850,7 +851,7 @@ void BandSite_Load()
     if (FAILED(hr) || FAILED(BandSite_FindBand(ptbs, CLSID_TipBand, CLSID_NULL, NULL, &iCount, &dwBandID)))
     {
         IDeskBand* pdb;
-        HRESULT hr = CoCreateInstance(CLSID_TipBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
+        HRESULT hr = CoCreateInstanceHook(CLSID_TipBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
         if (SUCCEEDED(hr))
         {
             hr = ptbs->AddBand(pdb);

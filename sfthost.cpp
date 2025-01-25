@@ -1,3 +1,4 @@
+#include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
 //#include <browseui.h>
@@ -1029,9 +1030,9 @@ LRESULT SFTBarHost::_OnCreate(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam
     }
 
     // We can survive if these objects fail to be created
-    CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
+    CoCreateInstanceHook(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
                      IID_PPV_ARGS(&_pdth));
-    CoCreateInstance(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
+    CoCreateInstanceHook(CLSID_DragDropHelper, NULL, CLSCTX_INPROC_SERVER,
                      IID_PPV_ARGS(&_pdsh));
 
     //
@@ -1383,7 +1384,7 @@ void SFTBarHost::_EnumerateContents(BOOL fUrgent)
         else
         {
             // We need a separate task scheduler for each instance
-            hr = CoCreateInstance(CLSID_ShellTaskScheduler, NULL, CLSCTX_INPROC_SERVER,
+            hr = CoCreateInstanceHook(CLSID_ShellTaskScheduler, NULL, CLSCTX_INPROC_SERVER,
                                   IID_PPV_ARGS(&_psched));
         }
 
@@ -2642,7 +2643,7 @@ void OfferDelete::_ThreadProc()
     _hwnd = SHCreateWorkerWindowW(NULL, NULL, 0, 0, NULL, NULL);
     if (_hwnd)
     {
-        if (SUCCEEDED(CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
+        if (SUCCEEDED(CoCreateInstanceHook(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
                                        IID_PPV_ARGS(&_psmpin))))
         {
             //
