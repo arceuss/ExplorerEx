@@ -929,7 +929,6 @@ HRESULT IUnknown_DragLeave(IUnknown* punk);
 
 inline HRESULT(STDMETHODCALLTYPE* SHPropagateMessage)(HWND hwndParent, UINT uMsg, WPARAM wParam, LPARAM lParam, int iFlags);
 inline HRESULT(STDMETHODCALLTYPE* SHGetUserDisplayName)(LPWSTR pszDisplayName, PULONG uLen);
-inline HRESULT(STDMETHODCALLTYPE* SHGetUserPicturePath)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
 inline HRESULT(STDMETHODCALLTYPE* SHSetWindowBits)(HWND hwnd, int iWhich, DWORD dwBits, DWORD dwValue);
 inline HRESULT(STDMETHODCALLTYPE* SHRunIndirectRegClientCommand)(HWND hwnd, LPCWSTR pszClient);
 inline HRESULT(STDMETHODCALLTYPE* SHInvokeDefaultCommand)(HWND hwnd, IShellFolder* psf, LPCITEMIDLIST pidlItem);
@@ -1233,7 +1232,7 @@ HRESULT DisplayNameOf(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPTSTR
     (BOOL)SNDMSG((hwnd), TB_COMMANDTOINDEX, (WPARAM)(idBtn), 0)
 
 
-BOOL SHRunControlPanelCustom(PCWSTR lpcszCmdLine, HWND hwndMsgParent);
+BOOL SHRunControlPanelCustom(LPCTSTR lpcszCmdLine, HWND hwndMsgParent);
 
 //
 // Function loader
@@ -1266,5 +1265,8 @@ void ReleaseStgMediumHGLOBAL(void* pv, STGMEDIUM* pmedium);
 void HIDA_ReleaseStgMedium(LPIDA pida, STGMEDIUM* pmedium);
 
 HRESULT IsPinnable(IDataObject* pdtobj, DWORD dwFlags, OPTIONAL LPITEMIDLIST* ppidl);
+
+inline HRESULT(WINAPI* SHGetUserPicturePath_t)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
+HRESULT WINAPI SHGetUserPicturePath(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath);
 
 #include "interfacesp.inc"

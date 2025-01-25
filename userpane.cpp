@@ -397,9 +397,9 @@ HRESULT CUserPane::_UpdateUserInfo()
     }
 
     // see if we should load the picture
-    BOOL bShowPicture = FALSE;
-    //if (_hTheme)
-    //    GetThemeBool(_hTheme, SPP_USERPANE, 0, TMT_USERPICTURE, &bShowPicture);
+    BOOL bShowPicture = TRUE;
+	//if (_hTheme)
+	//	GetThemeBool(_hTheme, SPP_USERPANE, 0, TMT_USERPICTURE, &bShowPicture);
 
     // add FriendlyLogonUI check here, since SHGetUserPicturePath
     BOOL fGina = SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("GinaUI"), FALSE, FALSE);
@@ -408,7 +408,7 @@ HRESULT CUserPane::_UpdateUserInfo()
         TCHAR szUserPicturePath[MAX_PATH];
         szUserPicturePath[0] = _T('0');
 
-        SHGetUserPicturePath(NULL, SHGUPP_FLAG_CREATE, szUserPicturePath, MAX_PATH);
+        SHGetUserPicturePath(NULL, SHGUPP_FLAG_CREATE, szUserPicturePath);
 
         if (szUserPicturePath[0])
         {

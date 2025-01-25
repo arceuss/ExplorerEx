@@ -1179,7 +1179,11 @@ void CDesktopHost::_DismissTrackShellMenu()
 
 void CDesktopHost::_CleanupTrackShellMenu()
 {
-    ATOMICRELEASE(_ppmTracking);
+    if (_ppmTracking)
+    {
+        _ppmTracking->Release();
+        _ppmTracking = NULL;
+    }
     _hwndTracking = NULL;
     _hwndAltTracking = NULL;
     KillTimer(_hwnd, IDT_MENUCHANGESEL);
