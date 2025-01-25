@@ -335,12 +335,12 @@ typedef struct tagSHCNF_INSTRUMENT {
 typedef struct _tagSHELLREMINDER
 {
     DWORD  cbSize;
-    LPWSTR pszName;
-    LPWSTR pszTitle;
-    LPWSTR pszText;
-    LPWSTR pszTooltip;
-    LPWSTR pszIconResource;
-    LPWSTR pszShellExecute;
+    LPCWSTR pszName;
+    LPCWSTR pszTitle;
+    LPCWSTR pszText;
+    LPCWSTR pszTooltip;
+    LPCWSTR pszIconResource;
+    LPCWSTR pszShellExecute;
     GUID* pclsid;
     DWORD  dwShowTime;
     DWORD  dwRetryInterval;
@@ -1248,6 +1248,16 @@ const CLSID CLSID_FadeTask = { 0x7EB5FBE4, 0x2100, 0x49E6, { 0x85, 0x93, 0x17, 0
 
 DEFINE_GUID(IID_IAssociationElement, 0xD8F6AD5B, 0xB44F, 0x4BCC, 0x88, 0xFD, 0xEB, 0x34, 0x73, 0xDB, 0x75, 0x02);
 
+DEFINE_GUID(CLSID_PostBootReminder, 0x7849596a, 0x48ea, 0x486e, 0x89, 0x37, 0xa2, 0xa3, 0x00, 0x9f, 0x31, 0xa9);
+DEFINE_GUID(IID_IShellReminderManager, 0x968edb91, 0x8a70, 0x4930, 0x83, 0x32, 0x5f, 0x15, 0x83, 0x8a, 0x64, 0xf9);
+
+MIDL_INTERFACE("968edb91-8a70-4930-8332-5f15838a64f9")
+IShellReminderManager : IUnknown
+{
+    virtual HRESULT Add(const SHELLREMINDER* psr) PURE;
+    virtual HRESULT Delete(LPCWSTR pszName) PURE;
+    virtual HRESULT Enum(void** ppesr) PURE;
+};
 
 BOOL IsStartPanelOn();
 

@@ -250,6 +250,7 @@
     <ClInclude Include="path.h" />
     <ClInclude Include="qsort.h" />
     <ClInclude Include="runtask.h" />
+    <ClInclude Include="shfusion.h" />
     <ClInclude Include="winter.h" />
     <ClInclude Include="wmiumkm.h" />
     <ClInclude Include="wtl\atlapp.h" />
@@ -420,6 +421,7 @@
     <ClCompile Include="proglist.cpp" />
     <ClCompile Include="runtask.cpp" />
     <ClCompile Include="sfthost.cpp" />
+    <ClCompile Include="shfusion.cpp" />
     <ClCompile Include="shundoc.cpp" />
     <ClCompile Include="specfldr.cpp" />
     <ClCompile Include="ssomgr.cpp" />

@@ -1,4 +1,5 @@
 #include "cocreateinstancehook.h"
+#include "shfusion.h"
 #include "cabinet.h"
 #include "rcids.h"
 
@@ -1646,7 +1647,18 @@ typedef BOOL (*CHECKFUNCTION)(void);
 
 void _ConditionalBalloonLaunch(CHECKFUNCTION pCheckFct, SHELLREMINDER* psr)
 {
-    // stub
+	if (pCheckFct())
+	{
+		IShellReminderManager* psrm;
+		HRESULT hr = CoCreateInstance(CLSID_PostBootReminder, NULL, CLSCTX_INPROC_SERVER,
+			IID_PPV_ARG(IShellReminderManager, &psrm));
+
+		if (SUCCEEDED(hr))
+		{
+			psrm->Add(psr);
+			psrm->Release();
+		}
+	}
 }
 
 
@@ -1660,18 +1672,18 @@ void _CheckScreenResolution(void)
     LoadString(hinstCabinet, IDS_FIXSCREENRES_TEXT, szText, ARRAYSIZE(szText));
 
     sr.cbSize = sizeof (sr);
-    //sr.pszName = L"Microsoft.FixScreenResolution";
-    wsprintf(sr.pszName, L"Microsoft.FixScreenResolution");
+    sr.pszName = L"Microsoft.FixScreenResolution";
+    //wsprintf(sr.pszName, L"Microsoft.FixScreenResolution");
     sr.pszTitle = szTitle;
     sr.pszText = szText;
-    //sr.pszIconResource = L"explorer.exe,9";
-    wsprintf(sr.pszIconResource, L"explorer.exe,9");
+    sr.pszIconResource = L"explorer.exe,9";
+    //wsprintf(sr.pszIconResource, L"explorer.exe,9");
     sr.dwTypeFlags = NIIF_INFO;
     GUID CLSID_ScreenResFixer;
     CLSIDFromString(L"5a3d988e-820d-4aaf-ba87-440081768a17", &CLSID_ScreenResFixer);
     sr.pclsid = (GUID*)&CLSID_ScreenResFixer; // Try to run the Screen Resolution Fixing code over in ThemeUI
-    //sr.pszShellExecute = L"desk.cpl"; // Open the Display Control Panel as a backup
-    wsprintf(sr.pszShellExecute, L"desk.cpl");
+    sr.pszShellExecute = L"desk.cpl"; // Open the Display Control Panel as a backup
+    //wsprintf(sr.pszShellExecute, L"desk.cpl");
 
 
     _ConditionalBalloonLaunch(_ShouldFixResolution, &sr);
@@ -1688,15 +1700,15 @@ void _OfferTour(void)
     LoadString(hinstCabinet, IDS_OFFERTOUR_TEXT, szText, ARRAYSIZE(szText));
 
     sr.cbSize = sizeof (sr);
-    //sr.pszName = L"Microsoft.OfferTour";
-    wsprintf(sr.pszName, L"Microsoft.OfferTour");
+    sr.pszName = L"Microsoft.OfferTour";
+    //wsprintf(sr.pszName, L"Microsoft.OfferTour");
     sr.pszTitle = szTitle;
     sr.pszText = szText;
-    //sr.pszIconResource = L"tourstart.exe,0";
-    wsprintf(sr.pszIconResource, L"tourstart.exe,0");
+    sr.pszIconResource = L"tourstart.exe,0";
+    //wsprintf(sr.pszIconResource, L"tourstart.exe,0");
     sr.dwTypeFlags = NIIF_INFO;
-    //sr.pszShellExecute = L"tourstart.exe";
-    wsprintf(sr.pszShellExecute, L"tourstart.exe");
+    sr.pszShellExecute = L"tourstart.exe";
+    //wsprintf(sr.pszShellExecute, L"tourstart.exe");
     sr.dwShowTime = 60000;
 
     _ConditionalBalloonLaunch(_ShouldOfferTour, &sr);
@@ -1799,7 +1811,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
 
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
-    //SHFusionInitializeFromModule(hInstance);
+    SHFusionInitializeFromModule(hInstance);
 
     typedef void(__stdcall* ShellDDEInit_t)(bool bInit);
     ShellDDEInit_t ShellDDEInit;
@@ -2020,7 +2032,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
         _Module.Term();
     }
 
-    //SHFusionUninitialize();
+    SHFusionUninitialize();
 
     return TRUE;
 }
