@@ -197,7 +197,8 @@ HRESULT CDesktopHost::SetSite(IUnknown *punkSite)
         // The _ppmpPrograms contains multiple backreferences to
         // the CDesktopHost (we are its site, it also references
         // us via CDesktopShellMenuCallback...)
-        ATOMICRELEASE(_ppmPrograms);
+        if (_ppmPrograms)
+            _ppmPrograms->Release();
     }
     return S_OK;
 }
@@ -209,8 +210,11 @@ CDesktopHost::~CDesktopHost()
         DeleteObject(_hbmCachedSnapshot);
     }
 
-    ATOMICRELEASE(_ppmPrograms);
-    ATOMICRELEASE(_ppmTracking);
+    if (_ppmPrograms)
+        _ppmPrograms->Release();
+
+    if (_ppmTracking)
+        _ppmTracking->Release();
 
     if (_hwnd)
     {

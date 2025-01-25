@@ -101,4 +101,6 @@ BOOL CreateProcessWithArgs(LPCTSTR pszApp, LPCTSTR pszArgs, LPCTSTR pszDirectory
 BOOL IsDirectXAppRunningFullScreen();
 BOOL _IsDirectXExclusiveMode();
 
+HRESULT SHCacheTrackingFolder(LPCITEMIDLIST pidlRoot, int csidlTarget, IShellFolder2** ppsfCache);
+
 #endif  // _UTIL_H

@@ -88,6 +88,20 @@ HRESULT CTaskBand_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk);
 HRESULT CTrayBandSiteService_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk);
 HRESULT CTrayNotifyStub_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk);
 
+//these are defined in shell32startmnu.cpp
+HRESULT CStartMenu_CreateInstance(LPUNKNOWN punkOuter, REFIID riid, void** ppvOut);
+HRESULT CPersonalStartMenu_CreateInstance(LPUNKNOWN punkOuter, REFIID riid, void** ppvOut);
+
+HRESULT CStartMenu_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk)
+{
+    return CStartMenu_CreateInstance(punkOuter,IID_PPV_ARGS(ppunk));
+} 
+
+HRESULT CPersonalStartMenu_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk)
+{
+    return CPersonalStartMenu_CreateInstance(punkOuter, IID_PPV_ARGS(ppunk));
+}
+
 static const struct
 {
     CLSID const* pclsid;
@@ -98,6 +112,8 @@ c_ClassParams[] =
     { &CLSID_TaskBand,            CTaskBand_CreateInstance },
     { &CLSID_TrayBandSiteService, CTrayBandSiteService_CreateInstance },
     { &CLSID_TrayNotify,          CTrayNotifyStub_CreateInstance },
+    { &CLSID_StartMenu ,          CStartMenu_CreateInstance },
+    { &CLSID_PersonalStartMenu,          CPersonalStartMenu_CreateInstance },
 };
 
 CDynamicClassFactory* g_rgpcf[ARRAYSIZE(c_ClassParams)] = {0};

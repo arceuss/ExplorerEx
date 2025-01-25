@@ -234,6 +234,9 @@
     <ClInclude Include="cocreateinstancehook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="shfusion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">
@@ -539,6 +542,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cocreateinstancehook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shfusion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shell32startmnu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

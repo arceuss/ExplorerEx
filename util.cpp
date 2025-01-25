@@ -1596,4 +1596,55 @@ BOOL _IsDirectXExclusiveMode()
     return fRet;
 }
 
+void* SHInterlockedCompareExchange(void** ppDest, void* pExch, void* pComp)
+{
 
+	return InterlockedCompareExchangePointer(ppDest, pExch, pComp);
+
+}
+
+void SetUnknownOnSuccess(HRESULT hr, IUnknown* punk, IUnknown** ppunkToSet)
+{
+	if (SUCCEEDED(hr))
+	{
+		if (SHInterlockedCompareExchange((void**)ppunkToSet, punk, 0))
+			punk->Release();  // race, someone did this already
+	}
+}
+
+HRESULT SHCacheTrackingFolder(LPCITEMIDLIST pidlRoot, int csidlTarget, IShellFolder2** ppsfCache)
+{
+	HRESULT hr = S_OK;
+
+	if (!*ppsfCache)
+	{
+		PERSIST_FOLDER_TARGET_INFO pfti = { 0 };
+		IShellFolder2* psf;
+		LPITEMIDLIST pidl;
+
+		// add FILE_ATTRIBUTE_SYSTEM to allow MUI stuff underneath this folder.
+		// since its just for these tracking folders it isnt a perf hit to enable this.
+		pfti.dwAttributes = FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_SYSTEM;
+		pfti.csidl = csidlTarget | CSIDL_FLAG_PFTI_TRACKTARGET;
+
+		if (IS_INTRESOURCE(pidlRoot))
+		{
+			hr = SHGetFolderLocation(NULL, PtrToInt(pidlRoot), NULL, 0, &pidl);
+		}
+		else
+		{
+			pidl = const_cast<LPITEMIDLIST>(pidlRoot);
+		}
+
+		if (SUCCEEDED(hr))
+		{
+			hr = CFSFolder_CreateFolder(NULL, NULL, pidl, &pfti, IID_PPV_ARGS(&psf));
+			SetUnknownOnSuccess(hr, psf, (IUnknown**)ppsfCache);
+		}
+
+		if (pidl != pidlRoot)
+			ILFree(pidl);
+
+	}
+	return hr;
+}

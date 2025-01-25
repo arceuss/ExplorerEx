@@ -199,7 +199,7 @@ typedef struct SMNTRACKSHELLMENU {
 } SMNTRACKSHELLMENU, *PSMNTRACKSHELLMENU;
 
 #define REGSTR_PATH_STARTPANE \
-        TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartPage")
+        TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\StartPageXP")
 
 #define REGSTR_PATH_STARTPANE_SETTINGS \
         TEXT("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced")

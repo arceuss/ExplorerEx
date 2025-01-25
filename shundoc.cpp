@@ -117,71 +117,6 @@ CStrOutW::BufSize()
     return _cchBuf;
 }
 
-
-class CDarwinAd
-{
-public:
-    LPITEMIDLIST    _pidl;
-    LPTSTR          _pszDescriptor;
-    LPTSTR          _pszLocalPath;
-    INSTALLSTATE    _state;
-
-    CDarwinAd(LPITEMIDLIST pidl, LPTSTR psz)
-    {
-        // I take ownership of this pidl
-        _pidl = pidl;
-        Str_SetPtrW(&_pszDescriptor, psz);
-    }
-
-    void CheckInstalled()
-    {
-        TCHAR szProduct[38];
-        TCHAR szFeature[38];
-        TCHAR szComponent[38];
-
-        if (MsiDecomposeDescriptorW(_pszDescriptor, szProduct, szFeature, szComponent, NULL) == ERROR_SUCCESS)
-        {
-            _state = MsiQueryFeatureState(szProduct, szFeature);
-        }
-        else
-        {
-            _state = (INSTALLSTATE)-2;
-        }
-
-        // Note: Cannot use ParseDarwinID since that bumps the usage count
-        // for the app and we're not running the app, just looking at it.
-        // Also because ParseDarwinID tries to install the app (eek!)
-        //
-        // Must ignore INSTALLSTATE_SOURCE because MsiGetComponentPath will
-        // try to install the app even though we're just querying...
-        TCHAR szCommand[MAX_PATH];
-        DWORD cch = ARRAYSIZE(szCommand);
-
-        if (_state == 3 &&
-            MsiGetComponentPath(szProduct, szComponent, szCommand, &cch) == _state)
-        {
-            PathUnquoteSpaces(szCommand);
-            Str_SetPtrW(&_pszLocalPath, szCommand);
-        }
-        else
-        {
-            Str_SetPtrW(&_pszLocalPath, NULL);
-        }
-    }
-
-    BOOL IsAd()
-    {
-        return _state == 1;
-    }
-
-    ~CDarwinAd()
-    {
-        ILFree(_pidl);
-        Str_SetPtrW(&_pszDescriptor, NULL);
-        Str_SetPtrW(&_pszLocalPath, NULL);
-    }
-};
-
 //
 // Function definitions
 // 
@@ -285,158 +220,6 @@ HRESULT IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* p
 //BOOL(STDMETHODCALLTYPE* WinStationRegisterConsoleNotification)(HANDLE  hServer, HWND    hWnd, DWORD   dwFlags) ;
 
 // SHRegisterDarwinLink takes ownership of the pidl
-
-// for g_hdpaDarwinAds
-EXTERN_C CRITICAL_SECTION g_csDarwinAds = { 0 };
-HDPA g_hdpaDarwinAds = NULL;
-
-//#define ENTERCRITICAL_DARWINADS EnterCriticalSection(&g_csDarwinAds)
-#define ENTERCRITICAL_DARWINADS 
-//#define LEAVECRITICAL_DARWINADS LeaveCriticalSection(&g_csDarwinAds)
-#define LEAVECRITICAL_DARWINADS 
-
-
-int GetDarwinIndex(LPCITEMIDLIST pidlFull, CDarwinAd** ppda)
-{
-    int iRet = -1;
-    if (g_hdpaDarwinAds)
-    {
-        int chdpa = DPA_GetPtrCount(g_hdpaDarwinAds);
-        for (int ihdpa = 0; ihdpa < chdpa; ihdpa++)
-        {
-            *ppda = (CDarwinAd*)DPA_FastGetPtr(g_hdpaDarwinAds, ihdpa);
-            if (*ppda)
-            {
-                if (ILIsEqual((*ppda)->_pidl, pidlFull))
-                {
-                    iRet = ihdpa;
-                    break;
-                }
-            }
-        }
-    }
-    return iRet;
-}
-
-STDMETHODIMP_(int) s_DarwinAdsDestroyCallback(LPVOID pData1, LPVOID pData2)
-{
-    CDarwinAd* pda = (CDarwinAd*)pData1;
-    if (pda)
-        delete pda;
-    return TRUE;
-}
-
-BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate)
-{
-    BOOL fRetVal = FALSE;
-
-    ENTERCRITICAL_DARWINADS;
-
-    if (pidlFull)
-    {
-        CDarwinAd* pda = NULL;
-
-        if (GetDarwinIndex(pidlFull, &pda) != -1 && pda)
-        {
-            // We already know about this link; don't need to add it
-            fRetVal = TRUE;
-        }
-        else
-        {
-            pda = new CDarwinAd(pidlFull, pszDarwinID);
-            if (pda)
-            {
-                pidlFull = NULL;    // take ownership
-
-                // Do we have a global cache?
-                if (g_hdpaDarwinAds == NULL)
-                {
-                    // No; This is either the first time this is called, or we
-                    // failed the last time.
-                    g_hdpaDarwinAds = DPA_Create(5);
-                }
-
-                if (g_hdpaDarwinAds)
-                {
-                    // DPA_AppendPtr returns the zero based index it inserted it at.
-                    if (DPA_AppendPtr(g_hdpaDarwinAds, (void*)pda) >= 0)
-                    {
-                        fRetVal = TRUE;
-                    }
-
-                }
-            }
-        }
-
-        if (!fRetVal)
-        {
-            // if we failed to create a dpa, delete this.
-            delete pda;
-        }
-        else if (fUpdate)
-        {
-            // update the entry if requested
-            pda->CheckInstalled();
-        }
-        ILFree(pidlFull);
-
-    }
-    else if (!pszDarwinID)
-    {
-        // NULL, NULL means "destroy darwin info, we're shutting down"
-        HDPA hdpa = g_hdpaDarwinAds;
-        g_hdpaDarwinAds = NULL;
-        if (hdpa)
-            DPA_DestroyCallback(hdpa, s_DarwinAdsDestroyCallback, NULL);
-    }
-
-    LEAVECRITICAL_DARWINADS;
-
-    return fRetVal;
-}
-
-HRESULT SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut)
-{
-    HRESULT hr = HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
-
-    if (g_hdpaDarwinAds)
-    {
-        ENTERCRITICAL_DARWINADS;
-        int chdpa = DPA_GetPtrCount(g_hdpaDarwinAds);
-        for (int ihdpa = 0; ihdpa < chdpa; ihdpa++)
-        {
-            CDarwinAd* pda = (CDarwinAd*)DPA_FastGetPtr(g_hdpaDarwinAds, ihdpa);
-            if (pda && pda->_pszLocalPath && pda->_pszDescriptor &&
-                StrCmpCW(pszDarwinDescriptor, pda->_pszDescriptor) == 0)
-            {
-                hr = SHStrDupW(pda->_pszLocalPath, ppwszOut);
-                break;
-            }
-        }
-        LEAVECRITICAL_DARWINADS;
-    }
-
-    return hr;
-}
-
-void SHReValidateDarwinCache()
-{
-    if (g_hdpaDarwinAds)
-    {
-        ENTERCRITICAL_DARWINADS;
-        int chdpa = DPA_GetPtrCount(g_hdpaDarwinAds);
-        for (int ihdpa = 0; ihdpa < chdpa; ihdpa++)
-        {
-            CDarwinAd* pda = (CDarwinAd*)DPA_FastGetPtr(g_hdpaDarwinAds, ihdpa);
-            if (pda)
-            {
-                pda->CheckInstalled();
-            }
-        }
-        LEAVECRITICAL_DARWINADS;
-    }
-}
-
 
 HRESULT DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPWSTR* ppsz)
 {
@@ -2150,7 +1933,7 @@ HRESULT ContextMenu_DeleteCommandByName(IContextMenu* pcm, HMENU hpopup, UINT id
 }
 
 #define OCFMAPPING(ocf)     {OBJCOMPATF_##ocf, TEXT(#ocf)}
-#define GUIDSTR_MAX 38
+
 
 DWORD _GetMappedFlags(HKEY hk, const FLAGMAP* pmaps, DWORD cmaps)
 {
@@ -3015,6 +2798,8 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shlwapi, SHDefWindowProc, 240);
     LOAD_ORDINAL(shlwapi, IUnknown_TranslateAcceleratorIO, 478);
     LOAD_ORDINAL(shlwapi, SHGetMenuFromID, 192);
+    LOAD_ORDINAL(shlwapi, SHCreatePropertyBagOnMemory, 477);
+    LOAD_ORDINAL(shlwapi, SHPropertyBag_WriteBOOL, 499);
     LOAD_FUNCTION(shlwapi, SHIsChildOrSelf);
 
 	LOAD_MODULE(shell32);
@@ -3054,6 +2839,10 @@ bool SHUndocInit(void)
 
     LOAD_MODULE(comctl32);
     LOAD_FUNCTION(comctl32, ImageList_GetFlags);
+
+    //expanded cuz ye...
+    HMODULE hMod_windowsstorage = LoadLibraryW(L"windows.storage" ".dll"); if (!hMod_windowsstorage) return false;;
+    *(FARPROC*)&CFSFolder_CreateFolder = GetProcAddress(hMod_windowsstorage, "CFSFolder_CreateFolder"); if (!CFSFolder_CreateFolder) return false;
 
 
 	return true;

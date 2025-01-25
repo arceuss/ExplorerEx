@@ -375,7 +375,7 @@ void CreateInitialMFU(BOOL fReset)
 
     // Delete any dregs left over from "sysprep -reseal".
     // This also prevents OEMs from spamming the pin list.
-    SHDeleteKey(g_hkeyExplorer, TEXT("StartPage"));
+    SHDeleteKey(g_hkeyExplorer, TEXT("StartPageXP"));
     SHDeleteValue(g_hkeyExplorer, TEXT("Advanced"), TEXT("StartButtonBalloonTip"));
 
     // Start with a clean slate if so requested

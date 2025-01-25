@@ -1009,15 +1009,14 @@ HRESULT SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITE
 HRESULT SHCoInitialize(void);
 DWORD  SHProcessMessagesUntilEventEx(HWND hwnd, HANDLE hEvent, DWORD dwTimeout, DWORD dwWakeMask);
 TCHAR  SHFindMnemonic(LPCTSTR psz);
-BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
+
 inline BOOL(STDMETHODCALLTYPE* RegisterShellHook)(HWND hwnd, BOOL fInstall);
 DWORD Mirror_SetLayout(HDC hdc, DWORD dwLayout);
 HRESULT VariantChangeTypeForRead(VARIANT* pvar, VARTYPE vtDesired);
 BOOL GetExplorerUserSetting(HKEY hkeyRoot, LPCTSTR pszSubKey, LPCTSTR pszValue);
 HRESULT SHBindToObjectEx(IShellFolder* psf, LPCITEMIDLIST pidl, LPBC pbc, REFIID riid, void** ppvOut);
 HRESULT SHLoadLegacyRegUIString(HKEY hk, LPCTSTR pszSubkey, LPTSTR pszOutBuf, UINT cchOutBuf);
-HRESULT SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut);
-void  SHReValidateDarwinCache();
+
 HRESULT DisplayNameOfAsOLESTR(IShellFolder* psf, LPCITEMIDLIST pidl, DWORD flags, LPWSTR* ppsz);
 LPITEMIDLIST ILCloneParent(LPCITEMIDLIST pidl);
 HRESULT SHGetIDListFromUnk(IUnknown* punk, LPITEMIDLIST* ppidl);
@@ -1026,7 +1025,7 @@ HRESULT DataObj_SetGlobal(IDataObject* pdtobj, UINT cf, HGLOBAL hGlobal);
 BOOL GetInfoTip(IShellFolder* psf, LPCITEMIDLIST pidl, LPTSTR pszText, int cchTextMax);
 HRESULT SHGetUIObjectFromFullPIDL(LPCITEMIDLIST pidl, HWND hwnd, REFIID riid, void** ppv);
 
-
+#define GUIDSTR_MAX 38
 
 typedef struct {
     TCHAR szSubkey[MAX_PATH];
@@ -1314,5 +1313,20 @@ HRESULT IsPinnable(IDataObject* pdtobj, DWORD dwFlags, OPTIONAL LPITEMIDLIST* pp
 
 inline HRESULT(WINAPI* SHGetUserPicturePath_t)(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath, DWORD cchPathMax);
 HRESULT WINAPI SHGetUserPicturePath(LPCWSTR pszUsername, DWORD dwFlags, LPWSTR pszPath);
+
+inline HRESULT(*CFSFolder_CreateFolder)(IUnknown* punkOuter, LPBC pbc, LPCITEMIDLIST pidl, const PERSIST_FOLDER_TARGET_INFO* pf, REFIID riid, void** ppv);
+inline HRESULT(*SHCreatePropertyBagOnMemory)(DWORD grfMode, REFIID riid, void** ppv);
+inline HRESULT(*SHPropertyBag_WriteBOOL)(IPropertyBag* ppb, LPCWSTR pszPropName, BOOL fValue);
+
+DEFINE_GUID(CLSID_MruLongList, 0x53bd6b4e, 0x3780, 0x4693, 0xaf, 0xc3, 0x71, 0x61, 0xc2, 0xf3, 0xee, 0x9c);
+DEFINE_GUID(IID_IAugmentedFolder, 0x2f711b17, 0x773c, 0x41d4, 0x93, 0xfa, 0x7f, 0x23, 0xed, 0xce, 0xcb, 0x66);
+
+//         Note: SHRegisterDarwinLink takes ownership of pidlFull. fUpdate means: update the Darwin state right away
+BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
+
+// Use this function to update the Darwin state for all registered Darwin shortcuts.
+void SHReValidateDarwinCache();
+
+HRESULT SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut);
 
 #include "interfacesp.inc"

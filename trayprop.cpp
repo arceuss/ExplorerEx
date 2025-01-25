@@ -1566,7 +1566,7 @@ BOOL CCustomizeSPPropSheet::AdvancedTabInit(HWND hDlg)
         // HACKHACK - IRegTreeOptions is ANSI, so we temporarily turn off UNICODE
         #undef TEXT
         #define TEXT(s) s
-        hr = _prto->InitTree(hwndTV, HKEY_LOCAL_MACHINE, REGSTR_PATH_SMADVANCED "\\StartPanel", NULL);
+        hr = _prto->InitTree(hwndTV, HKEY_LOCAL_MACHINE, REGSTR_PATH_SMADVANCED "\\StartPanelXP", NULL);
 
         #undef TEXT
         #define TEXT(s) __TEXT(s)
