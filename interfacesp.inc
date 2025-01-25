@@ -23,7 +23,8 @@ IOrderList2: IOrderList
     STDMETHOD(SaveToStream)(THIS_ IStream * pstm, HDPA hdpa) PURE;
 };
 
-MIDL_INTERFACE("AF4F6511-F982-11d0-8595-00AA004CD6D8")
+//MIDL_INTERFACE("AF4F6511-F982-11d0-8595-00AA004CD6D8")
+MIDL_INTERFACE("7897eca6-1b1b-452a-8581-bb9482aea7cc")
 IRegTreeOptions : IUnknown
 {
     // *** IUnknown methods ***
@@ -32,10 +33,16 @@ IRegTreeOptions : IUnknown
     STDMETHOD_(ULONG, Release) (THIS) PURE;
 
     // *** IRegTreeOptions specific methods ***
-    STDMETHOD(InitTree)(THIS_ HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey, LPCSTR pszParam) PURE;
+    /*STDMETHOD(InitTree)(THIS_ HWND hwndTree, HKEY hkeyRoot, LPCSTR pszRegKey, LPCSTR pszParam) PURE;
     STDMETHOD(WalkTree)(THIS_ WALK_TREE_CMD cmd) PURE;
     STDMETHOD(ToggleItem)(THIS_ HTREEITEM hti) PURE;
-    STDMETHOD(ShowHelp)(THIS_ HTREEITEM hti, DWORD dwFlags) PURE;
+    STDMETHOD(ShowHelp)(THIS_ HTREEITEM hti, DWORD dwFlags) PURE;*/
+
+    STDMETHOD(InitTree)(HWND, HKEY, LPCSTR, LPCSTR) PURE;
+    STDMETHOD(WalkTree)(unsigned int) PURE;
+    STDMETHOD(ToggleItem)(_TREEITEM*) PURE;
+    STDMETHOD(ShowHelp)(_TREEITEM*, ULONG) PURE;
+    STDMETHOD(SetEventListener)(IUnknown*) PURE;
 };
 
 MIDL_INTERFACE("D12F26B1-D90A-11d0-830D-00AA005B4383")

@@ -290,8 +290,10 @@ HRESULT IUnknown_DragOver(IUnknown* punk, DWORD grfKeyState, POINTL pt, DWORD* p
 EXTERN_C CRITICAL_SECTION g_csDarwinAds = { 0 };
 HDPA g_hdpaDarwinAds = NULL;
 
-#define ENTERCRITICAL_DARWINADS EnterCriticalSection(&g_csDarwinAds)
-#define LEAVECRITICAL_DARWINADS LeaveCriticalSection(&g_csDarwinAds)
+//#define ENTERCRITICAL_DARWINADS EnterCriticalSection(&g_csDarwinAds)
+#define ENTERCRITICAL_DARWINADS 
+//#define LEAVECRITICAL_DARWINADS LeaveCriticalSection(&g_csDarwinAds)
+#define LEAVECRITICAL_DARWINADS 
 
 
 int GetDarwinIndex(LPCITEMIDLIST pidlFull, CDarwinAd** ppda)
