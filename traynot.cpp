@@ -93,9 +93,11 @@ public:
     END_COM_MAP()
 
     // *** ITrayNotify method ***
+    STDMETHODIMP RegisterCallback(INotificationCB* pNotifyCB, ULONG*);
+    STDMETHODIMP UnregisterCallback(ULONG*);
     STDMETHODIMP SetPreference(LPNOTIFYITEM pNotifyItem);
-    STDMETHODIMP RegisterCallback(INotificationCB* pNotifyCB);
     STDMETHODIMP EnableAutoTray(BOOL bTraySetting);
+    STDMETHODIMP DoAction(BOOL bTraySetting);
 };
 
 //
@@ -106,14 +108,24 @@ HRESULT CTrayNotifyStub::SetPreference(LPNOTIFYITEM pNotifyItem)
     return c_tray._trayNotify.SetPreference(pNotifyItem);
 }
 
-HRESULT CTrayNotifyStub::RegisterCallback(INotificationCB* pNotifyCB)
+HRESULT CTrayNotifyStub::RegisterCallback(INotificationCB* pNotifyCB, ULONG*)
 {
     return c_tray._trayNotify.RegisterCallback(pNotifyCB);
+}
+
+HRESULT CTrayNotifyStub::UnregisterCallback(ULONG*)
+{
+    return S_OK;
 }
 
 HRESULT CTrayNotifyStub::EnableAutoTray(BOOL bTraySetting)
 {
     return c_tray._trayNotify.EnableAutoTray(bTraySetting);
+}
+
+HRESULT CTrayNotifyStub::DoAction(BOOL bTraySetting)
+{
+	return S_OK;
 }
 
 HRESULT CTrayNotifyStub_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk)
@@ -221,7 +233,7 @@ HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB)
                     if (bStat)
                     {
                         pNotifyCB->Notify(NIM_ADD, &ni);
-                        _TickleForTooltip(&ni);
+                        //_TickleForTooltip(&ni);
                     }
                 }
                 else
@@ -3461,11 +3473,17 @@ LRESULT CTrayNotify::v_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             {
                 if (_pNotifyCB)
                 {
-                    _pNotifyCB->Notify((UINT)wParam, pni);
-                    if (wParam == NIM_ADD)
+                    INotificationCB* cb = 0;
+                    if (SUCCEEDED(_pNotifyCB->QueryInterface(&cb)))
                     {
-                        _TickleForTooltip(pni);
+
+						_pNotifyCB->Notify((UINT)wParam, pni);
+						if (wParam == NIM_ADD)
+						{
+							//_TickleForTooltip(pni);
+						}
                     }
+                    
                 }
                 delete pni;
             }

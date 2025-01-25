@@ -846,8 +846,10 @@ void BandSite_Load()
         hr = BandSite_FindBand(ptbs, CLSID_TaskBand, CLSID_NULL, NULL, &iCount, &dwBandID);
     }
 
+    //dont bother with CLSID_TipBand for now
+
     // And one more: this is needed for the TipBand deskband for the TabletPC.
-    iCount = 0;
+    /*iCount = 0;
     if (FAILED(hr) || FAILED(BandSite_FindBand(ptbs, CLSID_TipBand, CLSID_NULL, NULL, &iCount, &dwBandID)))
     {
         IDeskBand* pdb;
@@ -863,7 +865,7 @@ void BandSite_Load()
     {
         ptbs->RemoveBand(dwBandID);
         hr = BandSite_FindBand(ptbs, CLSID_TipBand, CLSID_NULL, NULL, &iCount, &dwBandID);
-    }
+    }*/
 
     ptbs->SetLoaded(TRUE);
 }

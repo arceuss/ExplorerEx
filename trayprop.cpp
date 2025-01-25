@@ -521,12 +521,14 @@ LRESULT CNotificationsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam,
     // localserver for tray notify
     if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&_pTrayNotify))))
     {
-        INotificationCB* pCB;
+        INotificationCB* pCB = 0;
 
         if (SUCCEEDED(QueryInterface(IID_PPV_ARGS(&pCB))))
         {
-            _pTrayNotify->RegisterCallback(pCB);
-            pCB->Release();
+            ULONG a;
+            _pTrayNotify->RegisterCallback(pCB,&a);
+            if (pCB)
+                pCB->Release();
         }
     }
 
@@ -645,7 +647,8 @@ LRESULT CNotificationsDlg::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl, 
 
     if (_pTrayNotify)
     {
-        _pTrayNotify->RegisterCallback(NULL);
+        ULONG a;
+        _pTrayNotify->RegisterCallback(NULL,&a);
     }
 
     bHandled = TRUE;

@@ -188,21 +188,22 @@ INotificationCB : IUnknown
     STDMETHOD(Notify)(THIS_ ULONG, NOTIFYITEM*) PURE;
 };
 
-MIDL_INTERFACE("FB852B2C-6BAD-4605-9551-F15F87830935")
-ITrayNotify : IUnknown
-{
-    STDMETHOD(RegisterCallback)(INotificationCB* pNotifyCB) PURE;
-    STDMETHOD(SetPreference)(LPNOTIFYITEM pNotifyItem) PURE;
-    STDMETHOD(EnableAutoTray)(BOOL bTraySetting) PURE;
-};
+//MIDL_INTERFACE("fb852b2c-6bad-4605-9551-f15f87830935")
+//MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4")
+//ITrayNotify : IUnknown
+//{
+//    STDMETHOD(RegisterCallback)(INotificationCB* pNotifyCB) PURE;
+//    STDMETHOD(SetPreference)(LPNOTIFYITEM pNotifyItem) PURE;
+//    STDMETHOD(EnableAutoTray)(BOOL bTraySetting) PURE;
+//};
 
 //this is the Windows 8+ variant of ITrayNotify, probably not needed for now but might need it for later
 MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4")
-ITrayNotifyWin8 : IUnknown
+ITrayNotify : IUnknown
 {
     STDMETHOD(RegisterCallback)(INotificationCB * callback, ULONG*) PURE;
     STDMETHOD(UnregisterCallback)(ULONG*) PURE;
-    STDMETHOD(SetPreference)(NOTIFYITEM const*) PURE;
+    STDMETHOD(SetPreference)(LPNOTIFYITEM) PURE;
     STDMETHOD(EnableAutoTray)(BOOL) PURE;
     STDMETHOD(DoAction)(BOOL) PURE;
 };
