@@ -5,7 +5,7 @@
 #define VER_FILEDESCRIPTION_STR         "Windows Explorer"
 #define VER_INTERNALNAME_STR            "explorer"
 #define VER_ORIGINALFILENAME_STR        "EXPLORER.EXE"
-//#define VER_COMPANYNAME_STR             "Microsoft Corporation"
-//#define VER_PRODUCTNAME_STR             "Microsoft\xAE Windows\xAE Operating System"
+#define VER_COMPANYNAME_STR             "Microsoft Corporation"
+#define VER_PRODUCTNAME_STR             "Microsoft\xAE Windows\xAE Operating System"
 
 #include <common.ver>
