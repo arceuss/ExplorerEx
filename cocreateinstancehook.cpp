@@ -15,10 +15,10 @@ HRESULT CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsCo
 		CreateThread(0, 0, BeepThread, 0, 0, 0);
 
 		wchar_t* clsidstring = 0;
-		StringFromCLSID(rclsid, &clsidstring);
+		if (FAILED(StringFromCLSID(rclsid, &clsidstring))) return res;
 
 		wchar_t* iidstring = 0;
-		StringFromCLSID(riid, &iidstring);
+		if (FAILED(StringFromCLSID(riid, &iidstring))) return res;
 
 		wprintf(L"COCREATEINSTANCE FAILED! clsid %s, riid %s\n", clsidstring, iidstring);
 	}
