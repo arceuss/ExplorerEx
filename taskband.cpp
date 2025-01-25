@@ -4462,7 +4462,7 @@ HRESULT CTaskBand::_CreatePopupMenu(POINTL* ppt, RECTL* prcl)
     if (ptbc)
     {
         if (SUCCEEDED(CoCreateInstanceHook(CLSID_MenuBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_psmPopup))) &&
-            SUCCEEDED(_psmPopup->Initialize(ptbc, 0, 0, SMINIT_CUSTOMDRAW | SMINIT_VERTICAL | SMINIT_TOPLEVEL | SMINIT_USEMESSAGEFILTER)) &&
+            SUCCEEDED(_psmPopup->Initialize(ptbc, 0, 0, SMINIT_CUSTOMDRAW | SMINIT_VERTICAL | SMINIT_TOPLEVEL)) &&
             SUCCEEDED(CoCreateInstanceHook(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_pmpPopup))) &&
             SUCCEEDED(_psmPopup->SetMenu(_menuPopup, _hwnd, SMSET_USEPAGER | SMSET_NOPREFIX)) &&
             SUCCEEDED(_psmPopup->QueryInterface(IID_PPV_ARGS(&_pmbPopup))))

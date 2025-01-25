@@ -481,8 +481,39 @@ typedef struct _tagSHELLREMINDER
 #define CbFromCchW(cch)             ((cch)*sizeof(WCHAR))
 #define CbFromCchA(cch)             ((cch)*sizeof(CHAR))
 
+#define SHCNFI_EVENT_STATECHANGE          0   // dwEventType
+#define SHCNFI_EVENT_STRING               1   // e.string
+#define SHCNFI_EVENT_HOTKEY               2   // e.hotkey
+#define SHCNFI_EVENT_WNDPROC              3   // e.wndproc
+#define SHCNFI_EVENT_WNDPROC_HOOK         4   // e.wndproc
+#define SHCNFI_EVENT_ONCOMMAND            5   // e.command
+#define SHCNFI_EVENT_INVOKECOMMAND        6   // e.command
+#define SHCNFI_EVENT_TRACKPOPUPMENU       7   // e.command
+#define SHCNFI_EVENT_DROP                 8   // e.drop
+#define SHCNFI_EVENT_MAX                  9
 
-#define INSTRUMENT_STATECHANGE(t)
+#define SHCNFI_STRING_SHOWEXTVIEW         0
+
+#define SHCNFI_STATE_KEYBOARDACTIVE         0   // _KEYBOARDACTIVE or _MOUSEACTIVE
+#define SHCNFI_STATE_MOUSEACTIVE            1   // _KEYBOARDACTIVE or _MOUSEACTIVE
+#define SHCNFI_STATE_ACCEL_TRAY             2   // _ACCEL_TRAY or _ACCEL_DESKTOP
+#define SHCNFI_STATE_ACCEL_DESKTOP          3   // _ACCEL_TRAY or _ACCEL_DESKTOP
+#define SHCNFI_STATE_START_DOWN             4   // _START_DOWN or _START_UP
+#define SHCNFI_STATE_START_UP               5   // _START_DOWN or _START_UP
+#define SHCNFI_STATE_TRAY_CONTEXT           6
+#define SHCNFI_STATE_TRAY_CONTEXT_CLOCK     7
+#define SHCNFI_STATE_TRAY_CONTEXT_START     8
+#define SHCNFI_STATE_DEFVIEWX_ALT_DBLCLK    9
+#define SHCNFI_STATE_DEFVIEWX_SHIFT_DBLCLK 10
+#define SHCNFI_STATE_DEFVIEWX_DBLCLK       11
+
+#define INSTRUMENT_STATECHANGE(t)                               \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_STATECHANGE;                \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
 
 #define SERVERNAME_CURRENT  ((HANDLE)NULL)
 
