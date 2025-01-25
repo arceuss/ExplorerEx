@@ -427,12 +427,15 @@ HRESULT CreateMergedFolderHelper(LPCMERGEDFOLDERINFO rgmfi, UINT cmfi, REFIID ri
     HRESULT hr = GetMergedFolder(&psf, &pidl, rgmfi, cmfi);
     if (SUCCEEDED(hr))
     {
-        hr = psf->QueryInterface(riid, ppv);
+		IShellFolder* childFolder;
+		psf->BindToObject(pidl, NULL, IID_PPV_ARGS(&childFolder));
+
+        hr = childFolder->QueryInterface(riid, ppv);
 
         if (SUCCEEDED(hr))
         {
             IPersistPropertyBag* pppb;
-            if (SUCCEEDED(psf->QueryInterface(IID_PPV_ARG(IPersistPropertyBag, &pppb))))
+            if (SUCCEEDED(childFolder->QueryInterface(IID_PPV_ARG(IPersistPropertyBag, &pppb))))
             {
                 IPropertyBag* ppb;
                 if (SUCCEEDED(SHCreatePropertyBagOnMemory(STGM_READWRITE, IID_PPV_ARG(IPropertyBag, &ppb))))
@@ -447,6 +450,7 @@ HRESULT CreateMergedFolderHelper(LPCMERGEDFOLDERINFO rgmfi, UINT cmfi, REFIID ri
         }
 
         psf->Release();
+        childFolder->Release();
         ILFree(pidl);
     }
     return hr;
@@ -2773,12 +2777,17 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
         _InitializePrograms();
 
         LPCTSTR pszOrderKey = _fIsStartPanel ?
-            STRREG_STARTMENU2 TEXT("\\Programs") :
-            STRREG_STARTMENU TEXT("\\Programs");
+            STRREG_STARTMENU2 "XP" TEXT("\\Programs") :
+            STRREG_STARTMENU "XP" TEXT("\\Programs");
 
-        RegCreateKeyEx(HKEY_CURRENT_USER, pszOrderKey, NULL, NULL,
+        auto hr = RegCreateKeyEx(HKEY_CURRENT_USER, pszOrderKey, NULL, NULL,
             REG_OPTION_NON_VOLATILE, KEY_READ | KEY_WRITE,
             NULL, &hkeyPrograms, NULL);
+
+        if (hr != S_OK)
+        {
+            printf("FAILED TO CREATE REG KEY\n");
+        }
 
         IShellFolder* psf;
         BOOL fOptimize = FALSE;
@@ -2824,13 +2833,15 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
 
         if (SUCCEEDED(hr))
         {
+			IShellFolder* childFolder;
+			psf->BindToObject(pidl, NULL, IID_PPV_ARGS(&childFolder));
             // We should have a pidl from CSIDL_Programs
             ASSERT(pidl);
 
             // We should have a shell folder from the bind.
             ASSERT(psf);
 
-            hr = psm->SetShellFolder(psf, pidl, hkeyPrograms, dwSmset);
+            hr = psm->SetShellFolder(childFolder, pidl, hkeyPrograms, dwSmset);
             psf->Release();
             ILFree(pidl);
         }
@@ -2949,6 +2960,8 @@ HRESULT CStartMenuCallback::InitializeFastItemsShellMenu(IShellMenu* psm)
         IShellFolder* psfFast;
         LPITEMIDLIST pidlFast;
         hr = GetMergedFolder(&psfFast, &pidlFast, c_rgmfiStartMenu, ARRAYSIZE(c_rgmfiStartMenu));
+        IShellFolder* childFolder;
+        psfFast->BindToObject(pidlFast, NULL, IID_PPV_ARGS(&childFolder));
         if (SUCCEEDED(hr))
         {
             HKEY hMenuKey = NULL;   // WARNING: pmb2->Initialize() will always owns hMenuKey, so don't close it
@@ -2958,7 +2971,7 @@ HRESULT CStartMenuCallback::InitializeFastItemsShellMenu(IShellMenu* psm)
                 NULL, &hMenuKey, NULL);
 
             //TraceMsg(TF_MENUBAND, "Root Start Menu Key Is %d", hMenuKey);
-            hr = psm->SetShellFolder(psfFast, pidlFast, hMenuKey, SMSET_TOP | SMSET_NOEMPTY);
+            hr = psm->SetShellFolder(childFolder, pidlFast, hMenuKey, SMSET_TOP | SMSET_NOEMPTY);
 
             psfFast->Release();
             ILFree(pidlFast);

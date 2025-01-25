@@ -759,7 +759,7 @@ int Toolbar_GetUniqueID(HWND hwndTB)
 	for (int i = 0; i < iCount; i++)
 	{
 		ToolBar_GetButtonInfo(hwndTB, i, &tbbi);
-        printf("ToolBar_GetButtonInfo returns %i \n", tbbi.idCommand);
+        //printf("ToolBar_GetButtonInfo returns %i \n", tbbi.idCommand);
 		rgCmds[i] = tbbi.idCommand;
 	}
 
@@ -772,7 +772,7 @@ int Toolbar_GetUniqueID(HWND hwndTB)
 			break;
 		iCmd++;
 	}
-    printf("Toolbar_GetUniqueID hwnd %p iCmd %i\n",hwndTB,iCmd);
+    //printf("Toolbar_GetUniqueID hwnd %p iCmd %i\n",hwndTB,iCmd);
 	return iCmd;
 }
 

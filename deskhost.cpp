@@ -39,7 +39,8 @@ CPopupMenu::~CPopupMenu()
 HRESULT CPopupMenu::Popup(RECT *prcExclude, DWORD dwFlags)
 {
     COMPILETIME_ASSERT(sizeof(RECT) == sizeof(RECTL));
-    return _pmp->Popup((POINTL*)prcExclude, (RECTL*)prcExclude, dwFlags);
+    return S_OK;
+    //return _pmp->Popup((POINTL*)prcExclude, (RECTL*)prcExclude, dwFlags);
 }
 
 

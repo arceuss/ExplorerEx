@@ -16,6 +16,7 @@
 #define IDM_FIND                502
 #define IDM_HELPSEARCH          503
 #define IDM_PROGRAMS            504
+#define IDM_PROGRAMS            504
 #define IDM_CONTROLS            505
 #define IDM_EXITWIN             506
 #define IDM_SETTINGS            508
