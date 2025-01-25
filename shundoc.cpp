@@ -27,7 +27,7 @@
 #include "path.h"
 #include <strsafe.h>
 #include <RegStr.h>
-
+#include <shlguid.h>
 
 
 
@@ -1138,72 +1138,86 @@ TCHAR const c_szShellFile[] = TEXT("ShellFile");
 BOOL DDE_CreateGroup(LPTSTR, UINT*, PDDECONV)
 {
     //MUST IMPLEMENT
+    printf("DDE_CreateGroup\n");
     return 0;
 }
 BOOL DDE_ShowGroup(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_ShowGroup\n");
 	return 0;
 }
 BOOL DDE_AddItem(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_AddItem\n");
 	return 0;
 }
 BOOL DDE_ExitProgman(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_ExitProgman\n");
 	return 0;
 }
 BOOL DDE_DeleteGroup(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_DeleteGroup\n");
 	return 0;
 }
 BOOL DDE_DeleteItem(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_DeleteItem\n");
 	return 0;
 }
 #define DDE_ReplaceItem DDE_DeleteItem
 BOOL DDE_Reload(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_Reload\n");
 	return 0;
 }
 BOOL DDE_ViewFolder(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_ViewFolder\n");
 	return 0;
 }
 BOOL DDE_ExploreFolder(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_ExploreFolder\n");
 	return 0;
 }
 BOOL DDE_FindFolder(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_FindFolder\n");
 	return 0;
 }
 BOOL DDE_OpenFindFile(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_OpenFindFile\n");
 	return 0;
 }
 BOOL DDE_ConfirmID(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
 	//MUST IMPLEMENT
+    printf("DDE_ConfirmID\n");
 	return 0;
 }
 BOOL DDE_ShellFile(LPTSTR lpszBuf, UINT* lpwCmd, PDDECONV pddec)
 {
 	//MUST IMPLEMENT
+    printf("DDE_ShellFile\n");
 	return 0;
 }
 BOOL DDE_Beep(LPTSTR, UINT*, PDDECONV)
 {
 	//MUST IMPLEMENT
+    printf("DDE_Beep\n");
 	return 0;
 }
 
@@ -2997,4 +3011,226 @@ bool SHUndocInit(void)
 
 
 	return true;
+}
+
+BOOL IsStartPanelOn()
+{
+	SHELLSTATE ss = { 0 };
+	SHGetSetSettings(&ss, SSF_STARTPANELON, FALSE);
+
+	return ss.fStartPanelOn;
+}
+
+LPIDA DataObj_GetHIDAEx(IDataObject* pdtobj, CLIPFORMAT cf, STGMEDIUM* pmedium)
+{
+	FORMATETC fmte = { cf, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+
+	if (pmedium)
+	{
+		pmedium->pUnkForRelease = NULL;
+		pmedium->hGlobal = NULL;
+	}
+
+	if (!pmedium)
+	{
+		if (S_OK == pdtobj->QueryGetData(&fmte))
+			return (LPIDA)TRUE;
+		else
+			return (LPIDA)FALSE;
+	}
+	else if (SUCCEEDED(pdtobj->GetData(&fmte, pmedium)))
+	{
+		return (LPIDA)GlobalLock(pmedium->hGlobal);
+	}
+
+	return NULL;
+}
+
+LPIDA DataObj_GetHIDA(IDataObject* pdtobj, STGMEDIUM* pmedium)
+{
+	static CLIPFORMAT cfHIDA = 0;
+	if (!cfHIDA)
+	{
+		cfHIDA = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_SHELLIDLIST);
+	}
+	return DataObj_GetHIDAEx(pdtobj, cfHIDA, pmedium);
+}
+
+LPCITEMIDLIST IDA_GetIDListPtr(LPIDA pida, UINT i)
+{
+	if (NULL == pida)
+	{
+		return NULL;
+	}
+
+	if (i == (UINT)-1 || i < pida->cidl)
+	{
+		return HIDA_GetPIDLItem(pida, i);
+	}
+
+	return NULL;
+}
+
+LPITEMIDLIST IDA_FullIDList(LPIDA pida, UINT i)
+{
+	LPITEMIDLIST pidl = NULL;
+	LPCITEMIDLIST pidlParent = IDA_GetIDListPtr(pida, (UINT)-1);
+	if (pidlParent)
+	{
+		LPCITEMIDLIST pidlRel = IDA_GetIDListPtr(pida, i);
+		if (pidlRel)
+		{
+			pidl = ILCombine(pidlParent, pidlRel);
+		}
+	}
+	return pidl;
+}
+
+BOOL _IsLocalHardDisk(LPCTSTR pszPath)
+{
+	//  Reject CDs, floppies, network drives, etc.
+	//
+	int iDrive = PathGetDriveNumber(pszPath);
+	if (iDrive < 0 ||                   // reject UNCs
+		RealDriveType(iDrive, /* fOkToHitNet = */ FALSE) != DRIVE_FIXED) // reject slow media
+	{
+		return FALSE;
+	}
+	return TRUE;
+}
+
+BOOL _IsAcceptableTarget(LPCTSTR pszPath, DWORD dwAttrib, DWORD dwFlags)
+{
+	//  Regitems ("Internet" or "Email" for example) are acceptable
+	//  provided we aren't restricted to EXEs only.
+	if (!(dwAttrib & SFGAO_FILESYSTEM))
+	{
+		return !(dwFlags & SMPINNABLE_EXEONLY);
+	}
+
+	//  Otherwise, it's a file.
+
+	//  If requested, reject non-EXEs.
+	//  (Like the Start Menu, we treat MSC files as if they were EXEs)
+	if (dwFlags & SMPINNABLE_EXEONLY)
+	{
+		LPCTSTR pszExt = PathFindExtension(pszPath);
+		if (StrCmpIC(pszExt, TEXT(".EXE")) != 0 &&
+			StrCmpIC(pszExt, TEXT(".MSC")) != 0)
+		{
+			return FALSE;
+		}
+	}
+
+	//  If requested, reject slow media
+	if (dwFlags & SMPINNABLE_REJECTSLOWMEDIA)
+	{
+		if (!_IsLocalHardDisk(pszPath))
+		{
+			return FALSE;
+		}
+
+		// If it's a shortcut, then apply the same rule to the shortcut.
+		if (PathIsLnk(pszPath))
+		{
+			BOOL fLocal = TRUE;
+			IShellLink* psl;
+			if (SUCCEEDED(LoadFromFileW(CLSID_ShellLink, pszPath, IID_PPV_ARG(IShellLink, &psl))))
+			{
+				// IShellLink::GetPath returns S_FALSE if target is not a path
+				TCHAR szPath[MAX_PATH];
+				if (S_OK == psl->GetPath(szPath, ARRAYSIZE(szPath), NULL, 0))
+				{
+					fLocal = _IsLocalHardDisk(szPath);
+				}
+				psl->Release();
+			}
+			if (!fLocal)
+			{
+				return FALSE;
+			}
+		}
+	}
+
+	//  All tests pass!
+
+	return TRUE;
+
+}
+
+void ReleaseStgMediumHGLOBAL(void* pv, STGMEDIUM* pmedium)
+{
+	if (pmedium->hGlobal && (pmedium->tymed == TYMED_HGLOBAL))
+	{
+#ifdef DEBUG
+		if (pv)
+		{
+			void* pvT = (void*)GlobalLock(pmedium->hGlobal);
+			ASSERT(pvT == pv);
+			GlobalUnlock(pmedium->hGlobal);
+		}
+#endif
+		GlobalUnlock(pmedium->hGlobal);
+	}
+	else
+	{
+		ASSERT(0);
+	}
+
+	ReleaseStgMedium(pmedium);
+}
+
+void HIDA_ReleaseStgMedium(LPIDA pida, STGMEDIUM* pmedium)
+{
+	ReleaseStgMediumHGLOBAL((void*)pida, pmedium);
+}
+
+HRESULT IsPinnable(IDataObject* pdtobj, DWORD dwFlags, OPTIONAL LPITEMIDLIST* ppidl)
+{
+	HRESULT hr = S_FALSE;
+
+	LPITEMIDLIST pidlRet = NULL;
+
+	if (pdtobj &&                                   // must have a data object
+		!SHRestricted(REST_NOSMPINNEDLIST) &&       // cannot be restricted
+		IsStartPanelOn())                           // start panel must be on
+	{
+		STGMEDIUM medium = { 0 };
+		LPIDA pida = DataObj_GetHIDA(pdtobj, &medium);
+		if (pida)
+		{
+			if (pida->cidl == 1)
+			{
+				pidlRet = IDA_FullIDList(pida, 0);
+				if (pidlRet)
+				{
+					DWORD dwAttr = SFGAO_FILESYSTEM;            // only SFGAO_FILESYSTEM is valid
+					TCHAR szPath[MAX_PATH];
+
+					if (SUCCEEDED(SHGetNameAndFlags(pidlRet, SHGDN_FORPARSING,
+						szPath, ARRAYSIZE(szPath), &dwAttr)) &&
+						_IsAcceptableTarget(szPath, dwAttr, dwFlags))
+					{
+						hr = S_OK;
+					}
+				}
+			}
+			HIDA_ReleaseStgMedium(pida, &medium);
+		}
+	}
+
+	// Return pidlRet only if the call succeeded and the caller requested it
+	if (hr != S_OK || !ppidl)
+	{
+		ILFree(pidlRet);
+		pidlRet = NULL;
+	}
+
+	if (ppidl)
+	{
+		*ppidl = pidlRet;
+	}
+
+	return hr;
+
 }

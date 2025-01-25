@@ -130,7 +130,7 @@ MFUExclusion::MFUExclusion() : _cExcluded(0)
                           IID_PPV_ARGS(&psmpin));
     if (SUCCEEDED(hr))
     {
-        IEnumIDList *penum;
+        IEnumFullIDList *penum;
 
         if (SUCCEEDED(psmpin->EnumObjects(&penum)))
         {

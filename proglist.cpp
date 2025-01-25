@@ -17,6 +17,7 @@
 
 #include <dpa_dsa.h>
 #include <vssym32.h>
+#include "path.h"
 
 typedef UNALIGNED const WCHAR* LPNCWSTR;
 typedef UNALIGNED WCHAR* LPNWSTR;
@@ -2640,7 +2641,7 @@ void ByUsage::_FillPinnedItemsCache()
     _rtPinned.Reset();
     if (_rtPinned._sl.Create(4))
     {
-        IEnumIDList *penum;
+        IEnumFullIDList *penum;
 
         if (SUCCEEDED(_psmpin->EnumObjects(&penum)))
         {
@@ -3658,7 +3659,7 @@ HRESULT ByUsage::ContextMenuDeleteItem(PaneItem *p, IContextMenu *pcm, CMINVOKEC
         LPITEMIDLIST pidlFull = pitem->CreateFullPidl();
         if (pidlFull)
         {
-            _psmpin->Modify(pidlFull, NULL); // delete from pin list
+            _psmpin->Modify(pidlFull, NULL,18); // delete from pin list
             ILFree(pidlFull);
         }
 
@@ -3785,7 +3786,7 @@ HRESULT ByUsage::ContextMenuRenameItem(PaneItem *p, LPCTSTR ptszNewName)
             if ((pidlNew = ILClone(pitem->RelativePidl())) &&
                 (pidlNew = ByUsageHiddenData::SetAltName(pidlNew, ptszNewName)))
             {
-                hr = _psmpin->Modify(pitem->RelativePidl(), pidlNew);
+                hr = _psmpin->Modify(pitem->RelativePidl(), pidlNew, 18);
                 if (SUCCEEDED(hr))
                 {
                     pitem->SetRelativePidl(pidlNew);
@@ -3843,7 +3844,7 @@ HRESULT ByUsage::ContextMenuRenameItem(PaneItem *p, LPCTSTR ptszNewName)
                         LPITEMIDLIST pidlFullNew = ILCombine(pidlDad, pidlNew);
                         if (pidlFullNew)
                         {
-                            _psmpin->Modify(pitem->RelativePidl(), pidlFullNew);
+                            _psmpin->Modify(pitem->RelativePidl(), pidlFullNew, 18);
                             pitem->SetRelativePidl(pidlFullNew);    // takes ownership
                         }
                         ILFree(pidlDad);
@@ -3914,7 +3915,7 @@ HRESULT ByUsage::MovePinnedItem(PaneItem *p, int iInsert)
     ByUsageItem *pitem = static_cast<ByUsageItem *>(p);
     ASSERT(_IsPinned(pitem));
 
-    return _psmpin->Modify(pitem->RelativePidl(), SMPIN_POS(iInsert));
+    return _psmpin->Modify(pitem->RelativePidl(), SMPIN_POS(iInsert), 18);
 }
 
 //
@@ -3923,18 +3924,19 @@ HRESULT ByUsage::MovePinnedItem(PaneItem *p, int iInsert)
 //
 BOOL ByUsage::IsInsertable(IDataObject *pdto)
 {
-    return _psmpin->IsPinnable(pdto, SMPINNABLE_REJECTSLOWMEDIA, NULL) == S_OK;
+    return _psmpin->IsPinnable(pdto, SMPINNABLE_REJECTSLOWMEDIA) == S_OK;
 }
+
 
 HRESULT ByUsage::InsertPinnedItem(IDataObject *pdto, int iInsert)
 {
     HRESULT hr = E_FAIL;
 
     LPITEMIDLIST pidlItem;
-    if (_psmpin->IsPinnable(pdto, SMPINNABLE_REJECTSLOWMEDIA, &pidlItem) == S_OK)
+    if (IsPinnable(pdto, SMPINNABLE_REJECTSLOWMEDIA, &pidlItem) == S_OK)
     {
-        if (SUCCEEDED(hr = _psmpin->Modify(NULL, pidlItem)) &&
-            SUCCEEDED(hr = _psmpin->Modify(pidlItem, SMPIN_POS(iInsert))))
+        if (SUCCEEDED(hr = _psmpin->Modify(NULL, pidlItem,18)) &&
+            SUCCEEDED(hr = _psmpin->Modify(pidlItem, SMPIN_POS(iInsert),18)))
         {
             // Woo-hoo!
         }

@@ -8462,7 +8462,7 @@ STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState,
         {
             // Personal mode: Treat it as an add to the pin list.
             // IsPinnable checks REST_NOSMPINNEDLIST
-            if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, 0x00000002, NULL) == S_OK)   //SMPINNABLE_REJECTSLOWMEDIA
+            if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, 0x00000002) == S_OK)   //SMPINNABLE_REJECTSLOWMEDIA
             {
                 _dwEffectsAllowed = DROPEFFECT_LINK;
             }
@@ -8528,13 +8528,13 @@ STDMETHODIMP CStartDropTarget::Drop(IDataObject *pdtobj, DWORD grfKeyState, POIN
     {
         // Personal mode: Treat it as an add to the pin list.
         LPITEMIDLIST pidl;
-        if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, 0x00000002, &pidl) == S_OK) //SMPINNABLE_REJECTSLOWMEDIA
+        if (_ptray->_psmpin && IsPinnable(pdtobj, 0x00000002, &pidl) == S_OK) //SMPINNABLE_REJECTSLOWMEDIA
         {
             // Delete it from the pin list if it's already there because
             // we want to move it to the bottom.
-            _ptray->_psmpin->Modify(pidl, NULL);
+            _ptray->_psmpin->Modify(pidl, NULL,18);
             // Now add it to the bottom.
-            _ptray->_psmpin->Modify(NULL, pidl);
+            _ptray->_psmpin->Modify(NULL, pidl, 18);
             ILFree(pidl);
             hr = S_OK;
         }

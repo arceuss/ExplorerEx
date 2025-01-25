@@ -23,6 +23,7 @@
 #include "winter.h"
 
 #include "ieguidp.h"
+#include <shlobj_core.h>
 
 
 // path.cpp (private stuff) ---------------------
@@ -1235,5 +1236,26 @@ const CLSID CLSID_FadeTask = { 0x7EB5FBE4, 0x2100, 0x49E6, { 0x85, 0x93, 0x17, 0
 //DEFINE_GUID(IID_IShellService, 0x5836FB00L, 0x8187, 0x11CF, 0xA1, 0x2B, 0x00, 0xAA, 0x00, 0x4A, 0xE8, 0x37);
 
 DEFINE_GUID(IID_IAssociationElement, 0xD8F6AD5B, 0xB44F, 0x4BCC, 0x88, 0xFD, 0xEB, 0x34, 0x73, 0xDB, 0x75, 0x02);
+
+
+BOOL IsStartPanelOn();
+
+LPIDA DataObj_GetHIDAEx(IDataObject* pdtobj, CLIPFORMAT cf, STGMEDIUM* pmedium);
+
+LPIDA DataObj_GetHIDA(IDataObject* pdtobj, STGMEDIUM* pmedium);
+#define HIDA_GetPIDLItem(pida, i) (LPCITEMIDLIST)(((LPBYTE)pida)+(pida)->aoffset[i+1])
+LPCITEMIDLIST IDA_GetIDListPtr(LPIDA pida, UINT i);
+
+LPITEMIDLIST IDA_FullIDList(LPIDA pida, UINT i);
+
+BOOL _IsLocalHardDisk(LPCTSTR pszPath);
+
+BOOL _IsAcceptableTarget(LPCTSTR pszPath, DWORD dwAttrib, DWORD dwFlags);
+
+void ReleaseStgMediumHGLOBAL(void* pv, STGMEDIUM* pmedium);
+
+void HIDA_ReleaseStgMedium(LPIDA pida, STGMEDIUM* pmedium);
+
+HRESULT IsPinnable(IDataObject* pdtobj, DWORD dwFlags, OPTIONAL LPITEMIDLIST* ppidl);
 
 #include "interfacesp.inc"

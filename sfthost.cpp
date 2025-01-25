@@ -2654,7 +2654,7 @@ void OfferDelete::_ThreadProc()
                                 MAKEINTRESOURCE(IDS_SFTHOST_OFFERREMOVEITEM),
                                 _pszName, MB_YESNO) == IDYES)
             {
-                _psmpin->Modify(_pidlFull, NULL);
+                _psmpin->Modify(_pidlFull, NULL,18);
             }
             ATOMICRELEASE(_psmpin);
         }
@@ -2981,26 +2981,26 @@ LRESULT SFTBarHost::_OnLVNKeyDown(LPNMLVKEYDOWN pkd)
 LRESULT SFTBarHost::_OnSMNGetMinSize(PSMNGETMINSIZE pgms)
 {
     // We need to synchronize here to get the proper size
-    if (_fBGTask && !HasDynamicContent())
-    {
-        // Wait for the enumeration to be done
-        while (TRUE)
-        {
-            MSG msg;
-            // Need to peek messages for all queues here or else WaitMessage will say
-            // that some messages are ready to be processed and we'll end up with an
-            // active loop
-            if (PeekMessage(&msg, NULL, NULL, NULL, PM_NOREMOVE))
-            {
-                if (PeekMessage(&msg, _hwnd, SFTBM_REPOPULATE, SFTBM_REPOPULATE, PM_REMOVE))
-                {
-                    DispatchMessage(&msg);
-                    break;
-                }
-            }
-            WaitMessage();
-        }
-    }
+    //if (_fBGTask && !HasDynamicContent())
+    //{
+    //    // Wait for the enumeration to be done
+    //    while (TRUE)
+    //    {
+    //        MSG msg;
+    //        // Need to peek messages for all queues here or else WaitMessage will say
+    //        // that some messages are ready to be processed and we'll end up with an
+    //        // active loop
+    //        if (PeekMessage(&msg, NULL, NULL, NULL, PM_NOREMOVE))
+    //        {
+    //            if (PeekMessage(&msg, _hwnd, SFTBM_REPOPULATE, SFTBM_REPOPULATE, PM_REMOVE))
+    //            {
+    //                DispatchMessage(&msg);
+    //                break;
+    //            }
+    //        }
+    //        WaitMessage();
+    //    }
+    //}
 
     int cItems = _cPinnedDesired + _cNormalDesired;
     int cSep = _cSep;

@@ -12,5 +12,6 @@
 #pragma once
 
 STDAPI_(LONG) PathProcessCommand(LPCTSTR lpSrc, LPTSTR lpDest, int iDestMax, DWORD dwFlags);
+HRESULT LoadFromFileW(REFCLSID clsid, LPCWSTR pszFile, REFIID riid, void** ppv);
 
 // LOL!!!! LOL!!!!! LOL!!!!!!!!!

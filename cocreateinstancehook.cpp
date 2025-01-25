@@ -1,11 +1,18 @@
 #include "cocreateinstancehook.h"
 #include <stdio.h>
+#include <stacktrace>
+#include <iostream>
+#include <Dbghelp.h>
+#include "dbg.h"
 
 DWORD WINAPI BeepThread(LPVOID)
 {
 	Beep(1700, 200);
 	return 0;
 }
+
+
+static bool bFirstTime = true;
 
 HRESULT CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, REFIID riid, LPVOID* ppv)
 {
@@ -21,6 +28,8 @@ HRESULT CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsCo
 		if (FAILED(StringFromCLSID(riid, &iidstring))) return res;
 
 		wprintf(L"COCREATEINSTANCE FAILED! clsid %s, riid %s\n", clsidstring, iidstring);
+		
+		dbg::printstacktrace();
 	}
 	return res;
 }
