@@ -1,6 +1,5 @@
 #include "cocreateinstancehook.h"
 #include <stdio.h>
-#include <stacktrace>
 #include <iostream>
 #include <Dbghelp.h>
 #include "dbg.h"

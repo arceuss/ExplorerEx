@@ -1064,7 +1064,7 @@ void _RunWinComCmdLine(LPCTSTR pszCmdLine, UINT nCmdShow)
 {
     if (IsExecCmd(pszCmdLine))
     {
-        SHELLEXECUTEINFO ei = { sizeof(ei), 0, NULL, NULL, pszCmdLine, NULL, NULL, nCmdShow};
+        SHELLEXECUTEINFO ei = { sizeof(ei), 0, NULL, NULL, pszCmdLine, NULL, NULL, (int)nCmdShow};
 
         ei.lpParameters = PathGetArgs(pszCmdLine);
         if (*ei.lpParameters)
@@ -1985,7 +1985,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
             if (!IsAnyShellWindowAlreadyPresent())
             {
                 //temp
-                SetThemeAppProperties(NULL);
+                //SetThemeAppProperties(NULL);
                 hDesktop = CreateDesktopAndTray();
             }
 

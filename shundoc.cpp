@@ -2952,8 +2952,6 @@ BOOL ExecuteRegAppEnumProc(LPCTSTR szSubkey, LPCTSTR szCmdLine, RRA_FLAGS fFlags
     return bRet;
 }
 
-//IMPLEMENT!!
-#define IS_INTRESOURCE(_r) (((ULONG_PTR)(_r) >> 16) == 0)
 BOOL SHRunControlPanelCustom(LPCTSTR lpcszCmdLine, HWND hwndMsgParent)
 {
     LPCTSTR pszCmdLine = NULL;

@@ -24,7 +24,7 @@ extern IStream *GetDesktopViewStream(DWORD grfMode, LPCTSTR pszName);
 HRESULT PersistStreamLoad(IStream *pstm, IUnknown *punk);
 HRESULT PersistStreamSave(IStream *pstm, BOOL fClearDirty, IUnknown *punk);
 
-const TCHAR c_szTaskbar[] = TEXT("Taskbar");
+const TCHAR c_szTaskbar[] = TEXT("TaskbarWinXP");
 
 // {69B3F106-0F04-11d3-AE2E-00C04F8EEA99}
 static const GUID CLSID_TrayBandSite = { 0x69b3f106, 0xf04, 0x11d3, { 0xae, 0x2e, 0x0, 0xc0, 0x4f, 0x8e, 0xea, 0x99 } };

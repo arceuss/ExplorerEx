@@ -31,7 +31,7 @@
 //#include <shsemip.h>
 //#include <runonce.h>
 #include "regstr.h"
-//#include <shfusion.h>
+#include <shfusion.h>
 
 
 #include <windowsx.h>

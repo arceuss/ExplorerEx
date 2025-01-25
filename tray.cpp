@@ -502,7 +502,7 @@ void CTray::_GetSaveStateAndInitRects()
 
     DWORD cbData1 = sizeof(tvsd);
     DWORD cbData2 = sizeof(tvsd);
-    if (Reg_GetStruct(g_hkeyExplorer, TEXT("StuckRects2"), TEXT("Settings"), 
+    if (Reg_GetStruct(g_hkeyExplorer, TEXT("StuckRectsXP"), TEXT("Settings"), 
         &tvsd, &cbData1) 
         ||
         Reg_GetStruct(g_hkeyExplorer, TEXT("StuckRects"), TEXT("Settings"),
@@ -602,7 +602,7 @@ void CTray::_SaveTrayStuff(void)
     if (_uAutoHide & AH_ON) tvsd.dwFlags |= TVSD_AUTOHIDE;
 
     // Save in Stuck rects.
-    Reg_SetStruct(g_hkeyExplorer, TEXT("StuckRects2"), TEXT("Settings"), &tvsd, sizeof(tvsd));
+    Reg_SetStruct(g_hkeyExplorer, TEXT("StuckRectsXP"), TEXT("Settings"), &tvsd, sizeof(tvsd));
 
     BandSite_SaveView(_ptbs);
 
@@ -5285,7 +5285,7 @@ void CTray::_CheckForRogueProgramFile()
     && S_OK == SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, SHGFP_TYPE_CURRENT, szProgramFilesPath))
     {
         LPTSTR pszRoguePattern;
-        int cchRoguePattern;
+        size_t cchRoguePattern;
 
         pszRoguePattern = StrChr(szProgramFilesPath, TEXT(' '));
         cchRoguePattern = ARRAYSIZE(szProgramFilesPath) - (pszRoguePattern - szProgramFilesPath);

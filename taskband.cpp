@@ -2201,7 +2201,7 @@ PTASKITEM CTaskBand::_GetItem(int i, TBBUTTONINFO* ptbb /*= NULL*/, BOOL fByInde
 {
     if (i >= 0 && i < _tb.GetButtonCount())
     {
-        TBBUTTONINFO tbb;
+        TBBUTTONINFO tbb{0};
 
         if (ptbb == NULL)
         {

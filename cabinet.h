@@ -30,7 +30,7 @@
 
 #include <windows.h>
 #include <commctrl.h>
-//#include <shfusion.h>
+#include <shfusion.h>
 //#include <msginaexports.h>
 
 // if you include atlstuff.h, you don't get windowsx.h.  so we define needed functions here
