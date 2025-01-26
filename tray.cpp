@@ -52,27 +52,17 @@
 #define DM_UEMTRACE     TF_TRAY     // timer service, other UEM stuff
 #define DM_MISC         0           // miscellany
 
-const GUID CLSID_MSUTBDeskBand = {0x540d8a8b, 0x1c3f, 0x4e32, 0x81, 0x32, 0x53, 0x0f, 0x6a, 0x50, 0x20, 0x90};
+const GUID CLSID_MSUTBDeskBand = { 0x540d8a8b, 0x1c3f, 0x4e32, 0x81, 0x32, 0x53, 0x0f, 0x6a, 0x50, 0x20, 0x90 };
 
 // From Desktop2\proglist.cpp
 HRESULT AddMenuItemsCacheTask(IShellTaskScheduler* pSystemScheduler, BOOL fKeepCacheWhenFinished);
 
 // import the WIN31 Compatibility HACKs from the shell32.dll
-void CheckWinIniForAssocs(void)
-{
-    //NOT IMPLEMENTED
-}
-
-// hooks to Shell32.dll
-void CheckDiskSpace()
-{
-    //NOT IMPLEMENTED
-}
-void CheckStagingArea()
-{
-    //NOT IMPLEMENTED
-}
-
+//STDAPI_(void) CheckWinIniForAssocs(void);
+//
+//// hooks to Shell32.dll
+//STDAPI CheckDiskSpace();
+//STDAPI CheckStagingArea();
 
 // startmnu.cpp
 void HandleFirstTime();
@@ -95,8 +85,8 @@ void ClassFactory_Stop();
 //
 // Settings UI entry point types.
 //
-typedef void (WINAPI *PTRAYPROPSHEETCALLBACK)(DWORD nStartPage);
-typedef void (WINAPI *PSETTINGSUIENTRY)(PTRAYPROPSHEETCALLBACK);
+typedef void (WINAPI* PTRAYPROPSHEETCALLBACK)(DWORD nStartPage);
+typedef void (WINAPI* PSETTINGSUIENTRY)(PTRAYPROPSHEETCALLBACK);
 
 // Shell perf automation
 extern DWORD g_dwShellStartTime;
@@ -107,8 +97,8 @@ CTray c_tray;
 
 // from explorer\desktop2
 STDAPI DesktopV2_Create(
-    IMenuPopup **ppmp, IMenuBand **ppmb, void **ppvStartPane);
-STDAPI DesktopV2_Build(void *pvStartPane);
+    IMenuPopup** ppmp, IMenuBand** ppmb, void** ppvStartPane);
+STDAPI DesktopV2_Build(void* pvStartPane);
 
 // dyna-res change for multi-config hot/warm-doc
 void HandleDisplayChange(int x, int y, BOOL fCritical);
@@ -176,13 +166,13 @@ const DWORD GlobalKeylist[] =
 {
     MAKELONG(TEXT('R'), MOD_WIN),
     MAKELONG(TEXT('M'), MOD_WIN),
-    MAKELONG(TEXT('M'), MOD_SHIFT|MOD_WIN),
+    MAKELONG(TEXT('M'), MOD_SHIFT | MOD_WIN),
     MAKELONG(VK_F1,MOD_WIN),
     MAKELONG(TEXT('E'),MOD_WIN),
     MAKELONG(TEXT('F'),MOD_WIN),
-    MAKELONG(TEXT('F'), MOD_CONTROL|MOD_WIN),
+    MAKELONG(TEXT('F'), MOD_CONTROL | MOD_WIN),
     MAKELONG(VK_TAB, MOD_WIN),
-    MAKELONG(VK_TAB, MOD_WIN|MOD_SHIFT),
+    MAKELONG(VK_TAB, MOD_WIN | MOD_SHIFT),
     MAKELONG(VK_PAUSE,MOD_WIN),
     MAKELONG(TEXT('D'),MOD_WIN),
     MAKELONG(TEXT('B'),MOD_WIN),
@@ -202,7 +192,7 @@ void CTray::ClosePopupMenus()
 
 BOOL Tray_StartPanelEnabled()
 {
-    SHELLSTATE  ss = {0};
+    SHELLSTATE  ss = { 0 };
     SHGetSetSettings(&ss, SSF_STARTPANELON, FALSE);
     return ss.fStartPanelOn;
 }
@@ -231,8 +221,8 @@ BOOL CTray::_ShouldWeShowTheStartButtonBalloon()
     DWORD dwType;
     DWORD dwData = 0;
     DWORD cbSize = sizeof(DWORD);
-    SHGetValue(HKEY_CURRENT_USER, REGSTR_EXPLORER_ADVANCED, 
-            TEXT("StartButtonBalloonTip"), &dwType, (BYTE*)&dwData, &cbSize);
+    SHGetValue(HKEY_CURRENT_USER, REGSTR_EXPLORER_ADVANCED,
+        TEXT("StartButtonBalloonTip"), &dwType, (BYTE*)&dwData, &cbSize);
 
     if (Tray_StartPanelEnabled())
     {
@@ -274,7 +264,7 @@ BOOL CTray::_ShouldWeShowTheStartButtonBalloon()
 void CTray::_DontShowTheStartButtonBalloonAnyMore()
 {
     DWORD dwData = 2;
-    SHSetValue(HKEY_CURRENT_USER, REGSTR_EXPLORER_ADVANCED, 
+    SHSetValue(HKEY_CURRENT_USER, REGSTR_EXPLORER_ADVANCED,
         TEXT("StartButtonBalloonTip"), REG_DWORD, (BYTE*)&dwData, sizeof(dwData));
 }
 
@@ -294,11 +284,11 @@ void CTray::CreateStartButtonBalloon(UINT idsTitle, UINT idsMessage)
     {
 
         _hwndStartBalloon = CreateWindow(TOOLTIPS_CLASS, NULL,
-                                             WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON,
-                                             CW_USEDEFAULT, CW_USEDEFAULT,
-                                             CW_USEDEFAULT, CW_USEDEFAULT,
-                                             _hwnd, NULL, hinstCabinet,
-                                             NULL);
+            WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON,
+            CW_USEDEFAULT, CW_USEDEFAULT,
+            CW_USEDEFAULT, CW_USEDEFAULT,
+            _hwnd, NULL, hinstCabinet,
+            NULL);
 
         if (_hwndStartBalloon)
         {
@@ -322,7 +312,7 @@ void CTray::CreateStartButtonBalloon(UINT idsTitle, UINT idsMessage)
         if (szTip[0])
         {
             RECT rc;
-            TOOLINFO ti = {0};
+            TOOLINFO ti = { 0 };
 
             ti.cbSize = sizeof(ti);
             ti.uFlags = TTF_IDISHWND | TTF_TRACK | TTF_TRANSPARENT;
@@ -343,7 +333,7 @@ void CTray::CreateStartButtonBalloon(UINT idsTitle, UINT idsMessage)
 
             GetWindowRect(_hwndStart, &rc);
 
-            SendMessage(_hwndStartBalloon, TTM_TRACKPOSITION, 0, MAKELONG((rc.left + rc.right)/2, rc.top));
+            SendMessage(_hwndStartBalloon, TTM_TRACKPOSITION, 0, MAKELONG((rc.left + rc.right) / 2, rc.top));
 
             SetWindowZorder(_hwndStartBalloon, HWND_TOPMOST);
 
@@ -379,7 +369,7 @@ void CTray::_ShowStartButtonToolTip()
             _DontShowTheStartButtonBalloonAnyMore();
         }
     }
-    else 
+    else
     {
         PostMessage(_hwnd, TM_SHOWTRAYBALLOON, TRUE, 0);
         CreateStartButtonBalloon(IDS_STARTMENUBALLOON_TITLE, IDS_STARTMENUBALLOON_TIP);
@@ -397,15 +387,14 @@ BOOL CTray::_CreateClockWindow()
 
 BOOL CTray::_InitTrayClass()
 {
-    WNDCLASS wc = {0};
+    WNDCLASS wc = { 0 };
 
-    //used to be WNDCLASS_TRAYNOTIFY, but WNDCLASS_TRAYNOTIFY is macroed by the xp compiler, why why why why?????
-    wc.lpszClassName = (LPWSTR)L"Shell_TrayWnd";
+    wc.lpszClassName = TEXT("Shell_TrayWnd");
     wc.style = CS_DBLCLKS;
     wc.lpfnWndProc = s_WndProc;
     wc.hInstance = hinstCabinet;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)(COLOR_3DFACE+1);
+    wc.hbrBackground = (HBRUSH)(COLOR_3DFACE + 1);
     wc.cbWndExtra = sizeof(LONG_PTR);
 
     return RegisterClass(&wc);
@@ -414,43 +403,43 @@ BOOL CTray::_InitTrayClass()
 
 HFONT CTray::_CreateStartFont(HWND hwndTray)
 {
-    HFONT hfontStart = NULL;
-    
-    HTHEME hthemeStart = OpenThemeData(hwndTray, L"Button");
-    if (hthemeStart)
-    {
-        LOGFONT lf;
-        HDC hdc = GetDC(hwndTray);
-        if (SUCCEEDED(GetThemeFont(hthemeStart, hdc, BP_PUSHBUTTON, PBS_NORMAL, TMT_FONT, &lf)))
-        {
-            hfontStart = CreateFontIndirect(&lf);
-        }
-        ReleaseDC(hwndTray, hdc);
-        CloseThemeData(hthemeStart);
-    }
-    
-    // Fallback to classic font if we can't get the theme font somehow
-    if (!hfontStart)
-    {
-        NONCLIENTMETRICS ncm;
-        ncm.cbSize = sizeof(ncm);
-        if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE))
-        {
-            WORD wLang = GetUserDefaultLangID();
+	HFONT hfontStart = NULL;
 
-            // Select normal weight font for chinese language.
-            if (PRIMARYLANGID(wLang) == LANG_CHINESE &&
-                ((SUBLANGID(wLang) == SUBLANG_CHINESE_TRADITIONAL) ||
-                    (SUBLANGID(wLang) == SUBLANG_CHINESE_SIMPLIFIED)))
-                ncm.lfCaptionFont.lfWeight = FW_NORMAL;
-            else
-                ncm.lfCaptionFont.lfWeight = FW_BOLD;
+	HTHEME hthemeStart = OpenThemeData(hwndTray, L"Button");
+	if (hthemeStart)
+	{
+		LOGFONT lf;
+		HDC hdc = GetDC(hwndTray);
+		if (SUCCEEDED(GetThemeFont(hthemeStart, hdc, BP_PUSHBUTTON, PBS_NORMAL, TMT_FONT, &lf)))
+		{
+			hfontStart = CreateFontIndirect(&lf);
+		}
+		ReleaseDC(hwndTray, hdc);
+		CloseThemeData(hthemeStart);
+	}
 
-            hfontStart = CreateFontIndirect(&ncm.lfCaptionFont);
-        }
-    }
+	// Fallback to classic font if we can't get the theme font somehow
+	if (!hfontStart)
+	{
+		NONCLIENTMETRICS ncm;
+		ncm.cbSize = sizeof(ncm);
+		if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE))
+		{
+			WORD wLang = GetUserDefaultLangID();
 
-    return hfontStart;
+			// Select normal weight font for chinese language.
+			if (PRIMARYLANGID(wLang) == LANG_CHINESE &&
+				((SUBLANGID(wLang) == SUBLANG_CHINESE_TRADITIONAL) ||
+					(SUBLANGID(wLang) == SUBLANG_CHINESE_SIMPLIFIED)))
+				ncm.lfCaptionFont.lfWeight = FW_NORMAL;
+			else
+				ncm.lfCaptionFont.lfWeight = FW_BOLD;
+
+			hfontStart = CreateFontIndirect(&ncm.lfCaptionFont);
+		}
+	}
+
+	return hfontStart;
 }
 
 // Set the stuck monitor for the tray window
@@ -460,12 +449,12 @@ void CTray::_SetStuckMonitor()
     // side by side. use DEFAULTTONULL because we don't want to get the wrong one
     // use the center point to call again in case we failed the first time.
     _hmonStuck = MonitorFromRect(&_arStuckRects[STICK_LEFT],
-                                     MONITOR_DEFAULTTONULL);
+        MONITOR_DEFAULTTONULL);
     if (!_hmonStuck)
     {
         POINT pt;
-        pt.x = (_arStuckRects[STICK_LEFT].left + _arStuckRects[STICK_LEFT].right)/2;
-        pt.y = (_arStuckRects[STICK_LEFT].top + _arStuckRects[STICK_LEFT].bottom)/2;
+        pt.x = (_arStuckRects[STICK_LEFT].left + _arStuckRects[STICK_LEFT].right) / 2;
+        pt.y = (_arStuckRects[STICK_LEFT].top + _arStuckRects[STICK_LEFT].bottom) / 2;
         _hmonStuck = MonitorFromPoint(pt, MONITOR_DEFAULTTONEAREST);
     }
 
@@ -510,7 +499,7 @@ void CTray::_GetSaveStateAndInitRects()
     _uAutoHide = 0;
 
     // now try to load saved vaules
-    
+
     // BUG : 231077
     // Since Tasbar properties don't roam from NT5 to NT4, (NT4 -> NT5 yes) 
     // Allow roaming from NT4 to NT5 only for the first time the User logs
@@ -519,11 +508,11 @@ void CTray::_GetSaveStateAndInitRects()
 
     DWORD cbData1 = sizeof(tvsd);
     DWORD cbData2 = sizeof(tvsd);
-    if (Reg_GetStruct(g_hkeyExplorer, TEXT("StuckRectsXP"), TEXT("Settings"), 
-        &tvsd, &cbData1) 
+    if (Reg_GetStruct(g_hkeyExplorer, TEXT("StuckRectsXP2"), TEXT("Settings"),
+        &tvsd, &cbData1)
         ||
-        Reg_GetStruct(g_hkeyExplorer, TEXT("StuckRects"), TEXT("Settings"),
-        &tvsd, &cbData2))
+        Reg_GetStruct(g_hkeyExplorer, TEXT("StuckRectsXP"), TEXT("Settings"),
+            &tvsd, &cbData2))
     {
         if (IS_CURRENT_TVSD(tvsd.t) && IsValidSTUCKPLACE(tvsd.t.uStuckPlace))
         {
@@ -536,7 +525,7 @@ void CTray::_GetSaveStateAndInitRects()
             dwTrayFlags = tvsd.t.dwFlags;
         }
         else if (MAYBE_WIN95_TVSD(tvsd.w95) &&
-                 IsValidSTUCKPLACE(tvsd.w95.uStuckPlace))
+            IsValidSTUCKPLACE(tvsd.w95.uStuckPlace))
         {
             _uStuckPlace = tvsd.w95.uStuckPlace;
             dwTrayFlags = tvsd.w95.dwFlags;
@@ -563,7 +552,7 @@ void CTray::_GetSaveStateAndInitRects()
             }
         }
     }
-    
+
 
     ASSERT(IsValidSTUCKPLACE(_uStuckPlace));
 
@@ -579,10 +568,10 @@ void CTray::_GetSaveStateAndInitRects()
     //
     // set the tray flags
     //
-    _fAlwaysOnTop  = BOOLIFY(dwTrayFlags & TVSD_TOPMOST);
+    _fAlwaysOnTop = BOOLIFY(dwTrayFlags & TVSD_TOPMOST);
     _fSMSmallIcons = BOOLIFY(dwTrayFlags & TVSD_SMSMALLICONS);
-    _fHideClock    = SHRestricted(REST_HIDECLOCK) || BOOLIFY(dwTrayFlags & TVSD_HIDECLOCK);
-    _uAutoHide     = (dwTrayFlags & TVSD_AUTOHIDE) ? AH_ON | AH_HIDING : 0;
+    _fHideClock = SHRestricted(REST_HIDECLOCK) || BOOLIFY(dwTrayFlags & TVSD_HIDECLOCK);
+    _uAutoHide = (dwTrayFlags & TVSD_AUTOHIDE) ? AH_ON | AH_HIDING : 0;
     _RefreshSettings();
 
     //
@@ -596,8 +585,8 @@ void CTray::_GetSaveStateAndInitRects()
     _SetStuckMonitor();
 }
 
-IBandSite * BandSite_CreateView();
-HRESULT BandSite_SaveView(IUnknown *pbs);
+IBandSite* BandSite_CreateView();
+HRESULT BandSite_SaveView(IUnknown* pbs);
 LRESULT BandSite_OnMarshallBS(WPARAM wParam, LPARAM lParam);
 
 void CTray::_SaveTrayStuff(void)
@@ -619,7 +608,7 @@ void CTray::_SaveTrayStuff(void)
     if (_uAutoHide & AH_ON) tvsd.dwFlags |= TVSD_AUTOHIDE;
 
     // Save in Stuck rects.
-    Reg_SetStruct(g_hkeyExplorer, TEXT("StuckRectsXP"), TEXT("Settings"), &tvsd, sizeof(tvsd));
+    Reg_SetStruct(g_hkeyExplorer, TEXT("StuckRectsXP2"), TEXT("Settings"), &tvsd, sizeof(tvsd));
 
     BandSite_SaveView(_ptbs);
 
@@ -664,7 +653,7 @@ void CTray::_AlignStartButton()
         }
 
         SetWindowPos(hwndStart, NULL, 0, 0, min(rcClient.right, _sizeStart.cx),
-                     cyStart, SWP_NOZORDER | SWP_NOACTIVATE);
+            cyStart, SWP_NOZORDER | SWP_NOACTIVATE);
     }
 }
 
@@ -711,7 +700,7 @@ void Tray_SetStartPaneActive(BOOL fActive)
 
 // Allow us to do stuff on a "button-down".
 
-LRESULT WINAPI CTray::StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uid, DWORD_PTR ref)
+LRESULT WINAPI CTray::StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     return c_tray._StartButtonSubclassWndProc(hwnd, uMsg, wParam, lParam);
 }
@@ -722,144 +711,144 @@ LRESULT CTray::_StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
 
     ASSERT(_pfnButtonProc)
 
-    // Is the button going down?
-    if (uMsg == BM_SETSTATE)
-    {
-        // Is it going Down?
-        if (wParam) 
+        // Is the button going down?
+        if (uMsg == BM_SETSTATE)
         {
-            // DebugMsg(DM_TRACE, "c.stswp: Set state %d", wParam);
-            // Yes - proceed if it's currently up and it's allowed to be down
-            if (!_uDown)
+            // Is it going Down?
+            if (wParam)
             {
-                // Nope.
-                INSTRUMENT_STATECHANGE(SHCNFI_STATE_START_DOWN);
-                _uDown = 1;
+                // DebugMsg(DM_TRACE, "c.stswp: Set state %d", wParam);
+                // Yes - proceed if it's currently up and it's allowed to be down
+                if (!_uDown)
+                {
+                    // Nope.
+                    INSTRUMENT_STATECHANGE(SHCNFI_STATE_START_DOWN);
+                    _uDown = 1;
 
-                // If we are going down, then we do not want to popup again until the Start Menu is collapsed
-                _fAllowUp = FALSE;
+                    // If we are going down, then we do not want to popup again until the Start Menu is collapsed
+                    _fAllowUp = FALSE;
 
-                SendMessage(_hwndTrayTips, TTM_ACTIVATE, FALSE, 0L);
+                    SendMessage(_hwndTrayTips, TTM_ACTIVATE, FALSE, 0L);
 
-                // Show the button down.
-                lRet = CallWindowProc(_pfnButtonProc, hwnd, uMsg, wParam, lParam);
-                // Notify the parent.
-                SendMessage(GetParent(hwnd), WM_COMMAND, (WPARAM)LOWORD(GetDlgCtrlID(hwnd)), (LPARAM)hwnd);
-                _tmOpen = GetTickCount();
-                return lRet;
+                    // Show the button down.
+                    lRet = CallWindowProc(_pfnButtonProc, hwnd, uMsg, wParam, lParam);
+                    // Notify the parent.
+                    SendMessage(GetParent(hwnd), WM_COMMAND, (WPARAM)LOWORD(GetDlgCtrlID(hwnd)), (LPARAM)hwnd);
+                    _tmOpen = GetTickCount();
+                    return lRet;
+                }
+                else
+                {
+                    // Yep. Do nothing.
+                    // fDown = FALSE;
+                    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+                }
             }
             else
             {
-                // Yep. Do nothing.
-                // fDown = FALSE;
-                return DefWindowProc(hwnd, uMsg, wParam, lParam);
+                // DebugMsg(DM_TRACE, "c.stswp: Set state %d", wParam);
+                // Nope, buttons coming up.
+
+                // Is it supposed to be down?   Is it not allowed to be up?
+                if (_uDown == 1 || !_fAllowUp)
+                {
+                    INSTRUMENT_STATECHANGE(SHCNFI_STATE_START_UP);
+
+                    // Yep, do nothing.
+                    _uDown = 2;
+                    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+                }
+                else
+                {
+                    SendMessage(_hwndTrayTips, TTM_ACTIVATE, TRUE, 0L);
+                    // Nope, Forward it on.
+                    _uDown = 0;
+                    return CallWindowProc(_pfnButtonProc, hwnd, uMsg, wParam, lParam);
+                }
             }
         }
         else
         {
-            // DebugMsg(DM_TRACE, "c.stswp: Set state %d", wParam);
-            // Nope, buttons coming up.
-
-            // Is it supposed to be down?   Is it not allowed to be up?
-            if (_uDown == 1 || !_fAllowUp)
+            if (_uStartButtonState == SBSM_EATING &&
+                uMsg >= WM_MOUSEFIRST && uMsg <= WM_MOUSELAST)
             {
-                INSTRUMENT_STATECHANGE(SHCNFI_STATE_START_UP);
+                _uStartButtonState = SBSM_NORMAL;
 
-                // Yep, do nothing.
-                _uDown = 2;
-                return DefWindowProc(hwnd, uMsg, wParam, lParam);
+                // Explicitly dismiss the Start Panel because it might be
+                // stuck in this limbo state where it is open but not the
+                // foreground window (_ShowStartButtonToolTip does this)
+                // so it doesn't know that it needs to go away.
+                ClosePopupMenus();
             }
-            else
-            {
-                SendMessage(_hwndTrayTips, TTM_ACTIVATE, TRUE, 0L);
-                // Nope, Forward it on.
-                _uDown = 0;
-                return CallWindowProc(_pfnButtonProc, hwnd, uMsg, wParam, lParam);
-            }
-        }
-    }
-    else
-    {
-        if (_uStartButtonState == SBSM_EATING &&
-            uMsg >= WM_MOUSEFIRST && uMsg <= WM_MOUSELAST)
-        {
-            _uStartButtonState = SBSM_NORMAL;
 
-            // Explicitly dismiss the Start Panel because it might be
-            // stuck in this limbo state where it is open but not the
-            // foreground window (_ShowStartButtonToolTip does this)
-            // so it doesn't know that it needs to go away.
-            ClosePopupMenus();
-        }
+            switch (uMsg) {
+            case WM_LBUTTONDOWN:
+                // The button was clicked on, then we don't need no stink'n focus rect.
+                SendMessage(GetParent(hwnd), WM_UPDATEUISTATE, MAKEWPARAM(UIS_SET,
+                    UISF_HIDEFOCUS), 0);
 
-        switch (uMsg) {
-        case WM_LBUTTONDOWN:
-            // The button was clicked on, then we don't need no stink'n focus rect.
-            SendMessage(GetParent(hwnd), WM_UPDATEUISTATE, MAKEWPARAM(UIS_SET, 
-                UISF_HIDEFOCUS), 0);
-
-            goto ProcessCapture;
-            break;
-
-
-        case WM_KEYDOWN:
-            // The user pressed enter or return or some other bogus key combination when
-            // the start button had keyboard focus, so show the rect....
-            SendMessage(GetParent(hwnd), WM_UPDATEUISTATE, MAKEWPARAM(UIS_CLEAR, 
-                UISF_HIDEFOCUS), 0);
-
-            if (wParam == VK_RETURN)
-                PostMessage(_hwnd, WM_COMMAND, IDC_KBSTART, 0);
-
-            // We do not need the capture, because we do all of our button processing
-            // on the button down. In fact taking capture for no good reason screws with
-            // drag and drop into the menus. We're overriding user.
-ProcessCapture:
-            lRet = CallWindowProc(_pfnButtonProc, hwnd, uMsg, wParam, lParam);
-            SetCapture(NULL);
-            return lRet;
-            break;
-
-        case WM_MOUSEMOVE:
-        {
-            MSG msg;
-
-            msg.lParam = lParam;
-            msg.wParam = wParam;
-            msg.message = uMsg;
-            msg.hwnd = hwnd;
-            SendMessage(_hwndTrayTips, TTM_RELAYEVENT, 0, (LPARAM)(LPMSG)& msg);
-
-            break;
-        }
-
-        case WM_MOUSEACTIVATE:
-            if (_uStartButtonState != SBSM_NORMAL)
-            {
-                _uStartButtonState = SBSM_EATING;
-                return MA_ACTIVATEANDEAT;
-            }
-            break;
-
-        //
-        //  Debounce the Start Button.  Usability shows that lots of people
-        //  double-click the Start Button, resulting in the menu opening
-        //  and then immediately closing...
-        //
-        case WM_NCHITTEST:
-            if (GetTickCount() - _tmOpen < GetDoubleClickTime())
-            {
-                return HTNOWHERE;
-            }
-            break;
-
-
-        case WM_NULL:
+                goto ProcessCapture;
                 break;
-        }
 
-        return CallWindowProc(_pfnButtonProc, hwnd, uMsg, wParam, lParam);
-    }
+
+            case WM_KEYDOWN:
+                // The user pressed enter or return or some other bogus key combination when
+                // the start button had keyboard focus, so show the rect....
+                SendMessage(GetParent(hwnd), WM_UPDATEUISTATE, MAKEWPARAM(UIS_CLEAR,
+                    UISF_HIDEFOCUS), 0);
+
+                if (wParam == VK_RETURN)
+                    PostMessage(_hwnd, WM_COMMAND, IDC_KBSTART, 0);
+
+                // We do not need the capture, because we do all of our button processing
+                // on the button down. In fact taking capture for no good reason screws with
+                // drag and drop into the menus. We're overriding user.
+            ProcessCapture:
+                lRet = CallWindowProc(_pfnButtonProc, hwnd, uMsg, wParam, lParam);
+                SetCapture(NULL);
+                return lRet;
+                break;
+
+            case WM_MOUSEMOVE:
+            {
+                MSG msg;
+
+                msg.lParam = lParam;
+                msg.wParam = wParam;
+                msg.message = uMsg;
+                msg.hwnd = hwnd;
+                SendMessage(_hwndTrayTips, TTM_RELAYEVENT, 0, (LPARAM)(LPMSG)&msg);
+
+                break;
+            }
+
+            case WM_MOUSEACTIVATE:
+                if (_uStartButtonState != SBSM_NORMAL)
+                {
+                    _uStartButtonState = SBSM_EATING;
+                    return MA_ACTIVATEANDEAT;
+                }
+                break;
+
+                //
+                //  Debounce the Start Button.  Usability shows that lots of people
+                //  double-click the Start Button, resulting in the menu opening
+                //  and then immediately closing...
+                //
+            case WM_NCHITTEST:
+                if (GetTickCount() - _tmOpen < GetDoubleClickTime())
+                {
+                    return HTNOWHERE;
+                }
+                break;
+
+
+            case WM_NULL:
+                break;
+            }
+
+            return CallWindowProc(_pfnButtonProc, hwnd, uMsg, wParam, lParam);
+        }
 }
 
 EXTERN_C const WCHAR c_wzTaskbarTheme[] = L"Taskbar";
@@ -869,34 +858,34 @@ EXTERN_C const WCHAR c_wzTaskbarVertTheme[] = L"TaskbarVert";
 
 HWND CTray::_CreateStartButton()
 {
-    DWORD dwStyle = 0;//BS_BITMAP;
+	DWORD dwStyle = 0;//BS_BITMAP;
 
-    _uStartButtonBalloonTip = RegisterWindowMessage(TEXT("Welcome Finished")); 
+	_uStartButtonBalloonTip = RegisterWindowMessage(TEXT("Welcome Finished"));
 
-    _uLogoffUser = RegisterWindowMessage(TEXT("Logoff User"));
+	_uLogoffUser = RegisterWindowMessage(TEXT("Logoff User"));
 
-    // Register for MM device changes
-    _uWinMM_DeviceChange = RegisterWindowMessage(WINMMDEVICECHANGEMSGSTRING);
+	// Register for MM device changes
+	_uWinMM_DeviceChange = RegisterWindowMessage(WINMMDEVICECHANGEMSGSTRING);
 
 
-    HWND hwnd = CreateWindowEx(0, WC_BUTTON, TEXT("Start"),
-        WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS |
-        BS_PUSHBUTTON | BS_LEFT | BS_VCENTER | dwStyle,
-        0, 0, 0, 0, _hwnd, (HMENU)IDC_START, hinstCabinet, NULL);
-    if (hwnd)
-    {
-        // taskbar windows are themed under Taskbar subapp name
-        SetWindowTheme(hwnd, L"Start", NULL);
+	HWND hwnd = CreateWindowEx(0, WC_BUTTON, TEXT("Start"),
+		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS |
+		BS_PUSHBUTTON | BS_LEFT | BS_VCENTER | dwStyle,
+		0, 0, 0, 0, _hwnd, (HMENU)IDC_START, hinstCabinet, NULL);
+	if (hwnd)
+	{
+		// taskbar windows are themed under Taskbar subapp name
+		SetWindowTheme(hwnd, L"Start", NULL);
 
-        SendMessage(hwnd, CCM_DPISCALE, TRUE, 0);
+		SendMessage(hwnd, CCM_DPISCALE, TRUE, 0);
 
-        // Subclass it.
-        _hwndStart = hwnd;
-        _pfnButtonProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LPARAM)StartButtonSubclassWndProc);
+		// Subclass it.
+		_hwndStart = hwnd;
+		_pfnButtonProc = (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LPARAM)StartButtonSubclassWndProc);
 
-        _StartButtonReset();
-    }
-    return hwnd;
+		_StartButtonReset();
+	}
+	return hwnd;
 }
 
 void CTray::_GetWindowSizes(UINT uStuckPlace, PRECT prcClient, PRECT prcView, PRECT prcNotify)
@@ -950,7 +939,7 @@ void CTray::_RestoreWindowPos()
 // Get the display (monitor) rectangle from the given arbitrary point
 HMONITOR CTray::_GetDisplayRectFromPoint(LPRECT prcDisplay, POINT pt, UINT uFlags)
 {
-    RECT rcEmpty = {0};
+    RECT rcEmpty = { 0 };
     HMONITOR hmon = MonitorFromPoint(pt, uFlags);
     if (hmon && prcDisplay)
         GetMonitorRect(hmon, prcDisplay);
@@ -963,7 +952,7 @@ HMONITOR CTray::_GetDisplayRectFromPoint(LPRECT prcDisplay, POINT pt, UINT uFlag
 // Get the display (monitor) rectangle from the given arbitrary rectangle
 HMONITOR CTray::_GetDisplayRectFromRect(LPRECT prcDisplay, LPCRECT prcIn, UINT uFlags)
 {
-    RECT rcEmpty = {0};
+    RECT rcEmpty = { 0 };
     HMONITOR hmon = MonitorFromRect(prcIn, uFlags);
     if (hmon && prcDisplay)
         GetMonitorRect(hmon, prcDisplay);
@@ -998,7 +987,7 @@ void CTray::_AdjustRectForSizingBar(UINT uStuckPlace, LPRECT prc, int iIncrement
     }
     else
     {
-        if (IsBiDiLocalizedSystem())
+        if (IS_BIDI_LOCALIZED_SYSTEM())
         {
             switch (uStuckPlace)
             {
@@ -1042,16 +1031,16 @@ void CTray::_MakeStuckRect(LPRECT prcStick, LPCRECT prcBound, SIZE size, UINT uS
 
     switch (uStick)
     {
-    case STICK_LEFT:   prcStick->right  = (prcStick->left   + size.cx); break;
-    case STICK_TOP:    prcStick->bottom = (prcStick->top    + size.cy); break;
-    case STICK_RIGHT:  prcStick->left   = (prcStick->right  - size.cx); break;
-    case STICK_BOTTOM: prcStick->top    = (prcStick->bottom - size.cy); break;
+    case STICK_LEFT:   prcStick->right = (prcStick->left + size.cx); break;
+    case STICK_TOP:    prcStick->bottom = (prcStick->top + size.cy); break;
+    case STICK_RIGHT:  prcStick->left = (prcStick->right - size.cx); break;
+    case STICK_BOTTOM: prcStick->top = (prcStick->bottom - size.cy); break;
     }
 }
 
 // the screen size has changed, so the docked rectangles need to be
 // adjusted to the new screen.
-void CTray::_ResizeStuckRects(RECT *arStuckRects)
+void CTray::_ResizeStuckRects(RECT* arStuckRects)
 {
     RECT rcDisplay;
     _GetStuckDisplayRect(_uStuckPlace, &rcDisplay);
@@ -1128,7 +1117,7 @@ void CTray::VerifySize(BOOL fWinIni, BOOL fRoundUp /* = FALSE */)
             _fSelfSizing = TRUE;
             SetWindowPos(_hwnd, NULL,
                 rc.left, rc.top,
-                RECTWIDTH(rc),RECTHEIGHT(rc),
+                RECTWIDTH(rc), RECTHEIGHT(rc),
                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS);
 
             _fSelfSizing = FALSE;
@@ -1178,11 +1167,11 @@ UINT _GetStartIDB()
     {
         id = IDB_SERVERSTARTBKG;
     }
-    else if (IsOS(OS_HOME)) // OS_PERSONAL
+    else if (IsOS(OS_PERSONAL))
     {
         id = IDB_PERSONALSTARTBKG;
     }
-    else if (IsOS(OS_WEBSERVER)) // OS_BLADE
+    else if (IsOS(OS_WEBSERVER))
     {
         id = IDB_BLADESTARTBKG;
     }
@@ -1209,11 +1198,11 @@ UINT _GetStartIDB()
 void CTray::_CreateTrayTips()
 {
     _hwndTrayTips = CreateWindowEx(WS_EX_TRANSPARENT, TOOLTIPS_CLASS, NULL,
-                                     WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
-                                     CW_USEDEFAULT, CW_USEDEFAULT,
-                                     CW_USEDEFAULT, CW_USEDEFAULT,
-                                     _hwnd, NULL, hinstCabinet,
-                                     NULL);
+        WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        CW_USEDEFAULT, CW_USEDEFAULT,
+        _hwnd, NULL, hinstCabinet,
+        NULL);
 
     if (_hwndTrayTips)
     {
@@ -1247,7 +1236,7 @@ void CTray::_CreateTrayTips()
 #define SHCNE_STAGINGAREANOTIFICATIONS (SHCNE_CREATE | SHCNE_MKDIR | SHCNE_UPDATEDIR | SHCNE_UPDATEITEM)
 LRESULT CTray::_CreateWindows()
 {
-    if (_CreateStartButton() &&  _CreateClockWindow())
+    if (_CreateStartButton() && _CreateClockWindow())
     {
         //
         //  We need to set the tray position, before creating
@@ -1273,7 +1262,7 @@ LRESULT CTray::_CreateWindows()
                 SetTimer(_hwnd, IDT_CHECKDISKSPACE, 60 * 1000, NULL);   // 60 seconds poll
             }
 
-            if (IsOS(OS_HOME) || IsOS(OS_PROFESSIONAL))
+            if (IsOS(OS_PERSONAL) || IsOS(OS_PROFESSIONAL))
             {
                 SetTimer(_hwnd, IDT_DESKTOPCLEANUP, 24 * 60 * 60 * 1000, NULL);   // 24 hour poll
             }
@@ -1287,7 +1276,7 @@ LRESULT CTray::_CreateWindows()
                     fsne.fRecursive = FALSE;
                     fsne.pidl = pidlStaging;
                     _uNotify = SHChangeNotifyRegister(_hwnd, SHCNRF_NewDelivery | SHCNRF_ShellLevel | SHCNRF_InterruptLevel,
-                                                      SHCNE_STAGINGAREANOTIFICATIONS, TM_CHANGENOTIFY, 1, &fsne);
+                        SHCNE_STAGINGAREANOTIFICATIONS, TM_CHANGENOTIFY, 1, &fsne);
 
                     // start off by checking the first time.
                     _CheckStagingAreaOnTimer();
@@ -1314,8 +1303,8 @@ LRESULT CTray::_InitStartButtonEtc()
         _BuildStartMenu();
         _RegisterDropTargets();
 
-        if (_CheckAssociations())
-            CheckWinIniForAssocs();
+		if (_CheckAssociations())
+		    CheckWinIniForAssocs();
 
         SendNotifyMessage(HWND_BROADCAST,
             RegisterWindowMessage(TEXT("TaskbarCreated")), 0, 0);
@@ -1500,7 +1489,7 @@ LRESULT CTray::_OnCreate(HWND hwnd)
 
     if (_HotkeyCreate())
     {
-        lres =  _CreateWindows();
+        lres = _CreateWindows();
     }
     return lres;
 }
@@ -1511,7 +1500,7 @@ typedef struct tagFSEPDATA
     HMONITOR hmon;
     CTray* ptray;
 }
-FSEPDATA, *PFSEPDATA;
+FSEPDATA, * PFSEPDATA;
 
 BOOL WINAPI CTray::FullScreenEnumProc(HMONITOR hmon, HDC hdc, LPRECT prc, LPARAM dwData)
 {
@@ -1559,7 +1548,7 @@ void CTray::HandleFullScreenApp(HWND hwnd)
     // app bars and _fStuckRudeApp as necessary.  (Some rude apps, such
     // as the NT Logon Screen Saver, span multiple monitors.)
     //
-    FSEPDATA d = {0};
+    FSEPDATA d = { 0 };
     RECT rc;
     if (hwnd && GetWindowRect(hwnd, &rc))
     {
@@ -1595,8 +1584,8 @@ BOOL CTray::_IsPopupMenuVisible()
 {
     HWND hwnd;
     return ((SUCCEEDED(IUnknown_GetWindow(_pmpStartMenu, &hwnd)) && IsWindowVisible(hwnd)) ||
-            (SUCCEEDED(IUnknown_GetWindow(_pmpStartPane, &hwnd)) && IsWindowVisible(hwnd)) ||
-            (SUCCEEDED(IUnknown_GetWindow(_pmpTasks, &hwnd)) && IsWindowVisible(hwnd)));
+        (SUCCEEDED(IUnknown_GetWindow(_pmpStartPane, &hwnd)) && IsWindowVisible(hwnd)) ||
+        (SUCCEEDED(IUnknown_GetWindow(_pmpTasks, &hwnd)) && IsWindowVisible(hwnd)));
 }
 
 BOOL CTray::_IsActive()
@@ -1729,7 +1718,7 @@ void CTray::_MessageLoop()
 BOOL CTray::Init()
 {
     // use _COINIT to make sure COM is inited disabling the OLE1 support
-    return SHCreateThread(MainThreadProc, this, CTF_COINIT, SyncThreadProc)  && (_hwnd != NULL);
+    return SHCreateThread(MainThreadProc, this, CTF_COINIT, SyncThreadProc) && (_hwnd != NULL);
 }
 
 int CTray::_GetPart(BOOL fSizingBar, UINT uStuckPlace)
@@ -1766,15 +1755,16 @@ void CTray::_UpdateVertical(UINT uStuckPlace, BOOL fForce)
     {
         _uOldStuckPlace = uStuckPlace;
 
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_uv tray is now %s"), STUCK_HORIZONTAL(uStuckPlace) ? TEXT("HORIZONTAL") : TEXT("VERTICAL"));
 
         if (_ptbs)
         {
             // This following function will cause a WINDOWPOSCHANGING which will call DoneMoving
             // DoneMoving will then go a screw up all of the window sizing
-            _fIgnoreDoneMoving = TRUE;  
+            _fIgnoreDoneMoving = TRUE;
             BandSite_SetMode(_ptbs, STUCK_HORIZONTAL(uStuckPlace) ? 0 : DBIF_VIEWMODE_VERTICAL);
             BandSite_SetWindowTheme(_ptbs, (LPWSTR)(STUCK_HORIZONTAL(uStuckPlace) ? c_wzTaskbarTheme : c_wzTaskbarVertTheme));
-            _fIgnoreDoneMoving = FALSE;  
+            _fIgnoreDoneMoving = FALSE;
         }
 
         SendMessage(_hwndNotify, TNM_UPDATEVERTICAL, 0, !STUCK_HORIZONTAL(uStuckPlace));
@@ -1804,7 +1794,7 @@ void CTray::_InitBandsite()
     BandSite_Update(_ptbs);
     BandSite_UIActivateDBC(_ptbs, DBC_SHOW);
 
-    BandSite_FindBand(_ptbs, CLSID_TaskBand, IID_PPV_ARGS(&_pdbTasks), NULL, NULL);
+    BandSite_FindBand(_ptbs, CLSID_TaskBand, IID_PPV_ARG(IDeskBand, &_pdbTasks), NULL, NULL);
     IUnknown_GetWindow(_pdbTasks, &_hwndTasks);
 
     // Now that bandsite is ready, set the correct size
@@ -1861,15 +1851,15 @@ void CTray::_CreateTrayWindow()
     DWORD dwExStyle = WS_EX_WINDOWEDGE | WS_EX_TOOLWINDOW;
     // Don't fadein because layered windows suck
     // If you create a layered window on a non-active desktop then the window goes black
-    dwExStyle |= IS_BIDI_LOCALIZED_SYSTEM() ? WS_EX_LAYOUTRTL : 0L;
+    dwExStyle |= IS_BIDI_LOCALIZED_SYSTEM() ? dwExStyleRTLMirrorWnd : 0L;
 
     CreateWindowEx(dwExStyle, TEXT("Shell_TrayWnd"), NULL,
-                   WS_CLIPCHILDREN | WS_POPUP,
-                   0, 0, 0, 0, NULL, NULL, hinstCabinet, (void*)this);
+        WS_CLIPCHILDREN | WS_POPUP,
+        0, 0, 0, 0, NULL, NULL, hinstCabinet, (void*)this);
 
 }
 
-DWORD WINAPI CTray::SyncThreadProc(void *pv)
+DWORD WINAPI CTray::SyncThreadProc(void* pv)
 {
     CTray* ptray = (CTray*)pv;
     return ptray->_SyncThreadProc();
@@ -1878,7 +1868,7 @@ DWORD WINAPI CTray::SyncThreadProc(void *pv)
 DWORD CTray::_SyncThreadProc()
 {
     //if (g_dwStopWatchMode)
-    //    //StopWatch_StartTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+    //    StopWatch_StartTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
 
     if (g_dwProfileCAP & 0x00000002)
         StartCAP();
@@ -1922,8 +1912,8 @@ DWORD CTray::_SyncThreadProc()
         _MigrateOldBrowserSettings();
 
         if (RegisterWaitForSingleObject(&_hHTTPWait, _hHTTPEvent,
-                                        _MigrateOldBrowserSettingsCB, this,
-                                        INFINITE, WT_EXECUTEDEFAULT))
+            _MigrateOldBrowserSettingsCB, this,
+            INFINITE, WT_EXECUTEDEFAULT))
         {
             // Yay, everything is fine.
         }
@@ -1953,8 +1943,8 @@ DWORD CTray::_SyncThreadProc()
 
         // get the system background scheduler thread
         IShellTaskScheduler* pScheduler;
-        if (SUCCEEDED(CoCreateInstanceHook(CLSID_SharedTaskScheduler, NULL, CLSCTX_INPROC,
-                                       IID_PPV_ARGS(&pScheduler))))
+        if (SUCCEEDED(CoCreateInstance(CLSID_SharedTaskScheduler, NULL, CLSCTX_INPROC,
+            IID_PPV_ARG(IShellTaskScheduler, &pScheduler))))
         {
             AddMenuItemsCacheTask(pScheduler, Tray_StartPanelEnabled());
             pScheduler->Release();
@@ -1967,13 +1957,13 @@ DWORD CTray::_SyncThreadProc()
         StopCAP();
 
     //if (g_dwStopWatchMode)
-        //StopWatch_StopTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+    //    StopWatch_StopTimed(SWID_STARTUP, TEXT("_SyncThreadProc"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
 
     return FALSE;
 }
 
 // the rest of the thread proc that includes the message loop
-DWORD WINAPI CTray::MainThreadProc(void *pv)
+DWORD WINAPI CTray::MainThreadProc(void* pv)
 {
     CTray* ptray = (CTray*)pv;
 
@@ -2010,14 +2000,14 @@ typedef struct
 UINT CTray::_HotkeyGetFreeItemIndex(void)
 {
     int i, cItems;
-    HOTKEYITEM *phki;
+    HOTKEYITEM* phki;
 
-    ASSERT(_hdsaHKI != NULL);
+    ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
 
     cItems = DSA_GetItemCount(_hdsaHKI);
-    for (i=0; i<cItems; i++)
+    for (i = 0; i < cItems; i++)
     {
-        phki = (HOTKEYITEM *)DSA_GetItemPtr(_hdsaHKI, i);
+        phki = (HOTKEYITEM*)DSA_GetItemPtr(_hdsaHKI, i);
         if (!phki->wGHotkey)
         {
             ASSERT(!phki->pidlFolder);
@@ -2042,7 +2032,7 @@ WORD _MapHotkeyToGlobalHotkey(WORD wHotkey)
     if (HIBYTE(wHotkey) & HOTKEYF_ALT)
         nMod |= MOD_ALT;
     UINT nVirtKey = LOBYTE(wHotkey);
-    return (WORD)((nMod*256) + nVirtKey);
+    return (WORD)((nMod * 256) + nVirtKey);
 }
 
 // NB This takes a regular window hotkey not a global hotkey (it does
@@ -2059,7 +2049,7 @@ int CTray::HotkeyAdd(WORD wHotkey, LPCITEMIDLIST pidlFolder, LPCITEMIDLIST pidlI
 
         int i = _HotkeyGetFreeItemIndex();
 
-        ASSERT(_hdsaHKI != NULL);
+        ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
 
         // DebugMsg(DM_IANELHK, "c.hl_a: Hotkey %x with id %d.", wHotkey, i);
 
@@ -2099,7 +2089,7 @@ int CTray::_HotkeyAddCached(WORD wGHotkey, LPITEMIDLIST pidl)
     {
         LPITEMIDLIST pidlItem = ILClone(ILFindLastID(pidl));
 
-        ASSERT(_hdsaHKI!= NULL);
+        ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
 
         if (pidlItem)
         {
@@ -2135,22 +2125,22 @@ int CTray::_HotkeyRemove(WORD wHotkey)
     if (EVAL(_hdsaHKI))
     {
         int i, cItems;
-        HOTKEYITEM *phki;
+        HOTKEYITEM* phki;
         WORD wGHotkey;
 
-        ASSERT(_hdsaHKI != NULL);
+        ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
 
         // DebugMsg(DM_IANELHK, "c.hl_r: Remove hotkey for %x" , wHotkey);
 
         // Unmap the modifiers.
         wGHotkey = _MapHotkeyToGlobalHotkey(wHotkey);
-        
+
         EnterCriticalSection(&_csHotkey);
 
         cItems = DSA_GetItemCount(_hdsaHKI);
-        for (i=0; i<cItems; i++)
+        for (i = 0; i < cItems; i++)
         {
-            phki = (HOTKEYITEM *)DSA_GetItemPtr(_hdsaHKI, i);
+            phki = (HOTKEYITEM*)DSA_GetItemPtr(_hdsaHKI, i);
             if (phki && !(phki->wFlags & HKIF_CACHED) && (phki->wGHotkey == wGHotkey))
             {
                 // DebugMsg(DM_IANELHK, "c.hl_r: Invalidating %d", i);
@@ -2180,18 +2170,18 @@ int CTray::_HotkeyRemoveCached(WORD wGHotkey)
 {
     int iRet = -1;
     int i, cItems;
-    HOTKEYITEM *phki;
+    HOTKEYITEM* phki;
 
-    ASSERT(_hdsaHKI != NULL);
+    ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
 
     // DebugMsg(DM_IANELHK, "c.hl_rc: Remove hotkey for %x" , wGHotkey);
 
     EnterCriticalSection(&_csHotkey);
 
     cItems = DSA_GetItemCount(_hdsaHKI);
-    for (i=0; i<cItems; i++)
+    for (i = 0; i < cItems; i++)
     {
-        phki = (HOTKEYITEM *)DSA_GetItemPtr(_hdsaHKI, i);
+        phki = (HOTKEYITEM*)DSA_GetItemPtr(_hdsaHKI, i);
         if (phki && (phki->wFlags & HKIF_CACHED) && (phki->wGHotkey == wGHotkey))
         {
             // DebugMsg(DM_IANELHK, "c.hl_r: Invalidating %d", i);
@@ -2265,7 +2255,7 @@ void CTray::_BuildStartMenu()
         {
             IBanneredBar* pbb;
 
-            hr = _pmpStartMenu->QueryInterface(IID_PPV_ARGS(&pbb));
+            hr = _pmpStartMenu->QueryInterface(IID_PPV_ARG(IBanneredBar, &pbb));
             if (SUCCEEDED(hr))
             {
                 pbb->SetBitmap(_hbmpStartBkg);
@@ -2281,6 +2271,7 @@ void CTray::_BuildStartMenu()
 
     if (FAILED(hr))
     {
+        //TraceMsg(TF_ERROR, "Could not create StartMenu");
     }
 }
 
@@ -2321,7 +2312,7 @@ void Tray_OnStartMenuDismissed()
     // Tell the Start Button that it's allowed to be in the up position now. This
     // prevents the problem where the start menu is displayed but the button is
     // in the up position... This happens when dialog boxes are displayed
-   c_tray._fAllowUp = TRUE;
+    c_tray._fAllowUp = TRUE;
 
     // Now tell it to be in the up position
     c_tray.ForceStartButtonUp();
@@ -2345,7 +2336,7 @@ int CTray::_TrackMenu(HMENU hmenu)
 
     SendMessage(_hwndTrayTips, TTM_ACTIVATE, FALSE, 0L);
     iret = TrackPopupMenuEx(hmenu, TPM_VERTICAL | TPM_BOTTOMALIGN | TPM_RETURNCMD,
-                            tpm.rcExclude.left, tpm.rcExclude.bottom, _hwnd, &tpm);
+        tpm.rcExclude.left, tpm.rcExclude.bottom, _hwnd, &tpm);
 
     SendMessage(_hwndTrayTips, TTM_ACTIVATE, TRUE, 0L);
     return iret;
@@ -2360,8 +2351,8 @@ void CTray::_ToolbarMenu()
     RECTL    rcExclude;
     POINTL   ptPop;
     DWORD dwFlags = MPPF_KEYBOARD;      // Assume that we're popuping
-                                        // up because of the keyboard
-                                        // This is for the underlines on NT5
+    // up because of the keyboard
+    // This is for the underlines on NT5
 
     if (_hwndTasks)
         SendMessage(_hwndTasks, TBC_FREEPOPUPMENUS, 0, 0);
@@ -2379,7 +2370,7 @@ void CTray::_ToolbarMenu()
     // Exclude rect is the VISIBLE portion of the Start Button.
     {
         RECT rcParent;
-        GetClientRect(_hwndStart, (RECT *)&rcExclude);
+        GetClientRect(_hwndStart, (RECT*)&rcExclude);
         MapWindowRect(_hwndStart, HWND_DESKTOP, &rcExclude);
 
         GetClientRect(_hwnd, &rcParent);
@@ -2395,12 +2386,12 @@ void CTray::_ToolbarMenu()
 
     // Is the "Activate" button down (If the buttons are swapped, then it's the
     // right button, otherwise the left button)
-    if (GetKeyState(GetSystemMetrics(SM_SWAPBUTTON)?VK_RBUTTON:VK_LBUTTON) < 0)
+    if (GetKeyState(GetSystemMetrics(SM_SWAPBUTTON) ? VK_RBUTTON : VK_LBUTTON) < 0)
     {
         dwFlags = 0;    // Then set to the default
     }
 
-    IMenuPopup **ppmpToDisplay = &_pmpStartMenu;
+    IMenuPopup** ppmpToDisplay = &_pmpStartMenu;
 
     if (_pmpStartPane)
     {
@@ -2412,6 +2403,7 @@ void CTray::_ToolbarMenu()
     // form.  In such case, rebuild it now.
     if (!*ppmpToDisplay)
     {
+        //TraceMsg(TF_WARNING, "e.tbm: Rebuilding Start Menu");
         _BuildStartMenu();
     }
 
@@ -2419,9 +2411,11 @@ void CTray::_ToolbarMenu()
     if (*ppmpToDisplay && SUCCEEDED((*ppmpToDisplay)->Popup(&ptPop, &rcExclude, dwFlags)))
     {
         // All is well - the menu is up
+        //TraceMsg(DM_MISC, "e.tbm: dwFlags=%x (0=mouse 1=key)", dwFlags);
     }
     else
     {
+        //TraceMsg(TF_WARNING, "e.tbm: %08x->Popup failed", *ppmpToDisplay);
         // Start Menu failed to display -- reset the Start Button
         // so the user can click it again to try again
         Tray_OnStartMenuDismissed();
@@ -2535,7 +2529,7 @@ int CTray::_RecomputeWorkArea(HWND hwndCause, HMONITOR hmon, LPRECT prcWork)
     // since it may cause another app to change the work area...
     //
     PostMessage(_hwnd, TM_RELAYPOSCHANGED, (WPARAM)hwndCause, (LPARAM)hmon);
-    
+
     //
     // get the current info for this monitor
     // we subtract down from the display rectangle to build the work area
@@ -2552,7 +2546,7 @@ int CTray::_RecomputeWorkArea(HWND hwndCause, HMONITOR hmon, LPRECT prcWork)
             (hmon == _hmonStuck) && !_fIsDesktopLocked)
         {
             SubtractRect(prcWork, &mi.rcMonitor,
-                         &_arStuckRects[_uStuckPlace]);
+                &_arStuckRects[_uStuckPlace]);
         }
         else
             *prcWork = mi.rcMonitor;
@@ -2560,7 +2554,7 @@ int CTray::_RecomputeWorkArea(HWND hwndCause, HMONITOR hmon, LPRECT prcWork)
         //
         // now subtract off all the appbars on this display
         //
-       _AppBarSubtractRects(hmon, prcWork);
+        _AppBarSubtractRects(hmon, prcWork);
 
         //
         // return whether we changed anything
@@ -2568,7 +2562,7 @@ int CTray::_RecomputeWorkArea(HWND hwndCause, HMONITOR hmon, LPRECT prcWork)
         if (!EqualRect(prcWork, &mi.rcWork))
             iRet = RWA_CHANGED;
         else if (!(_uAutoHide & AH_ON) && (!_fAlwaysOnTop) &&
-                 (!IsRectEmpty(&_arStuckRects[_uStuckPlace])))
+            (!IsRectEmpty(&_arStuckRects[_uStuckPlace])))
             // NOTE: This is the bottommost case, it only applies for the tray.
             // this should be taken out when bottommost tray becomes toolbar
             iRet = RWA_BOTTOMMOSTTRAY;
@@ -2577,18 +2571,20 @@ int CTray::_RecomputeWorkArea(HWND hwndCause, HMONITOR hmon, LPRECT prcWork)
     {
         iRet = RWA_NOCHANGE;
     }
-    
+
     return iRet;
 }
 
-void RedrawDesktop(RECT *prcWork)
+void RedrawDesktop(RECT* prcWork)
 {
     // This rect point should always be valid (dli)
-    
+    //RIP(prcWork);
+
     if (v_hwndDesktop && g_fCleanBoot)
     {
         MapWindowRect(NULL, v_hwndDesktop, prcWork);
 
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac invalidating desktop rect {%d,%d,%d,%d}"), prcWork->left, prcWork->top, prcWork->right, prcWork->bottom);
         RedrawWindow(v_hwndDesktop, prcWork, NULL, RDW_INVALIDATE | RDW_ERASE | RDW_ALLCHILDREN);
     }
 }
@@ -2606,6 +2602,7 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
     //  reenter count so we can avoid pain of sending notifies to the whole
     //  planet...
     //
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac from_AppBar %08X"), hwndCause);
 
     //
     // see if the work area changed on the display containing prcOld
@@ -2617,6 +2614,7 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
         else
             hmon1 = MonitorFromRect(prcOld, MONITOR_DEFAULTTONEAREST);
 
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac old pos {%d,%d,%d,%d} on monitor %08X"), prcOld->left, prcOld->top, prcOld->right, prcOld->bottom, hmon1);
 
         if (hmon1)
         {
@@ -2637,6 +2635,7 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
     {
         hmon2 = MonitorFromRect(prcNew, MONITOR_DEFAULTTONULL);
 
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac new pos {%d,%d,%d,%d} on monitor %08X"), prcNew->left, prcNew->top, prcNew->right, prcNew->bottom, hmon2);
 
         if (hmon2 && (hmon2 != hmon1))
         {
@@ -2653,11 +2652,12 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
     //
     if (iChange & 1)
     {
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac changing work area for monitor %08X"), hmon1);
 
         // only send SENDWININICHANGE if the desktop has been created (otherwise
         // we will hang the explorer because the main thread is currently blocked)
         SystemParametersInfo(SPI_SETWORKAREA, TRUE, &rcWork1,
-                             (iChange == 1 && v_hwndDesktop)? SPIF_SENDWININICHANGE : 0);
+            (iChange == 1 && v_hwndDesktop) ? SPIF_SENDWININICHANGE : 0);
 
         RedrawDesktop(&rcWork1);
     }
@@ -2667,11 +2667,12 @@ void CTray::_StuckAppChange(HWND hwndCause, LPCRECT prcOld, LPCRECT prcNew, BOOL
     //
     if (iChange & 2)
     {
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sac changing work area for monitor %08X"), hmon2);
 
         // only send SENDWININICHANGE if the desktop has been created (otherwise
         // we will hang the explorer because the main thread is currently blocked)
         SystemParametersInfo(SPI_SETWORKAREA, TRUE, &rcWork2,
-                             v_hwndDesktop ? SPIF_SENDWININICHANGE : 0);
+            v_hwndDesktop ? SPIF_SENDWININICHANGE : 0);
 
         RedrawDesktop(&rcWork2);
     }
@@ -2713,6 +2714,7 @@ UINT CTray::_RecalcStuckPos(LPRECT prc)
 
     if (!prc)
     {
+        ////DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_rsp no rect supplied, using window rect"));
 
         prc = &rcDummy;
         GetWindowRect(_hwnd, prc);
@@ -2722,6 +2724,7 @@ UINT CTray::_RecalcStuckPos(LPRECT prc)
     pt.x = prc->left + RECTWIDTH(*prc) / 2;
     pt.y = prc->top + RECTHEIGHT(*prc) / 2;
 
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_rsp rect is {%d, %d, %d, %d} point is {%d, %d}"), prc->left, prc->top, prc->right, prc->bottom, pt.x, pt.y);
 
     // reset this so the drag code won't give it preference
     _uMoveStuckPlace = (UINT)-1;
@@ -2741,7 +2744,7 @@ UINT CTray::_RecalcStuckPos(LPRECT prc)
 **------------------------------------------------------------------*/
 void CTray::_DoneMoving(LPWINDOWPOS lpwp)
 {
-    RECT rc, *prc;
+    RECT rc, * prc;
 
     if ((_uMoveStuckPlace == (UINT)-1) || (_fIgnoreDoneMoving))
         return;
@@ -2749,9 +2752,9 @@ void CTray::_DoneMoving(LPWINDOWPOS lpwp)
     if (_fSysSizing)
         _fDeferedPosRectChange = TRUE;
 
-    rc.left   = lpwp->x;
-    rc.top    = lpwp->y;
-    rc.right  = lpwp->x + lpwp->cx;
+    rc.left = lpwp->x;
+    rc.top = lpwp->y;
+    rc.right = lpwp->x + lpwp->cx;
     rc.bottom = lpwp->y + lpwp->cy;
 
     prc = &_arStuckRects[_uMoveStuckPlace];
@@ -2803,6 +2806,7 @@ UINT CTray::_CalcDragPlace(POINT pt)
 {
     UINT uPlace = _uMoveStuckPlace;
 
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_cdp starting point is {%d, %d}"), pt.x, pt.y);
 
     //
     // if the mouse is currently over the tray position leave it alone
@@ -2812,7 +2816,7 @@ UINT CTray::_CalcDragPlace(POINT pt)
         HMONITOR hmonDrag;
         SIZE screen, error;
         UINT uHorzEdge, uVertEdge;
-        RECT rcDisplay, *prcStick;
+        RECT rcDisplay, * prcStick;
 
         //
         // which display is the mouse on?
@@ -2820,11 +2824,12 @@ UINT CTray::_CalcDragPlace(POINT pt)
         hmonDrag = _GetDisplayRectFromPoint(&rcDisplay, pt,
             MONITOR_DEFAULTTOPRIMARY);
 
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_cdp monitor is %08X"), hmonDrag);
 
         //
         // re-origin at zero to make calculations simpler
         //
-        screen.cx =  RECTWIDTH(rcDisplay);
+        screen.cx = RECTWIDTH(rcDisplay);
         screen.cy = RECTHEIGHT(rcDisplay);
         pt.x -= rcDisplay.left;
         pt.y -= rcDisplay.top;
@@ -2860,7 +2865,7 @@ UINT CTray::_CalcDragPlace(POINT pt)
         //
         // closer to a horizontal or vertical edge?
         //
-        uPlace = ((error.cy * screen.cx) > (error.cx * screen.cy))?
+        uPlace = ((error.cy * screen.cx) > (error.cx * screen.cy)) ?
             uVertEdge : uHorzEdge;
 
         // which StuckRect should we use?
@@ -2872,10 +2877,12 @@ UINT CTray::_CalcDragPlace(POINT pt)
         if ((hmonDrag != _GetDisplayRectFromRect(NULL, prcStick,
             MONITOR_DEFAULTTONULL)))
         {
+            //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_cdp re-snapping rect for new display"));
             _MakeStuckRect(prcStick, &rcDisplay, _sStuckWidths, uPlace);
         }
     }
 
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_cdp edge is %d, rect is {%d, %d, %d, %d}"), uPlace, _arStuckRects[uPlace].left, _arStuckRects[uPlace].top, _arStuckRects[uPlace].right, _arStuckRects[uPlace].bottom);
     ASSERT(IsValidSTUCKPLACE(uPlace));
     return uPlace;
 }
@@ -2907,7 +2914,7 @@ void CTray::_HandleMoving(WPARAM wParam, LPRECT lprc)
 // store the tray size when dragging is finished
 void CTray::_SnapshotStuckRectSize(UINT uPlace)
 {
-    RECT rcDisplay, *prc = &_arStuckRects[uPlace];
+    RECT rcDisplay, * prc = &_arStuckRects[uPlace];
 
     //
     // record the width of this stuck rect
@@ -2960,14 +2967,14 @@ void CTray::SizeWindows()
 
     // position the view
     SetWindowPos(_hwndRebar, NULL, rcView.left, rcView.top,
-                 RECTWIDTH(rcView), RECTHEIGHT(rcView),
-                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS);
+        RECTWIDTH(rcView), RECTHEIGHT(rcView),
+        SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS);
     UpdateWindow(_hwndRebar);
 
     // And the clock
     SetWindowPos(_hwndNotify, NULL, rcNotify.left, rcNotify.top,
-                 RECTWIDTH(rcNotify), RECTHEIGHT(rcNotify),
-                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS);
+        RECTWIDTH(rcNotify), RECTHEIGHT(rcNotify),
+        SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOCOPYBITS);
 
     {
         TOOLINFO ti;
@@ -3007,6 +3014,7 @@ void CTray::_HandleSize()
     //
 #ifdef DEBUG
     if (_fSysSizing && (_uAutoHide & AH_HIDING)) {
+        TraceMsg(DM_TRACE, "fSysSize && hiding");
         ASSERT(0);
     }
 #endif
@@ -3032,14 +3040,14 @@ void CTray::_HandleSize()
         if (_uAutoHide & AH_ON)
         {
             UINT uPlace = _uStuckPlace;
-            HWND hwndOther =_AppBarGetAutoHideBar(uPlace);
+            HWND hwndOther = _AppBarGetAutoHideBar(uPlace);
 
             //
             // we sometimes defer checking for this until after a move
             // so as to avoid interrupting a full-window-drag in progress
             // if there is a different autohide window in our slot then whimper
             //
-            if (hwndOther?
+            if (hwndOther ?
                 (hwndOther != _hwnd) :
                 !_AppBarSetAutoHideBar2(_hwnd, TRUE, uPlace))
             {
@@ -3059,7 +3067,7 @@ void CTray::_HandleSize()
     {
         RECT rc;
         GetWindowRect(_hwndStart, &rc);
-        SendMessage(_hwndStartBalloon, TTM_TRACKPOSITION, 0, MAKELONG((rc.left + rc.right)/2, rc.top));
+        SendMessage(_hwndStartBalloon, TTM_TRACKPOSITION, 0, MAKELONG((rc.left + rc.right) / 2, rc.top));
         SetWindowZorder(_hwndStartBalloon, HWND_TOPMOST);
     }
 }
@@ -3112,22 +3120,22 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
         // (when taskbar docked on bottom) confuses people
         switch (uStuckPlace)
         {
-            case STICK_LEFT:   
-                lprc->left = rcMax.left; 
-                break;
+        case STICK_LEFT:
+            lprc->left = rcMax.left;
+            break;
 
-            case STICK_TOP:    
-                lprc->top = rcMax.top; 
-                break;
+        case STICK_TOP:
+            lprc->top = rcMax.top;
+            break;
 
-            case STICK_RIGHT:  
-                lprc->right = rcMax.right; 
-                break;
+        case STICK_RIGHT:
+            lprc->right = rcMax.right;
+            break;
 
-            case STICK_BOTTOM: 
-                lprc->top += (rcMax.bottom-lprc->bottom);
-                lprc->bottom = rcMax.bottom; 
-                break;
+        case STICK_BOTTOM:
+            lprc->top += (rcMax.bottom - lprc->bottom);
+            lprc->bottom = rcMax.bottom;
+            break;
         }
     }
 
@@ -3147,16 +3155,18 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
     // compute an initial size
     //
     _MakeStuckRect(lprc, &rcDisplay, sNewWidths, uStuckPlace);
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs starting rect is {%d, %d, %d, %d}"), lprc->left, lprc->top, lprc->right, lprc->bottom);
 
     //
     // negotiate the exact size with our children
     //
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs tray is being calculated for %s"), STUCK_HORIZONTAL(uStuckPlace) ? TEXT("HORIZONTAL") : TEXT("VERTICAL"));
 
     _UpdateVertical(uStuckPlace);
     if (_ptbs)
     {
         IDeskBarClient* pdbc;
-        if (SUCCEEDED(_ptbs->QueryInterface(IID_PPV_ARGS(&pdbc))))
+        if (SUCCEEDED(_ptbs->QueryInterface(IID_PPV_ARG(IDeskBarClient, &pdbc))))
         {
             RECT rcClient = *lprc;
             RECT rcOldClient = _arStuckRects[uStuckPlace];
@@ -3175,6 +3185,7 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
             // Make rcClient start at 0,0, Rebar only used the right and bottom values of this rect
             OffsetRect(&rcClient, -rcClient.left, -rcClient.top);
             OffsetRect(&rcOldClient, -rcOldClient.left, -rcOldClient.top);
+            //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs starting client rect is {%d, %d, %d, %d}"), rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
 
             RECT rcNotify;
             RECT rcView;
@@ -3189,7 +3200,7 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
             {
                 // This following function will cause a WINDOWPOSCHAGING which will call DoneMoving
                 // DoneMoving will then go a screw up all of the window sizing
-                _fIgnoreDoneMoving = TRUE;  
+                _fIgnoreDoneMoving = TRUE;
                 pdbc->GetSize(DBC_GS_SIZEDOWN, &rcView);
                 _fIgnoreDoneMoving = FALSE;
             }
@@ -3206,6 +3217,7 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
                 rcClient.right = rcView.right;
             }
 
+            //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs ending client rect is {%d, %d, %d, %d}"), rcClient.left, rcClient.top, rcClient.right, rcClient.bottom);
             if (_hTheme && (_fCanSizeMove || _fShowSizingBarAlways))
             {
                 _AdjustRectForSizingBar(uStuckPlace, &rcClient, 1);
@@ -3250,6 +3262,7 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
         _MakeStuckRect(lprc, &rcDisplay, sNewWidths, uStuckPlace);
     }
 
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hs final rect is {%d, %d, %d, %d}"), lprc->left, lprc->top, lprc->right, lprc->bottom);
 
     //
     // store the new size in the appropriate StuckRect
@@ -3265,7 +3278,7 @@ BOOL CTray::_HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace)
     {
         RECT rc;
         GetWindowRect(_hwndStart, &rc);
-        SendMessage(_hwndStartBalloon, TTM_TRACKPOSITION, 0, MAKELONG((rc.left + rc.right)/2, rc.top));
+        SendMessage(_hwndStartBalloon, TTM_TRACKPOSITION, 0, MAKELONG((rc.left + rc.right) / 2, rc.top));
         SetWindowZorder(_hwndStartBalloon, HWND_TOPMOST);
     }
 
@@ -3311,7 +3324,7 @@ void CTray::_ScreenSizeChange(HWND hwnd)
 {
     // Set our new HMONITOR in case there is some change
     {
-        MONITORINFO mi = {0};
+        MONITORINFO mi = { 0 };
         mi.cbSize = sizeof(mi);
 
         // Is our old HMONITOR still valid?
@@ -3342,7 +3355,7 @@ void CTray::_ScreenSizeChange(HWND hwnd)
     }
 
     SizeWindows();
-    
+
     RECT rc = _arStuckRects[_uStuckPlace];
     _HandleSizing(0, &rc, _uStuckPlace);
     // In the multi-monitor case, we need to turn on clipping for the dynamic
@@ -3379,10 +3392,10 @@ void CTray::_SaveTrayAndDesktop(void)
         SendMessage(_hwndNotify, TNM_SAVESTATE, 0, 0);
 }
 
-void CTray::_SlideStep(HWND hwnd, const RECT *prcMonitor, const RECT *prcOld, const RECT *prcNew)
+void CTray::_SlideStep(HWND hwnd, const RECT* prcMonitor, const RECT* prcOld, const RECT* prcNew)
 {
-    SIZE sizeOld = {prcOld->right - prcOld->left, prcOld->bottom - prcOld->top};
-    SIZE sizeNew = {prcNew->right - prcNew->left, prcNew->bottom - prcNew->top};
+    SIZE sizeOld = { prcOld->right - prcOld->left, prcOld->bottom - prcOld->top };
+    SIZE sizeNew = { prcNew->right - prcNew->left, prcNew->bottom - prcNew->top };
     BOOL fClipFirst = FALSE;
     UINT flags;
 
@@ -3404,7 +3417,7 @@ void CTray::_SlideStep(HWND hwnd, const RECT *prcMonitor, const RECT *prcOld, co
             _ClipInternal(&rcClip);
     }
 
-    flags = SWP_NOZORDER|SWP_NOACTIVATE;
+    flags = SWP_NOZORDER | SWP_NOACTIVATE;
     if ((sizeOld.cx == sizeNew.cx) && (sizeOld.cy == sizeNew.cy))
         flags |= SWP_NOSIZE;
 
@@ -3420,20 +3433,22 @@ void CTray::_SlideStep(HWND hwnd, const RECT *prcMonitor, const RECT *prcOld, co
     }
 }
 
-void CTray::_SlideWindow(HWND hwnd, RECT *prc, BOOL fShow)
+void CTray::_SlideWindow(HWND hwnd, RECT* prc, BOOL fShow)
 {
     RECT rcLast;
     RECT rcMonitor;
-    const RECT *prcMonitor;
+    const RECT* prcMonitor;
     DWORD dt;
     BOOL fAnimate;
 
     if (!IsWindowVisible(hwnd))
     {
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sw window is hidden, just moving"));
         MoveWindow(_hwnd, prc->left, prc->top, RECTWIDTH(*prc), RECTHEIGHT(*prc), FALSE);
         return;
     }
 
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sw -----------------BEGIN-----------------"));
 
     if (GetSystemMetrics(SM_CMONITORS) > 1)
     {
@@ -3445,7 +3460,7 @@ void CTray::_SlideWindow(HWND hwnd, RECT *prc, BOOL fShow)
 
     GetWindowRect(hwnd, &rcLast);
 
-    dt = fShow? _dtSlideShow : _dtSlideHide;
+    dt = fShow ? _dtSlideShow : _dtSlideHide;
 
     // See if we can use animation effects.
     SystemParametersInfo(SPI_GETMENUANIMATION, 0, &fAnimate, 0);
@@ -3481,7 +3496,7 @@ void CTray::_SlideWindow(HWND hwnd, RECT *prc, BOOL fShow)
                 rcMove.right += rcMove.left;
 
                 rcMove.bottom -= rcMove.top;
-                rcMove.top  = rcOld.top  + (dy) * (t - t0) / dt;
+                rcMove.top = rcOld.top + (dy) * (t - t0) / dt;
                 rcMove.bottom += rcMove.top;
 
                 _SlideStep(hwnd, prcMonitor, &rcLast, &rcMove);
@@ -3494,7 +3509,7 @@ void CTray::_SlideWindow(HWND hwnd, RECT *prc, BOOL fShow)
             }
 
             // don't draw frames faster than user can see, e.g. 20ms
-            #define ONEFRAME 20
+#define ONEFRAME 20
             dtdiff = GetTickCount();
             if ((dtdiff - t) < ONEFRAME)
                 Sleep(ONEFRAME - (dtdiff - t));
@@ -3516,6 +3531,7 @@ void CTray::_SlideWindow(HWND hwnd, RECT *prc, BOOL fShow)
     if (fShow)
         UpdateWindow(hwnd);
 
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sw ------------------END------------------"));
 }
 
 void CTray::_UnhideNow()
@@ -3537,12 +3553,12 @@ void CTray::_ComputeHiddenRect(LPRECT prc, UINT uStuck)
     int dwh;
     HMONITOR hMon;
     RECT rcMon;
-    
+
     hMon = MonitorFromRect(prc, MONITOR_DEFAULTTONULL);
     if (!hMon)
         return;
     GetMonitorRect(hMon, &rcMon);
- 
+
     if (STUCK_HORIZONTAL(uStuck))
         dwh = prc->bottom - prc->top;
     else
@@ -3591,7 +3607,7 @@ UINT CTray::_GetDockedRect(LPRECT prc, BOOL fMoving)
     return uPos;
 }
 
-void CTray::_CalcClipCoords(RECT *prcClip, const RECT *prcMonitor, const RECT *prcNew)
+void CTray::_CalcClipCoords(RECT* prcClip, const RECT* prcMonitor, const RECT* prcNew)
 {
     RECT rcMonitor;
     RECT rcWindow;
@@ -3612,7 +3628,7 @@ void CTray::_CalcClipCoords(RECT *prcClip, const RECT *prcMonitor, const RECT *p
     OffsetRect(prcClip, -prcNew->left, -prcNew->top);
 }
 
-void CTray::_ClipInternal(const RECT *prcClip)
+void CTray::_ClipInternal(const RECT* prcClip)
 {
     HRGN hrgnClip;
 
@@ -3641,10 +3657,11 @@ void CTray::_ClipInternal(const RECT *prcClip)
 void CTray::_ClipWindow(BOOL fClipState)
 {
     RECT rcClip;
-    RECT *prcClip;
+    RECT* prcClip;
 
     if (_fSelfSizing || _fSysSizing)
     {
+        //TraceMsg(TF_WARNING, "_ClipWindow: _fSelfSizing %x, _fSysSizing %x", _fSelfSizing, _fSysSizing);
         return;
     }
 
@@ -3670,6 +3687,7 @@ void CTray::_Hide()
     // don't hide
     if (_uModalMode == MM_SHUTDOWN)
     {
+        //TraceMsg(TF_TRAY, "e.th: suppress hide (shutdown || Notify)");
         return;
     }
 
@@ -3695,6 +3713,7 @@ void CTray::_Hide()
 
 void CTray::_AutoHideCollision()
 {
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_ahc COLLISION! (posting UI request)"));
 
     PostMessage(_hwnd, TM_WARNNOAUTOHIDE, ((_uAutoHide & AH_ON) != 0),
         0L);
@@ -3707,6 +3726,7 @@ LONG CTray::_SetAutoHideState(BOOL fAutoHide)
     //
     if ((fAutoHide != 0) == ((_uAutoHide & AH_ON) != 0))
     {
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.sahs nothing to do"));
         return MAKELONG(FALSE, TRUE);
     }
 
@@ -3731,6 +3751,7 @@ LONG CTray::_SetAutoHideState(BOOL fAutoHide)
         // _Hide updates the flags for us (sanity)
         if (!(_uAutoHide & AH_ON))
         {
+            //TraceMsg(DM_WARNING, "e.sahs: !AH_ON"); // ok to fail on boot/shutdown
         }
 #endif
     }
@@ -3755,7 +3776,7 @@ void CTray::_HandleEnterMenuLoop()
     // pop done while browsing the menus.
     if (_uAutoHide & AH_ON)
     {
-        KillTimer(_hwnd,  IDT_AUTOHIDE);
+        KillTimer(_hwnd, IDT_AUTOHIDE);
     }
 }
 
@@ -3799,12 +3820,12 @@ void CTray::_SetUnhideTimer(LONG x, LONG y)
     if ((_uAutoHide & AH_ON) &&
         (_uAutoHide & AH_HIDING))
     {
-        LONG dx = x-_ptLastHittest.x;
-        LONG dy = y-_ptLastHittest.y;
-        LONG rr = dx*dx + dy*dy;
+        LONG dx = x - _ptLastHittest.x;
+        LONG dy = y - _ptLastHittest.y;
+        LONG rr = dx * dx + dy * dy;
         LONG dd = GetSystemMetrics(SM_CXDOUBLECLK) * GetSystemMetrics(SM_CYDOUBLECLK);
 
-        if (rr > dd) 
+        if (rr > dd)
         {
             SetTimer(_hwnd, IDT_AUTOUNHIDE, 50, NULL);
             _ptLastHittest.x = x;
@@ -3826,7 +3847,7 @@ void CTray::_StartButtonReset()
     _hFontStart = _CreateStartFont(_hwndStart);
 
     int idbStart = IDB_START16;
-    
+
     HDC hdc = GetDC(NULL);
     if (hdc)
     {
@@ -3845,11 +3866,11 @@ void CTray::_StartButtonReset()
         BITMAP bm;
         if (GetObject(hbmFlag, sizeof(BITMAP), &bm))
         {
-            BUTTON_IMAGELIST biml = {0};
+            BUTTON_IMAGELIST biml = { 0 };
             if (_himlStartFlag)
                 ImageList_Destroy(_himlStartFlag);
 
-            
+
             DWORD dwFlags = ILC_COLOR32;
             HBITMAP hbmFlagMask = NULL;
             if (idbStart == IDB_START16)
@@ -3889,6 +3910,7 @@ void CTray::_StartButtonReset()
 
 void CTray::_OnNewSystemSizes()
 {
+    //TraceMsg(TF_TRAY, "Handling win ini change.");
     _StartButtonReset();
     VerifySize(TRUE);
 }
@@ -3900,9 +3922,9 @@ void CTray::_OnNewSystemSizes()
 //  in order to correctly implement 'Undo Minimize-all(Cascade/Tile)',
 // we need to tell which windows were changed by the 'Do' operation.
 // (nt5:183421: we used to restore *every* top-level window).
-int WINAPI CTray::CheckWndPosEnumProc(void *pItem, void *pData)
+int WINAPI CTray::CheckWndPosEnumProc(void* pItem, void* pData)
 {
-    HWNDANDPLACEMENT *pI2 = (HWNDANDPLACEMENT *)pItem;
+    HWNDANDPLACEMENT* pI2 = (HWNDANDPLACEMENT*)pItem;
     WINDOWPLACEMENT wp;
 
     wp.length = sizeof(wp);
@@ -3912,6 +3934,7 @@ int WINAPI CTray::CheckWndPosEnumProc(void *pItem, void *pData)
             pI2->fRestore = FALSE;
     }
 
+    //TraceMsg(TF_TRAY, "cwp: (hwnd=0x%x) fRestore=%d", pI2->hwnd, pI2->fRestore);
 
     return 1;   // 1:continue enum
 }
@@ -3988,7 +4011,7 @@ void CTray::_HandleTimer(WPARAM wTimerID)
         KillTimer(_hwnd, IDT_SAVESETTINGS);
         _SaveTray();
         break;
-    
+
     case IDT_ENABLEUNDO:
         KillTimer(_hwnd, IDT_ENABLEUNDO);
         CheckWindowPositions();
@@ -4011,7 +4034,7 @@ void CTray::_HandleTimer(WPARAM wTimerID)
 
                 // Get the tray rect and inflate it a bit.
                 rc = _arStuckRects[_uStuckPlace];
-                InflateRect(&rc, g_cxEdge * 4, g_cyEdge*4);
+                InflateRect(&rc, g_cxEdge * 4, g_cyEdge * 4);
 
                 // Don't hide if cursor is within inflated tray rect.
                 if (!PtInRect(&rc, pt))
@@ -4054,11 +4077,11 @@ void CTray::_HandleTimer(WPARAM wTimerID)
         _DestroyStartButtonBalloon();
         break;
 
-    case IDT_COFREEUNUSED:        
+    case IDT_COFREEUNUSED:
         CoFreeUnusedLibraries();
         KillTimer(_hwnd, IDT_COFREEUNUSED);
         break;
-        
+
     }
 }
 
@@ -4083,7 +4106,7 @@ void CTray::_CheckStagingAreaOnTimer()
 
 void CTray::_HandleChangeNotify(WPARAM wParam, LPARAM lParam)
 {
-    LPITEMIDLIST *ppidl;
+    LPITEMIDLIST* ppidl;
     LONG lEvent;
     LPSHChangeNotificationLock pshcnl = SHChangeNotification_Lock((HANDLE)wParam, (DWORD)lParam, &ppidl, &lEvent);
     if (pshcnl)
@@ -4103,7 +4126,7 @@ BOOL _ExecItemByPidls(HWND hwnd, LPITEMIDLIST pidlFolder, LPITEMIDLIST pidlItem)
 
     if (pidlFolder && pidlItem)
     {
-        IShellFolder *psf = BindToFolder(pidlFolder);
+        IShellFolder* psf = BindToFolder(pidlFolder);
         if (psf)
         {
             fRes = SUCCEEDED(SHInvokeDefaultCommand(hwnd, psf, pidlItem));
@@ -4113,7 +4136,7 @@ BOOL _ExecItemByPidls(HWND hwnd, LPITEMIDLIST pidlFolder, LPITEMIDLIST pidlItem)
             TCHAR szPath[MAX_PATH];
             SHGetPathFromIDList(pidlFolder, szPath);
             ShellMessageBox(hinstCabinet, hwnd, MAKEINTRESOURCE(IDS_CANTFINDSPECIALDIR),
-                            NULL, MB_ICONEXCLAMATION, szPath);
+                NULL, MB_ICONEXCLAMATION, szPath);
         }
     }
     return fRes;
@@ -4125,6 +4148,7 @@ LRESULT CTray::_HandleDestroy()
 {
     MINIMIZEDMETRICS mm;
 
+    //TraceMsg(DM_SHUTDOWN, "_HD: enter");
 
     mm.cbSize = sizeof(mm);
     SystemParametersInfo(SPI_GETMINIMIZEDMETRICS, sizeof(mm), &mm, FALSE);
@@ -4236,6 +4260,7 @@ LRESULT CTray::_HandleDestroy()
     _hwndStart = NULL;
 
 
+    //TraceMsg(DM_SHUTDOWN, "_HD: leave");
     return 0;
 }
 
@@ -4249,9 +4274,9 @@ void CTray::_SetFocus(HWND hwnd)
 
 void CTray::_ActAsSwitcher()
 {
-    if (_uModalMode) 
+    if (_uModalMode)
     {
-        if (_uModalMode != MM_SHUTDOWN) 
+        if (_uModalMode != MM_SHUTDOWN)
         {
             SwitchToThisWindow(GetLastActivePopup(_hwnd), TRUE);
         }
@@ -4266,6 +4291,7 @@ void CTray::_ActAsSwitcher()
         s_iRecurse++;
 
         ASSERT(s_iRecurse < TRIEDTOOMANYTIMES);
+        //TraceMsg(TF_TRAY, "s_iRecurse = %d", s_iRecurse);
 
         hwndForeground = GetForegroundWindow();
         hwndActive = GetActiveWindow();
@@ -4293,8 +4319,8 @@ void CTray::_ActAsSwitcher()
                 SendMessage(GetDlgItem(_hwnd, IDC_START), BM_SETSTATE, TRUE, 0);
             }
             s_iRecurse = 0;
-        } 
-        else 
+        }
+        else
         {
             // we don't want to loop endlessly trying to become
             // foreground.  With NT's new SetForegroundWindow rules, it would
@@ -4302,14 +4328,14 @@ void CTray::_ActAsSwitcher()
             // Randomly, I picked a quarter as many times as the debug squirty would indicate
             // as the number of times to try on NT.
             // Hopefully that is enough on most machines.
-            if (s_iRecurse > (TRIEDTOOMANYTIMES / 4)) 
+            if (s_iRecurse > (TRIEDTOOMANYTIMES / 4))
             {
                 s_iRecurse = 0;
                 return;
             }
             // until then, try to come forward.
             HandleFullScreenApp(NULL);
-            if (hwndForeground == v_hwndDesktop) 
+            if (hwndForeground == v_hwndDesktop)
             {
                 _SetFocus(_hwndStart);
                 if (GetFocus() != _hwndStart)
@@ -4334,6 +4360,10 @@ void CTray::_OnWinIniChange(HWND hwnd, WPARAM wParam, LPARAM lParam)
     if (wParam == SPI_SETNONCLIENTMETRICS || (!wParam && (!lParam || (lstrcmpi((LPTSTR)lParam, TEXT("WindowMetrics")) == 0))))
     {
 #ifdef DEBUG
+        if (wParam == SPI_SETNONCLIENTMETRICS)
+            //TraceMsg(TF_TRAY, "c.t_owic: Non-client metrics (probably) changed.");
+        else
+            //TraceMsg(TF_TRAY, "c.t_owic: Window metrics changed.");
 #endif
 
         _OnNewSystemSizes();
@@ -4342,6 +4372,7 @@ void CTray::_OnWinIniChange(HWND hwnd, WPARAM wParam, LPARAM lParam)
     // Handle old extensions.
     if (!lParam || (lParam && (lstrcmpi((LPTSTR)lParam, TEXT("Extensions")) == 0)))
     {
+        //TraceMsg(TF_TRAY, "t_owic: Extensions section change.");
         CheckWinIniForAssocs();
     }
 
@@ -4373,16 +4404,18 @@ HWND CTray::_HotkeyInUse(WORD wHK)
     if (HIBYTE(wHK) & MOD_ALT)
         nMod |= HOTKEYF_ALT;
 
-    wHKNew = (WORD)((nMod*256)+LOBYTE(wHK));
+    wHKNew = (WORD)((nMod * 256) + LOBYTE(wHK));
 
+    //DebugMsg(DM_IANELHK, TEXT("c.hkl_hiu: Checking for %x"), wHKNew);
     hwnd = GetWindow(GetDesktopWindow(), GW_CHILD);
     while (hwnd)
     {
-        SendMessageTimeout(hwnd, WM_GETHOTKEY, 0, 0, SMTO_ABORTIFHUNG| SMTO_BLOCK, 3000, &lrHKInUse);
+        SendMessageTimeout(hwnd, WM_GETHOTKEY, 0, 0, SMTO_ABORTIFHUNG | SMTO_BLOCK, 3000, &lrHKInUse);
         if (wHKNew == (WORD)lrHKInUse)
         {
 #ifdef DEBUG
             GetWindowText(hwnd, sz, ARRAYSIZE(sz));
+            //DebugMsg(DM_IANELHK, TEXT("c.hkl_hiu: %s (%x) is using %x"), sz, hwnd, lrHKInUse);
 #endif
             return hwnd;
         }
@@ -4390,6 +4423,7 @@ HWND CTray::_HotkeyInUse(WORD wHK)
         else if (lrHKInUse)
         {
             GetWindowText(hwnd, sz, ARRAYSIZE(sz));
+            //DebugMsg(DM_IANELHK, TEXT("c.hkl_hiu: %s (%x) is using %x"), sz, hwnd, lrHKInUse);
         }
 #endif
         hwnd = GetWindow(hwnd, GW_HWNDNEXT);
@@ -4397,17 +4431,23 @@ HWND CTray::_HotkeyInUse(WORD wHK)
     return NULL;
 }
 
+#define DECLAREWAITCURSOR  HCURSOR hcursor_wait_cursor_save
+#define SetWaitCursor()   hcursor_wait_cursor_save = SetCursor(LoadCursor(NULL, IDC_WAIT))
+#define ResetWaitCursor() SetCursor(hcursor_wait_cursor_save)
+
 void CTray::_HandleHotKey(int nID)
 {
+    //TraceMsg(TF_TRAY, "c.hkl_hh: Handling hotkey (%d).", nID);
 
     // Find it in the list.
-    ASSERT(_hdsaHKI != NULL);
+    ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
 
     EnterCriticalSection(&_csHotkey);
 
-    HOTKEYITEM *phki = (HOTKEYITEM *)DSA_GetItemPtr(_hdsaHKI, nID);
+    HOTKEYITEM* phki = (HOTKEYITEM*)DSA_GetItemPtr(_hdsaHKI, nID);
     if (phki && phki->wGHotkey)
     {
+        //TraceMsg(TF_TRAY, "c.hkl_hh: Hotkey listed.");
 
         // Are global hotkeys enabled?
         if (!_fGlobalHotkeyDisable)
@@ -4417,39 +4457,46 @@ void CTray::_HandleHotKey(int nID)
             // Make sure this hotkey isn't already in use by someone.
             if (hwnd)
             {
+                //TraceMsg(TF_TRAY, "c.hkl_hh: Hotkey is already in use.");
                 // Activate it.
                 SwitchToThisWindow(GetLastActivePopup(hwnd), TRUE);
             }
             else
             {
-                HCURSOR hcursor_wait_cursor_save = 0;
+                DECLAREWAITCURSOR;
                 // Exec the item.
-                SetCursor(LoadCursor(0, IDC_WAIT));
+                SetWaitCursor();
+                //TraceMsg(TF_TRAY, "c.hkl_hh: Hotkey is not in use, execing item.");
                 ASSERT(phki->pidlFolder && phki->pidlItem);
                 BOOL fRes = _ExecItemByPidls(_hwnd, phki->pidlFolder, phki->pidlItem);
-                SetCursor(hcursor_wait_cursor_save);
+                ResetWaitCursor();
 #ifdef DEBUG
                 if (!fRes)
                 {
+                    //DebugMsg(DM_ERROR, TEXT("c.hkl_hh: Can't exec command ."));
                 }
 #endif
             }
         }
         else
         {
+            //DebugMsg(DM_ERROR, TEXT("c.hkl_hh: Global hotkeys have been disabled."));
         }
     }
     else
     {
+        //DebugMsg(DM_ERROR, TEXT("c.hkl_hh: Hotkey not listed."));
     }
     LeaveCriticalSection(&_csHotkey);
 }
 
 LRESULT CTray::_UnregisterHotkey(HWND hwnd, int i)
 {
+    //TraceMsg(TF_TRAY, "c.t_uh: Unregistering hotkey (%d).", i);
 
     if (!UnregisterHotKey(hwnd, i))
     {
+        //DebugMsg(DM_ERROR, TEXT("c.t_rh: Unable to unregister hotkey %d."), i);
     }
     return TRUE;
 }
@@ -4464,6 +4511,7 @@ LRESULT CTray::_ShortcutRegisterHotkey(HWND hwnd, WORD wHotkey, ATOM atom)
 
     if (GlobalGetAtomName(atom, szPath, MAX_PATH))
     {
+        //TraceMsg(TF_TRAY, "c.t_srh: Hotkey %d for %s", wHotkey, szPath);
 
         pidl = ILCreateFromPath(szPath);
         if (pidl)
@@ -4485,8 +4533,8 @@ LRESULT CTray::_ShortcutRegisterHotkey(HWND hwnd, WORD wHotkey, ATOM atom)
 // Remove hotkey from shell's list.
 LRESULT CTray::_ShortcutUnregisterHotkey(HWND hwnd, WORD wHotkey)
 {
-    // DebugMsg(DM_TRACE, "c.t_suh: Hotkey %d", wHotkey);
-    int i  = _HotkeyRemove(wHotkey);
+    // //DebugMsg(DM_TRACE, "c.t_suh: Hotkey %d", wHotkey);
+    int i = _HotkeyRemove(wHotkey);
     if (i == -1)
         i = _HotkeyRemoveCached(_MapHotkeyToGlobalHotkey(wHotkey));
 
@@ -4498,15 +4546,16 @@ LRESULT CTray::_ShortcutUnregisterHotkey(HWND hwnd, WORD wHotkey)
 
 LRESULT CTray::_RegisterHotkey(HWND hwnd, int i)
 {
-    HOTKEYITEM *phki;
+    HOTKEYITEM* phki;
     WORD wGHotkey = 0;
 
-    ASSERT(_hdsaHKI != NULL);
+    ASSERT(IS_VALID_HANDLE(_hdsaHKI, DSA));
 
+    //TraceMsg(TF_TRAY, "c.t_rh: Registering hotkey (%d).", i);
 
     EnterCriticalSection(&_csHotkey);
 
-    phki = (HOTKEYITEM *)DSA_GetItemPtr(_hdsaHKI, i);
+    phki = (HOTKEYITEM*)DSA_GetItemPtr(_hdsaHKI, i);
     ASSERT(phki);
     if (phki)
     {
@@ -4514,7 +4563,7 @@ LRESULT CTray::_RegisterHotkey(HWND hwnd, int i)
     }
 
     LeaveCriticalSection(&_csHotkey);
-    
+
     if (wGHotkey)
     {
         // Is the hotkey available?
@@ -4542,6 +4591,7 @@ LRESULT CTray::_RegisterHotkey(HWND hwnd, int i)
         }
 
         // Can't set hotkey for this item.
+        //DebugMsg(DM_ERROR, TEXT("c.t_rh: Unable to register hotkey %d."), i);
         // Null out this item.
         phki->wGHotkey = 0;
         phki->pidlFolder = NULL;
@@ -4549,6 +4599,7 @@ LRESULT CTray::_RegisterHotkey(HWND hwnd, int i)
     }
     else
     {
+        //DebugMsg(DM_ERROR, TEXT("c.t_rh: Hotkey item is invalid."));
     }
     return FALSE;
 }
@@ -4558,7 +4609,7 @@ LRESULT CTray::_RegisterHotkey(HWND hwnd, int i)
 
 void CTray::_AppBarGetTaskBarPos(PTRAYAPPBARDATA ptabd)
 {
-    APPBARDATA3264 *pabd;
+    APPBARDATA3264* pabd;
 
     pabd = (APPBARDATA3264*)SHLockShared(UlongToPtr(ptabd->hSharedABD), ptabd->dwProcId);
     if (pabd)
@@ -4688,9 +4739,9 @@ BOOL CTray::_AppBarNew(PTRAYAPPBARDATA ptabd)
 
 BOOL CTray::_AppBarOutsideOf(PAPPBAR pabReq, PAPPBAR pab)
 {
-    if (pabReq->uEdge == pab->uEdge) 
+    if (pabReq->uEdge == pab->uEdge)
     {
-        switch (pab->uEdge) 
+        switch (pab->uEdge)
         {
         case ABE_RIGHT:
             return (pab->rc.right >= pabReq->rc.right);
@@ -4715,7 +4766,7 @@ void CTray::_AppBarQueryPos(PTRAYAPPBARDATA ptabd)
 
     if (pabReq)
     {
-        APPBARDATA3264 *pabd;
+        APPBARDATA3264* pabd;
 
         pabd = (APPBARDATA3264*)SHLockShared(UlongToPtr(ptabd->hSharedABD), ptabd->dwProcId);
         if (pabd)
@@ -4764,11 +4815,11 @@ void CTray::_AppBarQueryPos(PTRAYAPPBARDATA ptabd)
                     STUCK_HORIZONTAL(pab->uEdge) &&
                     !STUCK_HORIZONTAL(ptabd->abd.uEdge)) ||
                     ((pabReq->hwnd != pab->hwnd) &&
-                    (pabReq->uEdge == ptabd->abd.uEdge) &&
-                    _AppBarOutsideOf(pabReq, pab)) ||
+                        (pabReq->uEdge == ptabd->abd.uEdge) &&
+                        _AppBarOutsideOf(pabReq, pab)) ||
                     ((pabReq->hwnd != pab->hwnd) &&
-                    (pabReq->uEdge != ptabd->abd.uEdge) &&
-                    (pab->uEdge == ptabd->abd.uEdge))) &&
+                        (pabReq->uEdge != ptabd->abd.uEdge) &&
+                        (pab->uEdge == ptabd->abd.uEdge))) &&
                     (hmon == MonitorFromRect(&pab->rc, MONITOR_DEFAULTTONULL)))
                 {
                     _AppBarSubtractRect(pab, &pabd->rc);
@@ -4786,7 +4837,7 @@ void CTray::_AppBarSetPos(PTRAYAPPBARDATA ptabd)
     if (pab)
     {
         RECT rcOld;
-        APPBARDATA3264 *pabd;
+        APPBARDATA3264* pabd;
         BOOL fChanged = FALSE;
 
         _AppBarQueryPos(ptabd);
@@ -4817,10 +4868,10 @@ HWND CTray::_AppBarGetAutoHideBar(UINT uEdge)
 {
     if (uEdge >= ABE_MAX)
         return FALSE;
-    else 
+    else
     {
         HWND hwndAutoHide = _aHwndAutoHide[uEdge];
-        if (!IsWindow(hwndAutoHide)) 
+        if (!IsWindow(hwndAutoHide))
         {
             _aHwndAutoHide[uEdge] = NULL;
         }
@@ -4889,11 +4940,11 @@ void CTray::_AppBarActivationChange2(HWND hwnd, UINT uEdge)
 void CTray::_AppBarActivationChange(PTRAYAPPBARDATA ptabd)
 {
     PAPPBAR pab = _FindAppBar(GetABDHWnd(&ptabd->abd));
-    if (pab) 
+    if (pab)
     {
         // if this is an autohide bar and they're claiming to be on an edge not the same as their autohide edge,
         // we don't do any activation of other autohides
-        for (UINT i = 0; i < ABE_MAX; i++) 
+        for (UINT i = 0; i < ABE_MAX; i++)
         {
             if (_aHwndAutoHide[i] == GetABDHWnd(&ptabd->abd) &&
                 i != pab->uEdge)
@@ -4957,7 +5008,7 @@ LRESULT CTray::_OnAppBarMessage(PCOPYDATASTRUCT pcds)
 }
 
 // EA486701-7F92-11cf-9E05-444553540000
-const GUID CLSID_HIJACKINPROC = {0xEA486701, 0x7F92, 0x11cf, 0x9E, 0x05, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00};
+const GUID CLSID_HIJACKINPROC = { 0xEA486701, 0x7F92, 0x11cf, 0x9E, 0x05, 0x44, 0x45, 0x53, 0x54, 0x00, 0x00 };
 
 HRESULT CTray::_LoadInProc(PCOPYDATASTRUCT pcds)
 {
@@ -4995,9 +5046,11 @@ BOOL IsPosInHwnd(LPARAM lParam, HWND hwnd)
 
 void CTray::_HandleWindowPosChanging(LPWINDOWPOS lpwp)
 {
+    //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hwpc"));
 
     if (_uMoveStuckPlace != (UINT)-1)
     {
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hwpc handling pending move"));
         _DoneMoving(lpwp);
     }
     else if (_fSysSizing || !_fSelfSizing)
@@ -5018,6 +5071,7 @@ void CTray::_HandleWindowPosChanging(LPWINDOWPOS lpwp)
                 rc.bottom = rc.top + lpwp->cy;
             }
 
+            //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hwpc sys sizing to rect {%d, %d, %d, %d}"), rc.left, rc.top, rc.right, rc.bottom);
 
             _uStuckPlace = _RecalcStuckPos(&rc);
             _UpdateVertical(_uStuckPlace);
@@ -5025,6 +5079,7 @@ void CTray::_HandleWindowPosChanging(LPWINDOWPOS lpwp)
 
         _GetDockedRect(&rc, _fSysSizing);
 
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.t_hwpc using rect {%d, %d, %d, %d}"), rc.left, rc.top, rc.right, rc.bottom);
 
         lpwp->x = rc.left;
         lpwp->y = rc.top;
@@ -5094,12 +5149,12 @@ void CTray::_HandlePowerStatus(UINT uMsg, WPARAM wParam, LPARAM lParam)
 //
 #define FTsPerDayOver1000 (10000*60*60*24) // we've got (1000 x 10,000) 100ns intervals per second
 
-void CTray::_DesktopCleanup_GetFileTimeNDaysFromGivenTime(const FILETIME *pftGiven, FILETIME * pftReturn, int iDays)
+void CTray::_DesktopCleanup_GetFileTimeNDaysFromGivenTime(const FILETIME* pftGiven, FILETIME* pftReturn, int iDays)
 {
-    __int64 i64 = *((__int64 *) pftGiven);
-    i64 += Int32x32To64(iDays*1000,FTsPerDayOver1000);
+    __int64 i64 = *((__int64*)pftGiven);
+    i64 += Int32x32To64(iDays * 1000, FTsPerDayOver1000);
 
-    *pftReturn = *((FILETIME *) &i64);    
+    *pftReturn = *((FILETIME*)&i64);
 }
 
 //////////////////////////////////////////////////////
@@ -5111,7 +5166,7 @@ BOOL CTray::_DesktopCleanup_ShouldRun()
     if (!IsOS(OS_ANYSERVER) &&
         _fIsDesktopConnected &&
         !SHTestTokenMembership(NULL, DOMAIN_ALIAS_RID_GUESTS) &&
-        !SHRestricted(REST_NODESKTOPCLEANUP))        
+        !SHRestricted(REST_NODESKTOPCLEANUP))
     {
         fRetVal = TRUE;
 
@@ -5119,11 +5174,11 @@ BOOL CTray::_DesktopCleanup_ShouldRun()
         SYSTEMTIME st;
         GetLocalTime(&st);
         SystemTimeToFileTime(&st, &ftNow);
-        
+
         DWORD cb = sizeof(ftLast);
         DWORD dwData;
-        if (ERROR_SUCCESS != SHRegGetUSValue(REGSTR_PATH_CLEANUPWIZ, REGSTR_VAL_TIME, 
-                                             NULL, &ftLast, &cb, FALSE, NULL, 0))
+        if (ERROR_SUCCESS != SHRegGetUSValue(REGSTR_PATH_CLEANUPWIZ, REGSTR_VAL_TIME,
+            NULL, &ftLast, &cb, FALSE, NULL, 0))
         {
             cb = sizeof(dwData);
             if ((ERROR_SUCCESS == SHGetValue(HKEY_LOCAL_MACHINE, REGSTR_OEM_PATH, REGSTR_OEM_SEVENDAY_DISABLE, NULL, &dwData, &cb)) &&
@@ -5133,7 +5188,7 @@ BOOL CTray::_DesktopCleanup_ShouldRun()
             }
             else
             {
-                ftLast = ftNow;                                
+                ftLast = ftNow;
             }
             SHRegSetUSValue(REGSTR_PATH_CLEANUPWIZ, REGSTR_VAL_TIME, NULL, &ftLast, sizeof(ftLast), SHREGSET_FORCE_HKCU);
         }
@@ -5145,7 +5200,7 @@ BOOL CTray::_DesktopCleanup_ShouldRun()
             // if we're in normal mode and the DONT RUN flag is set, we return immediately
             // (the user checked the "don't run automatically" box)
             //
-            cb = sizeof (DWORD);
+            cb = sizeof(DWORD);
             if ((ERROR_SUCCESS == SHRegQueryUSValue(hkey, REGSTR_VAL_DONTRUN, NULL, &dwData, &cb, FALSE, NULL, 0)) &&
                 (dwData != 0))
             {
@@ -5158,8 +5213,8 @@ BOOL CTray::_DesktopCleanup_ShouldRun()
                 // time period
                 //                
                 int iDays = 60;
-                if (ERROR_SUCCESS == (SHRegGetUSValue(REGSTR_PATH_CLEANUPWIZ, REGSTR_VAL_DELTA_DAYS, 
-                                                      NULL, &dwData, &cb,FALSE, NULL, 0)))               
+                if (ERROR_SUCCESS == (SHRegGetUSValue(REGSTR_PATH_CLEANUPWIZ, REGSTR_VAL_DELTA_DAYS,
+                    NULL, &dwData, &cb, FALSE, NULL, 0)))
                 {
                     iDays = dwData;
                 }
@@ -5167,8 +5222,8 @@ BOOL CTray::_DesktopCleanup_ShouldRun()
                 // if (iDays == 0), run every time!
                 if (iDays > 0)
                 {
-                    FILETIME ftRange;                        
-        
+                    FILETIME ftRange;
+
                     _DesktopCleanup_GetFileTimeNDaysFromGivenTime(&ftLast, &ftRange, iDays);
                     if (!(CompareFileTime(&ftNow, &ftRange) > 0))
                     {
@@ -5188,7 +5243,7 @@ void CTray::_CheckDesktopCleanup()
 {
     if (_DesktopCleanup_ShouldRun())
     {
-        PROCESS_INFORMATION pi = {0};
+        PROCESS_INFORMATION pi = { 0 };
         TCHAR szRunDll32[MAX_PATH];
 
         GetSystemDirectory(szRunDll32, ARRAYSIZE(szRunDll32));
@@ -5216,7 +5271,7 @@ void _MakeBetterUniqueName(LPTSTR pszPathName, int cchPathName)
 
     if (PathIsDirectory(pszPathName))
     {
-        do 
+        do
         {
             StringCchPrintf(szNewPath, ARRAYSIZE(szNewPath), TEXT("%s%d"), pszPathName, i++);
         } while (-1 != GetFileAttributes(szNewPath));
@@ -5234,9 +5289,9 @@ void _MakeBetterUniqueName(LPTSTR pszPathName, int cchPathName)
             StringCchCopy(szExt, ARRAYSIZE(szExt), pszExt);
             *pszExt = 0;
 
-            do 
+            do
             {
-                StringCchPrintf(szNewPath, ARRAYSIZE(szNewPath), TEXT("%s%d%s"), pszPathName, i++,szExt);
+                StringCchPrintf(szNewPath, ARRAYSIZE(szNewPath), TEXT("%s%d%s"), pszPathName, i++, szExt);
             } while (-1 != GetFileAttributes(szNewPath));
 
             StringCchCopy(pszPathName, cchPathName, szNewPath);
@@ -5246,25 +5301,25 @@ void _MakeBetterUniqueName(LPTSTR pszPathName, int cchPathName)
 
 BOOL_PTR WINAPI CTray::RogueProgramFileDlgProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
-    TCHAR   szBuffer[MAX_PATH*2];
-    TCHAR   szBuffer2[MAX_PATH*2];
+    TCHAR   szBuffer[MAX_PATH * 2];
+    TCHAR   szBuffer2[MAX_PATH * 2];
     static TCHAR   szBetterPath[MAX_PATH];
-    static TCHAR  *pszPath = NULL;
-    
+    static TCHAR* pszPath = NULL;
+
     switch (iMsg)
     {
     case WM_INITDIALOG:
-        pszPath = (TCHAR *)lParam;
+        pszPath = (TCHAR*)lParam;
         StringCchCopy(szBetterPath, ARRAYSIZE(szBetterPath), pszPath);
         _MakeBetterUniqueName(szBetterPath, ARRAYSIZE(szBetterPath));
-        SendDlgItemMessage(hWnd, IDC_MSG, WM_GETTEXT, (WPARAM)(MAX_PATH*2), (LPARAM)szBuffer);
+        SendDlgItemMessage(hWnd, IDC_MSG, WM_GETTEXT, (WPARAM)(MAX_PATH * 2), (LPARAM)szBuffer);
         StringCchPrintf(szBuffer2, ARRAYSIZE(szBuffer2), szBuffer, pszPath, szBetterPath);
         SendDlgItemMessage(hWnd, IDC_MSG, WM_SETTEXT, (WPARAM)0, (LPARAM)szBuffer2);
 
         return TRUE;
 
     case WM_COMMAND:
-        switch(LOWORD(wParam))
+        switch (LOWORD(wParam))
         {
         case IDC_RENAME:
             //rename and fall through
@@ -5299,14 +5354,14 @@ void CTray::_CheckForRogueProgramFile()
     TCHAR szProgramFilesShortName[MAX_PATH];
 
     if (SHTestTokenMembership(NULL, DOMAIN_ALIAS_RID_ADMINS)
-    && S_OK == SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, SHGFP_TYPE_CURRENT, szProgramFilesPath))
+        && S_OK == SHGetFolderPath(NULL, CSIDL_PROGRAM_FILES, NULL, SHGFP_TYPE_CURRENT, szProgramFilesPath))
     {
         LPTSTR pszRoguePattern;
-        size_t cchRoguePattern;
+        int cchRoguePattern;
 
         pszRoguePattern = StrChr(szProgramFilesPath, TEXT(' '));
         cchRoguePattern = ARRAYSIZE(szProgramFilesPath) - (pszRoguePattern - szProgramFilesPath);
-        
+
         if (pszRoguePattern)
         {
             HANDLE  hFind;
@@ -5336,16 +5391,16 @@ void CTray::_CheckForRogueProgramFile()
                 if (!((wfd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) &&
                     lstrcmpi(szProgramFilesShortName, szRogueFileName) != 0))
                 {
-                        
+
                     iRet = SHMessageBoxCheckExW(GetDesktopWindow(),
-                                               hinstCabinet,
-                                               MAKEINTRESOURCE(DLG_PROGRAMFILECONFLICT),
-                                               RogueProgramFileDlgProc,
-                                               (void *)szRogueFileName,
-                                               IDIGNORE,
-                                               TEXT("RogueProgramName"));
+                        hinstCabinet,
+                        MAKEINTRESOURCE(DLG_PROGRAMFILECONFLICT),
+                        RogueProgramFileDlgProc,
+                        (void*)szRogueFileName,
+                        IDIGNORE,
+                        TEXT("RogueProgramName"));
                 }
-                
+
                 if ((iRet == IDIGNORE) || !FindNextFile(hFind, &wfd))
                 {
                     // user hit ignore or we are done, so don't keep going
@@ -5361,9 +5416,13 @@ void CTray::_CheckForRogueProgramFile()
     }
 }
 
+#define NM_STARTWAIT            (NM_FIRST-9)
+#define NM_ENDWAIT              (NM_FIRST-10)
+#define NM_BTNCLK               (NM_FIRST-11)
+
 void CTray::_OnWaitCursorNotify(LPNMHDR pnm)
 {
-    _iWaitCount += (pnm->code == NM_FIRST - 9 ? 1 :-1);
+    _iWaitCount += (pnm->code == NM_STARTWAIT ? 1 : -1);
     ASSERT(_iWaitCount >= 0);
     // Don't let it go negative or we'll never get rid of it.
     if (_iWaitCount < 0)
@@ -5374,7 +5433,7 @@ void CTray::_OnWaitCursorNotify(LPNMHDR pnm)
 
 void CTray::_HandlePrivateCommand(LPARAM lParam)
 {
-    LPSTR psz = (LPSTR) lParam; // lParam always ansi.
+    LPSTR psz = (LPSTR)lParam; // lParam always ansi.
 
     if (!lstrcmpiA(psz, "ToggleDesktop"))
     {
@@ -5384,7 +5443,7 @@ void CTray::_HandlePrivateCommand(LPARAM lParam)
     {
         // Fast way to bring up explorer window on root of
         // windows dir.
-        SHELLEXECUTEINFO shei = {0};
+        SHELLEXECUTEINFO shei = { 0 };
         TCHAR szPath[MAX_PATH];
 
         if (GetWindowsDirectory(szPath, ARRAYSIZE(szPath)) != 0)
@@ -5394,10 +5453,10 @@ void CTray::_HandlePrivateCommand(LPARAM lParam)
             shei.lpIDList = ILCreateFromPath(szPath);
             if (shei.lpIDList)
             {
-                shei.cbSize     = sizeof(shei);
-                shei.fMask      = SEE_MASK_IDLIST;
-                shei.nShow      = SW_SHOWNORMAL;
-                shei.lpVerb     = TEXT("explore");
+                shei.cbSize = sizeof(shei);
+                shei.fMask = SEE_MASK_IDLIST;
+                shei.nShow = SW_SHOWNORMAL;
+                shei.lpVerb = TEXT("explore");
                 ShellExecuteEx(&shei);
                 ILFree((LPITEMIDLIST)shei.lpIDList);
             }
@@ -5407,11 +5466,14 @@ void CTray::_HandlePrivateCommand(LPARAM lParam)
     LocalFree(psz);
 }
 
+#define DTM_UIACTIVATEIO            (WM_USER + 88)
+#define DTM_ONFOCUSCHANGEIS         (WM_USER + 89)
+
 //***
 //
 void CTray::_OnFocusMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    BOOL fActivate = (BOOL) wParam;
+    BOOL fActivate = (BOOL)wParam;
 
     switch (uMsg)
     {
@@ -5419,8 +5481,9 @@ void CTray::_OnFocusMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
 #ifdef DEBUG
         {
-            int dtb = (int) lParam;
+            int dtb = (int)lParam;
 
+            //TraceMsg(DM_FOCUS, "tiois: TM_UIActIO fAct=%d dtb=%d", fActivate, dtb);
 
             ASSERT(dtb == 1 || dtb == -1);
         }
@@ -5432,7 +5495,7 @@ void CTray::_OnFocusMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
             SendMessage(_hwnd, WM_UPDATEUISTATE, MAKEWPARAM(UIS_CLEAR,
                 UISF_HIDEFOCUS), 0);
 
-            SendMessage(v_hwndDesktop, (WM_USER + 89), TRUE, (LPARAM) _hwnd);
+            SendMessage(v_hwndDesktop, DTM_ONFOCUSCHANGEIS, TRUE, (LPARAM)_hwnd);
             SetForegroundWindow(_hwnd);
 
             // fake an IUnknown_UIActivateIO(_ptbs, TRUE, &msg);
@@ -5447,7 +5510,7 @@ void CTray::_OnFocusMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
-Ldeact:
+        Ldeact:
             IUnknown_UIActivateIO(_ptbs, FALSE, NULL);
             SetForegroundWindow(v_hwndDesktop);
         }
@@ -5457,8 +5520,9 @@ Ldeact:
 
     case TM_ONFOCUSCHANGEIS:
     {
-        HWND hwnd = (HWND) lParam;
+        HWND hwnd = (HWND)lParam;
 
+        //TraceMsg(DM_FOCUS, "tiois: TM_OnFocChgIS hwnd=%x fAct=%d", hwnd, fActivate);
 
         if (fActivate)
         {
@@ -5498,22 +5562,27 @@ int CTray::_OnTimerService(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     switch (uMsg) {
     case TM_SETTIMER:
+        //TraceMsg(DM_UEMTRACE, "e.TM_SETTIMER: wP=0x%x lP=%x", wParam, lParam);
         ASSERT(IS_VALID_CODE_PTR(lParam, TIMERPROC));
         for (i = 0; i < TSVC_NTIMER; i++) {
             if (g_timerService[i].pfnSvc == 0) {
                 g_timerService[i].pfnSvc = (TIMERPROC)lParam;
                 idt = SetTimer(_hwnd, TSVC_IndexToID(i), (UINT)wParam, 0);
                 if (idt == 0) {
+                    //TraceMsg(DM_UEMTRACE, "e.TM_SETTIMER: ST()=%d (!)", idt);
                     break;
                 }
                 ASSERT(idt == (UINT_PTR)TSVC_IndexToID(i));
                 DBEXEC(TRUE, (g_timerService[i].idtWin = idt));
+                //TraceMsg(DM_UEMTRACE, "e.TM_SETTIMER: ret=0x%x", TSVC_IndexToID(i));
                 return TSVC_IndexToID(i);   // idtWin
             }
         }
+        //TraceMsg(DM_UEMTRACE, "e.TM_SETTIMER: ret=0 (!)");
         return 0;
 
     case TM_KILLTIMER:  // lP=idtWin
+        //TraceMsg(DM_UEMTRACE, "e.TM_KILLTIMER: wP=0x%x lP=%x", wParam, lParam);
         if (EVAL(IDT_SERVICE0 <= lParam && lParam <= IDT_SERVICE0 + TSVC_NTIMER - 1)) {
             i = (int)TSVC_IDToIndex(lParam);
             if (g_timerService[i].pfnSvc) {
@@ -5528,10 +5597,11 @@ int CTray::_OnTimerService(UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_TIMER:      // wP=idtWin lP=0
+        //TraceMsg(DM_UEMTRACE, "e.TM_TIMER: wP=0x%x lP=%x", wParam, lParam);
         if (EVAL(IDT_SERVICE0 <= wParam && wParam <= IDT_SERVICE0 + TSVC_NTIMER - 1)) {
             i = (int)TSVC_IDToIndex(wParam);
             pfn = g_timerService[i].pfnSvc;
-            if (EVAL(IS_VALID_CODE_PTR(pfn)))
+            if (EVAL(IS_VALID_CODE_PTR(pfn, TIMERPROC)))
                 (*pfn)(_hwnd, WM_TIMER, wParam, GetTickCount());
         }
         return 0;
@@ -5579,8 +5649,8 @@ void WINAPI CTray::TroubleShootStartupCB(HWND hwnd, UINT uMsg, UINT_PTR idTimer,
         c_tray._fStartupTroubleshooterLaunched = TRUE;
         cb = sizeof(szCmdLine);
         if (SHGetValue(HKEY_LOCAL_MACHINE, REGSTR_PATH_EXPLORER,
-                       TEXT("StartupTroubleshoot"), NULL,
-                       szCmdLine, &cb) == ERROR_SUCCESS)
+            TEXT("StartupTroubleshoot"), NULL,
+            szCmdLine, &cb) == ERROR_SUCCESS)
         {
             ShellExecuteRegApp(szCmdLine, RRA_NOUI | RRA_DELETE);
         }
@@ -5622,10 +5692,10 @@ void CTray::_HandleDelayBootStuff()
 
         _fHandledDelayBootStuff = TRUE;
 
-        if (g_dwStopWatchMode)
-        {
-            //StopWatch_StartTimed(SWID_STARTUP, TEXT("_DelayedBootStuff"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
-        }
+        //if (g_dwStopWatchMode)
+        //{
+        //    StopWatch_StartTimed(SWID_STARTUP, TEXT("_DelayedBootStuff"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+        //}
 
         PostMessage(_hwnd, TM_SHELLSERVICEOBJECTS, 0, 0);
 
@@ -5635,11 +5705,11 @@ void CTray::_HandleDelayBootStuff()
         //with the fact that Program Files has a space in it.  An example would
         //be a folder called "C:\Program" or a file called "C:\Program.exe"
         _CheckForRogueProgramFile();
-        
+
         // Create a named event and fire it so that the services can
         // go to work, reducing contention during boot.
         _hShellReadyEvent = CreateEvent(0, TRUE, TRUE, TEXT("ShellReadyEvent"));
-        if (_hShellReadyEvent) 
+        if (_hShellReadyEvent)
         {
             // Set the event in case it was already created and our "create
             // signaled" parameter to CreateEvent got ignored.
@@ -5651,10 +5721,10 @@ void CTray::_HandleDelayBootStuff()
 
         TBOOL(WinStationRegisterConsoleNotification(SERVERNAME_CURRENT, _hwnd, NOTIFY_FOR_THIS_SESSION));
 
-        if (g_dwStopWatchMode)
-        {
-            //StopWatch_StopTimed(SWID_STARTUP, TEXT("_DelayedBootStuff"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
-        }
+        //if (g_dwStopWatchMode)
+        //{
+        //    StopWatch_StopTimed(SWID_STARTUP, TEXT("_DelayedBootStuff"), SPMODE_SHELL | SPMODE_DEBUGOUT, GetPerfTime());
+        //}
     }
 }
 
@@ -5881,7 +5951,7 @@ BOOL CTray::_TryForwardNCToClient(UINT uMsg, LPARAM lParam)
 //  History:    2000-06-29  vtan        created
 //  --------------------------------------------------------------------------
 
-static  const int   MAXIMUM_PROCESS_COUNT   =   1000;
+static  const int   MAXIMUM_PROCESS_COUNT = 1000;
 
 typedef struct
 {
@@ -5889,7 +5959,7 @@ typedef struct
     DWORD   dwProcessIDs[MAXIMUM_PROCESS_COUNT];
 } tProcessIDList;
 
-bool    FoundProcessID (tProcessIDList *pProcessIDList, DWORD dwProcessID)
+bool    FoundProcessID(tProcessIDList* pProcessIDList, DWORD dwProcessID)
 
 {
     bool    fFound;
@@ -5902,7 +5972,7 @@ bool    FoundProcessID (tProcessIDList *pProcessIDList, DWORD dwProcessID)
     return(fFound);
 }
 
-void    AddProcessID (tProcessIDList *pProcessIDList, DWORD dwProcessID)
+void    AddProcessID(tProcessIDList* pProcessIDList, DWORD dwProcessID)
 
 {
     if (pProcessIDList->dwCount < MAXIMUM_PROCESS_COUNT)
@@ -5911,7 +5981,7 @@ void    AddProcessID (tProcessIDList *pProcessIDList, DWORD dwProcessID)
     }
 }
 
-BOOL    CALLBACK    CountOfRunningProgramsEnumWindowsProc (HWND hwnd, LPARAM lParam)
+BOOL    CALLBACK    CountOfRunningProgramsEnumWindowsProc(HWND hwnd, LPARAM lParam)
 
 {
     if ((GetShellWindow() != hwnd) && IsWindowVisible(hwnd))
@@ -5934,7 +6004,7 @@ BOOL    CALLBACK    CountOfRunningProgramsEnumWindowsProc (HWND hwnd, LPARAM lPa
 
 DWORD CTray::CountOfRunningPrograms()
 {
-    tProcessIDList processIDList = {0};
+    tProcessIDList processIDList = { 0 };
     TBOOL(EnumWindows(CountOfRunningProgramsEnumWindowsProc, reinterpret_cast<LPARAM>(&processIDList)));
     return processIDList.dwCount;
 }
@@ -5954,6 +6024,7 @@ DWORD CTray::CountOfRunningPrograms()
 
 LRESULT CTray::_OnSessionChange(WPARAM wParam, LPARAM lParam)
 {
+    ASSERTMSG(DWORD(lParam) == NtCurrentPeb()->SessionId, "Session ID mismatch in CTray::_OnSessionChange");
 
     if ((WTS_CONSOLE_CONNECT == wParam) || (WTS_REMOTE_CONNECT == wParam) || (WTS_SESSION_UNLOCK == wParam))
     {
@@ -6005,8 +6076,8 @@ LRESULT CTray::_NCPaint(HRGN hrgn)
         if ((INT_PTR)hrgn == 1)
             hrgn = NULL;
 
-        HDC hdc = GetDCEx( _hwnd, hrgn, DCX_USESTYLE|DCX_WINDOW|DCX_LOCKWINDOWUPDATE|
-                    ((hrgn != NULL) ? DCX_INTERSECTRGN|DCX_NODELETERGN : 0));
+        HDC hdc = GetDCEx(_hwnd, hrgn, DCX_USESTYLE | DCX_WINDOW | DCX_LOCKWINDOWUPDATE |
+            ((hrgn != NULL) ? DCX_INTERSECTRGN | DCX_NODELETERGN : 0));
 
         if (hdc)
         {
@@ -6022,6 +6093,16 @@ LRESULT CTray::_NCPaint(HRGN hrgn)
 
     return 0;
 }
+#define SEN_FIRST       (0U-550U)       // ;Internal
+#define SEN_LAST        (0U-559U)       // ;Internal
+
+#define SEN_DDEEXECUTE (SEN_FIRST-0)
+
+#define DTM_THREADEXIT              (WM_USER + 76)
+#define DTM_SAVESTATE               (WM_USER + 77)
+#define DTM_SHELLSERVICEOBJECTS     (WM_USER + 79)
+#define DTM_STARTWAIT               (WM_USER + 80)
+#define DTM_ENDWAIT                 (WM_USER + 81)
 
 LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -6093,7 +6174,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 }
                 return(lres);
             }
-            
+
             case TCDM_APPBAR:
                 return _OnAppBarMessage((PCOPYDATASTRUCT)lParam);
 
@@ -6172,12 +6253,13 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 #ifdef DEBUG
     case WM_QUERYENDSESSION:
+        //TraceMsg(DM_SHUTDOWN, "Tray.wp WM_QUERYENDSESSION");
         goto DoDefault;
 #endif
 
     case WM_ENDSESSION:
         // save our settings if we are shutting down
-        if (wParam) 
+        if (wParam)
         {
             if (lParam | ENDSESSION_LOGOFF)
             {
@@ -6196,38 +6278,38 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_PRINTCLIENT:
     case WM_PAINT:
+    {
+        RECT rc;
+        PAINTSTRUCT ps;
+        HDC hdc = (HDC)wParam;
+        if (hdc == 0)
+            hdc = BeginPaint(hwnd, &ps);
+
+        GetClientRect(hwnd, &rc);
+
+
+        if (_hTheme)
         {
-            RECT rc;
-            PAINTSTRUCT ps;
-            HDC hdc = (HDC)wParam;
-            if (hdc == 0)
-                hdc = BeginPaint(hwnd, &ps);
+            RECT rcClip;
+            if (GetClipBox(hdc, &rcClip) == NULLREGION)
+                rcClip = rc;
 
-            GetClientRect(hwnd, &rc);
-
-
-            if (_hTheme)
-            {
-                RECT rcClip;
-                if (GetClipBox(hdc, &rcClip) == NULLREGION)
-                    rcClip = rc;
-
-                DrawThemeBackground(_hTheme, hdc, _GetPart(FALSE, _uStuckPlace), 0, &rc, &rcClip);
-            }
-            else
-            {
-                FillRect(hdc, &rc, (HBRUSH)(COLOR_3DFACE + 1));
-                
-                // draw etched line around on either side of the bandsite
-                MapWindowPoints(HWND_DESKTOP, hwnd, (LPPOINT)&rc, 2);
-                InflateRect(&rc, g_cxEdge, g_cyEdge);
-                DrawEdge(hdc, &rc, EDGE_ETCHED, BF_TOPLEFT);
-            }
-
-            if (wParam == 0)
-                EndPaint(hwnd, &ps);
+            DrawThemeBackground(_hTheme, hdc, _GetPart(FALSE, _uStuckPlace), 0, &rc, &rcClip);
         }
-        break;
+        else
+        {
+            FillRect(hdc, &rc, (HBRUSH)(COLOR_3DFACE + 1));
+
+            // draw etched line around on either side of the bandsite
+            MapWindowPoints(HWND_DESKTOP, hwnd, (LPPOINT)&rc, 2);
+            InflateRect(&rc, g_cxEdge, g_cyEdge);
+            DrawEdge(hdc, &rc, EDGE_ETCHED, BF_TOPLEFT);
+        }
+
+        if (wParam == 0)
+            EndPaint(hwnd, &ps);
+    }
+    break;
 
     case WM_ERASEBKGND:
         if (_hTheme)
@@ -6276,11 +6358,11 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case WM_NOTIFY:
     {
-        NMHDR *pnm = (NMHDR*)lParam;
+        NMHDR* pnm = (NMHDR*)lParam;
         if (!BandSite_HandleMessage(_ptbs, hwnd, uMsg, wParam, lParam, &lres)) {
             switch (pnm->code)
             {
-            case ((0U - 550U) - 0):
+            case SEN_DDEEXECUTE:
                 if (((LPNMHDR)lParam)->idFrom == 0)
                 {
                     LPNMVIEWFOLDER pnmPost = DDECreatePostNotify((LPNMVIEWFOLDER)pnm);
@@ -6293,11 +6375,11 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 }
                 break;
 
-            case (NM_FIRST - 9):
-            case (NM_FIRST - 10):
-                _OnWaitCursorNotify((NMHDR *)lParam);
-                PostMessage(v_hwndDesktop, ((NMHDR*)lParam)->code == (NM_FIRST - 9) ? (WM_USER + 80) : (WM_USER + 81),
-                            0, 0); // forward it along
+            case NM_STARTWAIT:
+            case NM_ENDWAIT:
+                _OnWaitCursorNotify((NMHDR*)lParam);
+                PostMessage(v_hwndDesktop, ((NMHDR*)lParam)->code == NM_STARTWAIT ? DTM_STARTWAIT : DTM_ENDWAIT,
+                    0, 0); // forward it along
                 break;
 
             case NM_THEMECHANGED:
@@ -6326,47 +6408,48 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_NCHITTEST:
+    {
+        RECT r1;
+        POINT pt;
+
+        GetClientRect(hwnd, &r1);
+        MapWindowPoints(hwnd, NULL, (LPPOINT)&r1, 2);
+
+        pt.x = GET_X_LPARAM(lParam);
+        pt.y = GET_Y_LPARAM(lParam);
+
+        _SetUnhideTimer(pt.x, pt.y);
+
+        // If the user can't size or move the taskbar, then just say
+        // they hit something useless
+        if (!_fCanSizeMove)
         {
-            RECT r1;
-            POINT pt;
-
-            GetClientRect(hwnd, &r1);
-            MapWindowPoints(hwnd, NULL, (LPPOINT)&r1, 2);
-
-            pt.x = GET_X_LPARAM(lParam);
-            pt.y = GET_Y_LPARAM(lParam);
-
-            _SetUnhideTimer(pt.x, pt.y);
-
-            // If the user can't size or move the taskbar, then just say
-            // they hit something useless
-            if (!_fCanSizeMove)
-            {
-                return HTBORDER;
-            }
-            else if (PtInRect(&r1, pt))
-            {
-                // allow dragging if mouse is in client area of _hwnd
-                return HTCAPTION;
-            }
-            else
-            {
-                return _PtOnResizableEdge(pt, &r1);
-            }
+            return HTBORDER;
         }
-        break;
+        else if (PtInRect(&r1, pt))
+        {
+            // allow dragging if mouse is in client area of _hwnd
+            return HTCAPTION;
+        }
+        else
+        {
+            return _PtOnResizableEdge(pt, &r1);
+        }
+    }
+    break;
 
     case WM_WINDOWPOSCHANGING:
         _HandleWindowPosChanging((LPWINDOWPOS)lParam);
         break;
 
     case WM_ENTERSIZEMOVE:
+        //DebugMsg(DM_TRAYDOCK, TEXT("Tray -- WM_ENTERSIZEMOVE"));
         g_fInSizeMove = TRUE;
         GetCursorPos((LPPOINT)&_rcSizeMoveIgnore);
         _rcSizeMoveIgnore.right = _rcSizeMoveIgnore.left;
         _rcSizeMoveIgnore.bottom = _rcSizeMoveIgnore.top;
         InflateRect(&_rcSizeMoveIgnore, GetSystemMetrics(SM_CXICON),
-                                         GetSystemMetrics(SM_CYICON));
+            GetSystemMetrics(SM_CYICON));
 
         //
         // unclip the tray from the current monitor.
@@ -6381,7 +6464,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         // set up for WM_MOVING/WM_SIZING messages
         _uMoveStuckPlace = (UINT)-1;
         _fSysSizing = TRUE;
-        
+
         if (!g_fDragFullWindows)
         {
             SendMessage(_hwndRebar, WM_SETREDRAW, FALSE, 0);
@@ -6389,6 +6472,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_EXITSIZEMOVE:
+        //DebugMsg(DM_TRAYDOCK, TEXT("Tray -- WM_EXITSIZEMOVE"));
 
         // done sizing
         _fSysSizing = FALSE;
@@ -6412,7 +6496,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case WM_ENTERMENULOOP:
-        // DebugMsg(DM_TRACE, "c.twp: Enter menu loop.");
+        // //DebugMsg(DM_TRACE, "c.twp: Enter menu loop.");
         _HandleEnterMenuLoop();
         break;
 
@@ -6456,17 +6540,17 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         // causes themes to run around destroying fonts (ruining the OOBE
         // text) and we need to reload our bitmaps for the new color depth
         // anyway.
-        ::PostMessage(_hwnd,  SBM_REBUILDMENU, 0, 0);
+        ::PostMessage(_hwnd, SBM_REBUILDMENU, 0, 0);
 
         break;
-    
-    // Don't go to default wnd proc for this one...
+
+        // Don't go to default wnd proc for this one...
     case WM_INPUTLANGCHANGEREQUEST:
         return(LRESULT)0L;
 
     case WM_GETMINMAXINFO:
-        ((MINMAXINFO *)lParam)->ptMinTrackSize.x = g_cxFrame;
-        ((MINMAXINFO *)lParam)->ptMinTrackSize.y = g_cyFrame;
+        ((MINMAXINFO*)lParam)->ptMinTrackSize.x = g_cxFrame;
+        ((MINMAXINFO*)lParam)->ptMinTrackSize.y = g_cyFrame;
         break;
 
     case WM_WININICHANGE:
@@ -6482,6 +6566,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
 
         if (lParam)
+            //TraceMsg(TF_TRAY, "Tray Got: lParam=%s", (LPCSTR)lParam);
 
         break;
 
@@ -6499,7 +6584,8 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (_iWaitCount) {
             SetCursor(LoadCursor(NULL, IDC_APPSTARTING));
             return TRUE;
-        } else
+        }
+        else
             goto DoDefault;
 
     case WM_SETFOCUS:
@@ -6582,6 +6668,8 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case TM_WARNNOAUTOHIDE:
+        //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.twp collision UI request"));
+
         //
         // this may look a little funny but what we do is post this message all
         // over the place and ignore it when we think it is a bad time to put
@@ -6599,6 +6687,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else
         {
+            //DebugMsg(DM_TRAYDOCK, TEXT("TRAYDOCK.twp blowing off extraneous collision UI request"));
         }
         break;
 
@@ -6619,7 +6708,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
 
     case TM_GETHMONITOR:
-        *((HMONITOR *)lParam) = _hmonStuck;
+        *((HMONITOR*)lParam) = _hmonStuck;
         break;
 
     case TM_DOTRAYPROPERTIES:
@@ -6632,7 +6721,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     case TM_LANGUAGEBAND:
         return _ToggleLanguageBand(lParam);
-        
+
     case WM_NCRBUTTONUP:
         uMsg = WM_CONTEXTMENU;
         wParam = (WPARAM)_hwndTasks;
@@ -6654,14 +6743,14 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 StartMenuContextMenu(_hwnd, (DWORD)lParam);
 
                 _fFromStart = FALSE;
-            } 
+            }
             else if (IsPosInHwnd(lParam, _hwndNotify) || SHIsChildOrSelf(_hwndNotify, GetFocus()) == S_OK)
             {
                 // if click was inthe clock, include
                 // the time
                 _ContextMenu((DWORD)lParam, TRUE);
-            } 
-            else 
+            }
+            else
             {
                 BandSite_HandleMessage(_ptbs, hwnd, uMsg, wParam, lParam, &lres);
             }
@@ -6722,7 +6811,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (_hwndStartBalloon)
         {
             RECT rc;
-            POINT pt = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+            POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
             GetWindowRect(_hwndStartBalloon, &rc);
             MapWindowRect(HWND_DESKTOP, _hwnd, &rc);
 
@@ -6746,7 +6835,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             _pmpTasks->AddRef();
         }
         break;
-        
+
     case WM_ACTIVATE:
         _AppBarActivationChange2(hwnd, _uStuckPlace);
         if (wParam != WA_INACTIVE)
@@ -6777,50 +6866,50 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     }
 
     case WM_THEMECHANGED:
+    {
+        if (_hTheme)
         {
+            CloseThemeData(_hTheme);
+            _hTheme = NULL;
+        }
+        if (wParam)
+        {
+            _hTheme = OpenThemeData(_hwnd, c_wzTaskbarTheme);
+            _fShowSizingBarAlways = (_uAutoHide & AH_ON) ? TRUE : FALSE;
             if (_hTheme)
             {
-                CloseThemeData(_hTheme);
-                _hTheme = NULL;
+                GetThemeBool(_hTheme, 0, 0, TMT_ALWAYSSHOWSIZINGBAR, &_fShowSizingBarAlways);
             }
-            if (wParam)
-            {
-                _hTheme = OpenThemeData(_hwnd, c_wzTaskbarTheme);
-                _fShowSizingBarAlways = (_uAutoHide & AH_ON) ? TRUE : FALSE;
-                if (_hTheme)
-                {
-                    GetThemeBool(_hTheme, 0, 0, TMT_ALWAYSSHOWSIZINGBAR, &_fShowSizingBarAlways);
-                }
-                _UpdateVertical(_uStuckPlace, TRUE);
-                // Force Refresh of frame
-                SetWindowPos(_hwnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
-            }
-
-            // Force the start button to recalc its size
-            _sizeStart.cx = 0;
-            _StartButtonReset();
-            InvalidateRect(_hwnd, NULL, TRUE);
-
-            // Force the Start Pane to rebuild with new theme
-            ::PostMessage(_hwnd,  SBM_REBUILDMENU, 0, 0);
-
-            SetWindowStyle(_hwnd, WS_BORDER | WS_THICKFRAME, !_hTheme);
+            _UpdateVertical(_uStuckPlace, TRUE);
+            // Force Refresh of frame
+            SetWindowPos(_hwnd, NULL, 0, 0, 0, 0, SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
         }
-        break;
+
+        // Force the start button to recalc its size
+        _sizeStart.cx = 0;
+        _StartButtonReset();
+        InvalidateRect(_hwnd, NULL, TRUE);
+
+        // Force the Start Pane to rebuild with new theme
+        ::PostMessage(_hwnd, SBM_REBUILDMENU, 0, 0);
+
+        SetWindowStyle(_hwnd, WS_BORDER | WS_THICKFRAME, !_hTheme);
+    }
+    break;
 
     case TM_WORKSTATIONLOCKED:
+    {
+        // Desktop locked status changed...
+        BOOL fIsDesktopLocked = (BOOL)wParam;
+        if (_fIsDesktopLocked != fIsDesktopLocked)
         {
-            // Desktop locked status changed...
-            BOOL fIsDesktopLocked = (BOOL) wParam;
-            if (_fIsDesktopLocked != fIsDesktopLocked)
-            {
-                _fIsDesktopLocked = fIsDesktopLocked;
-                _fIsLogoff = FALSE;
-                _RecomputeAllWorkareas();
-                PostMessage(_hwndNotify, TNM_WORKSTATIONLOCKED, wParam, 0);
-            }
+            _fIsDesktopLocked = fIsDesktopLocked;
+            _fIsLogoff = FALSE;
+            _RecomputeAllWorkareas();
+            PostMessage(_hwndNotify, TNM_WORKSTATIONLOCKED, wParam, 0);
         }
-        break;
+    }
+    break;
 
     case TM_SHOWTRAYBALLOON:
         PostMessage(_hwndNotify, TNM_SHOWTRAYBALLOON, wParam, 0);
@@ -6844,7 +6933,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         if (uMsg == GetDDEExecMsg())
         {
             ASSERT(lParam && 0 == ((LPNMHDR)lParam)->idFrom);
-            //DDEHandleViewFolderNotify(NULL, _hwnd, (LPNMVIEWFOLDER)lParam);
+            DDEHandleViewFolderNotify(NULL, _hwnd, (LPNMVIEWFOLDER)lParam);
             LocalFree((LPNMVIEWFOLDER)lParam);
             return TRUE;
         }
@@ -6867,7 +6956,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
 
 
-DoDefault:
+    DoDefault:
         return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
     return lres;
@@ -6887,7 +6976,7 @@ void CTray::_DoExitWindows(HWND hwnd)
             UEMFireEvent(&UEMIID_SHELL, UEME_CTLSESSION, UEMF_XEVENT, FALSE, -1);
             // really #ifdef DEBUG, but want for testing
             // however can't do unconditionally due to perf
-            if (ERROR_SUCCESS == SHGetValue(HKEY_CURRENT_USER, REGSTR_EXPLORER_ADVANCED, TEXT("StartMenuForceRefresh"), 
+            if (ERROR_SUCCESS == SHGetValue(HKEY_CURRENT_USER, REGSTR_EXPLORER_ADVANCED, TEXT("StartMenuForceRefresh"),
                 NULL, NULL, NULL) || GetAsyncKeyState(VK_SHIFT) < 0)
             {
                 _RefreshStartMenu();
@@ -6915,8 +7004,8 @@ void CTray::_DoExitWindows(HWND hwnd)
             // ??? - Used to destroy all cabinets...
             // PostQuitMessage(0);
             g_fFakeShutdown = TRUE; // Don't blow away session state; the session will survive
-            // what
-            //v_hwndDesktop,IsWindow(v_hwndDesktop), _hwnd,IsWindow(_hwnd)); 
+            //TraceMsg(TF_TRAY, "c.dew: Posting quit message for tid=%#08x hwndDesk=%x(IsWnd=%d) hwndTray=%x(IsWnd=%d)", GetCurrentThreadId(),
+            //    v_hwndDesktop, IsWindow(v_hwndDesktop), _hwnd, IsWindow(_hwnd));
             // 1 means close all the shell windows too
             PostMessage(v_hwndDesktop, WM_QUIT, 0, 1);
             PostMessage(_hwnd, WM_QUIT, 0, 0);
@@ -6930,7 +7019,7 @@ void CTray::_DoExitWindows(HWND hwnd)
 
 void CTray::_SaveTray(void)
 {
-    if (SHRestricted(REST_NOSAVESET)) 
+    if (SHRestricted(REST_NOSAVESET))
         return;
 
     if (SHRestricted(REST_CLEARRECENTDOCSONEXIT))
@@ -6960,10 +7049,10 @@ DWORD CTray::_PropertiesThreadProc(DWORD dwFlags)
     GetWindowRect(_hwndStart, &rc);
     dwExStyle |= IS_BIDI_LOCALIZED_SYSTEM() ? dwExStyleRTLMirrorWnd : 0L;
 
-    _hwndProp = hwnd = CreateWindowEx(dwExStyle, TEXT("static"), NULL, 0   ,
+    _hwndProp = hwnd = CreateWindowEx(dwExStyle, TEXT("static"), NULL, 0,
         rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hinstCabinet, NULL);
 
-    #define IDI_STTASKBR 40         // stolen from shell32\ids.h
+#define IDI_STTASKBR 40         // stolen from shell32\ids.h
     if (_hwndProp)
     {
         // Get the Alt+Tab icon right
@@ -6990,7 +7079,7 @@ void CTray::DoProperties(DWORD dwFlags)
     if (!_Restricted(_hwnd, REST_NOSETTASKBAR))
     {
         int i = RUNWAITSECS;
-        while (_hwndProp == ((HWND)-1) &&i--)
+        while (_hwndProp == ((HWND)-1) && i--)
         {
             // we're in the process of coming up. wait
             Sleep(1000);
@@ -7097,7 +7186,7 @@ HMENU CTray::BuildContextMenu(BOOL fIncludeTime)
         LoadString(hinstCabinet, IDS_HIDEDESKTOP, szHideDesktop, ARRAYSIZE(szHideDesktop));
         ModifyMenu(hmContext, IDM_TOGGLEDESKTOP, MF_BYCOMMAND | MF_STRING, IDM_TOGGLEDESKTOP, szHideDesktop);
     }
-    
+
     if (!_CanTileAnyWindows())
     {
         EnableMenuItem(hmContext, IDM_CASCADE, MFS_GRAYED | MF_BYCOMMAND);
@@ -7107,12 +7196,12 @@ HMENU CTray::BuildContextMenu(BOOL fIncludeTime)
 
     HKEY hKeyPolicy;
     if (RegOpenKeyEx(HKEY_CURRENT_USER,
-                      TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"),
-                      0, KEY_READ, &hKeyPolicy) == ERROR_SUCCESS)
+        TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System"),
+        0, KEY_READ, &hKeyPolicy) == ERROR_SUCCESS)
     {
         DWORD dwType, dwData = 0, dwSize = sizeof(dwData);
         RegQueryValueEx(hKeyPolicy, TEXT("DisableTaskMgr"), NULL,
-                         &dwType, (LPBYTE) &dwData, &dwSize);
+            &dwType, (LPBYTE)&dwData, &dwSize);
         RegCloseKey(hKeyPolicy);
         if (dwData)
             EnableMenuItem(hmContext, IDM_SHOWTASKMAN, MFS_GRAYED | MF_BYCOMMAND);
@@ -7150,13 +7239,13 @@ void CTray::AsyncSaveSettings()
         return;
 
     KillTimer(_hwnd, IDT_SAVESETTINGS);
-    SetTimer(_hwnd, IDT_SAVESETTINGS, 2000, NULL); 
+    SetTimer(_hwnd, IDT_SAVESETTINGS, 2000, NULL);
 }
 
 
 void CTray::_ContextMenu(DWORD dwPos, BOOL fIncludeTime)
 {
-    POINT pt = {LOWORD(dwPos), HIWORD(dwPos)};
+    POINT pt = { LOWORD(dwPos), HIWORD(dwPos) };
 
     SwitchToThisWindow(_hwnd, TRUE);
     SetForegroundWindow(_hwnd);
@@ -7189,7 +7278,7 @@ void CTray::_ContextMenu(DWORD dwPos, BOOL fIncludeTime)
             BandSite_AddMenus(_ptbs, hmenu, 0, 0, IDM_TRAYCONTEXTFIRST);
 
             idCmd = TrackPopupMenu(hmenu, TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN,
-                                   GET_X_LPARAM(dwPos), GET_Y_LPARAM(dwPos), 0, _hwnd, NULL);
+                GET_X_LPARAM(dwPos), GET_Y_LPARAM(dwPos), 0, _hwnd, NULL);
 
             DestroyMenu(hmenu);
 
@@ -7200,6 +7289,11 @@ void CTray::_ContextMenu(DWORD dwPos, BOOL fIncludeTime)
     SendMessage(_hwndTrayTips, TTM_ACTIVATE, TRUE, 0L);
 }
 
+#define RFD_NOBROWSE		0x00000001
+#define RFD_NODEFFILE		0x00000002
+#define RFD_USEFULLPATHDIR	0x00000004
+#define RFD_NOSHOWOPEN          0x00000008
+
 void _RunFileDlg(HWND hwnd, UINT idIcon, LPCITEMIDLIST pidlWorkingDir, UINT idTitle, UINT idPrompt, DWORD dwFlags)
 {
     HICON hIcon;
@@ -7209,7 +7303,7 @@ void _RunFileDlg(HWND hwnd, UINT idIcon, LPCITEMIDLIST pidlWorkingDir, UINT idTi
     TCHAR szPrompt[256];
     TCHAR szWorkingDir[MAX_PATH];
 
-    dwFlags |= 0x00000004;
+    dwFlags |= RFD_USEFULLPATHDIR;
     szWorkingDir[0] = 0;
 
     hIcon = idIcon ? LoadIcon(hinstCabinet, MAKEINTRESOURCE(idIcon)) : NULL;
@@ -7232,7 +7326,7 @@ void _RunFileDlg(HWND hwnd, UINT idIcon, LPCITEMIDLIST pidlWorkingDir, UINT idTi
         {
             UINT dtype = DriveType(idDrive);
             if (((dtype == DRIVE_REMOVABLE) || (dtype == DRIVE_CDROM))
-                 && !PathFileExists(szWorkingDir))
+                && !PathFileExists(szWorkingDir))
             {
                 goto UseDesktop;
             }
@@ -7275,6 +7369,8 @@ BOOL CTray::SavePosEnumProc(HWND hwnd, LPARAM lParam)
     // dont need to entercritical here since we are only ever
     // called from SaveWindowPositions, which as already entered the critical secion
     // for _pPositions
+
+    //ASSERTCRITICAL;
 
     CTray* ptray = (CTray*)lParam;
 
@@ -7334,7 +7430,7 @@ typedef struct
     HWND hwndDesktop;
     HWND hwndTray;
     BOOL fPostLowerDesktop;
-} RESTOREWNDDATA, *PRESTOREWNDDATA;
+} RESTOREWNDDATA, * PRESTOREWNDDATA;
 
 DWORD WINAPI RestoreWndPosThreadProc(void* pv)
 {
@@ -7353,7 +7449,7 @@ DWORD WINAPI RestoreWndPosThreadProc(void* pv)
 
         if (pWndData->pPositions->hdsaWP)
         {
-            for (int i = DSA_GetItemCount(pWndData->pPositions->hdsaWP) - 1 ; i >= 0; i--)
+            for (int i = DSA_GetItemCount(pWndData->pPositions->hdsaWP) - 1; i >= 0; i--)
             {
                 phap = (LPHWNDANDPLACEMENT)DSA_GetItemPtr(pWndData->pPositions->hdsaWP, i);
                 if (IsWindow(phap->hwnd))
@@ -7489,7 +7585,7 @@ LRESULT WINAPI RunDlgStaticSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-DWORD WINAPI CTray::RunDlgThreadProc(void *pv)
+DWORD WINAPI CTray::RunDlgThreadProc(void* pv)
 {
     return c_tray._RunDlgThreadProc((HANDLE)pv);
 }
@@ -7515,6 +7611,17 @@ BOOL _IsBrowserWindow(HWND hwnd)
     }
     return FALSE;
 }
+
+__inline HBRUSH SelectBrush(HDC hdc, HBRUSH hbr) { return (HBRUSH)SelectObject(hdc, (HGDIOBJ)(HBRUSH)hbr); }
+__inline HFONT SelectFont(HDC hdc, HFONT hfont) { return (HFONT)SelectObject(hdc, (HGDIOBJ)(HFONT)hfont); }
+__inline HBITMAP SelectBitmap(HDC hdc, HBITMAP hbm) { return (HBITMAP)SelectObject(hdc, (HGDIOBJ)(HBITMAP)hbm); }
+__inline WNDPROC SubclassWindow(HWND hwnd, WNDPROC lpfn) { return (WNDPROC)SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LPARAM)lpfn); }
+
+#define CWM_COMMANDLINE                 (WM_USER + 11)
+// global clone your current pidl
+#define CWM_CLONEPIDL                   (WM_USER + 12)
+// See if the root of the instance is as specified
+#define CWM_COMPAREROOT                 (WM_USER + 13)
 
 DWORD CTray::_RunDlgThreadProc(HANDLE hdata)
 {
@@ -7580,7 +7687,7 @@ DWORD CTray::_RunDlgThreadProc(HANDLE hdata)
         TBOOL(OffsetRect(&rc, lDeltaX, lDeltaY));
     }
 
-    HWND hwnd = CreateWindowEx(WS_EX_TOOLWINDOW, TEXT("static"), NULL, 0   ,
+    HWND hwnd = CreateWindowEx(WS_EX_TOOLWINDOW, TEXT("static"), NULL, 0,
         rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, NULL, NULL, hinstCabinet, NULL);
     if (hwnd)
     {
@@ -7589,7 +7696,7 @@ DWORD CTray::_RunDlgThreadProc(HANDLE hdata)
         LPITEMIDLIST pidlWorkingDir = NULL;
 
         // Subclass it.
-        SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LPARAM)RunDlgStaticSubclassWndProc);
+        SubclassWindow(hwnd, RunDlgStaticSubclassWndProc);
 
         if (hdata)
             SetProp(hwnd, TEXT("WaitingThreadID"), hdata);
@@ -7614,7 +7721,7 @@ DWORD CTray::_RunDlgThreadProc(HANDLE hdata)
                 }
             }
         }
-        
+
         if (!pidlWorkingDir)
         {
             // If the last active window was a folder/explorer window with the
@@ -7624,7 +7731,7 @@ DWORD CTray::_RunDlgThreadProc(HANDLE hdata)
                 ENTERCRITICAL;
                 if (_hwndLastActive && !IsMinimized(_hwndLastActive) && _IsBrowserWindow(_hwndLastActive))
                 {
-                    SendMessageTimeout(_hwndLastActive, (WM_USER + 12), GetCurrentProcessId(), 0, SMTO_ABORTIFHUNG | SMTO_BLOCK, 500, (DWORD_PTR*)&hMemWorkDir);
+                    SendMessageTimeout(_hwndLastActive, CWM_CLONEPIDL, GetCurrentProcessId(), 0, SMTO_ABORTIFHUNG | SMTO_BLOCK, 500, (DWORD_PTR*)&hMemWorkDir);
                     pidlWorkingDir = (LPITEMIDLIST)SHLockShared(hMemWorkDir, GetCurrentProcessId());
                 }
                 LEAVECRITICAL;
@@ -7657,15 +7764,29 @@ DWORD CTray::_RunDlgThreadProc(HANDLE hdata)
 
         DestroyWindow(hwnd);
     }
-   
+
     SHCoUninitialize(hrInit);
     return TRUE;
 }
 
+//
+// TPS_DEMANDTHREAD - always create a new thread if none currently available.
+// Used in situations where immediate response required
+//
+
+#define TPS_DEMANDTHREAD    0x00000004
+
+//
+// TPS_LONGEXECTIME - the work item will take relatively long time to execute.
+// Used as management hint to TPS
+//
+
+#define TPS_LONGEXECTIME    0x00000008
+
 void CTray::_RunDlg()
 {
     HANDLE hEvent;
-    void *pvThreadParam;
+    void* pvThreadParam;
 
     if (!_Restricted(_hwnd, REST_NORUN))
     {
@@ -7699,11 +7820,12 @@ void CTray::_RunDlg()
         else
             pvThreadParam = NULL;
 
-        if (SHQueueUserWorkItem(RunDlgThreadProc, pvThreadParam, 0, 0, NULL, NULL, 0x00000008 | 0x00000004))
+        if (SHQueueUserWorkItem(RunDlgThreadProc, pvThreadParam, 0, 0, NULL, NULL, TPS_LONGEXECTIME | TPS_DEMANDTHREAD))
         {
             if (hEvent)
             {
                 SHProcessMessagesUntilEvent(NULL, hEvent, 10 * 1000);
+                //DebugMsg(DM_TRACE, TEXT("c.t_rd: Done waiting."));
             }
         }
 
@@ -7716,42 +7838,42 @@ void CTray::_ExploreCommonStartMenu(BOOL bExplore)
 {
     TCHAR szPath[MAX_PATH];
     TCHAR szCmdLine[MAX_PATH + 50];
-    
+
     //
     // Get the common start menu path.
     //
     // we want to force the directory to exist, but not on W95 machines
-    if (!SHGetSpecialFolderPath(NULL, szPath, CSIDL_COMMON_STARTMENU, FALSE)) 
+    if (!SHGetSpecialFolderPath(NULL, szPath, CSIDL_COMMON_STARTMENU, FALSE))
     {
         return;
     }
-    
+
     //
     // If we are starting in explorer view, then the command line
     // has a "/e, " before the quoted diretory.
     //
-    
-    if (bExplore) 
+
+    if (bExplore)
     {
         StringCchCopy(szCmdLine, ARRAYSIZE(szCmdLine), TEXT("explorer.exe /e, \""));
     }
-    else 
+    else
     {
         StringCchCopy(szCmdLine, ARRAYSIZE(szCmdLine), TEXT("explorer.exe \""));
     }
-    
+
     StringCchCat(szCmdLine, ARRAYSIZE(szCmdLine), szPath);
     StringCchCat(szCmdLine, ARRAYSIZE(szCmdLine), TEXT("\""));
-    
+
     // Initialize process startup info
-    STARTUPINFO si = {0};
+    STARTUPINFO si = { 0 };
     si.cb = sizeof(si);
     si.dwFlags = STARTF_USESHOWWINDOW;
     si.wShowWindow = SW_SHOWNORMAL;
-    
+
     // Start explorer
-    PROCESS_INFORMATION pi = {0};
-    if (CreateProcess(NULL, szCmdLine, NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi)) 
+    PROCESS_INFORMATION pi = { 0 };
+    if (CreateProcess(NULL, szCmdLine, NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &si, &pi))
     {
         // Close the process and thread handles
         CloseHandle(pi.hProcess);
@@ -7762,16 +7884,16 @@ void CTray::_ExploreCommonStartMenu(BOOL bExplore)
 int CTray::_GetQuickLaunchID()
 {
     int iQLBandID = -1;
-   
+
     DWORD dwBandID;
     for (int i = 0; (iQLBandID == -1) && SUCCEEDED(_ptbs->EnumBands(i, &dwBandID)); i++)
     {
         if (BandSite_TestBandCLSID(_ptbs, dwBandID, CLSID_ISFBand) == S_OK)
         {
             IUnknown* punk;
-            if (SUCCEEDED(_ptbs->GetBandObject(dwBandID, IID_PPV_ARGS(&punk))))
+            if (SUCCEEDED(_ptbs->GetBandObject(dwBandID, IID_PPV_ARG(IUnknown, &punk))))
             {
-                VARIANTARG v = {0};
+                VARIANTARG v = { 0 };
                 v.vt = VT_I4;
                 if (SUCCEEDED(IUnknown_Exec(punk, &CLSID_ISFBand, 1, 0, NULL, &v)))
                 {
@@ -7793,7 +7915,7 @@ int CTray::_ToggleQL(int iVisible)
     int iQLBandID = _GetQuickLaunchID();
 
     bool fOldVisible = (-1 != iQLBandID);
-    bool fNewVisible = (0  != iVisible);
+    bool fNewVisible = (0 != iVisible);
 
     if ((iVisible != -1) && (fNewVisible != fOldVisible))
     {
@@ -7807,15 +7929,15 @@ int CTray::_ToggleQL(int iVisible)
                 PathCombine(szPath, szPath, L"Microsoft\\Internet Explorer\\Quick Launch");
                 ILFree(pidl);
                 pidl = ILCreateFromPath(szPath);
-            
+
                 if (pidl)
                 {
-                    IFolderBandPriv *pfbp;
+                    IFolderBandPriv* pfbp;
                     // create an ISF band to show folders as hotlinks
-                    if (SUCCEEDED(CoCreateInstanceHook(CLSID_ISFBand, NULL, CLSCTX_INPROC, IID_PPV_ARGS(&pfbp))))
+                    if (SUCCEEDED(CoCreateInstance(CLSID_ISFBand, NULL, CLSCTX_INPROC, IID_PPV_ARG(IFolderBandPriv, &pfbp))))
                     {
                         IShellFolderBand* psfb;
-                        if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARGS(&psfb))))
+                        if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARG(IShellFolderBand, &psfb))))
                         {
                             if (SUCCEEDED(psfb->InitializeSFB(NULL, pidl)))
                             {
@@ -7830,7 +7952,7 @@ int CTray::_ToggleQL(int iVisible)
                                 IUnknown_Exec(psfb, &CGID_ShellDocView, SHDVID_UEMLOG, 0, &v, NULL);
 
                                 IDeskBand* ptb;
-                                if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARGS(&ptb))))
+                                if (SUCCEEDED(pfbp->QueryInterface(IID_PPV_ARG(IDeskBand, &ptb))))
                                 {
                                     HRESULT hr = _ptbs->AddBand(ptb);
                                     if (SUCCEEDED(hr))
@@ -7858,7 +7980,7 @@ int CTray::_ToggleQL(int iVisible)
                 {
                     _ptbs->RemoveBand(iBandID);
                 }
-           } while (iBandID != -1);
+            } while (iBandID != -1);
         }
     }
 
@@ -7880,13 +8002,13 @@ void CTray::StartMenuContextMenu(HWND hwnd, DWORD dwPos)
 
         if (pidlLast)
         {
-            IShellFolder *psf = BindToFolder(pidlStart);
+            IShellFolder* psf = BindToFolder(pidlStart);
             if (psf)
             {
                 HMENU hmenu = CreatePopupMenu();
                 if (hmenu)
                 {
-                    IContextMenu *pcm;
+                    IContextMenu* pcm = 0;
                     HRESULT hr = psf->GetUIObjectOf(hwnd, 1, (LPCITEMIDLIST*)&pidlLast, IID_IContextMenu, nullptr, (void**)&pcm);
                     if (SUCCEEDED(hr))
                     {
@@ -7897,8 +8019,8 @@ void CTray::StartMenuContextMenu(HWND hwnd, DWORD dwPos)
                             TCHAR szCommon[MAX_PATH];
 
                             //Add the menu to invoke the "Start Menu Properties"
-                            LoadString (hinstCabinet, IDS_STARTMENUPROP, szCommon, ARRAYSIZE(szCommon));
-                            AppendMenu (hmenu, MF_STRING, IDSYSPOPUP_STARTMENUPROP, szCommon);
+                            LoadString(hinstCabinet, IDS_STARTMENUPROP, szCommon, ARRAYSIZE(szCommon));
+                            AppendMenu(hmenu, MF_STRING, IDSYSPOPUP_STARTMENUPROP, szCommon);
                             if (!SHRestricted(REST_NOCOMMONGROUPS))
                             {
                                 // If the user has access to the Common Start Menu, then we can add those items. If not,
@@ -7912,11 +8034,11 @@ void CTray::StartMenuContextMenu(HWND hwnd, DWORD dwPos)
                                 // Since we don't show this on the start button when the user is not an admin, don't show it here... I guess...
                                 if (fAddCommon)
                                 {
-                                   AppendMenu (hmenu, MF_SEPARATOR, 0, NULL);
-                                   LoadString (hinstCabinet, IDS_OPENCOMMON, szCommon, ARRAYSIZE(szCommon));
-                                   AppendMenu (hmenu, MF_STRING, IDSYSPOPUP_OPENCOMMON, szCommon);
-                                   LoadString (hinstCabinet, IDS_EXPLORECOMMON, szCommon, ARRAYSIZE(szCommon));
-                                   AppendMenu (hmenu, MF_STRING, IDSYSPOPUP_EXPLORECOMMON, szCommon);
+                                    AppendMenu(hmenu, MF_SEPARATOR, 0, NULL);
+                                    LoadString(hinstCabinet, IDS_OPENCOMMON, szCommon, ARRAYSIZE(szCommon));
+                                    AppendMenu(hmenu, MF_STRING, IDSYSPOPUP_OPENCOMMON, szCommon);
+                                    LoadString(hinstCabinet, IDS_EXPLORECOMMON, szCommon, ARRAYSIZE(szCommon));
+                                    AppendMenu(hmenu, MF_STRING, IDSYSPOPUP_EXPLORECOMMON, szCommon);
                                 }
                             }
 
@@ -7928,53 +8050,53 @@ void CTray::StartMenuContextMenu(HWND hwnd, DWORD dwPos)
                             {
                                 SendMessage(_hwndTrayTips, TTM_ACTIVATE, FALSE, 0L);
                                 idCmd = TrackPopupMenu(hmenu,
-                                                       TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN,
-                                                       GET_X_LPARAM(dwPos), GET_Y_LPARAM(dwPos), 0, hwnd, NULL);
+                                    TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN,
+                                    GET_X_LPARAM(dwPos), GET_Y_LPARAM(dwPos), 0, hwnd, NULL);
                                 SendMessage(_hwndTrayTips, TTM_ACTIVATE, TRUE, 0L);
                             }
 
 
-                            switch(idCmd)
+                            switch (idCmd)
                             {
-                                case 0:  //User did not select a menu item; so, nothing to do!
-                                    break; 
-                                    
-                                case IDSYSPOPUP_OPENCOMMON:
-                                    _ExploreCommonStartMenu(FALSE);
-                                    break;
+                            case 0:  //User did not select a menu item; so, nothing to do!
+                                break;
 
-                                case IDSYSPOPUP_EXPLORECOMMON:
-                                    _ExploreCommonStartMenu(TRUE);
-                                    break;
+                            case IDSYSPOPUP_OPENCOMMON:
+                                _ExploreCommonStartMenu(FALSE);
+                                break;
 
-                                case IDSYSPOPUP_STARTMENUPROP:
-                                    DoProperties(TPF_STARTMENUPAGE);
-                                    break;
-                                    
-                                default:
-                                    TCHAR szPath[MAX_PATH];
-                                    CMINVOKECOMMANDINFOEX ici = {0};
+                            case IDSYSPOPUP_EXPLORECOMMON:
+                                _ExploreCommonStartMenu(TRUE);
+                                break;
+
+                            case IDSYSPOPUP_STARTMENUPROP:
+                                DoProperties(TPF_STARTMENUPAGE);
+                                break;
+
+                            default:
+                                TCHAR szPath[MAX_PATH];
+                                CMINVOKECOMMANDINFOEX ici = { 0 };
 #ifdef UNICODE
-                                    CHAR szPathAnsi[MAX_PATH];
+                                CHAR szPathAnsi[MAX_PATH];
 #endif
-                                    ici.cbSize = sizeof(CMINVOKECOMMANDINFOEX);
-                                    ici.hwnd = hwnd;
-                                    ici.lpVerb = (LPSTR)MAKEINTRESOURCE(idCmd - IDSYSPOPUP_FIRST);
-                                    ici.nShow = SW_NORMAL;
+                                ici.cbSize = sizeof(CMINVOKECOMMANDINFOEX);
+                                ici.hwnd = hwnd;
+                                ici.lpVerb = (LPSTR)MAKEINTRESOURCE(idCmd - IDSYSPOPUP_FIRST);
+                                ici.nShow = SW_NORMAL;
 #ifdef UNICODE
-                                    SHGetPathFromIDListA(pidlStart, szPathAnsi);
-                                    SHGetPathFromIDList(pidlStart, szPath);
-                                    ici.lpDirectory = szPathAnsi;
-                                    ici.lpDirectoryW = szPath;
-                                    ici.fMask |= CMIC_MASK_UNICODE;
+                                SHGetPathFromIDListA(pidlStart, szPathAnsi);
+                                SHGetPathFromIDList(pidlStart, szPath);
+                                ici.lpDirectory = szPathAnsi;
+                                ici.lpDirectoryW = szPath;
+                                ici.fMask |= CMIC_MASK_UNICODE;
 #else
-                                    SHGetPathFromIDList(pidlStart, szPath);
-                                    ici.lpDirectory = szPath;
+                                SHGetPathFromIDList(pidlStart, szPath);
+                                ici.lpDirectory = szPath;
 #endif
-                                    pcm->InvokeCommand((LPCMINVOKECOMMANDINFO)&ici);
+                                pcm->InvokeCommand((LPCMINVOKECOMMANDINFO)&ici);
 
-                                    break;
-                                
+                                break;
+
                             } // Switch(idCmd)
                         }
                         pcm->Release();
@@ -7992,7 +8114,7 @@ void CTray::StartMenuContextMenu(HWND hwnd, DWORD dwPos)
 void GiveDesktopFocus()
 {
     SetForegroundWindow(v_hwndDesktop);
-    SendMessage(v_hwndDesktop, DTM_UIACTIVATEIO, (WPARAM) TRUE, /*dtb*/0);
+    SendMessage(v_hwndDesktop, DTM_UIACTIVATEIO, (WPARAM)TRUE, /*dtb*/0);
 }
 
 /*----------------------------------------------------------
@@ -8008,11 +8130,11 @@ Purpose: loads the given resource string and executes it.
 */
 void _ExecResourceCmd(UINT ids)
 {
-    TCHAR szCmd[2*MAX_PATH];
+    TCHAR szCmd[2 * MAX_PATH];
 
     if (LoadString(hinstCabinet, ids, szCmd, SIZECHARS(szCmd)))
     {
-        SHELLEXECUTEINFO sei = {0};
+        SHELLEXECUTEINFO sei = { 0 };
 
         // Find list of parameters (if any)
         LPTSTR pszParam = StrChr(szCmd, TEXT('>'));
@@ -8036,11 +8158,11 @@ void CTray::_RefreshStartMenu()
 {
     if (_pmbStartMenu)
     {
-        IUnknown_Exec(_pmbStartMenu, &CLSID_MenuBand, 0x10000000, 0, NULL, NULL);
+        IUnknown_Exec(_pmbStartMenu, &CLSID_MenuBand, MBANDCID_REFRESH, 0, NULL, NULL);
     }
     else if (_pmpStartPane)
     {
-        IUnknown_Exec(_pmpStartPane, &CLSID_MenuBand, 0x10000000, 0, NULL, NULL);
+        IUnknown_Exec(_pmpStartPane, &CLSID_MenuBand, MBANDCID_REFRESH, 0, NULL, NULL);
     }
     _RefreshSettings();
     _UpdateBandSiteStyle();
@@ -8085,7 +8207,7 @@ void CTray::_Command(UINT idCmd)
     case IDM_CONTROLS:
     case IDM_PRINTERS:
         _ShowFolder(_hwnd,
-            idCmd == IDM_CONTROLS ? CSIDL_CONTROLS : CSIDL_PRINTERS, 0x00000002);
+            idCmd == IDM_CONTROLS ? CSIDL_CONTROLS : CSIDL_PRINTERS, COF_USEOPENSETTINGS);
         break;
 
     case IDM_EJECTPC:
@@ -8142,7 +8264,7 @@ void CTray::_Command(UINT idCmd)
         rcView.bottom -= 18;
         SetWindowPos(_hwndRebar, NULL, 0, 0, RECTWIDTH(rcView), RECTHEIGHT(rcView), SWP_NOMOVE | SWP_NOZORDER);
     }
-        break;
+    break;
 
     case IDM_SIZEDOWN:
     {
@@ -8152,7 +8274,7 @@ void CTray::_Command(UINT idCmd)
         rcView.bottom += 18;
         SetWindowPos(_hwndRebar, NULL, 0, 0, RECTWIDTH(rcView), RECTHEIGHT(rcView), SWP_NOMOVE | SWP_NOZORDER);
     }
-        break;
+    break;
 #endif
 
     case IDM_MINIMIZEALL:
@@ -8175,14 +8297,14 @@ void CTray::_Command(UINT idCmd)
         break;
 
     case IDM_LOCKTASKBAR:
-        {
-            BOOL fCanSizeMove = !_fCanSizeMove;   // toggle
-            SHRegSetUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("TaskbarSizeMove"),
-                REG_DWORD, &fCanSizeMove , sizeof(DWORD), SHREGSET_FORCE_HKCU);
-            _RefreshSettings();
-            _UpdateBandSiteStyle();
-        }
-        break;
+    {
+        BOOL fCanSizeMove = !_fCanSizeMove;   // toggle
+        SHRegSetUSValue(REGSTR_EXPLORER_ADVANCED, TEXT("TaskbarSizeMove"),
+            REG_DWORD, &fCanSizeMove, sizeof(DWORD), SHREGSET_FORCE_HKCU);
+        _RefreshSettings();
+        _UpdateBandSiteStyle();
+    }
+    break;
 
     case IDM_SHOWTASKMAN:
         RunSystemMonitor();
@@ -8203,7 +8325,7 @@ void CTray::_Command(UINT idCmd)
             }
             else
             {
-                TileWindows(GetDesktopWindow(), ((idCmd == IDM_VERTTILE)?
+                TileWindows(GetDesktopWindow(), ((idCmd == IDM_VERTTILE) ?
                     MDITILE_VERTICAL : MDITILE_HORIZONTAL), NULL, 0, NULL);
             }
 
@@ -8229,13 +8351,13 @@ void CTray::_Command(UINT idCmd)
         _ExecResourceCmd(IDS_HELP_CMD);
         break;
 
-    // NB The Alt-s comes in here.
+        // NB The Alt-s comes in here.
     case IDC_KBSTART:
         SetForegroundWindow(_hwnd);
         // This pushes the start button and causes the start menu to popup.
-            SendMessage(_hwndStart, BM_SETSTATE, TRUE, 0);
+        SendMessage(_hwndStart, BM_SETSTATE, TRUE, 0);
         // This forces the button back up.
-            SendMessage(_hwndStart, BM_SETSTATE, FALSE, 0);
+        SendMessage(_hwndStart, BM_SETSTATE, FALSE, 0);
         break;
 
     case IDC_ASYNCSTART:
@@ -8263,8 +8385,8 @@ void CTray::_Command(UINT idCmd)
         }
         break;
 
-    // NB LButtonDown on the Start button come in here.
-    // Space-bar stuff also comes in here.
+        // NB LButtonDown on the Start button come in here.
+        // Space-bar stuff also comes in here.
     case IDC_START:
         // User gets a bit confused with space-bar tuff (the popup ends up
         // getting the key-up and beeps).
@@ -8284,61 +8406,61 @@ void CTray::_Command(UINT idCmd)
         break;
 
     case FCIDM_NEXTCTL:
+    {
+        MSG msg = { 0, WM_KEYDOWN, VK_TAB };
+        HWND hwndFocus = GetFocus();
+
+        // Since we are Tab or Shift Tab we should turn the focus rect on.
+        //
+        // Note: we don't need to do this in the GiveDesktopFocus cases below,
+        // but in those cases we're probably already in the UIS_CLEAR UISF_HIDEFOCUS
+        // state so this message is cheap to send.
+        //
+        SendMessage(_hwnd, WM_UPDATEUISTATE, MAKEWPARAM(UIS_CLEAR,
+            UISF_HIDEFOCUS), 0);
+
+        BOOL fShift = GetAsyncKeyState(VK_SHIFT) < 0;
+
+        if (hwndFocus && (IsChildOrHWND(_hwndStart, hwndFocus)))
         {
-            MSG msg = { 0, WM_KEYDOWN, VK_TAB };
-            HWND hwndFocus = GetFocus();
-
-            // Since we are Tab or Shift Tab we should turn the focus rect on.
-            //
-            // Note: we don't need to do this in the GiveDesktopFocus cases below,
-            // but in those cases we're probably already in the UIS_CLEAR UISF_HIDEFOCUS
-            // state so this message is cheap to send.
-            //
-            SendMessage(_hwnd, WM_UPDATEUISTATE, MAKEWPARAM(UIS_CLEAR,
-                UISF_HIDEFOCUS), 0);
-
-            BOOL fShift = GetAsyncKeyState(VK_SHIFT) < 0;
-
-            if (hwndFocus && (IsChildOrHWND(_hwndStart, hwndFocus)))
+            if (fShift)
             {
-                if (fShift)
-                {
-                    // gotta deactivate manually
-                    GiveDesktopFocus();
-                }
-                else
-                {
-                    IUnknown_UIActivateIO(_ptbs, TRUE, &msg);
-                }
-            }
-            else if (hwndFocus && (IsChildOrHWND(_hwndNotify, hwndFocus)))
-            {
-                if (fShift)
-                {
-                    IUnknown_UIActivateIO(_ptbs, TRUE, &msg);
-                }
-                else
-                {
-                    GiveDesktopFocus();
-                }
+                // gotta deactivate manually
+                GiveDesktopFocus();
             }
             else
             {
-                if (IUnknown_TranslateAcceleratorIO(_ptbs, &msg) != S_OK)
+                IUnknown_UIActivateIO(_ptbs, TRUE, &msg);
+            }
+        }
+        else if (hwndFocus && (IsChildOrHWND(_hwndNotify, hwndFocus)))
+        {
+            if (fShift)
+            {
+                IUnknown_UIActivateIO(_ptbs, TRUE, &msg);
+            }
+            else
+            {
+                GiveDesktopFocus();
+            }
+        }
+        else
+        {
+            if (IUnknown_TranslateAcceleratorIO(_ptbs, &msg) != S_OK)
+            {
+                if (fShift)
                 {
-                    if (fShift)
-                    {
-                        _SetFocus(_hwndStart);
-                    }
-                    else
-                    {
-                        // if you tab forward out of the bands, the next focus guy is the tray notify set
-                        _SetFocus(_hwndNotify);
-                    }
+                    _SetFocus(_hwndStart);
+                }
+                else
+                {
+                    // if you tab forward out of the bands, the next focus guy is the tray notify set
+                    _SetFocus(_hwndNotify);
                 }
             }
         }
-        break;
+    }
+    break;
 
     case IDM_MU_SECURITY:
         MuSecurity();
@@ -8357,10 +8479,10 @@ HRESULT CStartDropTarget::_GetStartMenuDropTarget(IDropTarget** pptgt)
 
     if (pidlStart)
     {
-        IShellFolder *psf = BindToFolder(pidlStart);
+        IShellFolder* psf = BindToFolder(pidlStart);
         if (psf)
         {
-            hr = psf->CreateViewObject(_ptray->_hwnd, IID_PPV_ARGS(pptgt));
+            hr = psf->CreateViewObject(_ptray->_hwnd, IID_PPV_ARG(IDropTarget, pptgt));
             psf->Release();
         }
 
@@ -8370,7 +8492,7 @@ HRESULT CStartDropTarget::_GetStartMenuDropTarget(IDropTarget** pptgt)
 }
 
 
-STDMETHODIMP CDropTargetBase::QueryInterface(REFIID riid, void ** ppvObj)
+STDMETHODIMP CDropTargetBase::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] =
     {
@@ -8391,7 +8513,7 @@ STDMETHODIMP_(ULONG) CDropTargetBase::Release()
     return 1;
 }
 
-STDMETHODIMP CDropTargetBase::DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
+STDMETHODIMP CDropTargetBase::DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
 {
     _ptray->_SetUnhideTimer(ptl.x, ptl.y);
 
@@ -8402,7 +8524,7 @@ STDMETHODIMP CDropTargetBase::DragEnter(IDataObject *pdtobj, DWORD grfKeyState, 
     return S_OK;
 }
 
-STDMETHODIMP CDropTargetBase::DragOver(DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
+STDMETHODIMP CDropTargetBase::DragOver(DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
 {
     _ptray->_SetUnhideTimer(ptl.x, ptl.y);
     _DragMove(_ptray->_hwndStart, ptl);
@@ -8416,7 +8538,7 @@ STDMETHODIMP CDropTargetBase::DragLeave()
     return S_OK;
 }
 
-STDMETHODIMP CDropTargetBase::Drop(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
+STDMETHODIMP CDropTargetBase::Drop(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
 {
     DAD_DragLeave();
     return S_OK;
@@ -8434,38 +8556,38 @@ STDMETHODIMP CDropTargetBase::Drop(IDataObject *pdtobj, DWORD grfKeyState, POINT
 //
 
 CStartDropTarget::CStartDropTarget() : CDropTargetBase(IToClass(CTray, _dtStart, this))
-{ 
+{
 }
 
 CTrayDropTarget::CTrayDropTarget() : CDropTargetBase(IToClass(CTray, _dtTray, this))
 {
 }
 
-STDMETHODIMP CTrayDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
+STDMETHODIMP CTrayDropTarget::DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
 {
     *pdwEffect = DROPEFFECT_NONE;
     return CDropTargetBase::DragEnter(pdtobj, grfKeyState, ptl, pdwEffect);
 }
 
-STDMETHODIMP CTrayDropTarget::DragOver(DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
+STDMETHODIMP CTrayDropTarget::DragOver(DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
 {
     *pdwEffect = DROPEFFECT_NONE;
     return CDropTargetBase::DragOver(grfKeyState, ptl, pdwEffect);
 }
 
-void CStartDropTarget::_StartAutoOpenTimer(POINTL *pptl)
+void CStartDropTarget::_StartAutoOpenTimer(POINTL* pptl)
 {
     POINT pt = { pptl->x, pptl->y };
     RECT rc;
     //Make sure it really is in the start menu..
     GetWindowRect(_ptray->_hwndStart, &rc);
-    if (PtInRect(&rc,pt))
+    if (PtInRect(&rc, pt))
     {
         SetTimer(_ptray->_hwnd, IDT_STARTMENU, 1000, NULL);
     }
 }
 
-STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect)
+STDMETHODIMP CStartDropTarget::DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect)
 {
     HRESULT hr = S_OK;
 
@@ -8479,7 +8601,7 @@ STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState,
         {
             // Personal mode: Treat it as an add to the pin list.
             // IsPinnable checks REST_NOSMPINNEDLIST
-            if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, 0x00000002) == S_OK)   //SMPINNABLE_REJECTSLOWMEDIA
+            if (_ptray->_psmpin && _ptray->_psmpin->IsPinnable(pdtobj, SMPINNABLE_REJECTSLOWMEDIA) == S_OK)
             {
                 _dwEffectsAllowed = DROPEFFECT_LINK;
             }
@@ -8499,13 +8621,13 @@ STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState,
             // Classic mode: Treat it as a drop on the Start Menu folder.
             IDropTarget* ptgt;
             _dwEffectsAllowed = DROPEFFECT_LINK;
-        
+
             hr = _GetStartMenuDropTarget(&ptgt);
             if (SUCCEEDED(hr))
             {
                 // Check to make sure that we're going to accept the drop before we expand the start menu.
                 ptgt->DragEnter(pdtobj, grfKeyState, ptl,
-                                         pdwEffect);
+                    pdwEffect);
 
                 // DROPEFFECT_NONE means it ain't gonna work, so don't popup the Start Menu.
                 if (*pdwEffect != DROPEFFECT_NONE)
@@ -8523,7 +8645,7 @@ STDMETHODIMP CStartDropTarget::DragEnter(IDataObject *pdtobj, DWORD grfKeyState,
     return hr;
 }
 
-STDMETHODIMP CStartDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP CStartDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
     *pdwEffect = (_dwEffectsAllowed & DROPEFFECT_LINK);
     return CDropTargetBase::DragOver(grfKeyState, pt, pdwEffect);
@@ -8535,7 +8657,7 @@ STDMETHODIMP CStartDropTarget::DragLeave()
     return CDropTargetBase::DragLeave();
 }
 
-STDMETHODIMP CStartDropTarget::Drop(IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect)
+STDMETHODIMP CStartDropTarget::Drop(IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect)
 {
     KillTimer(_ptray->_hwnd, IDT_STARTMENU);
 
@@ -8545,7 +8667,7 @@ STDMETHODIMP CStartDropTarget::Drop(IDataObject *pdtobj, DWORD grfKeyState, POIN
     {
         // Personal mode: Treat it as an add to the pin list.
         LPITEMIDLIST pidl;
-        if (_ptray->_psmpin && IsPinnable(pdtobj, 0x00000002, &pidl) == S_OK) //SMPINNABLE_REJECTSLOWMEDIA
+        if (_ptray->_psmpin && IsPinnable(pdtobj, SMPINNABLE_REJECTSLOWMEDIA, &pidl) == S_OK)
         {
             // Delete it from the pin list if it's already there because
             // we want to move it to the bottom.
@@ -8594,8 +8716,8 @@ void CTray::_RegisterDropTargets()
 
     // It is not a serious error if this fails; it just means that
     // drag/drop to the Start Button will not add to the pin list
-    CoCreateInstanceHook(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
-                     IID_PPV_ARGS(&_psmpin));
+    CoCreateInstance(CLSID_StartMenuPin, NULL, CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(&_psmpin));
 }
 
 void CTray::_RevokeDropTargets()
@@ -8609,7 +8731,7 @@ void CTray::_HandleGlobalHotkey(WPARAM wParam)
 {
     INSTRUMENT_HOTKEY(SHCNFI_GLOBALHOTKEY, wParam);
 
-    switch(wParam)
+    switch (wParam)
     {
     case GHID_RUN:
         _RunDlg();
@@ -8640,7 +8762,7 @@ void CTray::_HandleGlobalHotkey(WPARAM wParam)
         break;
 
     case GHID_EXPLORER:
-        _ShowFolder(_hwnd, CSIDL_DRIVES, 0x00000001 | 0x00000008);
+        _ShowFolder(_hwnd, CSIDL_DRIVES, COF_CREATENEWWINDOW | COF_EXPLORE);
         break;
 
     case GHID_FINDFILES:
@@ -8681,7 +8803,7 @@ void CTray::_RegisterGlobalHotkeys()
     // Are the Windows keys restricted?
     DWORD dwRestricted = SHRestricted(REST_NOWINKEYS);
 
-    for (i = GHID_FIRST ; i < GHID_MAX; i++) 
+    for (i = GHID_FIRST; i < GHID_MAX; i++)
     {
         // If the Windows Keys are Not restricted or it's not a Windows key
         if (!((HIWORD(GlobalKeylist[i - GHID_FIRST]) & MOD_WIN) && dwRestricted))
@@ -8794,7 +8916,7 @@ BOOL CTray::_ToggleLanguageBand(BOOL fShowIt)
     if (fShowIt && !fFound)
     {
         IDeskBand* pdb;
-        HRESULT hr = CoCreateInstanceHook(CLSID_MSUTBDeskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pdb));
+        HRESULT hr = CoCreateInstance(CLSID_MSUTBDeskBand, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARG(IDeskBand, &pdb));
         if (SUCCEEDED(hr))
         {
             hr = _ptbs->AddBand(pdb);
@@ -8825,9 +8947,9 @@ typedef struct
 
 BOOL CTray::PropagateEnumProc(HWND hwnd, LPARAM lParam)
 {
-    CABPM *ppm = (CABPM *)lParam;
-    
-    if (SHIsChildOrSelf(ppm->ptray->_hwndRebar, hwnd) == S_OK) 
+    CABPM* ppm = (CABPM*)lParam;
+
+    if (SHIsChildOrSelf(ppm->ptray->_hwndRebar, hwnd) == S_OK)
     {
         return TRUE;
     }
@@ -8837,7 +8959,7 @@ BOOL CTray::PropagateEnumProc(HWND hwnd, LPARAM lParam)
 
 void CTray::_PropagateMessage(HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 {
-    CABPM pm = {uMessage, wParam, lParam, this};
+    CABPM pm = { uMessage, wParam, lParam, this };
 
     ASSERT(hwnd != _hwndRebar);
     EnumChildWindows(hwnd, PropagateEnumProc, (LPARAM)&pm);
@@ -8853,9 +8975,9 @@ void WINAPI Tray_DoProperties(DWORD dwFlags)
 {
     c_tray.DoProperties(dwFlags);
 }
-    
 
-DWORD WINAPI CTray::SettingsUIThreadProc(void *pv)
+
+DWORD WINAPI CTray::SettingsUIThreadProc(void* pv)
 {
     //
     // Open up the "Settings Wizards" UI.
@@ -8908,8 +9030,8 @@ void CTray::_MigrateOldBrowserSettings()
         DWORD dwDisposition;
 
         if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, TEXT("Software\\Clients\\StartMenuInternet"),
-                           0, NULL, REG_OPTION_NON_VOLATILE,
-                           KEY_READ | KEY_WRITE, NULL, &hkBrowser, &dwDisposition) == ERROR_SUCCESS)
+            0, NULL, REG_OPTION_NON_VOLATILE,
+            KEY_READ | KEY_WRITE, NULL, &hkBrowser, &dwDisposition) == ERROR_SUCCESS)
         {
             TCHAR szCommand[MAX_PATH];
             DWORD cch = ARRAYSIZE(szCommand);
@@ -8920,8 +9042,8 @@ void CTray::_MigrateOldBrowserSettings()
             // "Program Files") but AssocQueryString has special recovery
             // code to detect and repair that case...
             if (SUCCEEDED(AssocQueryString(ASSOCF_NOUSERSETTINGS,
-                                           ASSOCSTR_EXECUTABLE, L"http",
-                                           L"open", szCommand, &cch)) &&
+                ASSOCSTR_EXECUTABLE, L"http",
+                L"open", szCommand, &cch)) &&
                 szCommand[0])
             {
                 TCHAR szAppName[MAX_PATH];
@@ -8943,17 +9065,17 @@ void CTray::_MigrateOldBrowserSettings()
 
                 HKEY hkClient;
 
-                if ( 0 != lstrcmpi(szAppName, TEXT("IEXPLORE.EXE")) && 
+                if (0 != lstrcmpi(szAppName, TEXT("IEXPLORE.EXE")) &&
                     RegCreateKeyEx(hkBrowser, szAppName, 0, NULL, REG_OPTION_NON_VOLATILE,
-                                   KEY_WRITE, NULL, &hkClient, &dwDisposition) == ERROR_SUCCESS)
+                        KEY_WRITE, NULL, &hkClient, &dwDisposition) == ERROR_SUCCESS)
                 {
                     if (dwDisposition == REG_CREATED_NEW_KEY)
                     {
                         TCHAR szFriendly[MAX_PATH];
                         cch = ARRAYSIZE(szFriendly);
                         if (SUCCEEDED(AssocQueryString(ASSOCF_NOUSERSETTINGS | ASSOCF_INIT_BYEXENAME | ASSOCF_VERIFY,
-                                                       ASSOCSTR_FRIENDLYAPPNAME, szCommand,
-                                                       NULL, szFriendly, &cch)))
+                            ASSOCSTR_FRIENDLYAPPNAME, szCommand,
+                            NULL, szFriendly, &cch)))
                         {
                             // Set the friendly name
                             RegSetValueEx(hkClient, TEXT("LocalizedString"), 0, REG_SZ, (BYTE*)szFriendly, sizeof(TCHAR) * (cch + 1));
@@ -8961,7 +9083,7 @@ void CTray::_MigrateOldBrowserSettings()
                             // Set the command string (properly quoted)
                             PathQuoteSpaces(szCommand);
                             SHSetValue(hkClient, TEXT("shell\\open\\command"), NULL,
-                                       REG_SZ, szCommand, sizeof(TCHAR) * (1 + lstrlen(szCommand)));
+                                REG_SZ, szCommand, sizeof(TCHAR) * (1 + lstrlen(szCommand)));
                         }
                     }
 
@@ -9004,15 +9126,15 @@ void CTray::_MigrateOldBrowserSettings()
     //  too great.
     //
     if (RegCreateKeyEx(HKEY_CLASSES_ROOT, TEXT("http\\shell"),
-                       0, NULL, REG_OPTION_NON_VOLATILE,
-                       KEY_ENUMERATE_SUB_KEYS |
-                       KEY_QUERY_VALUE | KEY_SET_VALUE | KEY_NOTIFY,
-                       NULL, &_hkHTTP, NULL) == ERROR_SUCCESS)
+        0, NULL, REG_OPTION_NON_VOLATILE,
+        KEY_ENUMERATE_SUB_KEYS |
+        KEY_QUERY_VALUE | KEY_SET_VALUE | KEY_NOTIFY,
+        NULL, &_hkHTTP, NULL) == ERROR_SUCCESS)
     {
         RegNotifyChangeKeyValue(_hkHTTP, TRUE,
-                                REG_NOTIFY_CHANGE_NAME |
-                                REG_NOTIFY_CHANGE_LAST_SET,
-                                _hHTTPEvent, TRUE);
+            REG_NOTIFY_CHANGE_NAME |
+            REG_NOTIFY_CHANGE_LAST_SET,
+            _hHTTPEvent, TRUE);
     }
 }
 
@@ -9024,7 +9146,7 @@ void CTray::_MigrateOldBrowserSettingsCB(PVOID lpParameter, BOOLEAN)
     //
     Sleep(1000);
 
-    CTray *self = (CTray *)lpParameter;
+    CTray* self = (CTray*)lpParameter;
     self->_MigrateOldBrowserSettings();
 }
 
@@ -9041,7 +9163,7 @@ CDeskTray::CDeskTray()
     _ptray = IToClass(CTray, _desktray, this);
 }
 
-HRESULT CDeskTray::QueryInterface(REFIID riid, void ** ppvObj)
+HRESULT CDeskTray::QueryInterface(REFIID riid, void** ppvObj)
 {
 #if 0   // no IID_IDeskTray yet defined
     static const QITAB qit[] =
@@ -9081,8 +9203,8 @@ HRESULT CDeskTray::SetDesktopWindow(HWND hwndDesktop)
 
 UINT CDeskTray::AppBarGetState()
 {
-    return (_ptray->_uAutoHide ?  ABS_AUTOHIDE    : 0) |
-        (_ptray->_fAlwaysOnTop ?  ABS_ALWAYSONTOP : 0);
+    return (_ptray->_uAutoHide ? ABS_AUTOHIDE : 0) |
+        (_ptray->_fAlwaysOnTop ? ABS_ALWAYSONTOP : 0);
 }
 
 //***   CDeskTray::SetVar -- set an explorer variable (var#i := value)
@@ -9093,12 +9215,15 @@ UINT CDeskTray::AppBarGetState()
 //  WARNING: thread safety is up to caller!
 //  notes: currently only called in 1 place, but extra generality is cheap
 // minimal cost
+#define SVTRAY_EXITEXPLORER     0   // g_fExitExplorer
 HRESULT CDeskTray::SetVar(int var, DWORD value)
 {
     extern BOOL g_fExitExplorer;
 
+    //TraceMsg(DM_TRACE, "c.cdt_sv: set var(%d):=%d", var, value);
     switch (var) {
-    case 0:
+    case SVTRAY_EXITEXPLORER:
+        //TraceMsg(DM_TRACE, "c.cdt_sv: set g_fExitExplorer:=%d", value);
         g_fExitExplorer = value;
         WriteCleanShutdown(1);
         break;

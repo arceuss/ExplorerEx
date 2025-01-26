@@ -3,6 +3,8 @@
 #ifndef _TRAY_H
 #define _TRAY_H
 
+#ifdef __cplusplus
+
 #include "trayp.h"
 #include "cwndproc.h"
 
@@ -17,7 +19,7 @@ typedef struct tagHWNDANDPLACEMENT
     BOOL fRestore;
     WINDOWPLACEMENT wp;
 }
-HWNDANDPLACEMENT, *LPHWNDANDPLACEMENT;
+HWNDANDPLACEMENT, * LPHWNDANDPLACEMENT;
 
 
 typedef struct tagAPPBAR
@@ -27,7 +29,7 @@ typedef struct tagAPPBAR
     RECT rc;
     UINT uEdge;
 }
-APPBAR, *PAPPBAR;
+APPBAR, * PAPPBAR;
 
 
 typedef struct tagWINDOWPOSITIONS
@@ -35,7 +37,7 @@ typedef struct tagWINDOWPOSITIONS
     UINT idRes;
     HDSA hdsaWP;
 }
-WINDOWPOSITIONS, *LPWINDOWPOSITIONS;
+WINDOWPOSITIONS, * LPWINDOWPOSITIONS;
 
 typedef struct tagTRAYVIEWOPTS
 {
@@ -106,15 +108,15 @@ class CDropTargetBase : public IDropTarget
 {
 public:
     // *** IUnknown methods ***
-    STDMETHODIMP QueryInterface(REFIID riid, void ** ppvObj);
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppvObj);
     STDMETHODIMP_(ULONG) AddRef();
     STDMETHODIMP_(ULONG) Release();
-    
+
     // *** IDropTarget methods ***
-    STDMETHODIMP DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect);
-    STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+    STDMETHODIMP DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect);
+    STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
     STDMETHODIMP DragLeave();
-    STDMETHODIMP Drop(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect);
+    STDMETHODIMP Drop(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect);
 
     CDropTargetBase(CTray* ptray) : _ptray(ptray) {}
 
@@ -127,8 +129,8 @@ class CTrayDropTarget : public CDropTargetBase
 {
 public:
     // *** IDropTarget methods ***
-    STDMETHODIMP DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect);
-    STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+    STDMETHODIMP DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect);
+    STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 
     CTrayDropTarget();
 };
@@ -137,16 +139,16 @@ class CStartDropTarget : public CDropTargetBase
 {
 public:
     // *** IDropTarget methods ***
-    STDMETHODIMP DragEnter(IDataObject *pdtobj, DWORD grfKeyState, POINTL ptl, DWORD *pdwEffect);
-    STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+    STDMETHODIMP DragEnter(IDataObject* pdtobj, DWORD grfKeyState, POINTL ptl, DWORD* pdwEffect);
+    STDMETHODIMP DragOver(DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
     STDMETHODIMP DragLeave();
-    STDMETHODIMP Drop(IDataObject *pdtobj, DWORD grfKeyState, POINTL pt, DWORD *pdwEffect);
+    STDMETHODIMP Drop(IDataObject* pdtobj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect);
 
     CStartDropTarget();
 
 protected:
     HRESULT _GetStartMenuDropTarget(IDropTarget** pptgt);
-    void _StartAutoOpenTimer(POINTL *pptl);
+    void _StartAutoOpenTimer(POINTL* pptl);
 
     DWORD _dwEffectsAllowed;
 };
@@ -155,7 +157,7 @@ class CDeskTray : public IDeskTray
 {
 public:
     // *** IUnknown methods ***
-    STDMETHODIMP QueryInterface(REFIID riid, LPVOID * ppvObj);
+    STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppvObj);
     STDMETHODIMP_(ULONG)AddRef();
     STDMETHODIMP_(ULONG) Release();
 
@@ -229,22 +231,22 @@ public:
 
     void GetTrayViewOpts(TRAYVIEWOPTS* ptvo)
     {
-        ptvo->fAlwaysOnTop        = _fAlwaysOnTop;
-        ptvo->fSMSmallIcons       = _fSMSmallIcons;
-        ptvo->fHideClock          = _fHideClock;
+        ptvo->fAlwaysOnTop = _fAlwaysOnTop;
+        ptvo->fSMSmallIcons = _fSMSmallIcons;
+        ptvo->fHideClock = _fHideClock;
         ptvo->fNoTrayItemsDisplayPolicyEnabled = _trayNotify.GetIsNoTrayItemsDisplayPolicyEnabled();
         ptvo->fNoAutoTrayPolicyEnabled = _trayNotify.GetIsNoAutoTrayPolicyEnabled();
         ptvo->fAutoTrayEnabledByUser = _trayNotify.GetIsAutoTrayEnabledByUser();
-        ptvo->uAutoHide           = _uAutoHide;     // AH_HIDING , AH_ON
-        ptvo->fShowQuickLaunch    = (-1 != SendMessage(_hwnd, WMTRAY_TOGGLEQL, 0, (LPARAM)-1));
+        ptvo->uAutoHide = _uAutoHide;     // AH_HIDING , AH_ON
+        ptvo->fShowQuickLaunch = (-1 != SendMessage(_hwnd, WMTRAY_TOGGLEQL, 0, (LPARAM)-1));
     }
     void SetTrayViewOpts(const TRAYVIEWOPTS* ptvo)
     {
         _UpdateAlwaysOnTop(ptvo->fAlwaysOnTop);
         SendMessage(_hwnd, WMTRAY_TOGGLEQL, 0, (LPARAM)ptvo->fShowQuickLaunch);
-        _fSMSmallIcons       = ptvo->fSMSmallIcons;
-        _fHideClock          = ptvo->fHideClock;
-        _uAutoHide           = ptvo->uAutoHide;     // AH_HIDING , AH_ON
+        _fSMSmallIcons = ptvo->fSMSmallIcons;
+        _fHideClock = ptvo->fHideClock;
+        _uAutoHide = ptvo->uAutoHide;     // AH_HIDING , AH_ON
 
         // There is no necessity to save the fNoAutoTrayPolicyEnabled, 
         // fNoTrayItemsDisplayPolicyEnabled, fAutoTrayEnabledByUser settings...
@@ -279,7 +281,7 @@ public:
     HWND _hwndStart;
     HWND _hwndLastActive;
 
-    IBandSite *_ptbs;
+    IBandSite* _ptbs;
 
     UINT _uAutoHide;     // AH_HIDING , AH_ON
 
@@ -294,9 +296,9 @@ protected:
     // protected methods
     friend class CTaskBarPropertySheet;
 
-    static DWORD WINAPI SyncThreadProc(void *pv);
+    static DWORD WINAPI SyncThreadProc(void* pv);
     DWORD _SyncThreadProc();
-    static DWORD WINAPI MainThreadProc(void *pv);
+    static DWORD WINAPI MainThreadProc(void* pv);
 
     int _GetPart(BOOL fSizingBar, UINT uStuckPlace);
     void _UpdateVertical(UINT uStuckPlace, BOOL fForce = FALSE);
@@ -325,7 +327,7 @@ protected:
     void _DestroyStartMenu();
     int _TrackMenu(HMENU hmenu);
 
-    static DWORD WINAPI RunDlgThreadProc(void *pv);
+    static DWORD WINAPI RunDlgThreadProc(void* pv);
     DWORD _RunDlgThreadProc(HANDLE hdata);
 
     int  _GetQuickLaunchID();
@@ -358,8 +360,8 @@ protected:
     void _SetAutoHideTimer();
     void _ComputeHiddenRect(LPRECT prc, UINT uStuck);
     UINT _GetDockedRect(LPRECT prc, BOOL fMoving);
-    void _CalcClipCoords(RECT *prcClip, const RECT *prcMonitor, const RECT *prcNew);
-    void _ClipInternal(const RECT *prcClip);
+    void _CalcClipCoords(RECT* prcClip, const RECT* prcMonitor, const RECT* prcNew);
+    void _ClipInternal(const RECT* prcClip);
     void _ClipWindow(BOOL fEnableClipping);
     UINT _CalcDragPlace(POINT pt);
     UINT _RecalcStuckPos(LPRECT prc);
@@ -389,13 +391,13 @@ protected:
     void _SaveTrayStuff(void);
     void _SaveTray(void);
     void _SaveTrayAndDesktop(void);
-    void _SlideStep(HWND hwnd, const RECT *prcMonitor, const RECT *prcOld, const RECT *prcNew);
+    void _SlideStep(HWND hwnd, const RECT* prcMonitor, const RECT* prcOld, const RECT* prcNew);
     void _DoExitWindows(HWND hwnd);
 
-    static LRESULT WINAPI StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR, DWORD_PTR);
+    static LRESULT WINAPI StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT _StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    void _ResizeStuckRects(RECT *arStuckRects);
+    void _ResizeStuckRects(RECT* arStuckRects);
 
     static DWORD WINAPI PropertiesThreadProc(void* pv);
     DWORD _PropertiesThreadProc(DWORD dwFlags);
@@ -421,13 +423,13 @@ protected:
     void _DoneMoving(LPWINDOWPOS lpwp);
     void _SnapshotStuckRectSize(UINT uPlace);
     void _RecomputeAllWorkareas();
-    void _SlideWindow(HWND hwnd, RECT *prc, BOOL fShow);
+    void _SlideWindow(HWND hwnd, RECT* prc, BOOL fShow);
     void _UnhideNow();
     void _HandleEnterMenuLoop();
     void _HandleExitMenuLoop();
     void _SetUnhideTimer(LONG x, LONG y);
     void _OnNewSystemSizes();
-    static int WINAPI CheckWndPosEnumProc(void *pItem, void *pData);
+    static int WINAPI CheckWndPosEnumProc(void* pItem, void* pData);
     void _HandleTimer(WPARAM wTimerID);
     void _KickStartAutohide();
     void _HandleMoving(WPARAM wParam, LPRECT lprc);
@@ -439,8 +441,8 @@ protected:
     LRESULT _SetHotkeyEnable(HWND hwnd, BOOL fEnable);
     void _HandleWindowPosChanging(LPWINDOWPOS lpwp);
     void _HandlePowerStatus(UINT uMsg, WPARAM wParam, LPARAM lParam);
-    
-    void _DesktopCleanup_GetFileTimeNDaysFromGivenTime(const FILETIME *pftGiven, FILETIME * pftReturn, int iDays);
+
+    void _DesktopCleanup_GetFileTimeNDaysFromGivenTime(const FILETIME* pftGiven, FILETIME* pftReturn, int iDays);
     BOOL _DesktopCleanup_ShouldRun();
     void _CheckDesktopCleanup(void);
 
@@ -460,12 +462,12 @@ protected:
 
     static BOOL PropagateEnumProc(HWND hwnd, LPARAM lParam);
     void _PropagateMessage(HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
-    
-    BOOL _IsAutoHide()  { return _uAutoHide & AH_ON; }
+
+    BOOL _IsAutoHide() { return _uAutoHide & AH_ON; }
     void _RunDlg();
 
     static void WINAPI SettingsUIPropSheetCallback(DWORD nStartPage);
-    static DWORD WINAPI SettingsUIThreadProc(void *pv);
+    static DWORD WINAPI SettingsUIThreadProc(void* pv);
 
     static BOOL WINAPI FullScreenEnumProc(HMONITOR hmon, HDC hdc, LPRECT prc, LPARAM dwData);
 
@@ -553,7 +555,7 @@ protected:
     BOOL _fFromStart;      // Track when context menu popping up from Start button
     BOOL _fTaskbarFading;
     BOOL _fNoToolbarsOnTaskbarPolicyEnabled;
-            
+
     POINT _ptLastHittest;
 
     HWND _hwndRun;
@@ -578,13 +580,13 @@ protected:
     RECT _rcOldTray;     // last place we stuck ourselves (for work area diffs)
     HMONITOR _hmonStuck; // The current HMONITOR we are on
     HMONITOR _hmonOld;   // The last hMonitor we were on 
-    IMenuBand*  _pmbStartMenu;  //For Message translation.
+    IMenuBand* _pmbStartMenu;  //For Message translation.
     IMenuPopup* _pmpStartMenu;  //For start menu cache
-    IMenuBand*  _pmbStartPane; // For Message translation.
+    IMenuBand* _pmbStartPane; // For Message translation.
     IMenuPopup* _pmpStartPane; // For navigating the start pane
-    void *      _pvStartPane;  // For delayed initilization
-    IStartMenuPin *_psmpin;    // For drag/drop to Start Button
-    IMenuBand*  _pmbTasks;      //For Message translation.
+    void* _pvStartPane;  // For delayed initilization
+    IStartMenuPin* _psmpin;    // For drag/drop to Start Button
+    IMenuBand* _pmbTasks;      //For Message translation.
     IMenuPopup* _pmpTasks;
 
     IDeskBand* _pdbTasks;
@@ -660,5 +662,8 @@ extern UINT g_uStartButtonAllowPopup;
 
 BOOL _IsSizeMoveEnabled();
 BOOL _IsSizeMoveRestricted();
+
+
+#endif  // __cplusplus
 
 #endif  // _TRAY_H

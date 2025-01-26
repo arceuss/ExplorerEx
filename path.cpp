@@ -16,6 +16,7 @@
 #include <fileapi.h>
 
 #include "path.h"
+#include <cocreateinstancehook.h>
 #pragma  hdrstop
 
 BOOL _IsLink(LPCTSTR pszPath, DWORD dwAttributes)
@@ -70,7 +71,7 @@ HRESULT LoadFromFileW(REFCLSID clsid, LPCWSTR pszFile, REFIID riid, void **ppv)
     *ppv = NULL;
 
     IPersistFile *ppf;
-    HRESULT hr = SHCoCreateInstance(NULL, &clsid, NULL, IID_PPV_ARG(IPersistFile, &ppf));
+    HRESULT hr = SHCoCreateInstanceHook(NULL, &clsid, NULL, IID_PPV_ARG(IPersistFile, &ppf));
     if (SUCCEEDED(hr))
     {
         hr = ppf->Load(pszFile, STGM_READ);

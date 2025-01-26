@@ -156,7 +156,7 @@ LPITEMIDLIST FullPidlFromSMData(LPSMDATA psmd)
     LPITEMIDLIST pidlFolder = NULL;
     LPITEMIDLIST pidlFull = NULL;
     IAugmentedShellFolder2* pasf2;
-    if (SUCCEEDED(psmd->psf->QueryInterface(IID_PPV_ARG(IAugmentedShellFolder2, &pasf2))))
+    if (SUCCEEDED(psmd->psf->QueryInterface(IID_IAugmentedFolder, (LPVOID*)&pasf2)))
     {
         if (SUCCEEDED(pasf2->UnWrapIDList(psmd->pidlItem, 1, NULL, &pidlFolder, &pidlItem, NULL)))
         {
@@ -181,9 +181,9 @@ LPITEMIDLIST FullPidlFromSMData(LPSMDATA psmd)
 //
 BOOL IsMergedFolderGUID(IShellFolder* psf, LPCITEMIDLIST pidl, REFGUID rguid)
 {
-    IAugmentedShellFolder* pasf;
+    IAugmentedShellFolder2* pasf;
     BOOL fMatch = FALSE;
-    if (SUCCEEDED(psf->QueryInterface(IID_PPV_ARG(IAugmentedShellFolder, &pasf))))
+    if (SUCCEEDED(psf->QueryInterface(IID_IAugmentedFolder, (LPVOID*)&pasf)))
     {
         GUID guid;
         if (SUCCEEDED(pasf->GetNameSpaceID(pidl, &guid)))
@@ -353,7 +353,7 @@ HRESULT GetMergedFolder(IShellFolder** ppsf, LPITEMIDLIST* ppidl,
     *ppsf = NULL;
 
     IShellFolder2* psf;
-    IAugmentedShellFolder* pasf;
+    IAugmentedShellFolder2* pasf;
     HRESULT hr = CoCreateInstance(CLSID_MergedFolder, 0LL, 1u, IID_IAugmentedFolder, (LPVOID*)&pasf);
 
     for (UINT imfi = 0; SUCCEEDED(hr) && imfi < cmfi; imfi++)
@@ -427,15 +427,12 @@ HRESULT CreateMergedFolderHelper(LPCMERGEDFOLDERINFO rgmfi, UINT cmfi, REFIID ri
     HRESULT hr = GetMergedFolder(&psf, &pidl, rgmfi, cmfi);
     if (SUCCEEDED(hr))
     {
-		IShellFolder* childFolder;
-		psf->BindToObject(pidl, NULL, IID_PPV_ARGS(&childFolder));
-
-        hr = childFolder->QueryInterface(riid, ppv);
+        hr = psf->QueryInterface(riid, ppv);
 
         if (SUCCEEDED(hr))
         {
             IPersistPropertyBag* pppb;
-            if (SUCCEEDED(childFolder->QueryInterface(IID_PPV_ARG(IPersistPropertyBag, &pppb))))
+            if (SUCCEEDED(psf->QueryInterface(IID_PPV_ARG(IPersistPropertyBag, &pppb))))
             {
                 IPropertyBag* ppb;
                 if (SUCCEEDED(SHCreatePropertyBagOnMemory(STGM_READWRITE, IID_PPV_ARG(IPropertyBag, &ppb))))
@@ -450,7 +447,6 @@ HRESULT CreateMergedFolderHelper(LPCMERGEDFOLDERINFO rgmfi, UINT cmfi, REFIID ri
         }
 
         psf->Release();
-        childFolder->Release();
         ILFree(pidl);
     }
     return hr;
@@ -1860,7 +1856,9 @@ HRESULT CStartMenuCallback::VerifyMergedGuy(BOOL fPrograms, IShellMenu* psm)
     LPITEMIDLIST pidl;
     HRESULT hr = S_OK;
     IAugmentedShellFolder2* pasf;
-    if (SUCCEEDED(psm->GetShellFolder(&dwFlags, &pidl, IID_PPV_ARG(IAugmentedShellFolder2, &pasf))))
+    //CoCreateInstance(CLSID_MergedFolder, 0LL, 1u, IID_IAugmentedFolder, (LPVOID*)&pasf)
+    //if (SUCCEEDED(psm->GetShellFolder(&dwFlags, &pidl, IID_PPV_ARG(IAugmentedShellFolder2, &pasf))))
+    if (SUCCEEDED(psm->GetShellFolder(&dwFlags, &pidl, IID_IAugmentedFolder, (LPVOID*)&pasf)))
     {
         IShellFolder* psf;
         // There are 2 things in the merged namespace: CSIDL_PROGRAMS and CSIDL_COMMON_PROGRAMS
@@ -2797,7 +2795,10 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
         {
             // Start Panel: Menu:  The Programs section is a merge of the
             // Fast Items and Programs folders with a separator between them.
-            dwSmset |= SMSET_SEPARATEMERGEFOLDER;
+            
+            //causes a crash
+            //dwSmset |= SMSET_SEPARATEMERGEFOLDER;
+
             hr = GetMergedFolder(&psf, &pidl, c_rgmfiProgramsFolderAndFastItems,
                 ARRAYSIZE(c_rgmfiProgramsFolderAndFastItems));
         }
@@ -2833,15 +2834,15 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
 
         if (SUCCEEDED(hr))
         {
-			IShellFolder* childFolder;
-			psf->BindToObject(pidl, NULL, IID_PPV_ARGS(&childFolder));
             // We should have a pidl from CSIDL_Programs
             ASSERT(pidl);
 
             // We should have a shell folder from the bind.
             ASSERT(psf);
-
-            hr = psm->SetShellFolder(childFolder, pidl, hkeyPrograms, dwSmset);
+            IShellFolder* kms = 0;
+            //ILCreate
+            //SHBindToObject(0,psf,0,IID_IShellFolder,&kms);
+            hr = psm->SetShellFolder(kms, pidl, hkeyPrograms, dwSmset);
             psf->Release();
             ILFree(pidl);
         }
@@ -2960,8 +2961,6 @@ HRESULT CStartMenuCallback::InitializeFastItemsShellMenu(IShellMenu* psm)
         IShellFolder* psfFast;
         LPITEMIDLIST pidlFast;
         hr = GetMergedFolder(&psfFast, &pidlFast, c_rgmfiStartMenu, ARRAYSIZE(c_rgmfiStartMenu));
-        IShellFolder* childFolder;
-        psfFast->BindToObject(pidlFast, NULL, IID_PPV_ARGS(&childFolder));
         if (SUCCEEDED(hr))
         {
             HKEY hMenuKey = NULL;   // WARNING: pmb2->Initialize() will always owns hMenuKey, so don't close it
@@ -2971,7 +2970,7 @@ HRESULT CStartMenuCallback::InitializeFastItemsShellMenu(IShellMenu* psm)
                 NULL, &hMenuKey, NULL);
 
             //TraceMsg(TF_MENUBAND, "Root Start Menu Key Is %d", hMenuKey);
-            hr = psm->SetShellFolder(childFolder, pidlFast, hMenuKey, SMSET_TOP | SMSET_NOEMPTY);
+            hr = psm->SetShellFolder(psfFast, pidlFast, hMenuKey, SMSET_TOP | SMSET_NOEMPTY);
 
             psfFast->Release();
             ILFree(pidlFast);

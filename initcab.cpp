@@ -1121,6 +1121,8 @@ STDAPI_(int) ModuleEntry()
 	if (!SHUndocInit())
 		return -1;
 
+    InitDesktopFuncs();
+
     // We don't want the "No disk in drive X:" requesters, so we set
     // the critical error mask such that calls will just silently fail
 
@@ -1148,26 +1150,6 @@ STDAPI_(int) ModuleEntry()
     return iRet;
 }
 
-HWND hwnd_desktop;
-
-void ShimDesktop()
-{
-    static int InitOnce = FALSE;
-    if (InitOnce) return;
-    hwnd_desktop = FindWindow(L"Progman", L"Program Manager");
-    HWND hwndTray = v_hwndTray;
-    if (!hwnd_desktop || !hwndTray) return;
-    InitOnce = TRUE;
-    //set monitor (doh!)
-    SetProp(hwndTray, L"TaskbarMonitor", (HANDLE)MonitorFromWindow(hwndTray, MONITOR_DEFAULTTOPRIMARY));
-    //init desktop	
-    PostMessage(hwnd_desktop, 0x45C, 1, 1); //wallpaper
-    PostMessage(hwnd_desktop, 0x45E, 0, 2); //wallpaper host
-    PostMessage(hwnd_desktop, 0x45C, 2, 3); //wallpaper & icons
-    PostMessage(hwnd_desktop, 0x45B, 0, 0); //final init
-    PostMessage(hwnd_desktop, 0x40B, 0, 0); //pins
-}
-
 HANDLE CreateDesktopAndTray()
 {
     HANDLE hDesktop = NULL;
@@ -1183,7 +1165,6 @@ HANDLE CreateDesktopAndTray()
         {
             // cache the handle to the desktop...
             hDesktop = SHCreateDesktop(c_tray.GetDeskTray());
-            ShimDesktop();
         }
     }
 
@@ -1987,7 +1968,7 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
             if (!IsAnyShellWindowAlreadyPresent())
             {
                 //temp
-                //SetThemeAppProperties(NULL);
+                SetThemeAppProperties(NULL);
                 hDesktop = CreateDesktopAndTray();
             }
 

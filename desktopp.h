@@ -130,5 +130,7 @@ BOOL SHExplorerParseCmdLine(PNEWFOLDERINFO pfi);
 LRESULT DDEHandleMsgs(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void DDEHandleTimeout(HWND hwnd);
 
+void InitDesktopFuncs();
+
 
 #endif

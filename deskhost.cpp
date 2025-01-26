@@ -14,6 +14,8 @@
 #include <util.h>
 
 
+#define REGSTR_EXPLORER_ADVANCED REGSTR_PATH_EXPLORER TEXT("\\Advanced")
+
 #define TF_DV2HOST  0
 // #define TF_DV2HOST TF_CUSTOM1
 
@@ -36,15 +38,14 @@ CPopupMenu::~CPopupMenu()
     ATOMICRELEASE(_psm);
 }
 
-HRESULT CPopupMenu::Popup(RECT *prcExclude, DWORD dwFlags)
+HRESULT CPopupMenu::Popup(RECT* prcExclude, DWORD dwFlags)
 {
     COMPILETIME_ASSERT(sizeof(RECT) == sizeof(RECTL));
-    return S_OK;
-    //return _pmp->Popup((POINTL*)prcExclude, (RECTL*)prcExclude, dwFlags);
+    return _pmp->Popup((POINTL*)prcExclude, (RECTL*)prcExclude, dwFlags);
 }
 
 
-HRESULT CPopupMenu::Initialize(IShellMenu *psm, IUnknown *punkSite, HWND hwnd)
+HRESULT CPopupMenu::Initialize(IShellMenu* psm, IUnknown* punkSite, HWND hwnd)
 {
     HRESULT hr;
 
@@ -53,22 +54,22 @@ HRESULT CPopupMenu::Initialize(IShellMenu *psm, IUnknown *punkSite, HWND hwnd)
     ASSERT(_pmb == NULL);
     ASSERT(_psm == NULL);
 
-    hr = CoCreateInstanceHook(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER,
-                          IID_PPV_ARGS(&_pmp));
+    hr = CoCreateInstance(CLSID_MenuDeskBar, NULL, CLSCTX_INPROC_SERVER,
+        IID_PPV_ARG(IMenuPopup, &_pmp));
     if (SUCCEEDED(hr))
     {
         IUnknown_SetSite(_pmp, punkSite);
 
-        IBandSite *pbs;
-        hr = CoCreateInstanceHook(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER,
-                              IID_PPV_ARGS(&pbs));
+        IBandSite* pbs;
+        hr = CoCreateInstance(CLSID_MenuBandSite, NULL, CLSCTX_INPROC_SERVER,
+            IID_PPV_ARG(IBandSite, &pbs));
         if (SUCCEEDED(hr))
         {
             hr = _pmp->SetClient(pbs);
             if (SUCCEEDED(hr))
             {
-                IDeskBand *pdb;
-                if (SUCCEEDED(psm->QueryInterface(IID_PPV_ARGS(&pdb))))
+                IDeskBand* pdb;
+                if (SUCCEEDED(psm->QueryInterface(IID_PPV_ARG(IDeskBand, &pdb))))
                 {
                     hr = pbs->AddBand(pdb);
                     if (SUCCEEDED(hr))
@@ -77,7 +78,7 @@ HRESULT CPopupMenu::Initialize(IShellMenu *psm, IUnknown *punkSite, HWND hwnd)
                         hr = pbs->EnumBands(0, &dwBandID);
                         if (SUCCEEDED(hr))
                         {
-                            hr = pbs->GetBandObject(dwBandID, IID_PPV_ARGS(&_pmb));
+                            hr = pbs->GetBandObject(dwBandID, IID_PPV_ARG(IMenuBand, &_pmb));
                         }
                     }
                     pdb->Release();
@@ -114,14 +115,14 @@ HRESULT CPopupMenu::Initialize(IShellMenu *psm, IUnknown *punkSite, HWND hwnd)
     return hr;
 }
 
-HRESULT CPopupMenu_CreateInstance(IShellMenu *psm,
-                                  IUnknown *punkSite,
-                                  HWND hwnd,
-                                  CPopupMenu **ppmOut)
+HRESULT CPopupMenu_CreateInstance(IShellMenu* psm,
+    IUnknown* punkSite,
+    HWND hwnd,
+    CPopupMenu** ppmOut)
 {
     HRESULT hr;
     *ppmOut = NULL;
-    CPopupMenu *ppm = new CPopupMenu();
+    CPopupMenu* ppm = new CPopupMenu();
     if (ppm)
     {
         hr = ppm->Initialize(psm, punkSite, hwnd);
@@ -168,7 +169,7 @@ CDesktopHost::Initialize()
     return S_OK;
 }
 
-HRESULT CDesktopHost::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CDesktopHost::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] =
     {
@@ -189,7 +190,7 @@ HRESULT CDesktopHost::QueryInterface(REFIID riid, void **ppvObj)
     return QISearch(this, qit, riid, ppvObj);
 }
 
-HRESULT CDesktopHost::SetSite(IUnknown *punkSite)
+HRESULT CDesktopHost::SetSite(IUnknown* punkSite)
 {
     CObjectWithSite::SetSite(punkSite);
     if (!_punkSite)
@@ -199,7 +200,10 @@ HRESULT CDesktopHost::SetSite(IUnknown *punkSite)
         // the CDesktopHost (we are its site, it also references
         // us via CDesktopShellMenuCallback...)
         if (_ppmPrograms)
+        {
             _ppmPrograms->Release();
+            _ppmPrograms = NULL;
+        }
     }
     return S_OK;
 }
@@ -211,15 +215,20 @@ CDesktopHost::~CDesktopHost()
         DeleteObject(_hbmCachedSnapshot);
     }
 
-    if (_ppmPrograms)
+	if (_ppmPrograms)
+	{
         _ppmPrograms->Release();
-
+        _ppmPrograms = 0;
+	}
     if (_ppmTracking)
+    {
         _ppmTracking->Release();
+        _ppmTracking = 0;
+    }
 
     if (_hwnd)
     {
-        //ASSERT(GetWindowThreadProcessId(_hwnd, NULL) == GetCurrentThreadId());
+        ASSERT(GetWindowThreadProcessId(_hwnd, NULL) == GetCurrentThreadId());
         DestroyWindow(_hwnd);
     }
     ATOMICRELEASE(_ptFader);
@@ -232,19 +241,19 @@ BOOL CDesktopHost::Register()
 
     WNDCLASSEX  wndclass;
 
-    wndclass.cbSize         = sizeof(wndclass);
-    wndclass.style          = CS_DROPSHADOW;
-    wndclass.lpfnWndProc    = WndProc;
-    wndclass.cbClsExtra     = 0;
-    wndclass.cbWndExtra     = 0;
-    wndclass.hInstance      = hinstCabinet;
-    wndclass.hIcon          = NULL;
-    wndclass.hCursor        = LoadCursor(NULL, IDC_ARROW);
-    wndclass.hbrBackground  = GetStockBrush(HOLLOW_BRUSH);
-    wndclass.lpszMenuName   = NULL;
-    wndclass.lpszClassName  = WC_DV2;
-    wndclass.hIconSm        = NULL;
-    
+    wndclass.cbSize = sizeof(wndclass);
+    wndclass.style = CS_DROPSHADOW;
+    wndclass.lpfnWndProc = WndProc;
+    wndclass.cbClsExtra = 0;
+    wndclass.cbWndExtra = 0;
+    wndclass.hInstance = hinstCabinet;
+    wndclass.hIcon = NULL;
+    wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wndclass.hbrBackground = GetStockBrush(HOLLOW_BRUSH);
+    wndclass.lpszMenuName = NULL;
+    wndclass.lpszClassName = WC_DV2;
+    wndclass.hIconSm = NULL;
+
     return (0 != RegisterClassEx(&wndclass));
 }
 
@@ -275,7 +284,7 @@ inline int _ClipCoord(int x, int xMin, int xMax)
 //
 //  Returns animation direction.
 //
-void CDesktopHost::_ChoosePopupPosition(POINT *ppt, LPCRECT prcExclude, LPRECT prcWindow)
+void CDesktopHost::_ChoosePopupPosition(POINT* ppt, LPCRECT prcExclude, LPRECT prcWindow)
 {
     //
     // Calculate the monitor BEFORE we adjust the point.  Otherwise, we might
@@ -296,9 +305,9 @@ void CDesktopHost::_ChoosePopupPosition(POINT *ppt, LPCRECT prcExclude, LPRECT p
         // into (0,0,0,0) if the intersection is empty (which can happen if
         // the taskbar is autohide) but we want to glue it to the nearest
         // valid edge.
-        rcExclude.left   = _ClipCoord(prcExclude->left,   minfo.rcMonitor.left, minfo.rcMonitor.right);
-        rcExclude.right  = _ClipCoord(prcExclude->right,  minfo.rcMonitor.left, minfo.rcMonitor.right);
-        rcExclude.top    = _ClipCoord(prcExclude->top,    minfo.rcMonitor.top, minfo.rcMonitor.bottom);
+        rcExclude.left = _ClipCoord(prcExclude->left, minfo.rcMonitor.left, minfo.rcMonitor.right);
+        rcExclude.right = _ClipCoord(prcExclude->right, minfo.rcMonitor.left, minfo.rcMonitor.right);
+        rcExclude.top = _ClipCoord(prcExclude->top, minfo.rcMonitor.top, minfo.rcMonitor.bottom);
         rcExclude.bottom = _ClipCoord(prcExclude->bottom, minfo.rcMonitor.top, minfo.rcMonitor.bottom);
     }
     else
@@ -310,11 +319,11 @@ void CDesktopHost::_ChoosePopupPosition(POINT *ppt, LPCRECT prcExclude, LPRECT p
     _ComputeActualSize(&minfo, &rcExclude);
 
     // initialize the height and width from what the layout asked for
-    int cy=RECTHEIGHT(_rcActual);
-    int cx=RECTWIDTH(_rcActual);
+    int cy = RECTHEIGHT(_rcActual);
+    int cx = RECTWIDTH(_rcActual);
 
     ASSERT(cx && cy); // we're in trouble if these are zero
-    
+
     int x, y;
 
     //
@@ -377,12 +386,12 @@ void CDesktopHost::_ChoosePopupPosition(POINT *ppt, LPCRECT prcExclude, LPRECT p
         x = minfo.rcMonitor.right - cx;
     }
 
-    SetRect(prcWindow, x, y, x+cx, y+cy);
+    SetRect(prcWindow, x, y, x + cx, y + cy);
 }
 
-int GetDesiredHeight(HWND hwndHost, SMPANEDATA *psmpd)
+int GetDesiredHeight(HWND hwndHost, SMPANEDATA* psmpd)
 {
-    SMNGETMINSIZE nmgms = {0};
+    SMNGETMINSIZE nmgms = { 0 };
     nmgms.hdr.hwndFrom = hwndHost;
     nmgms.hdr.code = SMN_GETMINSIZE;
     nmgms.siz = psmpd->size;
@@ -396,7 +405,7 @@ int GetDesiredHeight(HWND hwndHost, SMPANEDATA *psmpd)
 // Query each item to see if it has any size requirements.
 // Position all the items at their final locations.
 //
-void CDesktopHost::_ComputeActualSize(MONITORINFO *pminfo, LPCRECT prcExclude)
+void CDesktopHost::_ComputeActualSize(MONITORINFO* pminfo, LPCRECT prcExclude)
 {
     // Compute the maximum permissible space above/below the Start Menu.
     // Designers don't want the Start Menu to slide horizontally; it must
@@ -404,7 +413,7 @@ void CDesktopHost::_ComputeActualSize(MONITORINFO *pminfo, LPCRECT prcExclude)
 
     int cxMax = RECTWIDTH(pminfo->rcWork);
     int cyMax = max(prcExclude->top - pminfo->rcMonitor.top,
-                    pminfo->rcMonitor.bottom - prcExclude->bottom);
+        pminfo->rcMonitor.bottom - prcExclude->bottom);
 
     // Start at the minimum size and grow as necesary
     _rcActual = _rcDesired;
@@ -416,7 +425,12 @@ void CDesktopHost::_ComputeActualSize(MONITORINFO *pminfo, LPCRECT prcExclude)
 
     // Figure out the maximum size for each pane
     int cyPlacesMax = cyMax - (_spm.panes[SMPANETYPE_USER].size.cy + _spm.panes[SMPANETYPE_LOGOFF].size.cy);
-    int cyMFUMax    = cyPlacesMax - _spm.panes[SMPANETYPE_MOREPROG].size.cy;
+    int cyMFUMax = cyPlacesMax - _spm.panes[SMPANETYPE_MOREPROG].size.cy;
+
+
+    //TraceMsg(TF_DV2HOST, "MFU Desired Height=%d(cur=%d,max=%d), Places Desired Height=%d(cur=%d,max=%d)",
+    //    iMFUHeight, _spm.panes[SMPANETYPE_MFU].size.cy, cyMFUMax,
+    //    iPlacesHeight, _spm.panes[SMPANETYPE_PLACES].size.cy, cyPlacesMax);
 
     // Clip each pane to its max - the smaller of (The largest possible or The largest we want to be)
     _fClipped = FALSE;
@@ -446,8 +460,8 @@ void CDesktopHost::_ComputeActualSize(MONITORINFO *pminfo, LPCRECT prcExclude)
 
     // helper variables...
     DWORD dwUserBottomEdge = _spm.panes[SMPANETYPE_USER].size.cy;
-    DWORD dwMFURightEdge =   _spm.panes[SMPANETYPE_MFU].size.cx;
-    DWORD dwMFUBottomEdge =  dwUserBottomEdge + iMFUHeight;
+    DWORD dwMFURightEdge = _spm.panes[SMPANETYPE_MFU].size.cx;
+    DWORD dwMFUBottomEdge = dwUserBottomEdge + iMFUHeight;
     DWORD dwMoreProgBottomEdge = dwMFUBottomEdge + iMoreProgHeight;
 
     // set the size of the overall pane
@@ -456,11 +470,11 @@ void CDesktopHost::_ComputeActualSize(MONITORINFO *pminfo, LPCRECT prcExclude)
 
     HDWP hdwp = BeginDeferWindowPos(5);
     const DWORD dwSWPFlags = SWP_NOACTIVATE | SWP_NOZORDER;
-    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_USER].hwnd, NULL,    0, 0, _rcActual.right, dwUserBottomEdge, dwSWPFlags);
-    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_MFU].hwnd, NULL,     0, dwUserBottomEdge, dwMFURightEdge, iMFUHeight, dwSWPFlags);
-    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_MOREPROG].hwnd, NULL,0, dwMFUBottomEdge, dwMFURightEdge, iMoreProgHeight, dwSWPFlags);
-    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_PLACES].hwnd, NULL,  dwMFURightEdge, dwUserBottomEdge, _rcActual.right-dwMFURightEdge, iPlacesHeight, dwSWPFlags);
-    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_LOGOFF].hwnd, NULL,  0, dwMoreProgBottomEdge, _rcActual.right, _spm.panes[SMPANETYPE_LOGOFF].size.cy, dwSWPFlags);
+    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_USER].hwnd, NULL, 0, 0, _rcActual.right, dwUserBottomEdge, dwSWPFlags);
+    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_MFU].hwnd, NULL, 0, dwUserBottomEdge, dwMFURightEdge, iMFUHeight, dwSWPFlags);
+    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_MOREPROG].hwnd, NULL, 0, dwMFUBottomEdge, dwMFURightEdge, iMoreProgHeight, dwSWPFlags);
+    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_PLACES].hwnd, NULL, dwMFURightEdge, dwUserBottomEdge, _rcActual.right - dwMFURightEdge, iPlacesHeight, dwSWPFlags);
+    DeferWindowPos(hdwp, _spm.panes[SMPANETYPE_LOGOFF].hwnd, NULL, 0, dwMoreProgBottomEdge, _rcActual.right, _spm.panes[SMPANETYPE_LOGOFF].size.cy, dwSWPFlags);
     EndDeferWindowPos(hdwp);
 }
 
@@ -557,8 +571,8 @@ BOOL ShowCachedWindow(HWND hwnd, SIZE sizWindow, HBITMAP hbmpSnapshot, BOOL fRep
 
         // Show the window and tell it not to repaint; we'll do that
         SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
-                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER |
-                     SWP_NOREDRAW | SWP_SHOWWINDOW);
+            SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER |
+            SWP_NOREDRAW | SWP_SHOWWINDOW);
 
         // Turn the shadow back on
         SetClassLong(hwnd, GCL_STYLE, dwClassStylePrev);
@@ -593,12 +607,12 @@ BOOL ShowCachedWindow(HWND hwnd, SIZE sizWindow, HBITMAP hbmpSnapshot, BOOL fRep
 
                         SHSetWindowBits(hwnd, GWL_STYLE, WS_VISIBLE, 0);
                         SetWindowPos(hwnd, NULL, 0, 0, 0, 0,
-                                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER |
-                                     SWP_NOREDRAW | SWP_SHOWWINDOW);
+                            SWP_NOMOVE | SWP_NOSIZE | SWP_NOOWNERZORDER |
+                            SWP_NOREDRAW | SWP_SHOWWINDOW);
 
                         // Validate the window now that we've drawn it
                         RedrawWindow(hwnd, NULL, NULL, RDW_NOERASE | RDW_NOFRAME |
-                                     RDW_NOINTERNALPAINT | RDW_VALIDATE);
+                            RDW_NOINTERNALPAINT | RDW_VALIDATE);
                         fSuccess = TRUE;
                     }
                 }
@@ -661,7 +675,7 @@ LRESULT CDesktopHost::OnNeedRepaint()
     return 0;
 }
 
-HRESULT CDesktopHost::_Popup(POINT *ppt, RECT *prcExclude, DWORD dwFlags)
+HRESULT CDesktopHost::_Popup(POINT* ppt, RECT* prcExclude, DWORD dwFlags)
 {
     if (_hwnd)
     {
@@ -670,7 +684,7 @@ HRESULT CDesktopHost::_Popup(POINT *ppt, RECT *prcExclude, DWORD dwFlags)
         SIZE sizWindow = { RECTWIDTH(rcWindow), RECTHEIGHT(rcWindow) };
 
         MoveWindow(_hwnd, rcWindow.left, rcWindow.top,
-                          sizWindow.cx, sizWindow.cy, TRUE);
+            sizWindow.cx, sizWindow.cy, TRUE);
 
         if (sizWindow.cx != _sizWindowPrev.cx ||
             sizWindow.cy != _sizWindowPrev.cy)
@@ -746,13 +760,13 @@ HRESULT CDesktopHost::_Popup(POINT *ppt, RECT *prcExclude, DWORD dwFlags)
     }
 }
 
-HRESULT CDesktopHost::Popup(POINTL *pptl, RECTL *prclExclude, MP_POPUPFLAGS dwFlags)
+HRESULT CDesktopHost::Popup(POINTL* pptl, RECTL* prclExclude, MP_POPUPFLAGS dwFlags)
 {
     COMPILETIME_ASSERT(sizeof(POINTL) == sizeof(POINT));
-    POINT *ppt = reinterpret_cast<POINT*>(pptl);
+    POINT* ppt = reinterpret_cast<POINT*>(pptl);
 
     COMPILETIME_ASSERT(sizeof(RECTL) == sizeof(RECT));
-    RECT *prcExclude = reinterpret_cast<RECT*>(prclExclude);
+    RECT* prcExclude = reinterpret_cast<RECT*>(prclExclude);
 
     if (_hwnd == NULL)
     {
@@ -762,7 +776,7 @@ HRESULT CDesktopHost::Popup(POINTL *pptl, RECTL *prclExclude, MP_POPUPFLAGS dwFl
     return _Popup(ppt, prcExclude, dwFlags);
 }
 
-LRESULT CDesktopHost::OnHaveNewItems(NMHDR *pnm)
+LRESULT CDesktopHost::OnHaveNewItems(NMHDR* pnm)
 {
     PSMNMHAVENEWITEMS phni = (PSMNMHAVENEWITEMS)pnm;
 
@@ -786,7 +800,7 @@ LRESULT CDesktopHost::OnHaveNewItems(NMHDR *pnm)
     DWORD dwSize = sizeof(ftBalloon);
 
     SHRegGetUSValue(DV2_REGPATH, DV2_NEWAPP_BALLOON_TIME, NULL,
-                    &ftBalloon, &dwSize, FALSE, NULL, 0);
+        &ftBalloon, &dwSize, FALSE, NULL, 0);
 
     if (CompareFileTime(&ftBalloon, &phni->ftNewestApp) < 0)
     {
@@ -802,7 +816,7 @@ void CDesktopHost::_MaybeOfferNewApps()
     // Display the balloon tip only once per pop-open,
     // and only if there are new apps to offer
     // and only if we're actually visible
-    if (_fOfferedNewApps || !_iOfferNewApps || !IsWindowVisible(_hwnd) || 
+    if (_fOfferedNewApps || !_iOfferNewApps || !IsWindowVisible(_hwnd) ||
         !SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, REGSTR_VAL_DV2_NOTIFYNEW, FALSE, TRUE))
     {
         return;
@@ -825,7 +839,7 @@ void CDesktopHost::OnSeenNewItems()
     FILETIME ftNow;
     GetSystemTimeAsFileTime(&ftNow);
     SHRegSetUSValue(DV2_REGPATH, DV2_NEWAPP_BALLOON_TIME, REG_BINARY,
-                    &ftNow, sizeof(ftNow), SHREGSET_FORCE_HKCU);
+        &ftNow, sizeof(ftNow), SHREGSET_FORCE_HKCU);
 }
 
 
@@ -839,25 +853,24 @@ void CDesktopHost::_MaybeShowClipBalloon()
         GetWindowRect(_spm.panes[SMPANETYPE_MFU].hwnd, &rc);    // show the clipped ballon pointing to the bottom of the MFU
 
         _hwndClipBalloon = CreateBalloonTip(_hwnd,
-                                            (rc.right+rc.left)/2, rc.bottom,
-                                            NULL,
-                                            IDS_STARTPANE_CLIPPED_TITLE,
-                                            IDS_STARTPANE_CLIPPED_TEXT);
+            (rc.right + rc.left) / 2, rc.bottom,
+            NULL,
+            IDS_STARTPANE_CLIPPED_TITLE,
+            IDS_STARTPANE_CLIPPED_TEXT);
         if (_hwndClipBalloon)
         {
             SetProp(_hwndClipBalloon, PROP_DV2_BALLOONTIP, DV2_BALLOONTIP_CLIP);
         }
     }
 }
-#define IS_WM_CONTEXTMENU_KEYBOARD(lParam) ((DWORD)(lParam) == 0xFFFFFFFF)
 using fnSHLoadMenuPopup = HMENU(WINAPI*)(HINSTANCE, WORD);
 fnSHLoadMenuPopup SHLoadMenuPopup;
 void CDesktopHost::OnContextMenu(LPARAM lParam)
 {
     if (!IsRestrictedOrUserSetting(HKEY_CURRENT_USER, REST_NOTRAYCONTEXTMENU, TEXT("Advanced"), TEXT("TaskbarContextMenu"), ROUS_KEYALLOWS | ROUS_DEFAULTALLOW))
     {
-        if (!SHLoadMenuPopup)
-            SHLoadMenuPopup = reinterpret_cast<fnSHLoadMenuPopup>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(177)));
+		if (!SHLoadMenuPopup)
+			SHLoadMenuPopup = reinterpret_cast<fnSHLoadMenuPopup>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(177)));
         HMENU hmenu = SHLoadMenuPopup(hinstCabinet, MENU_STARTPANECONTEXT);
         if (hmenu)
         {
@@ -874,7 +887,7 @@ void CDesktopHost::OnContextMenu(LPARAM lParam)
             }
 
             int idCmd = TrackPopupMenuEx(hmenu, TPM_RETURNCMD | TPM_RIGHTBUTTON | TPM_LEFTALIGN,
-                                         pt.x, pt.y, _hwnd, NULL);
+                pt.x, pt.y, _hwnd, NULL);
             if (idCmd == IDSYSPOPUP_STARTMENUPROP)
             {
                 DesktopHost_Dismiss(_hwnd);
@@ -911,7 +924,7 @@ BOOL CDesktopHost::_ShouldIgnoreFocusChange(HWND hwndFocusRecipient)
 
 }
 
-HRESULT CDesktopHost::TranslatePopupMenuMessage(MSG *pmsg, LRESULT *plres)
+HRESULT CDesktopHost::TranslatePopupMenuMessage(MSG* pmsg, LRESULT* plres)
 {
     BOOL fDismissOnlyPopup = FALSE;
 
@@ -945,7 +958,7 @@ HRESULT CDesktopHost::TranslatePopupMenuMessage(MSG *pmsg, LRESULT *plres)
 
 LRESULT CALLBACK CDesktopHost::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    CDesktopHost *pdh = (CDesktopHost *)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    CDesktopHost* pdh = (CDesktopHost*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
     LPCREATESTRUCT pcs;
 
     if (pdh && pdh->_ppmTracking)
@@ -960,14 +973,14 @@ LRESULT CALLBACK CDesktopHost::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         lParam = msg.lParam;
     }
 
-    switch(uMsg)
+    switch (uMsg)
     {
     case WM_NCCREATE:
         pcs = (LPCREATESTRUCT)lParam;
-        pdh = (CDesktopHost *)pcs->lpCreateParams;
+        pdh = (CDesktopHost*)pcs->lpCreateParams;
         SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pdh);
         break;
-        
+
     case WM_CREATE:
         pdh->OnCreate(hwnd);
         break;
@@ -985,14 +998,14 @@ LRESULT CALLBACK CDesktopHost::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
             if (LOWORD(wParam) == WA_INACTIVE)
             {
                 pdh->_SaveChildFocus();
-                HWND hwndAncestor = GetAncestor((HWND) lParam, GA_ROOTOWNER);
+                HWND hwndAncestor = GetAncestor((HWND)lParam, GA_ROOTOWNER);
                 if (hwnd != hwndAncestor &&
                     !(hwndAncestor == v_hwndTray && pdh->_ShouldIgnoreFocusChange((HWND)lParam)) &&
                     !pdh->_ppmTracking)
                     // Losing focus to somebody unrelated to us = dismiss
                 {
 #ifdef FULL_DEBUG
-                    if (! (GetAsyncKeyState(VK_SHIFT) <0) )
+                    if (!(GetAsyncKeyState(VK_SHIFT) < 0))
 #endif
                         DesktopHost_Dismiss(hwnd);
                 }
@@ -1003,11 +1016,11 @@ LRESULT CALLBACK CDesktopHost::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
             }
         }
         break;
-        
+
     case WM_DESTROY:
         pdh->OnDestroy();
         break;
-        
+
     case WM_SHOWWINDOW:
         /*
          *  If hiding the window, save the focus for restoration later.
@@ -1027,54 +1040,54 @@ LRESULT CALLBACK CDesktopHost::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         return TRUE;
 
 #if 0
-    // currently, the host doesn't do anything on WM_PAINT
+        // currently, the host doesn't do anything on WM_PAINT
     case WM_PAINT:
+    {
+        PAINTSTRUCT ps;
+        HDC         hdc;
+
+        if (hdc = BeginPaint(hwnd, &ps))
         {
-            PAINTSTRUCT ps;
-            HDC         hdc;
-
-            if(hdc = BeginPaint(hwnd, &ps))
-            {
-                pdh->OnPaint(hdc, FALSE);
-                EndPaint(hwnd, &ps);
-            }
+            pdh->OnPaint(hdc, FALSE);
+            EndPaint(hwnd, &ps);
         }
+    }
 
-        break;
+    break;
 #endif
 
     case WM_NOTIFY:
+    {
+        LPNMHDR pnm = (LPNMHDR)lParam;
+        switch (pnm->code)
         {
-            LPNMHDR pnm = (LPNMHDR)lParam;
-            switch (pnm->code)
-            {
-            case SMN_HAVENEWITEMS:
-                return pdh->OnHaveNewItems(pnm);
-            case SMN_COMMANDINVOKED:
-                return pdh->OnCommandInvoked(pnm);
-            case SMN_FILTEROPTIONS:
-                return pdh->OnFilterOptions(pnm);
+        case SMN_HAVENEWITEMS:
+            return pdh->OnHaveNewItems(pnm);
+        case SMN_COMMANDINVOKED:
+            return pdh->OnCommandInvoked(pnm);
+        case SMN_FILTEROPTIONS:
+            return pdh->OnFilterOptions(pnm);
 
-            case SMN_NEEDREPAINT:
-                return pdh->OnNeedRepaint();
+        case SMN_NEEDREPAINT:
+            return pdh->OnNeedRepaint();
 
-            case SMN_TRACKSHELLMENU:
-                pdh->OnTrackShellMenu(pnm);
-                return 0;
+        case SMN_TRACKSHELLMENU:
+            pdh->OnTrackShellMenu(pnm);
+            return 0;
 
-            case SMN_BLOCKMENUMODE:
-                pdh->_fMenuBlocked = ((SMNMBOOL*)pnm)->f;
-                break;
-            case SMN_SEENNEWITEMS:
-                pdh->OnSeenNewItems();
-                break;
+        case SMN_BLOCKMENUMODE:
+            pdh->_fMenuBlocked = ((SMNMBOOL*)pnm)->f;
+            break;
+        case SMN_SEENNEWITEMS:
+            pdh->OnSeenNewItems();
+            break;
 
-            case SMN_CANCELSHELLMENU:
-                pdh->_DismissTrackShellMenu();
-                break;
-            }
+        case SMN_CANCELSHELLMENU:
+            pdh->_DismissTrackShellMenu();
+            break;
         }
-        break;
+    }
+    break;
 
     case WM_CONTEXTMENU:
         pdh->OnContextMenu(lParam);
@@ -1119,7 +1132,7 @@ LRESULT CALLBACK CDesktopHost::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         pdh->_OnDismiss((BOOL)wParam);
         break;
 
-    // Alt+F4 dismisses the window, but doesn't destroy it
+        // Alt+F4 dismisses the window, but doesn't destroy it
     case WM_CLOSE:
         pdh->_OnDismiss(FALSE);
         return 0;
@@ -1134,7 +1147,7 @@ LRESULT CALLBACK CDesktopHost::WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         break;
 
     }
-    
+
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
@@ -1206,7 +1219,7 @@ void CDesktopHost::_DismissMenuPopup()
 //  The PMs want custom keyboard navigation behavior on the Start Panel,
 //  so we have to do it all manually.
 //
-BOOL CDesktopHost::_IsDialogMessage(MSG *pmsg)
+BOOL CDesktopHost::_IsDialogMessage(MSG* pmsg)
 {
     //
     //  If the menu isn't even open or if menu mode is blocked, then
@@ -1312,7 +1325,7 @@ BOOL CDesktopHost::_IsDialogMessage(MSG *pmsg)
             _FindChildItem(hwndTarget, NULL, SMNDM_INVOKECURRENTITEM | SMNDM_KEYBOARD);
             return TRUE;
 
-        // Eat space
+            // Eat space
         case VK_SPACE:
             return TRUE;
 
@@ -1321,7 +1334,7 @@ BOOL CDesktopHost::_IsDialogMessage(MSG *pmsg)
         }
         return FALSE;
 
-    // Must dispatch there here so Tray's TranslateAccelerator won't see them
+        // Must dispatch there here so Tray's TranslateAccelerator won't see them
     case WM_SYSKEYDOWN:
     case WM_SYSKEYUP:
     case WM_SYSCHAR:
@@ -1336,7 +1349,7 @@ BOOL CDesktopHost::_IsDialogMessage(MSG *pmsg)
     return FALSE;
 }
 
-LRESULT CDesktopHost::_FindChildItem(HWND hwnd, SMNDIALOGMESSAGE *pnmdm, UINT smndm)
+LRESULT CDesktopHost::_FindChildItem(HWND hwnd, SMNDIALOGMESSAGE* pnmdm, UINT smndm)
 {
     SMNDIALOGMESSAGE nmdm;
     if (!pnmdm)
@@ -1387,7 +1400,7 @@ void CDesktopHost::_EnableKeyboardCues()
 #define DFI_INCLUDESTARTLAST    0x0002
 
 HWND CDesktopHost::_DlgFindItem(
-    HWND hwndStart, SMNDIALOGMESSAGE *pnmdm, UINT smndm,
+    HWND hwndStart, SMNDIALOGMESSAGE* pnmdm, UINT smndm,
     GETNEXTDLGITEM GetNextDlgItem, UINT fl)
 {
     HWND hwndT = hwndStart;
@@ -1423,12 +1436,14 @@ HWND CDesktopHost::_DlgFindItem(
     return NULL;
 }
 
-BOOL CDesktopHost::_DlgNavigateArrow(HWND hwndStart, MSG *pmsg)
+BOOL CDesktopHost::_DlgNavigateArrow(HWND hwndStart, MSG* pmsg)
 {
     HWND hwndT;
     SMNDIALOGMESSAGE nmdm;
     MSG msg;
     nmdm.pmsg = pmsg;   // other fields will be filled in by _FindChildItem
+
+    //TraceMsg(TF_DV2DIALOG, "idm.arrow(%04x)", pmsg->wParam);
 
     // If RTL, then flip the left and right arrows
     UINT vk = (UINT)pmsg->wParam;
@@ -1494,9 +1509,9 @@ BOOL CDesktopHost::_DlgNavigateArrow(HWND hwndStart, MSG *pmsg)
         UINT fl = fBackwards ? DFI_BACKWARDS : DFI_FORWARDS;
 
         hwndT = _DlgFindItem(hwndStart, &nmdm,
-                             smndm | SMNDM_SELECT | SMNDM_KEYBOARD,
-                             GetNextDlgGroupItem,
-                             fl | DFI_INCLUDESTARTLAST);
+            smndm | SMNDM_SELECT | SMNDM_KEYBOARD,
+            GetNextDlgGroupItem,
+            fl | DFI_INCLUDESTARTLAST);
 
         // Always return TRUE to eat the message
         return TRUE;
@@ -1520,7 +1535,7 @@ BOOL CDesktopHost::_DlgNavigateArrow(HWND hwndStart, MSG *pmsg)
     hwndT = hwndStart;
 
     while ((hwndT = GetNextDlgGroupItem(_hwnd, hwndT, fBackwards)) != NULL &&
-           hwndT != hwndStart)
+        hwndT != hwndStart)
     {
         // Does this window intersect in the desired direction?
         RECT rcT;
@@ -1545,7 +1560,7 @@ BOOL CDesktopHost::_DlgNavigateArrow(HWND hwndStart, MSG *pmsg)
             nmdm.pt.x = rcT.left;
             nmdm.pt.y = rcT.top;
             if (_FindChildItem(hwndT, &nmdm,
-                               SMNDM_FINDNEAREST | SMNDM_SELECT | SMNDM_KEYBOARD))
+                SMNDM_FINDNEAREST | SMNDM_SELECT | SMNDM_KEYBOARD))
             {
                 return TRUE;
             }
@@ -1562,7 +1577,7 @@ BOOL CDesktopHost::_DlgNavigateArrow(HWND hwndStart, MSG *pmsg)
 // that is nonempty.
 //
 
-HWND CDesktopHost::_FindNextDlgChar(HWND hwndStart, SMNDIALOGMESSAGE *pnmdm, UINT smndm)
+HWND CDesktopHost::_FindNextDlgChar(HWND hwndStart, SMNDIALOGMESSAGE* pnmdm, UINT smndm)
 {
     //
     //  See if there is a match in the hwndStart control.
@@ -1577,9 +1592,9 @@ HWND CDesktopHost::_FindNextDlgChar(HWND hwndStart, SMNDIALOGMESSAGE *pnmdm, UIN
     //  to the start.
     //
     return _DlgFindItem(hwndStart, pnmdm,
-                        SMNDM_FINDFIRSTMATCH | SMNDM_KEYBOARD | smndm,
-                        GetNextDlgGroupItem,
-                        DFI_FORWARDS | DFI_INCLUDESTARTLAST);
+        SMNDM_FINDFIRSTMATCH | SMNDM_KEYBOARD | smndm,
+        GetNextDlgGroupItem,
+        DFI_FORWARDS | DFI_INCLUDESTARTLAST);
 
 }
 
@@ -1587,7 +1602,7 @@ HWND CDesktopHost::_FindNextDlgChar(HWND hwndStart, SMNDIALOGMESSAGE *pnmdm, UIN
 //  Find the next item that begins with the typed letter and
 //  invoke it if it is unique.
 //
-BOOL CDesktopHost::_DlgNavigateChar(HWND hwndStart, MSG *pmsg)
+BOOL CDesktopHost::_DlgNavigateChar(HWND hwndStart, MSG* pmsg)
 {
     SMNDIALOGMESSAGE nmdm;
     nmdm.pmsg = pmsg;   // other fields will be filled in by _FindChildItem
@@ -1619,7 +1634,7 @@ BOOL CDesktopHost::_DlgNavigateChar(HWND hwndStart, MSG *pmsg)
     return TRUE;
 }
 
-void CDesktopHost::_FilterMouseMove(MSG *pmsg, HWND hwndTarget)
+void CDesktopHost::_FilterMouseMove(MSG* pmsg, HWND hwndTarget)
 {
 
     if (!_fMouseEntered) {
@@ -1687,7 +1702,7 @@ void CDesktopHost::_FilterMouseMove(MSG *pmsg, HWND hwndTarget)
 
 }
 
-void CDesktopHost::_FilterMouseLeave(MSG *pmsg, HWND hwndTarget)
+void CDesktopHost::_FilterMouseLeave(MSG* pmsg, HWND hwndTarget)
 {
     _fMouseEntered = FALSE;
     _hwndLastMouse = NULL;
@@ -1700,7 +1715,7 @@ void CDesktopHost::_FilterMouseLeave(MSG *pmsg, HWND hwndTarget)
     }
 }
 
-void CDesktopHost::_FilterMouseHover(MSG *pmsg, HWND hwndTarget)
+void CDesktopHost::_FilterMouseHover(MSG* pmsg, HWND hwndTarget)
 {
     _FindChildItem(hwndTarget, NULL, SMNDM_OPENCASCADE);
 }
@@ -1711,31 +1726,31 @@ void CDesktopHost::_FilterMouseHover(MSG *pmsg, HWND hwndTarget)
 //
 void CDesktopHost::_RemoveSelection()
 {
-        // Put focus on first valid child control
-        // The real control is the grandchild
-        HWND hwndChild = GetNextDlgTabItem(_hwnd, NULL, FALSE);
-        if (hwndChild)
-        {
-            // The inner ::GetWindow will always succeed
-            // because all our controls contain inner windows
-            // (and if they failed to create their inner window,
-            // they would've failed their WM_CREATE message)
-            HWND hwndInner = ::GetWindow(hwndChild, GW_CHILD);
-            SetFocus(hwndInner);
+    // Put focus on first valid child control
+    // The real control is the grandchild
+    HWND hwndChild = GetNextDlgTabItem(_hwnd, NULL, FALSE);
+    if (hwndChild)
+    {
+        // The inner ::GetWindow will always succeed
+        // because all our controls contain inner windows
+        // (and if they failed to create their inner window,
+        // they would've failed their WM_CREATE message)
+        HWND hwndInner = ::GetWindow(hwndChild, GW_CHILD);
+        SetFocus(hwndInner);
 
-            //
-            //  Now lie to the control and make it think it lost
-            //  focus.  This will cause the selection to clear.
-            //
-            NMHDR hdr;
-            hdr.hwndFrom = hwndInner;
-            hdr.idFrom = GetDlgCtrlID(hwndInner);
-            hdr.code = NM_KILLFOCUS;
-            ::SendMessage(hwndChild, WM_NOTIFY, hdr.idFrom, (LPARAM)&hdr);
-        }
+        //
+        //  Now lie to the control and make it think it lost
+        //  focus.  This will cause the selection to clear.
+        //
+        NMHDR hdr;
+        hdr.hwndFrom = hwndInner;
+        hdr.idFrom = GetDlgCtrlID(hwndInner);
+        hdr.code = NM_KILLFOCUS;
+        ::SendMessage(hwndChild, WM_NOTIFY, hdr.idFrom, (LPARAM)&hdr);
+    }
 }
 
-HRESULT CDesktopHost::IsMenuMessage(MSG *pmsg)
+HRESULT CDesktopHost::IsMenuMessage(MSG* pmsg)
 {
     if (_hwnd)
     {
@@ -1768,7 +1783,7 @@ HRESULT CDesktopHost::IsMenuMessage(MSG *pmsg)
     }
 }
 
-HRESULT CDesktopHost::TranslateMenuMessage(MSG *pmsg, LRESULT *plres)
+HRESULT CDesktopHost::TranslateMenuMessage(MSG* pmsg, LRESULT* plres)
 {
     if (_ppmTracking)
     {
@@ -1778,36 +1793,36 @@ HRESULT CDesktopHost::TranslateMenuMessage(MSG *pmsg, LRESULT *plres)
 }
 
 // IServiceProvider::QueryService
-STDMETHODIMP CDesktopHost::QueryService(REFGUID guidService, REFIID riid, void ** ppvObject)
+STDMETHODIMP CDesktopHost::QueryService(REFGUID guidService, REFIID riid, void** ppvObject)
 {
-    if(IsEqualGUID(guidService,SID_SMenuPopup))
-        return QueryInterface(riid,ppvObject);
+    if (IsEqualGUID(guidService, SID_SMenuPopup))
+        return QueryInterface(riid, ppvObject);
 
     return E_FAIL;
 }
 
 // *** IOleCommandTarget ***
-STDMETHODIMP  CDesktopHost::QueryStatus (const GUID * pguidCmdGroup,
-    ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT *pcmdtext)
+STDMETHODIMP  CDesktopHost::QueryStatus(const GUID* pguidCmdGroup,
+    ULONG cCmds, OLECMD rgCmds[], OLECMDTEXT* pcmdtext)
 {
     return E_NOTIMPL;
 }
 
-STDMETHODIMP  CDesktopHost::Exec (const GUID * pguidCmdGroup,
-    DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG *pvarargIn, VARIANTARG *pvarargOut)
+STDMETHODIMP  CDesktopHost::Exec(const GUID* pguidCmdGroup,
+    DWORD nCmdID, DWORD nCmdexecopt, VARIANTARG* pvarargIn, VARIANTARG* pvarargOut)
 {
-    if (IsEqualGUID(CLSID_MenuBand,*pguidCmdGroup))
+    if (IsEqualGUID(CLSID_MenuBand, *pguidCmdGroup))
     {
         switch (nCmdID)
         {
         case MBANDCID_REFRESH:
-            {
-                // There was a session or WM_DEVICECHANGE, we need to refresh our logoff options
-                NMHDR nm = { _hwnd, 0, SMN_REFRESHLOGOFF};
-                SHPropagateMessage(_hwnd, WM_NOTIFY, 0, (LPARAM)&nm, SPM_SEND | SPM_ONELEVEL);
-                OnNeedRepaint();
-            }
-            break;
+        {
+            // There was a session or WM_DEVICECHANGE, we need to refresh our logoff options
+            NMHDR nm = { _hwnd, 0, SMN_REFRESHLOGOFF };
+            SHPropagateMessage(_hwnd, WM_NOTIFY, 0, (LPARAM)&nm, SPM_SEND | SPM_ONELEVEL);
+            OnNeedRepaint();
+        }
+        break;
         default:
             break;
         }
@@ -1817,7 +1832,7 @@ STDMETHODIMP  CDesktopHost::Exec (const GUID * pguidCmdGroup,
 }
 
 // ITrayPriv2::ModifySMInfo
-HRESULT CDesktopHost::ModifySMInfo(IN LPSMDATA psmd, IN OUT SMINFO *psminfo)
+HRESULT CDesktopHost::ModifySMInfo(IN LPSMDATA psmd, IN OUT SMINFO* psminfo)
 {
     if (_hwndNewHandler)
     {
@@ -1846,14 +1861,14 @@ BOOL CDesktopHost::AddWin32Controls()
     // Setting the control ID equal to the internal index number is just
     // for the benefit of the test automation tools.
 
-    for (int i=0; i<ARRAYSIZE(_spm.panes); i++)
+    for (int i = 0; i < ARRAYSIZE(_spm.panes); i++)
     {
         _spm.panes[i].hwnd = CreateWindowExW(0, _spm.panes[i].pszClassName,
-                                            NULL,
-                                            _spm.panes[i].dwStyle | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
-                                            0, 0, _spm.panes[i].size.cx, _spm.panes[i].size.cy,
-                                            _hwnd, IntToPtr_(HMENU, i), NULL,
-                                            &_spm.panes[i]);
+            NULL,
+            _spm.panes[i].dwStyle | WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS,
+            0, 0, _spm.panes[i].size.cx, _spm.panes[i].size.cy,
+            _hwnd, IntToPtr_(HMENU, i), NULL,
+            &_spm.panes[i]);
     }
 
     return TRUE;
@@ -1863,7 +1878,7 @@ void CDesktopHost::OnPaint(HDC hdc, BOOL bBackground)
 {
 }
 
-void CDesktopHost::_ReadPaneSizeFromTheme(SMPANEDATA *psmpd)
+void CDesktopHost::_ReadPaneSizeFromTheme(SMPANEDATA* psmpd)
 {
     RECT rc;
     if (SUCCEEDED(GetThemeRect(psmpd->hTheme, psmpd->iPartId, 0, TMT_DEFAULTPANESIZE, &rc)))
@@ -1872,13 +1887,13 @@ void CDesktopHost::_ReadPaneSizeFromTheme(SMPANEDATA *psmpd)
         // themes will use the next level up (to the panel itself)
         if ((rc.bottom != _spm.sizPanel.cy) || (rc.right != _spm.sizPanel.cx))
         {
-            psmpd->size.cx = RECTWIDTH(rc); 
+            psmpd->size.cx = RECTWIDTH(rc);
             psmpd->size.cy = RECTHEIGHT(rc);
         }
     }
 }
 
-void RemapSizeForHighDPI(SIZE *psiz)
+void RemapSizeForHighDPI(SIZE* psiz)
 {
     static int iLPX, iLPY;
 
@@ -1891,13 +1906,13 @@ void RemapSizeForHighDPI(SIZE *psiz)
     }
 
     // 96 DPI is small fonts, so scale based on the multiple of that.
-    psiz->cx = (psiz->cx * iLPX)/96;
-    psiz->cy = (psiz->cy * iLPY)/96;
+    psiz->cx = (psiz->cx * iLPX) / 96;
+    psiz->cy = (psiz->cy * iLPY) / 96;
 }
 
 
 
-void CDesktopHost::LoadResourceInt(UINT ids, LONG *pl)
+void CDesktopHost::LoadResourceInt(UINT ids, LONG* pl)
 {
     TCHAR sz[64];
     if (LoadString(hinstCabinet, ids, sz, ARRAYSIZE(sz)))
@@ -1916,11 +1931,11 @@ void CDesktopHost::LoadPanelMetrics()
     _spm = g_spmDefault;
 
     // Adjust for localization
-    LoadResourceInt(IDS_STARTPANE_TOTALHEIGHT,   &_spm.sizPanel.cy);
-    LoadResourceInt(IDS_STARTPANE_TOTALWIDTH,    &_spm.sizPanel.cx);
-    LoadResourceInt(IDS_STARTPANE_USERHEIGHT,    &_spm.panes[SMPANETYPE_USER].size.cy);
-    LoadResourceInt(IDS_STARTPANE_MOREPROGHEIGHT,&_spm.panes[SMPANETYPE_MOREPROG].size.cy);
-    LoadResourceInt(IDS_STARTPANE_LOGOFFHEIGHT,  &_spm.panes[SMPANETYPE_LOGOFF].size.cy);
+    LoadResourceInt(IDS_STARTPANE_TOTALHEIGHT, &_spm.sizPanel.cy);
+    LoadResourceInt(IDS_STARTPANE_TOTALWIDTH, &_spm.sizPanel.cx);
+    LoadResourceInt(IDS_STARTPANE_USERHEIGHT, &_spm.panes[SMPANETYPE_USER].size.cy);
+    LoadResourceInt(IDS_STARTPANE_MOREPROGHEIGHT, &_spm.panes[SMPANETYPE_MOREPROG].size.cy);
+    LoadResourceInt(IDS_STARTPANE_LOGOFFHEIGHT, &_spm.panes[SMPANETYPE_LOGOFF].size.cy);
 
     // wacky raymondc logic to scale using the values in g_spmDefault as relative ratio's
     // Now apply those numbers; widths are easy
@@ -1928,18 +1943,18 @@ void CDesktopHost::LoadPanelMetrics()
     for (i = 0; i < ARRAYSIZE(_spm.panes); i++)
     {
         _spm.panes[i].size.cx = MulDiv(g_spmDefault.panes[i].size.cx,
-                                       _spm.sizPanel.cx,
-                                       g_spmDefault.sizPanel.cx);
+            _spm.sizPanel.cx,
+            g_spmDefault.sizPanel.cx);
     }
 
     // Places gets all height not eaten by User and Logoff
     _spm.panes[SMPANETYPE_PLACES].size.cy = _spm.sizPanel.cy
-                                          - _spm.panes[SMPANETYPE_USER].size.cy
-                                          - _spm.panes[SMPANETYPE_LOGOFF].size.cy;
+        - _spm.panes[SMPANETYPE_USER].size.cy
+        - _spm.panes[SMPANETYPE_LOGOFF].size.cy;
 
     // MFU gets Places minus More Programs
     _spm.panes[SMPANETYPE_MFU].size.cy = _spm.panes[SMPANETYPE_PLACES].size.cy
-                                       - _spm.panes[SMPANETYPE_MOREPROG].size.cy;
+        - _spm.panes[SMPANETYPE_MOREPROG].size.cy;
 
     // End of adjustments for localization
 
@@ -1958,7 +1973,7 @@ void CDesktopHost::LoadPanelMetrics()
         {
             _spm.sizPanel.cx = RECTWIDTH(rcT);
             _spm.sizPanel.cy = RECTHEIGHT(rcT);
-            for (int i=0;i<ARRAYSIZE(_spm.panes);i++)
+            for (int i = 0;i < ARRAYSIZE(_spm.panes);i++)
             {
                 _spm.panes[i].hTheme = _hTheme;
                 _ReadPaneSizeFromTheme(&_spm.panes[i]);
@@ -1968,16 +1983,19 @@ void CDesktopHost::LoadPanelMetrics()
 
     // ASSERT that the layout matches up somewhat...
     ASSERT(_spm.sizPanel.cx == _spm.panes[SMPANETYPE_USER].size.cx);
-    ASSERT(_spm.sizPanel.cx == _spm.panes[SMPANETYPE_MFU].size.cx + _spm.panes[SMPANETYPE_PLACES].size.cx );
+    ASSERT(_spm.sizPanel.cx == _spm.panes[SMPANETYPE_MFU].size.cx + _spm.panes[SMPANETYPE_PLACES].size.cx);
     ASSERT(_spm.sizPanel.cx == _spm.panes[SMPANETYPE_LOGOFF].size.cx);
     ASSERT(_spm.panes[SMPANETYPE_MOREPROG].size.cx == _spm.panes[SMPANETYPE_MFU].size.cx);
+    //TraceMsg(TF_DV2HOST, "sizPanel.cy = %d, user = %d, MFU =%d, moreprog=%d, logoff=%d",
+    //    _spm.sizPanel.cy, _spm.panes[SMPANETYPE_USER].size.cy, _spm.panes[SMPANETYPE_MFU].size.cy,
+    //    _spm.panes[SMPANETYPE_MOREPROG].size.cy, _spm.panes[SMPANETYPE_LOGOFF].size.cy);
 
     ASSERT(_spm.sizPanel.cy == _spm.panes[SMPANETYPE_USER].size.cy + _spm.panes[SMPANETYPE_MFU].size.cy + _spm.panes[SMPANETYPE_MOREPROG].size.cy + _spm.panes[SMPANETYPE_LOGOFF].size.cy);
 
     // one final pass to adjust everything for DPI
     // note that things may not match up exactly after this due to rounding, but _ComputeActualSize can deal
     RemapSizeForHighDPI(&_spm.sizPanel);
-    for (int i=0;i<ARRAYSIZE(_spm.panes);i++)
+    for (int i = 0;i < ARRAYSIZE(_spm.panes);i++)
     {
         RemapSizeForHighDPI(&_spm.panes[i].size);
     }
@@ -1987,7 +2005,8 @@ void CDesktopHost::LoadPanelMetrics()
 
 void CDesktopHost::OnCreate(HWND hwnd)
 {
-    _hwnd          = hwnd;
+    _hwnd = hwnd;
+    //TraceMsg(TF_DV2HOST, "Entering CDesktopHost::OnCreate");
 
     // Add the controls and background images
     AddWin32Controls();
@@ -2011,7 +2030,7 @@ void CDesktopHost::OnSetFocus(HWND hwndLose)
     }
 }
 
-LRESULT CDesktopHost::OnCommandInvoked(NMHDR *pnm)
+LRESULT CDesktopHost::OnCommandInvoked(NMHDR* pnm)
 {
     PSMNMCOMMANDINVOKED pci = (PSMNMCOMMANDINVOKED)pnm;
 
@@ -2021,7 +2040,7 @@ LRESULT CDesktopHost::OnCommandInvoked(NMHDR *pnm)
     {
         if (!_ptFader)
         {
-            CoCreateInstanceHook(CLSID_FadeTask, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_ptFader));
+            CoCreateInstance(CLSID_FadeTask, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&_ptFader));
         }
         if (_ptFader)
         {
@@ -2032,7 +2051,7 @@ LRESULT CDesktopHost::OnCommandInvoked(NMHDR *pnm)
     return OnSelect(MPOS_EXECUTE);
 }
 
-LRESULT CDesktopHost::OnFilterOptions(NMHDR *pnm)
+LRESULT CDesktopHost::OnFilterOptions(NMHDR* pnm)
 {
     PSMNFILTEROPTIONS popt = (PSMNFILTEROPTIONS)pnm;
 
@@ -2063,7 +2082,7 @@ LRESULT CDesktopHost::OnFilterOptions(NMHDR *pnm)
     return 0;
 }
 
-LRESULT CDesktopHost::OnTrackShellMenu(NMHDR *pnm)
+LRESULT CDesktopHost::OnTrackShellMenu(NMHDR* pnm)
 {
     PSMNTRACKSHELLMENU ptsm = CONTAINING_RECORD(pnm, SMNTRACKSHELLMENU, hdr);
     HRESULT hr;
@@ -2094,7 +2113,11 @@ LRESULT CDesktopHost::OnTrackShellMenu(NMHDR *pnm)
     // ISSUE raymondc: actually this abandons the trackpopupmenu that
     // may already be in progress - its mouse UI gets messed up as a result.
     //
-    ATOMICRELEASE(_ppmTracking);
+	if (_ppmTracking)
+	{
+		_ppmTracking->Release();
+		_ppmTracking = NULL;
+	}
 
     if (_hwndTracking == _spm.panes[SMPANETYPE_MOREPROG].hwnd)
     {
@@ -2261,7 +2284,7 @@ HRESULT CDesktopHost::_MenuMouseFilter(LPSMDATA psmd, BOOL fRemove, LPMSG pmsg)
         }
         else
         {
-    L_WHERE_ONSELF_HOVER:
+        L_WHERE_ONSELF_HOVER:
             _hwndAltTracking = NULL;
             _itemAltTracking = 0;
             nmdm.itemID = _itemTracking;
@@ -2310,7 +2333,7 @@ void CDesktopHost::_SaveChildFocus()
 {
     if (!_hwndChildFocus)
     {
-    HWND hwndFocus = GetFocus();
+        HWND hwndFocus = GetFocus();
         if (hwndFocus && IsChild(_hwnd, hwndFocus))
         {
             _hwndChildFocus = hwndFocus;
@@ -2393,12 +2416,12 @@ HRESULT CDesktopHost::Build()
             SHPropagateMessage(_hwnd, WM_NOTIFY, 0, (LPARAM)&nm, SPM_SEND | SPM_ONELEVEL);
         }
     }
-    
+
     if (_hwnd == NULL)
     {
         hr = E_OUTOFMEMORY;
     }
- 
+
     return hr;
 }
 
@@ -2428,13 +2451,13 @@ public:
     STDMETHODIMP CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     // *** IObjectWithSite ***
-    STDMETHODIMP SetSite(IUnknown *punkSite);
+    STDMETHODIMP SetSite(IUnknown* punkSite);
 
     // *** IServiceProvider ***
-    STDMETHODIMP QueryService(REFGUID guidService, REFIID riid, void ** ppvObject);
+    STDMETHODIMP QueryService(REFGUID guidService, REFIID riid, void** ppvObject);
 
 private:
-    CDeskHostShellMenuCallback(CDesktopHost *pdh)
+    CDeskHostShellMenuCallback(CDesktopHost* pdh)
     {
         _pdh = pdh; _pdh->AddRef();
     }
@@ -2446,11 +2469,11 @@ private:
         ATOMICRELEASE(_psmcPrev);
     }
 
-    IShellMenuCallback *_psmcPrev;
-    CDesktopHost *_pdh;
+    IShellMenuCallback* _psmcPrev;
+    CDesktopHost* _pdh;
 };
 
-HRESULT CDeskHostShellMenuCallback::QueryInterface(REFIID riid, void **ppvObj)
+HRESULT CDeskHostShellMenuCallback::QueryInterface(REFIID riid, void** ppvObj)
 {
     static const QITAB qit[] =
     {
@@ -2463,11 +2486,11 @@ HRESULT CDeskHostShellMenuCallback::QueryInterface(REFIID riid, void **ppvObj)
     return QISearch(this, qit, riid, ppvObj);
 }
 
-BOOL FeatureEnabled(LPTSTR pszFeature)
+BOOL FeatureEnabledDeskHost(LPCTSTR pszFeature)
 {
     return SHRegGetBoolUSValue(REGSTR_EXPLORER_ADVANCED, pszFeature,
-                        FALSE, // Don't ignore HKCU
-                        FALSE); // Disable this cool feature.
+        FALSE, // Don't ignore HKCU
+        FALSE); // Disable this cool feature.
 }
 
 
@@ -2480,7 +2503,7 @@ HRESULT CDeskHostShellMenuCallback::CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM 
             return _pdh->_MenuMouseFilter(psmd, (BOOL)wParam, (MSG*)lParam);
 
     case SMC_GETSFINFOTIP:
-        if (!FeatureEnabled((LPTSTR)TEXT("ShowInfoTip")))
+        if (!FeatureEnabledDeskHost(TEXT("ShowInfoTip")))
             return E_FAIL;  // E_FAIL means don't show. S_FALSE means show default
         break;
 
@@ -2492,7 +2515,7 @@ HRESULT CDeskHostShellMenuCallback::CallbackSM(LPSMDATA psmd, UINT uMsg, WPARAM 
     return S_FALSE;
 }
 
-HRESULT CDeskHostShellMenuCallback::SetSite(IUnknown *punkSite)
+HRESULT CDeskHostShellMenuCallback::SetSite(IUnknown* punkSite)
 {
     CObjectWithSite::SetSite(punkSite);
     // Each time our site changes, reassert ourselves as the site of
@@ -2508,14 +2531,14 @@ HRESULT CDeskHostShellMenuCallback::SetSite(IUnknown *punkSite)
     return S_OK;
 }
 
-HRESULT CDeskHostShellMenuCallback::QueryService(REFGUID guidService, REFIID riid, void ** ppvObject)
+HRESULT CDeskHostShellMenuCallback::QueryService(REFGUID guidService, REFIID riid, void** ppvObject)
 {
     return IUnknown_QueryService(_punkSite, guidService, riid, ppvObject);
 }
 
-void CDesktopHost::_SubclassTrackShellMenu(IShellMenu *psm)
+void CDesktopHost::_SubclassTrackShellMenu(IShellMenu* psm)
 {
-    CDeskHostShellMenuCallback *psmc = new CDeskHostShellMenuCallback(this);
+    CDeskHostShellMenuCallback* psmc = new CDeskHostShellMenuCallback(this);
     if (psmc)
     {
         UINT uId, uIdAncestor;
@@ -2528,35 +2551,35 @@ void CDesktopHost::_SubclassTrackShellMenu(IShellMenu *psm)
     }
 }
 
-STDAPI DesktopV2_Build(void *pvStartPane)
+STDAPI DesktopV2_Build(void* pvStartPane)
 {
     HRESULT hr = E_POINTER;
     if (pvStartPane)
     {
-        hr = reinterpret_cast<CDesktopHost *>(pvStartPane)->Build();
+        hr = reinterpret_cast<CDesktopHost*>(pvStartPane)->Build();
     }
     return hr;
 }
 
 
 STDAPI DesktopV2_Create(
-    IMenuPopup **ppmp, IMenuBand **ppmb, void **ppvStartPane)
+    IMenuPopup** ppmp, IMenuBand** ppmb, void** ppvStartPane)
 {
     *ppmp = NULL;
     *ppmb = NULL;
 
     HRESULT hr;
-    CDesktopHost *pdh = new CDesktopHost;
+    CDesktopHost* pdh = new CDesktopHost;
     if (pdh)
     {
         *ppvStartPane = pdh;
         hr = pdh->Initialize();
         if (SUCCEEDED(hr))
         {
-            hr = pdh->QueryInterface(IID_PPV_ARGS(ppmp));
+            hr = pdh->QueryInterface(IID_PPV_ARG(IMenuPopup, ppmp));
             if (SUCCEEDED(hr))
             {
-                hr = pdh->QueryInterface(IID_PPV_ARGS(ppmb));
+                hr = pdh->QueryInterface(IID_PPV_ARG(IMenuBand, ppmb));
             }
         }
         pdh->GetUnknown()->Release();
@@ -2576,8 +2599,13 @@ STDAPI DesktopV2_Create(
     return hr;
 }
 
+DWORD Mirror_MirrorDC(HDC hdc)
+{
+	return Mirror_SetLayout(hdc, LAYOUT_RTL);
+}
 
-HBITMAP CreateMirroredBitmap( HBITMAP hbmOrig)
+#define SET_DC_RTL_MIRRORED(hdc)         Mirror_MirrorDC(hdc)
+HBITMAP CreateMirroredBitmap(HBITMAP hbmOrig)
 {
     HDC     hdc, hdcMem1, hdcMem2;
     HBITMAP hbm = NULL, hOld_bm1, hOld_bm2;
@@ -2625,19 +2653,19 @@ HBITMAP CreateMirroredBitmap( HBITMAP hbmOrig)
         // Flip the bitmap
         //
         hOld_bm1 = (HBITMAP)SelectObject(hdcMem1, hbmOrig);
-        hOld_bm2 = (HBITMAP)SelectObject(hdcMem2 , hbm );
+        hOld_bm2 = (HBITMAP)SelectObject(hdcMem2, hbm);
 
-        Mirror_SetLayout(hdcMem2, LAYOUT_RTL);
+        SET_DC_RTL_MIRRORED(hdcMem2);
         BitBlt(hdcMem2, IncOne, 0, bm.bmWidth, bm.bmHeight, hdcMem1, 0, 0, SRCCOPY);
 
-        SelectObject(hdcMem1, hOld_bm1 );
-        SelectObject(hdcMem1, hOld_bm2 );
+        SelectObject(hdcMem1, hOld_bm1);
+        SelectObject(hdcMem1, hOld_bm2);
 
         DeleteDC(hdcMem1);
         DeleteDC(hdcMem2);
 
         ReleaseDC(NULL, hdc);
     }
-    
+
     return hbm;
 }

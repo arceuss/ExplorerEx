@@ -225,7 +225,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <Optimization>Disabled</Optimization>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
@@ -251,6 +251,7 @@
     <ClInclude Include="qsort.h" />
     <ClInclude Include="runtask.h" />
     <ClInclude Include="shfusion.h" />
+    <ClInclude Include="thememanager.h" />
     <ClInclude Include="winter.h" />
     <ClInclude Include="wmiumkm.h" />
     <ClInclude Include="wtl\atlapp.h" />
@@ -429,6 +430,7 @@
     <ClCompile Include="startmnu.cpp" />
     <ClCompile Include="taskband.cpp" />
     <ClCompile Include="taskbar.cpp" />
+    <ClCompile Include="thememanager.cpp" />
     <ClCompile Include="tray.cpp" />
     <ClCompile Include="trayclok.cpp" />
     <ClCompile Include="traycmn.cpp" />

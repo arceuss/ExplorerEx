@@ -1342,35 +1342,35 @@ GDEErrExit:
     return(0);
 }
 
-LPNMVIEWFOLDER DDECreatePostNotify(LPNMVIEWFOLDER pnm)
-{
-    LPNMVIEWFOLDER pnmPost = NULL;
-    TCHAR szCmd[MAX_PATH * 2];
-    StrCpyN(szCmd, pnm->szCmd, SIZECHARS(szCmd));
-    UINT* pwCmd = GetDDECommands(szCmd, c_sDDECommands, FALSE);
-
-    // -1 means there aren't any commands we understand.  Oh, well
-    if (pwCmd && (-1 != *pwCmd))
-    {
-        LPCTSTR pszCommand = c_sDDECommands[*pwCmd].pszCommand;
-
-        //
-        //  these are the only commands handled by a PostNotify
-        if (pszCommand == TEXT("ViewFolder")
-            || pszCommand == TEXT("ExploreFolder")
-            || pszCommand == TEXT("ShellFile"))
-        {
-            pnmPost = (LPNMVIEWFOLDER)LocalAlloc(LPTR, sizeof(NMVIEWFOLDER));
-
-            if (pnmPost)
-                memcpy(pnmPost, pnm, sizeof(NMVIEWFOLDER));
-        }
-
-        GlobalFree(pwCmd);
-    }
-
-    return pnmPost;
-}
+//LPNMVIEWFOLDER DDECreatePostNotify(LPNMVIEWFOLDER pnm)
+//{
+//    LPNMVIEWFOLDER pnmPost = NULL;
+//    TCHAR szCmd[MAX_PATH * 2];
+//    StrCpyN(szCmd, pnm->szCmd, SIZECHARS(szCmd));
+//    UINT* pwCmd = GetDDECommands(szCmd, c_sDDECommands, FALSE);
+//
+//    // -1 means there aren't any commands we understand.  Oh, well
+//    if (pwCmd && (-1 != *pwCmd))
+//    {
+//        LPCTSTR pszCommand = c_sDDECommands[*pwCmd].pszCommand;
+//
+//        //
+//        //  these are the only commands handled by a PostNotify
+//        if (pszCommand == TEXT("ViewFolder")
+//            || pszCommand == TEXT("ExploreFolder")
+//            || pszCommand == TEXT("ShellFile"))
+//        {
+//            pnmPost = (LPNMVIEWFOLDER)LocalAlloc(LPTR, sizeof(NMVIEWFOLDER));
+//
+//            if (pnmPost)
+//                memcpy(pnmPost, pnm, sizeof(NMVIEWFOLDER));
+//        }
+//
+//        GlobalFree(pwCmd);
+//    }
+//
+//    return pnmPost;
+//}
 
 // Helper function to convert passed in command parameters into the
 // appropriate Id list
@@ -1475,35 +1475,35 @@ LPITEMIDLIST GetPIDLFromDDEArgs(LPTSTR lpszBuf, UINT* lpwCmd, PSHDDEERR psde, LP
     return pidl;
 }
 
-BOOL DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWFOLDER pnm)
-{
-    BOOL fRet = FALSE;
-    UINT* pwCmd = GetDDECommands(pnm->szCmd, c_sDDECommands, FALSE);
-
-    // -1 means there aren't any commands we understand.  Oh, well
-    if (pwCmd && (-1 != *pwCmd))
-    {
-        UINT* pwCmdSave = pwCmd;
-        UINT c = *pwCmd++;
-
-        LPCTSTR pszCommand = c_sDDECommands[c].pszCommand;
-
-        if (pszCommand == c_szViewFolder ||
-            pszCommand == c_szExploreFolder)
-        {
-            //fRet = DoDDE_ViewFolder(psb, hwnd, pnm->szCmd, pwCmd,
-                //pszCommand == c_szExploreFolder, pnm->dwHotKey, pnm->hMonitor);
-        }
-        else if (pszCommand == c_szShellFile)
-        {
-            fRet = DDE_ShellFile(pnm->szCmd, pwCmd, 0);
-        }
-
-        GlobalFree(pwCmdSave);
-    }
-
-    return fRet;
-}
+//BOOL DDEHandleViewFolderNotify(IShellBrowser* psb, HWND hwnd, LPNMVIEWFOLDER pnm)
+//{
+//    BOOL fRet = FALSE;
+//    UINT* pwCmd = GetDDECommands(pnm->szCmd, c_sDDECommands, FALSE);
+//
+//    // -1 means there aren't any commands we understand.  Oh, well
+//    if (pwCmd && (-1 != *pwCmd))
+//    {
+//        UINT* pwCmdSave = pwCmd;
+//        UINT c = *pwCmd++;
+//
+//        LPCTSTR pszCommand = c_sDDECommands[c].pszCommand;
+//
+//        if (pszCommand == c_szViewFolder ||
+//            pszCommand == c_szExploreFolder)
+//        {
+//            //fRet = DoDDE_ViewFolder(psb, hwnd, pnm->szCmd, pwCmd,
+//                //pszCommand == c_szExploreFolder, pnm->dwHotKey, pnm->hMonitor);
+//        }
+//        else if (pszCommand == c_szShellFile)
+//        {
+//            fRet = DDE_ShellFile(pnm->szCmd, pwCmd, 0);
+//        }
+//
+//        GlobalFree(pwCmdSave);
+//    }
+//
+//    return fRet;
+//}
 
 TCHAR SHFindMnemonic(LPCTSTR psz)
 {
@@ -2816,6 +2816,13 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shell32, SHGetUserPicturePath_t, 261);
     LOAD_FUNCTION(shell32, SHUpdateRecycleBinIcon);
     LOAD_ORDINAL(shell32, SHMapIDListToSystemImageListIndexAsync, 787);
+    LOAD_ORDINAL(shell32, CheckWinIniForAssocs, 711);
+    LOAD_ORDINAL(shell32, CheckDiskSpace, 733);
+    LOAD_ORDINAL(shell32, CheckStagingArea, 753);
+
+    //shunimpld
+    //LOAD_ORDINAL(shell32, DDECreatePostNotify, 82);
+    //LOAD_ORDINAL(shell32, DDEHandleViewFolderNotify, 202);
 
 	LOAD_MODULE(shcore);
 	LOAD_ORDINAL(shcore, IUnknown_GetClassID, 142);

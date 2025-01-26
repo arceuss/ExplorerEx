@@ -1064,7 +1064,9 @@ BOOL Mirror_IsWindowMirroredRTL(HWND hWnd);
 
 VOID MuSecurity(VOID);
 
-LPNMVIEWFOLDER DDECreatePostNotify(LPNMVIEWFOLDER pnm);
+//LPNMVIEWFOLDER DDECreatePostNotify(LPNMVIEWFOLDER pnm);
+inline LPNMVIEWFOLDER (*DDECreatePostNotify)(LPNMVIEWFOLDER pnm);
+inline BOOL (*DDEHandleViewFolderNotify)(IShellBrowser* psb, HWND hwnd, LPNMVIEWFOLDER pnm);
 
 unsigned __int64 _FILETIMEtoInt64(const FILETIME* pft);
 void SetFILETIMEfromInt64(FILETIME* pft, unsigned __int64 i64);
@@ -1320,6 +1322,7 @@ inline HRESULT(*SHPropertyBag_WriteBOOL)(IPropertyBag* ppb, LPCWSTR pszPropName,
 
 DEFINE_GUID(CLSID_MruLongList, 0x53bd6b4e, 0x3780, 0x4693, 0xaf, 0xc3, 0x71, 0x61, 0xc2, 0xf3, 0xee, 0x9c);
 DEFINE_GUID(IID_IAugmentedFolder, 0x2f711b17, 0x773c, 0x41d4, 0x93, 0xfa, 0x7f, 0x23, 0xed, 0xce, 0xcb, 0x66);
+DEFINE_GUID(CLSID_UserEventTimer, 0x864A1288, 0x354C, 0x4D19, 0x9D, 0x68, 0x0C2, 0x74, 0x2B, 0x0B1, 0x49, 0x97);
 
 //         Note: SHRegisterDarwinLink takes ownership of pidlFull. fUpdate means: update the Darwin state right away
 BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
@@ -1328,5 +1331,11 @@ BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdat
 void SHReValidateDarwinCache();
 
 HRESULT SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut);
+
+inline void(*CheckWinIniForAssocs)();
+inline HRESULT(*CheckDiskSpace)();
+inline HRESULT(*CheckStagingArea)();
+
+//DEFINE_GUID(CLSID_UserAssist, 0xDD313E04, 0xFEFF, 0x11D1, 0x8E, 0xCD, 0x00, 0x00, 0xF8, 0x7A, 0x47, 0x0C);
 
 #include "interfacesp.inc"

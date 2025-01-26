@@ -1,35 +1,353 @@
 #include "uemapp.h"
+#include "shundoc.h"
+#include <stdio.h>
+
+#define INTERFACE   IUserAssist
+
+typedef struct tagOBJECTINFO
+{
+	void* cf;
+	CLSID const* pclsid;
+	HRESULT(*pfnCreateInstance)(IUnknown* pUnkOuter, IUnknown** ppunk, const struct tagOBJECTINFO*);
+
+	// for automatic registration, type library searching, etc
+	int nObjectType;        // OI_ flag
+	LPTSTR pszName;
+	LPTSTR pszFriendlyName;
+	IID const* piid;
+	IID const* piidEvents;
+	long lVersion;
+	DWORD dwOleMiscFlags;
+	int nidToolbarBitmap;
+} OBJECTINFO;
+typedef OBJECTINFO const* LPCOBJECTINFO;
+
+#define UEIM_HIT        0x01
+#define UEIM_FILETIME   0x02
+IUnknown* g_uempUaSingleton;
+DECLARE_INTERFACE_(IUserAssist, IUnknown)
+{
+	// *** IUnknown methods ***
+	STDMETHOD(QueryInterface) (THIS_ REFIID riid, void** ppv) PURE;
+	STDMETHOD_(ULONG, AddRef) (THIS)  PURE;
+	STDMETHOD_(ULONG, Release) (THIS) PURE;
+
+	// *** IUserAssist methods ***
+	STDMETHOD(FireEvent)(THIS_ const GUID * pguidGrp, int eCmd, DWORD dwFlags, WPARAM wParam, LPARAM lParam) PURE;
+	STDMETHOD(QueryEvent)(THIS_ const GUID * pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui) PURE;
+	STDMETHOD(SetEvent)(THIS_ const GUID * pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui) PURE;
+};
+
+
+class CUserAssist : public IUserAssist
+{
+public:
+    //*** IUnknown
+    virtual STDMETHODIMP QueryInterface(REFIID riid, LPVOID* ppv);
+    virtual STDMETHODIMP_(ULONG) AddRef(void);
+    virtual STDMETHODIMP_(ULONG) Release(void);
+
+    //*** IUserAssist
+    virtual STDMETHODIMP FireEvent(const GUID* pguidGrp, int eCmd, DWORD dwFlags, WPARAM wParam, LPARAM lParam);
+    virtual STDMETHODIMP QueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui);
+    virtual STDMETHODIMP SetEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui);
+
+protected:
+    CUserAssist();
+    HRESULT Initialize();
+    virtual ~CUserAssist();
+    friend HRESULT CUserAssist_CI2(IUnknown* pUnkOuter, IUnknown** ppunk, LPCOBJECTINFO poi);
+    friend void CUserAssist_CleanUp(DWORD dwReason, void* lpvReserved);
+
+    friend HRESULT UEMRegisterNotify(UEMCallback pfnUEMCB, void* param);
+
+    HRESULT _InitLock();
+    HRESULT _Lock();
+    HRESULT _Unlock();
+
+    void FireNotify(const GUID* pguidGrp, int eCmd)
+    {
+        // Assume that we have the lock
+        if (_pfnNotifyCB)
+            _pfnNotifyCB(_param, pguidGrp, eCmd);
+    }
+
+    HRESULT RegisterNotify(UEMCallback pfnUEMCB, void* param)
+    {
+        HRESULT hr;
+        int cTries = 0;
+        do
+        {
+            cTries++;
+            hr = _Lock();
+            if (SUCCEEDED(hr))
+            {
+                _pfnNotifyCB = pfnUEMCB;
+                _param = param;
+                _Unlock();
+            }
+            else
+            {
+                ::Sleep(100); // wait some for the lock to get freed up
+            }
+        } while (FAILED(hr) && cTries < 20);
+        return hr;
+    }
+
+private:
+    LONG    _cRef;
+
+    HANDLE  _hLock;
+
+    UEMCallback _pfnNotifyCB;
+    void* _param;
+
+};
+
+
+CUserAssist::CUserAssist()
+{
+}
+
+HRESULT CUserAssist::Initialize()
+{
+	HRESULT hr = S_OK;
+
+
+
+	return hr;
+}
+
+CUserAssist::~CUserAssist()
+{
+}
+
+HRESULT CUserAssist::_InitLock()
+{
+	return E_NOTIMPL;
+}
+
+HRESULT CUserAssist::_Lock()
+{
+	return E_NOTIMPL;
+}
+
+HRESULT CUserAssist::_Unlock()
+{
+	return E_NOTIMPL;
+}
+
+HRESULT CUserAssist_CI2(IUnknown* pUnkOuter, IUnknown** ppunk, LPCOBJECTINFO poi)
+{
+	CUserAssist* p = new CUserAssist();
+
+	if (p && FAILED(p->Initialize())) {
+		delete p;
+		p = NULL;
+	}
+
+	if (p) {
+		*ppunk = SAFECAST(p, IUserAssist*);
+		return S_OK;
+	}
+
+	*ppunk = NULL;
+	return E_OUTOFMEMORY;
+}
+
+void CUserAssist_CleanUp(DWORD dwReason, void* lpvReserved)
+{
+}
+
+HRESULT CUserAssist_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk, LPCOBJECTINFO poi)
+{
+	HRESULT hr = E_FAIL;
+
+	if (g_uempUaSingleton == 0) {
+		IUnknown* pua;
+
+		hr = CUserAssist_CI2(pUnkOuter, &pua, poi);
+		if (pua)
+		{
+			ENTERCRITICAL;
+			if (g_uempUaSingleton == 0)
+			{
+				// Now the global owns the ref.
+				g_uempUaSingleton = pua;    // xfer refcnt
+				pua = NULL;
+			}
+			LEAVECRITICAL;
+			if (pua)
+			{
+				// somebody beat us.
+				// free up the 2nd one we just created, and use new one
+				//TraceMsg(DM_UEMTRACE, "sl.cua_ci: undo race");
+				pua->Release();
+			}
+
+			// Now, the caller gets it's own ref.
+			g_uempUaSingleton->AddRef();
+			//TraceMsg(DM_UEMTRACE, "sl.cua_ci: create pua=0x%x g_uempUaSingleton=%x", pua, g_uempUaSingleton);
+		}
+	}
+	else {
+		g_uempUaSingleton->AddRef();
+	}
+
+	//TraceMsg(DM_UEMTRACE, "sl.cua_ci: ret g_uempUaSingleton=0x%x", g_uempUaSingleton);
+	*ppunk = g_uempUaSingleton;
+	return *ppunk ? S_OK : hr;
+}
+
+IUserAssist* g_uempUa;      // 0:uninit, -1:failed, o.w.:cached obj
+
+//***   GetUserAssist -- get (and create) cached UAssist object
+//
+IUserAssist* GetUserAssist()
+{
+    HRESULT hr;
+    IUserAssist* pua = NULL;
+
+    if (g_uempUa == 0)
+    {
+        // re: CLSCTX_NO_CODE_DOWNLOAD
+        // an ('impossible') failed CCI of UserAssist is horrendously slow.
+        // e.g. click on the start menu, wait 10 seconds before it pops up.
+        // we'd rather fail than hose perf like this, plus this class should
+        // never be remote.
+        // FEATURE: there must be a better way to tell if CLSCTX_NO_CODE_DOWNLOAD
+        // is supported, i've sent mail to 'com' to find out...
+        
+		CUserAssist_CreateInstance(0,(IUnknown**)&pua, 0);
+        //hr = THR(CoCreateInstance(CLSID_UserAssist, NULL, dwFlags, IID_IUserAssist, (void**)&pua));
+
+        //ENTERCRITICAL;
+        if (g_uempUa == 0) {
+            g_uempUa = pua;     // xfer refcnt (if any)
+            if (!pua) {
+                // mark it failed so we won't try any more
+                g_uempUa = (IUserAssist*)-1;
+            }
+            pua = NULL;
+        }
+        //LEAVECRITICAL;
+        if (pua)
+            pua->Release();
+        //TraceMsg(DM_UASSIST, "sl.gua: pua=0x%x g_uempUa=%x", pua, g_uempUa);
+    }
+
+    return (g_uempUa == (IUserAssist*)-1) ? 0 : g_uempUa;
+}
 
 BOOL UEMIsLoaded()
 {
-    return 0;
+    printf("UEMIsLoaded\n");
+	BOOL fRet;
+
+	fRet = GetModuleHandle(TEXT("ole32.dll")) &&
+		GetModuleHandle(TEXT("browseui.dll"));
+
+	return fRet;
 }
 
 HRESULT UEMFireEvent(const GUID* pguidGrp, int eCmd, DWORD dwFlags, WPARAM wParam, LPARAM lParam)
 {
-    return E_NOTIMPL;
+    printf("UEMFireEvent\n");
+
+	
+	HRESULT hr = E_FAIL;
+	IUserAssist* pua;
+
+	pua = GetUserAssist();
+	if (pua) {
+		hr = pua->FireEvent(pguidGrp, eCmd, dwFlags, wParam, lParam);
+	}
+	return hr;
 }
 
 HRESULT UEMQueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
 {
-    return E_NOTIMPL;
+    printf("UEMQueryEvent\n");
+	HRESULT hr = E_FAIL;
+	IUserAssist* pua;
+
+	pua = GetUserAssist();
+	if (pua) {
+		hr = pua->QueryEvent(pguidGrp, eCmd, wParam, lParam, pui);
+	}
+	return hr;
 }
 
 HRESULT UEMSetEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
 {
-    return E_NOTIMPL;
+	printf("UEMSetEvent\n");
+
+	HRESULT hr = E_FAIL;
+	IUserAssist* pua;
+
+	pua = GetUserAssist();
+	if (pua) {
+		hr = pua->SetEvent(pguidGrp, eCmd, wParam, lParam, pui);
+	}
+	return hr;
 }
 
 HRESULT UEMRegisterNotify(UEMCallback pfnUEMCB, void* param)
 {
-    return E_NOTIMPL;
+    printf("UEMRegisterNotify\n");
+	HRESULT hr = E_UNEXPECTED;
+	if (g_uempUaSingleton)
+	{
+		CUserAssist* pua = reinterpret_cast<CUserAssist*>(g_uempUaSingleton);
+		hr = pua->RegisterNotify(pfnUEMCB, param);
+	}
+	return hr;
 }
 
-void UEMEvalMsg(const GUID* pguidGrp, int uemCmd, WPARAM wParam, LPARAM lParam)
+void UEMEvalMsg(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam)
 {
+	printf("UEMEvalMsg\n");
+	HRESULT hr;
+
+	hr = UEMFireEvent(pguidGrp, eCmd, UEMF_XEVENT, wParam, lParam);
+	return;
 }
 
 BOOL UEMGetInfo(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
 {
-    return 0;
+    printf("UEMGetInfo\n");
+	HRESULT hr;
+
+	hr = UEMQueryEvent(pguidGrp, eCmd, wParam, lParam, pui);
+	return SUCCEEDED(hr);
+}
+
+HRESULT __stdcall CUserAssist::QueryInterface(REFIID riid, LPVOID* ppv)
+{
+	return E_NOTIMPL;
+}
+
+ULONG __stdcall CUserAssist::AddRef(void)
+{
+	return 0;
+}
+
+ULONG __stdcall CUserAssist::Release(void)
+{
+	return 0;
+}
+
+HRESULT __stdcall CUserAssist::FireEvent(const GUID* pguidGrp, int eCmd, DWORD dwFlags, WPARAM wParam, LPARAM lParam)
+{
+	return E_NOTIMPL;
+}
+
+HRESULT __stdcall CUserAssist::QueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
+{
+	return E_NOTIMPL;
+}
+
+HRESULT __stdcall CUserAssist::SetEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
+{
+	return E_NOTIMPL;
 }

@@ -21,7 +21,7 @@ EXTERN_C HBITMAP CreateMirroredBitmap(HBITMAP hbm);
 
 class CPopupMenu
 {
-    CPopupMenu() : _cRef(1) { }
+    CPopupMenu() : _cRef(1) { _pmp = 0; _pmb = 0; _psm = 0; }
     ~CPopupMenu();
 
 public:
