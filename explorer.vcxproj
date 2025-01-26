@@ -234,7 +234,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>ModuleEntry</EntryPointSymbol>
-      <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;ShLwApi.Lib;shell32.lib;shcore.lib;user32.lib;msi.lib;wtsapi32.lib;comctl32.lib;%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
+      <AdditionalDependencies>ntdll.lib;Cfgmgr32.lib;oleacc.lib;winmm.lib;wininet.lib;mpr.lib;Userenv.lib;shell32.lib;ShLwApi.Lib;shcore.lib;user32.lib;msi.lib;wtsapi32.lib;comctl32.lib;%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
       <FixedBaseAddress>false</FixedBaseAddress>
       <StackCommitSize>36864</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
@@ -245,6 +245,7 @@
     <ClInclude Include="cowsite.h" />
     <ClInclude Include="desktop2.h" />
     <ClInclude Include="desktopp.h" />
+    <ClInclude Include="MinHook.h" />
     <ClInclude Include="ntperf.h" />
     <ClInclude Include="ntwmi.h" />
     <ClInclude Include="path.h" />

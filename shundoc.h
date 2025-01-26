@@ -1335,6 +1335,12 @@ HRESULT SHParseDarwinIDFromCacheW(LPWSTR pszDarwinDescriptor, LPWSTR* ppwszOut);
 inline void(*CheckWinIniForAssocs)();
 inline HRESULT(*CheckDiskSpace)();
 inline HRESULT(*CheckStagingArea)();
+DEFINE_GUID(CLSID_ProgramsFolderAndFastItems, 0x865E5E76, 0x0AD83, 0x4DCA, 0x0A1, 0x9, 0x50, 0x0DC, 0x21, 0x13, 0x0CE, 0x9C);
+DEFINE_GUID(CLSID_ProgramsFolder, 0x865E5E76, 0x0AD83, 0x4DCA, 0x0A1, 0x9, 0x50, 0x0DC, 0x21, 0x13, 0x0CE, 0x9D);
+DEFINE_GUID(CLSID_StartMenuFastItems, 0x865E5E76, 0x0AD83, 0x4DCA, 0x0A1, 0x9, 0x50, 0x0DC, 0x21, 0x13, 0x0CE, 0x9E);
+HRESULT CStartMenuFolder_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv);
+HRESULT CProgramsFolder_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv);
+HRESULT CStartMenuFastItems_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv);
 
 //DEFINE_GUID(CLSID_UserAssist, 0xDD313E04, 0xFEFF, 0x11D1, 0x8E, 0xCD, 0x00, 0x00, 0xF8, 0x7A, 0x47, 0x0C);
 

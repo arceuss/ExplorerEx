@@ -1,5 +1,6 @@
 #include "cabinet.h"
 #include "shundoc.h"
+#include <strsafe.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////
 //
@@ -61,8 +62,7 @@ public:
     // *** misc public methods ***
     HRESULT Register()
     {
-        return CoRegisterClassObject(*_pclsid, this, CLSCTX_INPROC_SERVER | CLSCTX_LOCAL_SERVER,
-                            REGCLS_MULTIPLEUSE, &_dwClassObject);
+        return CoRegisterClassObject(*_pclsid, this, CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, &_dwClassObject);
     }
 
     HRESULT Revoke()
@@ -101,6 +101,18 @@ HRESULT CPersonalStartMenu_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk)
 {
     return CPersonalStartMenu_CreateInstance(punkOuter, IID_PPV_ARGS(ppunk));
 }
+HRESULT CStartMenuFolder_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk)
+{
+    return CStartMenuFolder_CreateInstance(punkOuter, IID_PPV_ARGS(ppunk));
+}
+HRESULT CProgramsFolder_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk)
+{
+    return CProgramsFolder_CreateInstance(punkOuter, IID_PPV_ARGS(ppunk));
+}
+HRESULT CStartMenuFastItems_CreateInstance(IUnknown* punkOuter, IUnknown** ppunk)
+{
+    return CStartMenuFastItems_CreateInstance(punkOuter, IID_PPV_ARGS(ppunk));
+}
 
 static const struct
 {
@@ -114,6 +126,9 @@ c_ClassParams[] =
     { &CLSID_TrayNotify,          CTrayNotifyStub_CreateInstance },
     { &CLSID_StartMenu ,          CStartMenu_CreateInstance },
     { &CLSID_PersonalStartMenu,          CPersonalStartMenu_CreateInstance },
+    { &CLSID_ProgramsFolderAndFastItems,          CStartMenuFolder_CreateInstance },
+    { &CLSID_ProgramsFolder,          CProgramsFolder_CreateInstance },
+    { &CLSID_StartMenuFastItems,          CStartMenuFastItems_CreateInstance },
 };
 
 CDynamicClassFactory* g_rgpcf[ARRAYSIZE(c_ClassParams)] = {0};
@@ -143,5 +158,77 @@ void ClassFactory_Stop()
             g_rgpcf[i] = NULL;
         }
     }
+}
+
+const wchar_t pszCLSID[] = L"SOFTWARE\\Classes\\CLSID\\";
+
+void SetupMergedFolderKeys(LPCTSTR clsid)
+{
+    WCHAR subKey[255];
+    WCHAR subKeyShellFolder[255];
+
+    wcscpy_s(subKey, pszCLSID);
+    wcsncat_s(subKey,clsid,255);
+
+    wcscpy_s(subKeyShellFolder, subKey);
+
+
+    wcsncat_s(subKey,L"\\InProcServer32", 255);
+    wcsncat_s(subKeyShellFolder,L"\\ShellFolder", 255);
+
+    wprintf(L"subkey %s\n",subKey);
+    wprintf(L"subKeyShellFolder %s\n", subKeyShellFolder);
+
+    HKEY res;
+    bool bHasKey = RegOpenKeyW(HKEY_CURRENT_USER, subKey, &res) == S_OK;
+    if (!bHasKey)
+    {
+        bHasKey = RegCreateKeyW(HKEY_CURRENT_USER,subKey,&res) == S_OK;
+    }
+
+    if (!bHasKey)
+    {
+        wprintf(L"FAILED TO CREATE THE KEY!!!!\n");
+        return;
+    }
+
+	WCHAR localExePath[MAX_PATH];
+	GetModuleFileNameW(0, localExePath, MAX_PATH);
+
+    wprintf(L"localExePath %s\n", localExePath);
+
+    WCHAR exePath[MAX_PATH];
+    DWORD size = sizeof(exePath);
+    bool bRead = RegQueryValueExW(res,0,0,0,(LPBYTE)exePath,&size) == S_OK;
+    if (bRead)
+    {
+        //there is something different there!
+        if (wcscmp(exePath, localExePath) != 0)
+        {
+            wprintf(L"ERROR!!! ALREADY A KEY OF A DIFFERENT EXE THERE!! BAIL BAIL\n");
+            return;
+        }
+    }
+
+    //otherwise we overwrite
+    bool bWrote = RegSetValueExW(res,0,0,REG_SZ,(LPBYTE)localExePath,sizeof(localExePath)) == S_OK;
+    if (!bWrote)
+        wprintf(L"FAILED TO WRITE!!");
+
+	bHasKey = RegOpenKeyW(HKEY_CURRENT_USER, subKeyShellFolder, &res) == S_OK;
+	if (!bHasKey)
+	{
+		bHasKey = RegCreateKeyW(HKEY_CURRENT_USER, subKeyShellFolder, &res) == S_OK;
+	}
+
+    DWORD attributes = 0x28100000;
+	bWrote = RegSetValueExW(res, L"Attributes", 0, REG_DWORD, (LPBYTE)&attributes, sizeof(DWORD)) == S_OK;
+	if (!bWrote)
+		wprintf(L"FAILED TO WRITE!!");
+}
+
+void ComServer_Stop(LPCTSTR clsid)
+{
+
 }
 

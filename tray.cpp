@@ -82,6 +82,9 @@ void DoTaskBarProperties(HWND hwnd, DWORD dwFlags);
 void ClassFactory_Start();
 void ClassFactory_Stop();
 
+void SetupMergedFolderKeys(LPCTSTR clsid);
+void ComServer_Stop(LPCTSTR clsid);
+
 //
 // Settings UI entry point types.
 //
@@ -1878,6 +1881,10 @@ DWORD CTray::_SyncThreadProc()
 
     OleInitialize(NULL);    // matched in MainThreadProc()
     ClassFactory_Start();
+
+	SetupMergedFolderKeys(L"{865e5e76-ad83-4dca-a109-50dc2113ce9c}");
+	SetupMergedFolderKeys(L"{865e5e76-ad83-4dca-a109-50dc2113ce9d}");
+	SetupMergedFolderKeys(L"{865e5e76-ad83-4dca-a109-50dc2113ce9e}");
 
     _InitNonzeroGlobals();
     _ssomgr.Init();

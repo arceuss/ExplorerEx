@@ -489,14 +489,19 @@ const MERGEDFOLDERINFO c_rgmfiProgramsFolderAndFastItems[] = {
     {   CSIDL_COMMON_PROGRAMS,                  ASFF_COMMON | ASFF_MERGESAMEGUID | ASFF_SORTDOWN, NULL },
 };
 
-STDAPI CStartMenuFolder_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv)
+HRESULT CStartMenuFolder_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv)
 {
-    return CreateMergedFolderHelper(c_rgmfiStartMenu, ARRAYSIZE(c_rgmfiStartMenu), riid, ppv);
+    return CreateMergedFolderHelper(c_rgmfiProgramsFolderAndFastItems, ARRAYSIZE(c_rgmfiProgramsFolderAndFastItems), riid, ppv);
 }
 
-STDAPI CProgramsFolder_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv)
+HRESULT CProgramsFolder_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv)
 {
     return CreateMergedFolderHelper(c_rgmfiProgramsFolder, ARRAYSIZE(c_rgmfiProgramsFolder), riid, ppv);
+}
+
+HRESULT CStartMenuFastItems_CreateInstance(IUnknown* punkOuter, REFIID riid, void** ppv)
+{
+    return CreateMergedFolderHelper(c_rgmfiStartMenu, ARRAYSIZE(c_rgmfiStartMenu), riid, ppv);
 }
 
 #ifdef FEATURE_STARTPAGE
@@ -2787,7 +2792,7 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
             printf("FAILED TO CREATE REG KEY\n");
         }
 
-        IShellFolder* psf;
+        IShellFolder* psf = 0;
         BOOL fOptimize = FALSE;
         DWORD dwSmset = SMSET_TOP;
 
@@ -2799,15 +2804,48 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
             //causes a crash
             //dwSmset |= SMSET_SEPARATEMERGEFOLDER;
 
-            hr = GetMergedFolder(&psf, &pidl, c_rgmfiProgramsFolderAndFastItems,
-                ARRAYSIZE(c_rgmfiProgramsFolderAndFastItems));
+			//hr = GetMergedFolder(&psf, &pidl, c_rgmfiProgramsFolderAndFastItems,
+			//	ARRAYSIZE(c_rgmfiProgramsFolderAndFastItems));
+            //hr = CreateMergedFolderHelper(c_rgmfiProgramsFolderAndFastItems,ARRAYSIZE(c_rgmfiProgramsFolderAndFastItems),IID_PPV_ARGS(&psf));
+
+			pidl = ILCreateFromPathW(L"shell:::{865e5e76-ad83-4dca-a109-50dc2113ce9c}");
+			if (pidl)
+			{
+			    if (SUCCEEDED(SHBindToObject(0LL, pidl, 0, IID_IShellFolder, (void**)&psf)))
+			    {
+			        printf("success\n");
+			    }
+			    else
+			    {
+			        printf("FAILED TO BIND OBJECT\n");
+			    }
+			
+			}
+			else
+			    printf("FAILED TO BIND OBJECT\n");
         }
         else
         {
             // Classic Start Menu:  The Programs section is just the per-user
             // and common Programs folders merged together
-            hr = GetMergedFolder(&psf, &pidl, c_rgmfiProgramsFolder,
-                ARRAYSIZE(c_rgmfiProgramsFolder));
+			//hr = GetMergedFolder(&psf, &pidl, c_rgmfiProgramsFolder,
+			//    ARRAYSIZE(c_rgmfiProgramsFolder));
+
+			pidl = ILCreateFromPathW(L"shell:::{865e5e76-ad83-4dca-a109-50dc2113ce9d}");
+			if (pidl)
+			{
+				if (SUCCEEDED(SHBindToObject(0LL, pidl, 0, IID_IShellFolder, (void**)&psf)))
+				{
+					printf("success\n");
+				}
+				else
+				{
+					printf("FAILED TO BIND OBJECT\n");
+				}
+
+			}
+			else
+				printf("FAILED TO BIND OBJECT\n");
 
             // We used to register for change notify at CSIDL_STARTMENU and assumed
             // that CSIDL_PROGRAMS was a child of CSIDL_STARTMENU. Since this wasn't always the 
@@ -2834,17 +2872,15 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
 
         if (SUCCEEDED(hr))
         {
-            // We should have a pidl from CSIDL_Programs
-            ASSERT(pidl);
+			// We should have a pidl from CSIDL_Programs
+			ASSERT(pidl);
 
-            // We should have a shell folder from the bind.
-            ASSERT(psf);
-            IShellFolder* kms = 0;
-            //ILCreate
-            //SHBindToObject(0,psf,0,IID_IShellFolder,&kms);
-            hr = psm->SetShellFolder(kms, pidl, hkeyPrograms, dwSmset);
-            psf->Release();
-            ILFree(pidl);
+			// We should have a shell folder from the bind.
+			ASSERT(psf);
+
+			hr = psm->SetShellFolder(psf, pidl, hkeyPrograms, dwSmset);
+			psf->Release();
+			ILFree(pidl);
         }
 
         if (FAILED(hr))
@@ -2958,9 +2994,25 @@ HRESULT CStartMenuCallback::InitializeFastItemsShellMenu(IShellMenu* psm)
         _InitializePrograms();
 
         // Add the fast item folder to the top of the menu
-        IShellFolder* psfFast;
-        LPITEMIDLIST pidlFast;
-        hr = GetMergedFolder(&psfFast, &pidlFast, c_rgmfiStartMenu, ARRAYSIZE(c_rgmfiStartMenu));
+        IShellFolder* psfFast = 0;
+        LPITEMIDLIST pidlFast = 0;
+        //hr = GetMergedFolder(&psfFast, &pidlFast, c_rgmfiStartMenu, ARRAYSIZE(c_rgmfiStartMenu));
+		pidlFast = ILCreateFromPathW(L"shell:::{865e5e76-ad83-4dca-a109-50dc2113ce9e}");
+		if (pidlFast)
+		{
+			if (SUCCEEDED(SHBindToObject(0LL, pidlFast, 0, IID_IShellFolder, (void**)&psfFast)))
+			{
+				printf("success\n");
+			}
+			else
+			{
+				printf("FAILED TO BIND OBJECT\n");
+			}
+
+		}
+		else
+			printf("FAILED TO BIND OBJECT\n");
+
         if (SUCCEEDED(hr))
         {
             HKEY hMenuKey = NULL;   // WARNING: pmb2->Initialize() will always owns hMenuKey, so don't close it
