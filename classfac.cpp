@@ -205,8 +205,8 @@ void SetupMergedFolderKeys(LPCTSTR clsid)
         //there is something different there!
         if (wcscmp(exePath, localExePath) != 0)
         {
-            wprintf(L"ERROR!!! ALREADY A KEY OF A DIFFERENT EXE THERE!! BAIL BAIL\n");
-            return;
+            wprintf(L"WARNING!!! ALREADY A KEY OF A DIFFERENT EXE THERE!! OVERWRITING!\n");
+            //return;
         }
     }
 
@@ -221,7 +221,8 @@ void SetupMergedFolderKeys(LPCTSTR clsid)
 		bHasKey = RegCreateKeyW(HKEY_CURRENT_USER, subKeyShellFolder, &res) == S_OK;
 	}
 
-    DWORD attributes = 0x28100000;
+    //DWORD attributes = SFGAO_CANRENAME | SFGAO_CANDELETE | SFGAO_HASPROPSHEET | SFGAO_FOLDER;
+    DWORD attributes = SFGAO_BROWSABLE;
 	bWrote = RegSetValueExW(res, L"Attributes", 0, REG_DWORD, (LPBYTE)&attributes, sizeof(DWORD)) == S_OK;
 	if (!bWrote)
 		wprintf(L"FAILED TO WRITE!!");
