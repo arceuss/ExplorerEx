@@ -10,25 +10,29 @@ DWORD WINAPI BeepThread(LPVOID)
 	return 0;
 }
 
-
-static bool bFirstTime = true;
-
 HRESULT CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, REFIID riid, LPVOID* ppv)
 {
-	HRESULT res = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
-	if (res != ERROR_SUCCESS)
+	HRESULT hr = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+#ifndef RELEASE
+	if (FAILED(hr))
 	{
 		CreateThread(0, 0, BeepThread, 0, 0, 0);
 
 		wchar_t* clsidstring = 0;
-		if (FAILED(StringFromCLSID(rclsid, &clsidstring))) return res;
+		if (FAILED(StringFromCLSID(rclsid, &clsidstring))) return hr;
 
 		wchar_t* iidstring = 0;
-		if (FAILED(StringFromCLSID(riid, &iidstring))) return res;
+		if (FAILED(StringFromCLSID(riid, &iidstring)))
+		{
+			if (clsidstring) CoTaskMemFree(clsidstring);
+			return hr;
+		}
 
 		wprintf(L"COCREATEINSTANCE FAILED! clsid %s, riid %s\n", clsidstring, iidstring);
-		
+		if (clsidstring) CoTaskMemFree(clsidstring);
+		if (iidstring) CoTaskMemFree(iidstring);
 		dbg::printstacktrace();
 	}
-	return res;
+#endif
+	return hr;
 }

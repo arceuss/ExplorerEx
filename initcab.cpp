@@ -1803,11 +1803,13 @@ void CheckForServerAdminUI()
 
 int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int nCmdShow)
 {
+#ifndef RELEASE
 	AllocConsole();
 	FILE* pFile;
 	freopen_s(&pFile, "CONOUT$", "w", stdout);
 
     printf("Hello world!\n");
+#endif
 
     SetPriorityClass(GetCurrentProcess(), HIGH_PRIORITY_CLASS);
 
