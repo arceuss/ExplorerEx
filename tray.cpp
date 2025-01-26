@@ -415,22 +415,39 @@ BOOL CTray::_InitTrayClass()
 HFONT CTray::_CreateStartFont(HWND hwndTray)
 {
     HFONT hfontStart = NULL;
-    NONCLIENTMETRICS ncm;
-
-    ncm.cbSize = sizeof(ncm);
-    if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE))
+    
+    HTHEME hthemeStart = OpenThemeData(hwndTray, L"Button");
+    if (hthemeStart)
     {
-        WORD wLang = GetUserDefaultLangID();
+        LOGFONT lf;
+        HDC hdc = GetDC(hwndTray);
+        if (SUCCEEDED(GetThemeFont(hthemeStart, hdc, BP_PUSHBUTTON, PBS_NORMAL, TMT_FONT, &lf)))
+        {
+            hfontStart = CreateFontIndirect(&lf);
+        }
+        ReleaseDC(hwndTray, hdc);
+        CloseThemeData(hthemeStart);
+    }
+    
+    // Fallback to classic font if we can't get the theme font somehow
+    if (!hfontStart)
+    {
+        NONCLIENTMETRICS ncm;
+        ncm.cbSize = sizeof(ncm);
+        if (SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE))
+        {
+            WORD wLang = GetUserDefaultLangID();
 
-        // Select normal weight font for chinese language.
-        if (PRIMARYLANGID(wLang) == LANG_CHINESE &&
-           ((SUBLANGID(wLang) == SUBLANG_CHINESE_TRADITIONAL) ||
-             (SUBLANGID(wLang) == SUBLANG_CHINESE_SIMPLIFIED)))
-            ncm.lfCaptionFont.lfWeight = FW_NORMAL;
-        else
-            ncm.lfCaptionFont.lfWeight = FW_BOLD;
+            // Select normal weight font for chinese language.
+            if (PRIMARYLANGID(wLang) == LANG_CHINESE &&
+                ((SUBLANGID(wLang) == SUBLANG_CHINESE_TRADITIONAL) ||
+                    (SUBLANGID(wLang) == SUBLANG_CHINESE_SIMPLIFIED)))
+                ncm.lfCaptionFont.lfWeight = FW_NORMAL;
+            else
+                ncm.lfCaptionFont.lfWeight = FW_BOLD;
 
-        hfontStart = CreateFontIndirect(&ncm.lfCaptionFont);
+            hfontStart = CreateFontIndirect(&ncm.lfCaptionFont);
+        }
     }
 
     return hfontStart;
