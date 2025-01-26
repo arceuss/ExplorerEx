@@ -1688,6 +1688,7 @@ extern "C" void WINAPI SetICIKeyModifiers(DWORD* pfMask)
 		*pfMask |= CMIC_MASK_CONTROL_DOWN;
 	}
 }
+#define IDM_BLANKITEM           515
 #define IDM_MYDOCUMENTS         516
 #define IDM_OPEN_FOLDER         517
 #define IDM_MYPICTURES          518
@@ -1973,24 +1974,22 @@ void CStartMenuCallback::_UpdateDocumentsShellMenu(IShellMenu* psm)
             ILFree(pidl);
     }
 
-    // Do not update menu if not different than currently have
-    if (fMyDocs != (BOOL)_fHasMyDocuments || fMyPics != (BOOL)_fHasMyPictures)
+    HMENU hMenu = SHLoadMenuPopup(LoadLibraryW(L"shell32.dll"), MENU_STARTMENU_MYDOCS);
+    if (hMenu)
     {
-        HMENU hMenu = SHLoadMenuPopup(LoadLibraryW(L"shell32.dll"), MENU_STARTMENU_MYDOCS);
-        if (hMenu)
-        {
-            if (!fMyDocs)
-                DeleteMenu(hMenu, IDM_MYDOCUMENTS, MF_BYCOMMAND);
-            if (!fMyPics)
-                DeleteMenu(hMenu, IDM_MYPICTURES, MF_BYCOMMAND);
-            // Reset section of menu
-            psm->SetMenu(hMenu, _hwnd, SMSET_TOP);
-        }
-
-        // Cache what folders are available
-        _fHasMyDocuments = fMyDocs;
-        _fHasMyPictures = fMyPics;
+        // Modern Windows has this blank item that XP doesn't use.
+        DeleteMenu(hMenu, IDM_BLANKITEM, MF_BYCOMMAND);
+        if (!fMyDocs)
+            DeleteMenu(hMenu, IDM_MYDOCUMENTS, MF_BYCOMMAND);
+        if (!fMyPics)
+            DeleteMenu(hMenu, IDM_MYPICTURES, MF_BYCOMMAND);
+        // Reset section of menu
+        psm->SetMenu(hMenu, _hwnd, SMSET_TOP);
     }
+
+    // Cache what folders are available
+    _fHasMyDocuments = fMyDocs;
+    _fHasMyPictures = fMyPics;
 }
 
 STDAPI GetMyDocumentsDisplayName(LPWSTR pszPath, UINT cch)
