@@ -53,73 +53,73 @@ END
 // will be messed up and all people who persist the index will now have the wrong
 // icon. Instead, rename you  icon to old_xxx.ico and just leave it here forever.
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-ICO_MYCOMPUTER          ICON "mycomp.ico"
-ICO_TREEUP_EXPLORER     ICON "treeup.ico"
-ICO_OLD_PRINTER         ICON "old_printer.ico"
-ICO_DESKTOP             ICON "desktop.ico"
-ICO_OLD_PRINTER_ERROR   ICON "old_printerr.ico"
+ICO_MYCOMPUTER          ICON "resources\\mycomp.ico"
+ICO_TREEUP_EXPLORER     ICON "resources\\treeup.ico"
+ICO_OLD_PRINTER         ICON "resources\\old_printer.ico"
+ICO_DESKTOP             ICON "resources\\desktop.ico"
+ICO_OLD_PRINTER_ERROR   ICON "resources\\old_printerr.ico"
 
-ICO_OLD_INFO            ICON "old_info.ico"             // don't use these, use the
-ICO_OLD_WARNING         ICON "old_warning.ico"          // version in USER instead
-ICO_OLD_ERROR           ICON "old_error.ico"            // IDI_WARNING, OIC_WARNING/INFO/ERROR
+ICO_OLD_INFO            ICON "resources\\old_info.ico"             // don't use these, use the
+ICO_OLD_WARNING         ICON "resources\\old_warning.ico"          // version in USER instead
+ICO_OLD_ERROR           ICON "resources\\old_error.ico"            // IDI_WARNING, OIC_WARNING/INFO/ERROR
 
-ICO_SHOWDEMOTED         ICON "overflow.ico"
-ICO_HIDEDEMOTED         ICON "underflow.ico"
-ICO_OLD_MYCOMPUTER      ICON "mycomold.ico"	// old icon
-ICO_TRAYPROP_PLACEHOLDER ICON "folderop.ico"
-ICO_INTERNETBROWSER     ICON "inetweb.ico"
-ICO_INTERNETMAIL        ICON "inetmail.ico"
-ICO_WORDMAIL            ICON "smwmail.ico"
-ICO_CLASSICSM           ICON "clasicSM.ico"
+ICO_SHOWDEMOTED         ICON "resources\\overflow.ico"
+ICO_HIDEDEMOTED         ICON "resources\\underflow.ico"
+ICO_OLD_MYCOMPUTER      ICON "resources\\mycomold.ico"	// old icon
+ICO_TRAYPROP_PLACEHOLDER ICON "resources\\folderop.ico"
+ICO_INTERNETBROWSER     ICON "resources\\inetweb.ico"
+ICO_INTERNETMAIL        ICON "resources\\inetmail.ico"
+ICO_WORDMAIL            ICON "resources\\smwmail.ico"
+ICO_CLASSICSM           ICON "resources\\clasicSM.ico"
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
-IDB_START              BITMAP DISCARDABLE PURE "start.bmp"
-IDB_STARTCLASSIC       BITMAP DISCARDABLE PURE "startclassic.bmp"
-IDB_START16            BITMAP DISCARDABLE PURE "start16.bmp"
-IDB_START16MASK        BITMAP DISCARDABLE PURE "start16mask.bmp"
+IDB_START              BITMAP DISCARDABLE PURE "resources\\start.bmp"
+IDB_STARTCLASSIC       BITMAP DISCARDABLE PURE "resources\\startclassic.bmp"
+IDB_START16            BITMAP DISCARDABLE PURE "resources\\start16.bmp"
+IDB_START16MASK        BITMAP DISCARDABLE PURE "resources\\start16mask.bmp"
 
-IDB_TAAUTOHIDE         BITMAP DISCARDABLE PURE "taautohide.bmp"
-IDB_TALOCKGROUP        BITMAP DISCARDABLE PURE "talockgroup.bmp"
-IDB_TANOLOCKGROUP      BITMAP DISCARDABLE PURE "tanolockgroup.bmp"
-IDB_TALOCKNOGROUP      BITMAP DISCARDABLE PURE "talocknogroup.bmp"
-IDB_TANOLOCKNOGROUP    BITMAP DISCARDABLE PURE "tanolocknogroup.bmp"
-IDB_TAQLLOCKGROUP      BITMAP DISCARDABLE PURE "taqllockgroup.bmp"
-IDB_TAQLNOLOCKGROUP    BITMAP DISCARDABLE PURE "taqlnolockgroup.bmp"
-IDB_TAQLLOCKNOGROUP    BITMAP DISCARDABLE PURE "taqllocknogroup.bmp"
-IDB_TAQLNOLOCKNOGROUP  BITMAP DISCARDABLE PURE "taqlnolocknogroup.bmp"
+IDB_TAAUTOHIDE         BITMAP DISCARDABLE PURE "resources\\taautohide.bmp"
+IDB_TALOCKGROUP        BITMAP DISCARDABLE PURE "resources\\talockgroup.bmp"
+IDB_TANOLOCKGROUP      BITMAP DISCARDABLE PURE "resources\\tanolockgroup.bmp"
+IDB_TALOCKNOGROUP      BITMAP DISCARDABLE PURE "resources\\talocknogroup.bmp"
+IDB_TANOLOCKNOGROUP    BITMAP DISCARDABLE PURE "resources\\tanolocknogroup.bmp"
+IDB_TAQLLOCKGROUP      BITMAP DISCARDABLE PURE "resources\\taqllockgroup.bmp"
+IDB_TAQLNOLOCKGROUP    BITMAP DISCARDABLE PURE "resources\\taqlnolockgroup.bmp"
+IDB_TAQLLOCKNOGROUP    BITMAP DISCARDABLE PURE "resources\\taqllocknogroup.bmp"
+IDB_TAQLNOLOCKNOGROUP  BITMAP DISCARDABLE PURE "resources\\taqlnolocknogroup.bmp"
 
-IDB_NACLOCKCLEAN       BITMAP DISCARDABLE PURE "naclockclean.bmp"
-IDB_NANOCLOCKCLEAN     BITMAP DISCARDABLE PURE "nanoclockclean.bmp"
-IDB_NACLOCKNOCLEAN     BITMAP DISCARDABLE PURE "naclocknoclean.bmp"
-IDB_NANOCLOCKNOCLEAN   BITMAP DISCARDABLE PURE "nanoclocknoclean.bmp"
+IDB_NACLOCKCLEAN       BITMAP DISCARDABLE PURE "resources\\naclockclean.bmp"
+IDB_NANOCLOCKCLEAN     BITMAP DISCARDABLE PURE "resources\\nanoclockclean.bmp"
+IDB_NACLOCKNOCLEAN     BITMAP DISCARDABLE PURE "resources\\naclocknoclean.bmp"
+IDB_NANOCLOCKNOCLEAN   BITMAP DISCARDABLE PURE "resources\\nanoclocknoclean.bmp"
 
 //
 //  These are the Start Menu bitmaps that are used on Win32 machines.
 //
-IDB_SERVERSTARTBKG     BITMAP DISCARDABLE PURE "srvbkg.bmp"
-IDB_TERMINALSERVICESBKG BITMAP DISCARDABLE PURE "tsbanner.bmp"
-IDB_PERSONALSTARTBKG    BITMAP DISCARDABLE PURE "stmuper.bmp"
-IDB_PROFESSIONALSTARTBKG BITMAP DISCARDABLE PURE "stmupro.bmp"
-IDB_PROFESSIONAL64STARTBKG BITMAP DISCARDABLE PURE "stmupr64.bmp"
-IDB_DCSERVERSTARTBKG   BITMAP DISCARDABLE PURE "srvdc2.bmp"
-IDB_ADVSERVERSTARTBKG  BITMAP DISCARDABLE PURE "srvadv2.bmp"
-IDB_EMBEDDED           BITMAP DISCARDABLE PURE "startem.bmp"
-IDB_BLADESTARTBKG      BITMAP DISCARDABLE PURE "srvweb.bmp"
-IDB_SMALLBUSINESSSTARTBKG BITMAP DISCARDABLE PURE "sbsbkg.bmp"
-IDB_TABLETPCSTARTBKG   BITMAP DISCARDABLE PURE "stmutab.bmp"
-IDB_APPLIANCESTARTBKG BITMAP DISCARDABLE PURE "srvapp.bmp"
+IDB_SERVERSTARTBKG     BITMAP DISCARDABLE PURE "resources\\srvbkg.bmp"
+IDB_TERMINALSERVICESBKG BITMAP DISCARDABLE PURE "resources\\tsbanner.bmp"
+IDB_PERSONALSTARTBKG    BITMAP DISCARDABLE PURE "resources\\stmuper.bmp"
+IDB_PROFESSIONALSTARTBKG BITMAP DISCARDABLE PURE "resources\\stmupro.bmp"
+IDB_PROFESSIONAL64STARTBKG BITMAP DISCARDABLE PURE "resources\\stmupr64.bmp"
+IDB_DCSERVERSTARTBKG   BITMAP DISCARDABLE PURE "resources\\srvdc2.bmp"
+IDB_ADVSERVERSTARTBKG  BITMAP DISCARDABLE PURE "resources\\srvadv2.bmp"
+IDB_EMBEDDED           BITMAP DISCARDABLE PURE "resources\\startem.bmp"
+IDB_BLADESTARTBKG      BITMAP DISCARDABLE PURE "resources\\srvweb.bmp"
+IDB_SMALLBUSINESSSTARTBKG BITMAP DISCARDABLE PURE "resources\\sbsbkg.bmp"
+IDB_TABLETPCSTARTBKG   BITMAP DISCARDABLE PURE "resources\\stmutab.bmp"
+IDB_APPLIANCESTARTBKG BITMAP DISCARDABLE PURE "resources\\srvapp.bmp"
 
-IDB_STARTPREVIEWNEW     BITMAP DISCARDABLE PURE "NewSM.bmp"
-IDB_STARTPREVIEWCLASSIC BITMAP DISCARDABLE PURE "ClassicSM.bmp"
+IDB_STARTPREVIEWNEW     BITMAP DISCARDABLE PURE "resources\\NewSM.bmp"
+IDB_STARTPREVIEWCLASSIC BITMAP DISCARDABLE PURE "resources\\ClassicSM.bmp"
 
-IDB_TRAYCHEVRONHORIZ     BITMAP DISCARDABLE PURE "traych.bmp"
-IDB_TRAYCHEVRONHORIZOPEN BITMAP DISCARDABLE PURE "traycho.bmp"
-IDB_TRAYCHEVRONVERT      BITMAP DISCARDABLE PURE "traycv.bmp"
-IDB_TRAYCHEVRONVERTOPEN  BITMAP DISCARDABLE PURE "traycvo.bmp"
+IDB_TRAYCHEVRONHORIZ     BITMAP DISCARDABLE PURE "resources\\traych.bmp"
+IDB_TRAYCHEVRONHORIZOPEN BITMAP DISCARDABLE PURE "resources\\traycho.bmp"
+IDB_TRAYCHEVRONVERT      BITMAP DISCARDABLE PURE "resources\\traycv.bmp"
+IDB_TRAYCHEVRONVERTOPEN  BITMAP DISCARDABLE PURE "resources\\traycvo.bmp"
 
 
 #ifndef APSTUDIO_INVOKED

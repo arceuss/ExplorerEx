@@ -54,8 +54,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-ICO_STARTMENU           ICON    DISCARDABLE     "start.ico"
-ICO_DOCMENU             ICON    DISCARDABLE     "docs.ico"
+ICO_STARTMENU           ICON    DISCARDABLE     "resources\\start.ico"
+ICO_DOCMENU             ICON    DISCARDABLE     "resources\\docs.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

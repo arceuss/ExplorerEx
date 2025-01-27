@@ -85,5 +85,5 @@ BEGIN
 END
 
 
-IDB_LOGOFF_NORMAL BITMAP "LogoffButtons.bmp"
-IDB_LOGOFF_HOT    BITMAP "LogoffButtonsHot.bmp"
+IDB_LOGOFF_NORMAL BITMAP "resources\\LogoffButtons.bmp"
+IDB_LOGOFF_HOT    BITMAP "resources\\LogoffButtonsHot.bmp"
