@@ -6,23 +6,23 @@
  *
  */
 
-#define MFU_SETDEFAULTS "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€‚ÌƒAƒNƒZƒX‚ÆŠù’è‚ÌÝ’è.lnk"
+#define MFU_SETDEFAULTS "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®ã‚¢ã‚¯ã‚»ã‚¹ã¨æ—¢å®šã®è¨­å®š.lnk"
 
 //
 //  32-bit Client for all user types
 //
-#define MFU_PRO32ALL_00 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Internet Explorer.lnk"
-#define MFU_PRO32ALL_01 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\Media Center\\Media Center.lnk"
-#define MFU_PRO32ALL_02 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Windows Journal.lnk"
-#define MFU_PRO32ALL_03 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€‚ÌƒAƒNƒZƒX‚ÆŠù’è‚ÌÝ’è.lnk"
-#define MFU_PRO32ALL_04 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Tablet PC “ü–å.lnk"
-#define MFU_PRO32ALL_05 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\MSN ‚ðŽg‚Á‚ÄƒCƒ“ƒ^[ƒlƒbƒg‚ÉƒAƒNƒZƒX‚·‚é.lnk"
-#define MFU_PRO32ALL_06 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\MSN Explorer.lnk"
-#define MFU_PRO32ALL_07 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Windows Media Player.lnk"
-#define MFU_PRO32ALL_08 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Windows Messenger.lnk"
-#define MFU_PRO32ALL_09 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\Windows XP ƒcƒA[.lnk"
-#define MFU_PRO32ALL_10 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\Windows ƒ€[ƒr[ ƒ[ƒJ[.lnk"
-#define MFU_PRO32ALL_11 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\ƒVƒXƒeƒ€ ƒc[ƒ‹\\ƒtƒ@ƒCƒ‹‚ÆÝ’è‚Ì“]‘—ƒEƒBƒU[ƒh.lnk"
+#define MFU_PRO32ALL_00 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Internet Explorer.lnk"
+#define MFU_PRO32ALL_01 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\Media Center\\Media Center.lnk"
+#define MFU_PRO32ALL_02 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Windows Journal.lnk"
+#define MFU_PRO32ALL_03 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®ã‚¢ã‚¯ã‚»ã‚¹ã¨æ—¢å®šã®è¨­å®š.lnk"
+#define MFU_PRO32ALL_04 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Tablet PC å…¥é–€.lnk"
+#define MFU_PRO32ALL_05 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\MSN ã‚’ä½¿ã£ã¦ã‚¤ãƒ³ã‚¿ãƒ¼ãƒãƒƒãƒˆã«ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹.lnk"
+#define MFU_PRO32ALL_06 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\MSN Explorer.lnk"
+#define MFU_PRO32ALL_07 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Windows Media Player.lnk"
+#define MFU_PRO32ALL_08 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Windows Messenger.lnk"
+#define MFU_PRO32ALL_09 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\Windows XP ãƒ„ã‚¢ãƒ¼.lnk"
+#define MFU_PRO32ALL_10 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\Windows ãƒ ãƒ¼ãƒ“ãƒ¼ ãƒ¡ãƒ¼ã‚«ãƒ¼.lnk"
+#define MFU_PRO32ALL_11 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\ã‚·ã‚¹ãƒ†ãƒ  ãƒ„ãƒ¼ãƒ«\\ãƒ•ã‚¡ã‚¤ãƒ«ã¨è¨­å®šã®è»¢é€ã‚¦ã‚£ã‚¶ãƒ¼ãƒ‰.lnk"
 #define MFU_PRO32ALL_12 ""
 #define MFU_PRO32ALL_13 ""
 #define MFU_PRO32ALL_14 ""
@@ -31,17 +31,17 @@
 //
 //  64-bit Client for all user types
 //
-#define MFU_PRO64ALL_00 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\Media Center\\Media Center.lnk"
-#define MFU_PRO64ALL_01 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Windows Journal.lnk"
-#define MFU_PRO64ALL_02 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€‚ÌƒAƒNƒZƒX‚ÆŠù’è‚ÌÝ’è.lnk"
-#define MFU_PRO64ALL_03 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Tablet PC “ü–å.lnk"
-#define MFU_PRO64ALL_04 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\MSN ‚ðŽg‚Á‚ÄƒCƒ“ƒ^[ƒlƒbƒg‚ÉƒAƒNƒZƒX‚·‚é.lnk"
-#define MFU_PRO64ALL_05 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\MSN Explorer.lnk"
-#define MFU_PRO64ALL_06 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Windows Media Player.lnk"
-#define MFU_PRO64ALL_07 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\Windows Messenger.lnk"
-#define MFU_PRO64ALL_08 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\Windows XP ƒcƒA[.lnk"
-#define MFU_PRO64ALL_09 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\Windows ƒ€[ƒr[ ƒ[ƒJ[.lnk"
-#define MFU_PRO64ALL_10 "%ALLUSERSPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\ƒVƒXƒeƒ€ ƒc[ƒ‹\\ƒtƒ@ƒCƒ‹‚ÆÝ’è‚Ì“]‘—ƒEƒBƒU[ƒh.lnk"
+#define MFU_PRO64ALL_00 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\Media Center\\Media Center.lnk"
+#define MFU_PRO64ALL_01 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Windows Journal.lnk"
+#define MFU_PRO64ALL_02 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ ã®ã‚¢ã‚¯ã‚»ã‚¹ã¨æ—¢å®šã®è¨­å®š.lnk"
+#define MFU_PRO64ALL_03 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Tablet PC å…¥é–€.lnk"
+#define MFU_PRO64ALL_04 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\MSN ã‚’ä½¿ã£ã¦ã‚¤ãƒ³ã‚¿ãƒ¼ãƒãƒƒãƒˆã«ã‚¢ã‚¯ã‚»ã‚¹ã™ã‚‹.lnk"
+#define MFU_PRO64ALL_05 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\MSN Explorer.lnk"
+#define MFU_PRO64ALL_06 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Windows Media Player.lnk"
+#define MFU_PRO64ALL_07 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\Windows Messenger.lnk"
+#define MFU_PRO64ALL_08 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\Windows XP ãƒ„ã‚¢ãƒ¼.lnk"
+#define MFU_PRO64ALL_09 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\Windows ãƒ ãƒ¼ãƒ“ãƒ¼ ãƒ¡ãƒ¼ã‚«ãƒ¼.lnk"
+#define MFU_PRO64ALL_10 "%ALLUSERSPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\ã‚·ã‚¹ãƒ†ãƒ  ãƒ„ãƒ¼ãƒ«\\ãƒ•ã‚¡ã‚¤ãƒ«ã¨è¨­å®šã®è»¢é€ã‚¦ã‚£ã‚¶ãƒ¼ãƒ‰.lnk"
 #define MFU_PRO64ALL_11 ""
 #define MFU_PRO64ALL_12 ""
 #define MFU_PRO64ALL_13 ""
@@ -51,8 +51,8 @@
 //
 //  32-bit Server for administrators
 //
-#define MFU_SRV32ADM_00 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\ƒRƒ}ƒ“ƒh ƒvƒƒ“ƒvƒg.lnk"
-#define MFU_SRV32ADM_01 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\ƒƒ‚’ .lnk"
+#define MFU_SRV32ADM_00 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\ã‚³ãƒžãƒ³ãƒ‰ ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆ.lnk"
+#define MFU_SRV32ADM_01 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\ãƒ¡ãƒ¢å¸³.lnk"
 #define MFU_SRV32ADM_02 ""
 #define MFU_SRV32ADM_03 ""
 #define MFU_SRV32ADM_04 ""
@@ -71,8 +71,8 @@
 //
 //  64-bit Server for administrators
 //
-#define MFU_SRV64ADM_00 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\ƒRƒ}ƒ“ƒh ƒvƒƒ“ƒvƒg.lnk"
-#define MFU_SRV64ADM_01 "%USERPROFILE%\\ƒXƒ^[ƒg ƒƒjƒ…[\\ƒvƒƒOƒ‰ƒ€\\ƒAƒNƒZƒTƒŠ\\ƒƒ‚’ .lnk"
+#define MFU_SRV64ADM_00 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\ã‚³ãƒžãƒ³ãƒ‰ ãƒ—ãƒ­ãƒ³ãƒ—ãƒˆ.lnk"
+#define MFU_SRV64ADM_01 "%USERPROFILE%\\ã‚¹ã‚¿ãƒ¼ãƒˆ ãƒ¡ãƒ‹ãƒ¥ãƒ¼\\ãƒ—ãƒ­ã‚°ãƒ©ãƒ \\ã‚¢ã‚¯ã‚»ã‚µãƒª\\ãƒ¡ãƒ¢å¸³.lnk"
 #define MFU_SRV64ADM_02 ""
 #define MFU_SRV64ADM_03 ""
 #define MFU_SRV64ADM_04 ""

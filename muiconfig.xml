@@ -4,6 +4,8 @@
 			<neutralResources>
 			</neutralResources>
 			<localizedResources>
+			    <!-- RT_BITMAP -->
+				<resourceType typeNameId="#2"/>
 				<!-- RT_MENU -->
 				<resourceType typeNameId="#4"/>
 				<!-- RT_DIALOG -->
