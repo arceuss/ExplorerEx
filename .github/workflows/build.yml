@@ -33,14 +33,15 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1.13.0
       with:
         arch: amd64
-    - name: Set short git commit SHA
-      id: vars
-      run: |
-        calculatedSha=$(git rev-parse --short ${{ github.sha }})
-        echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
     - name: Compile ExplorerEx (explorer.exe)
       run: | 
         msbuild explorerwrapper.sln /p:Configuration=Release /p:Platform=x64
+    - name: Set short git commit SHA
+      id: vars
+      shell: bash
+      run: |
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
     - name: Upload dll
       uses: actions/upload-artifact@v4.4.0
       with:
