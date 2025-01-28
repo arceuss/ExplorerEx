@@ -42,9 +42,10 @@ jobs:
       run: |
         calculatedSha=$(git rev-parse --short ${{ github.sha }})
         echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
-    - name: Upload dll
+    - name: Upload exe
       uses: actions/upload-artifact@v4.4.0
       with:
         name: ExplorerEx-${{ env.COMMIT_SHORT_SHA }}
         path: |
-          .\Release\
+          .\x64\Release\explorer.exe
+          .\x64\Release\explorer.pdb
