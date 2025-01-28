@@ -132,6 +132,19 @@
       <ManifestFile>WindowsShell.manifest</ManifestFile>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)en-US" md "$(OutDir)en-US"
+link /dll /noentry /out:"$(OutDir)en-US\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.en-US.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ja-JP.res" "localization\ja-JP\explorer.ja-JP.rc"
+if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
+link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -153,6 +166,19 @@
       <ManifestFile>WindowsShell.manifest</ManifestFile>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)en-US" md "$(OutDir)en-US"
+link /dll /noentry /out:"$(OutDir)en-US\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.en-US.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ja-JP.res" "localization\ja-JP\explorer.ja-JP.rc"
+if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
+link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|Win32'">
     <ClCompile>
@@ -174,6 +200,19 @@
       <ManifestFile>WindowsShell.manifest</ManifestFile>
       <AdditionalDependencies>$(CoreLibraryDependencies);%(AdditionalDependencies);dwmapi.lib</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)en-US" md "$(OutDir)en-US"
+link /dll /noentry /out:"$(OutDir)en-US\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.en-US.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ja-JP.res" "localization\ja-JP\explorer.ja-JP.rc"
+if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
+link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -192,6 +231,19 @@
       <StackCommitSize>36864</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)en-US" md "$(OutDir)en-US"
+link /dll /noentry /out:"$(OutDir)en-US\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.en-US.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ja-JP.res" "localization\ja-JP\explorer.ja-JP.rc"
+if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
+link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -214,6 +266,19 @@
       <StackCommitSize>57344</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)en-US" md "$(OutDir)en-US"
+link /dll /noentry /out:"$(OutDir)en-US\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.en-US.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ja-JP.res" "localization\ja-JP\explorer.ja-JP.rc"
+if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
+link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">
     <ClCompile>
@@ -240,12 +305,26 @@
       <ManifestFile>WindowsShell.manifest</ManifestFile>
       <DelayLoadDLLs>comctl32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(OutDir)en-US" md "$(OutDir)en-US"
+link /dll /noentry /out:"$(OutDir)en-US\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.en-US.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ja-JP.res" "localization\ja-JP\explorer.ja-JP.rc"
+if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
+link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"</Command>
+    </PostBuildEvent>
+    <ResourceCompile>
+      <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="cocreateinstancehook.h" />
     <ClInclude Include="cowsite.h" />
     <ClInclude Include="desktop2.h" />
     <ClInclude Include="desktopp.h" />
+    <ClInclude Include="localization\ja-JP\mfulist_ja-JP.h" />
     <ClInclude Include="MinHook.h" />
     <ClInclude Include="ntperf.h" />
     <ClInclude Include="ntwmi.h" />
@@ -447,6 +526,9 @@
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="WindowsShell.manifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="muiconfig.xml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
