@@ -49,3 +49,5 @@ jobs:
         path: |
           .\x64\Release\explorer.exe
           .\x64\Release\explorer.pdb
+          .\x64\Release\en-US\explorer.exe.mui
+          .\x64\Release\ja-JP\explorer.exe.mui
