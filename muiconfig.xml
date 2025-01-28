@@ -4,8 +4,8 @@
 			<neutralResources>
 			</neutralResources>
 			<localizedResources>
-			    <!-- RT_BITMAP -->
-				<resourceType typeNameId="#2"/>
+			    <!-- RT_BITMAP, includes only localisable taskbar resources. -->
+				<resourceType typeNameId="#2" itemId="145 146 147 148 149 150 151 152 153 180 181 182 183" />
 				<!-- RT_MENU -->
 				<resourceType typeNameId="#4"/>
 				<!-- RT_DIALOG -->
