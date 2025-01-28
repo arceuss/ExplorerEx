@@ -17,6 +17,7 @@ CRunnableTask::CRunnableTask(DWORD dwFlags)
     _dwFlags = dwFlags;
 
     ASSERT(NULL == _hDone);
+    _hDone = 0;
 
     if (_dwFlags & RTF_SUPPORTKILLSUSPEND)
     {

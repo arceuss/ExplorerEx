@@ -238,6 +238,7 @@
       <FixedBaseAddress>false</FixedBaseAddress>
       <StackCommitSize>36864</StackCommitSize>
       <ManifestFile>WindowsShell.manifest</ManifestFile>
+      <DelayLoadDLLs>comctl32.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

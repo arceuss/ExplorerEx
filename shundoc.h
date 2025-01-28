@@ -507,14 +507,6 @@ typedef struct _tagSHELLREMINDER
 #define SHCNFI_STATE_DEFVIEWX_SHIFT_DBLCLK 10
 #define SHCNFI_STATE_DEFVIEWX_DBLCLK       11
 
-#define INSTRUMENT_STATECHANGE(t)                               \
-{                                                               \
-    SHCNF_INSTRUMENT_INFO s;                                    \
-    s.dwEventType=(t);                                          \
-    s.dwEventStructure=SHCNFI_EVENT_STATECHANGE;                \
-    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
-}
-
 #define SERVERNAME_CURRENT  ((HANDLE)NULL)
 
 #define SHCoUninitialize(hr) if (SUCCEEDED(hr)) CoUninitialize()
@@ -540,6 +532,30 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
    (IsBadWritePtr((PVOID)(ptr), sizeof(type)) ? \
     FALSE : TRUE)
 
+#ifdef WANT_SHELL_INSTRUMENTATION
+#define INSTRUMENT_STATECHANGE(t)                               \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_STATECHANGE;                \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
+#define INSTRUMENT_STRING(t,p)                                  \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_STRING;                     \
+    lstrcpyn(s.e.string.sz,(p),ARRAYSIZE(s.e.string.sz));       \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
+#define INSTRUMENT_HOTKEY(t,w)                                  \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_HOTKEY;                     \
+    s.e.hotkey.wParam=(w);                                      \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
 #define INSTRUMENT_WNDPROC(t,h,u,w,l)                           \
 {                                                               \
     SHCNF_INSTRUMENT_INFO s;                                    \
@@ -551,7 +567,17 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
     s.e.wndproc.lParam=(l);                                     \
     SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
 }
-
+#define INSTRUMENT_WNDPROC_HOOK(h,u,w,l)                        \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=0;                                            \
+    s.dwEventStructure=SHCNFI_EVENT_WNDPROC_HOOK;               \
+    s.e.wndproc.hwnd=(h);                                       \
+    s.e.wndproc.uMsg=(u);                                       \
+    s.e.wndproc.wParam=(w);                                     \
+    s.e.wndproc.lParam=(l);                                     \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
 #define INSTRUMENT_ONCOMMAND(t,h,u)                             \
 {                                                               \
     SHCNF_INSTRUMENT_INFO s;                                    \
@@ -561,15 +587,44 @@ typedef LPNMVIEWFOLDERA LPNMVIEWFOLDER;
     s.e.command.idCmd=(u);                                      \
     SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
 }
-
-#define INSTRUMENT_HOTKEY(t,w)                                  \
+#define INSTRUMENT_INVOKECOMMAND(t,h,u)                         \
 {                                                               \
     SHCNF_INSTRUMENT_INFO s;                                    \
     s.dwEventType=(t);                                          \
-    s.dwEventStructure=SHCNFI_EVENT_HOTKEY;                     \
-    s.e.hotkey.wParam=(w);                                      \
+    s.dwEventStructure=SHCNFI_EVENT_INVOKECOMMAND;              \
+    s.e.command.hwnd=(h);                                       \
+    s.e.command.idCmd=(u);                                      \
     SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
 }
+#define INSTRUMENT_TRACKPOPUPMENU(t,h,u)                        \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_TRACKPOPUPMENU;             \
+    s.e.command.hwnd=(h);                                       \
+    s.e.command.idCmd=(u);                                      \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
+#define INSTRUMENT_DROP(t,h,u,p)                                \
+{                                                               \
+    SHCNF_INSTRUMENT_INFO s;                                    \
+    s.dwEventType=(t);                                          \
+    s.dwEventStructure=SHCNFI_EVENT_DROP;                       \
+    s.e.drop.hwnd=(h);                                          \
+    s.e.drop.idCmd=(u);                                         \
+    SHChangeNotify(SHCNE_INSTRUMENT,SHCNF_INSTRUMENT,&s,NULL);  \
+}
+#else
+#define INSTRUMENT_STATECHANGE(t)
+#define INSTRUMENT_STRING(t,p)
+#define INSTRUMENT_HOTKEY(t,w)
+#define INSTRUMENT_WNDPROC(t,h,u,w,l)
+#define INSTRUMENT_WNDPROC_HOOK(h,u,w,l)
+#define INSTRUMENT_ONCOMMAND(t,h,u)
+#define INSTRUMENT_INVOKECOMMAND(t,h,u)
+#define INSTRUMENT_TRACKPOPUPMENU(t,h,u)
+#define INSTRUMENT_DROP(t,h,u,p)
+#endif //WANT_SHELL_INSTRUMENTATION
 
 #define CMF_ICM3                0x00020000      // QueryContextMenu can assume IContextMenu3 semantics (i.e.,
                                                 // will receive WM_INITMENUPOPUP, WM_MEASUREITEM, WM_DRAWITEM,

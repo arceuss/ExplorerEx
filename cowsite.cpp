@@ -31,11 +31,13 @@ ULONG CSafeServiceSite::AddRef()
 
 ULONG CSafeServiceSite::Release()
 {
-	if (InterlockedDecrement(&_cRef))
-		return _cRef;
-
-	delete this;
-	return 0;
+	ASSERT(0 != _cRef);
+	ULONG cRef = InterlockedDecrement(&_cRef);
+	if (0 == cRef)
+	{
+		delete this;
+	}
+	return cRef;
 }
 
 HRESULT CSafeServiceSite::QueryService(REFGUID guidService, REFIID riid, void** ppvObj)

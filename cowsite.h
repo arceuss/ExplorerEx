@@ -7,18 +7,18 @@
 class CObjectWithSite : public IObjectWithSite
 {
 public:
-    CObjectWithSite()  {_punkSite = NULL;};
-    virtual ~CObjectWithSite() {ATOMICRELEASE(_punkSite);}
+    CObjectWithSite() { _punkSite = NULL; };
+    virtual ~CObjectWithSite() { ATOMICRELEASE(_punkSite); }
 
     //*** IUnknown ****
     // (client must provide!)
 
     //*** IObjectWithSite ***
-    STDMETHOD(SetSite)(IUnknown *punkSite) override;
-    STDMETHOD(GetSite)(REFIID riid, void **ppvSite) override;
+    STDMETHOD(SetSite)(IUnknown* punkSite);
+    STDMETHOD(GetSite)(REFIID riid, void** ppvSite);
 
 protected:
-    IUnknown*   _punkSite;
+    IUnknown* _punkSite;
 };
 
 //
@@ -34,14 +34,14 @@ private:
     CSafeServiceSite *_psss;
     IKid _pkid;
 
-    CMyObject() 
+    CMyObject()
     {
         _psss = new CSafeServiceSite();
         if (_psss)
             _psss->SetProviderWeakRef(this);
     }
 
-    ~CMyObject() 
+    ~CMyObject()
     {
         if (_psss)
         {
@@ -69,31 +69,34 @@ public:
     //  unless you are sure you are done
 };
 ******/
-        
+
 class CSafeServiceSite : public IServiceProvider
 {
 public:
     CSafeServiceSite() : _cRef(1), _psp(NULL) {}
-    
+
     // IUnknown
-    STDMETHODIMP QueryInterface(REFIID riid, void **ppv) override;
-    STDMETHODIMP_(ULONG) AddRef() override;
-    STDMETHODIMP_(ULONG) Release() override;
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppv);
+    STDMETHODIMP_(ULONG) AddRef();
+    STDMETHODIMP_(ULONG) Release();
 
     // IServiceProvider
-    STDMETHODIMP QueryService(REFGUID guidService, REFIID riid, void **ppvObj) override;
+    STDMETHODIMP QueryService(REFGUID guidService, REFIID riid, void** ppvObj);
 
     // our personal weak ref
-    HRESULT SetProviderWeakRef(IServiceProvider *psp);
+    HRESULT SetProviderWeakRef(IServiceProvider* psp);
 
 private:    //  methods
     ~CSafeServiceSite()
-        { ASSERT(_psp == NULL); }
+    {
+        ASSERT(_psp == NULL);
+    }
 
 private:    //  members
     LONG _cRef;
-    IServiceProvider *_psp;
+    IServiceProvider* _psp;
 };
+
 
 
 #endif

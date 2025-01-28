@@ -15,7 +15,7 @@
 #include "atlstuff.h"
 #include <strsafe.h>
 #include <dsrole.h>  // DsRoleGetPrimaryDomainInformation, DsRoleFreeMemory
-
+#include <sddl.h>
 // global so that it is shared between TS sessions
 #define SZ_SCMCREATEDEVENT_NT5  TEXT("Global\\ScmCreatedEvent")
 #define SZ_WINDOWMETRICS        TEXT("Control Panel\\Desktop\\WindowMetrics")
@@ -1107,6 +1107,28 @@ LPTSTR _SkipCmdLineCrap(LPTSTR pszCmdLine)
 
     return pszCmdLine;
 }
+
+//for some reason, desktop is fucky because of this function, we need to figure out the proper way to deal
+//with this without resorting to patches
+void PatchShell32() 
+{
+    uint8_t* SHCreateLocalServer = (uint8_t*)GetProcAddress(LoadLibrary(L"shell32.dll"), (LPCSTR)915);
+    DWORD old;
+    VirtualProtect(SHCreateLocalServer, 50, PAGE_EXECUTE_READWRITE, &old);
+
+    //B8 05 00 07 80 -> mov     eax, 80070005h
+    //C3 -> ret
+
+    SHCreateLocalServer[0] = 0xB8;
+    SHCreateLocalServer[1] = 0x05;
+    SHCreateLocalServer[2] = 0x00;
+    SHCreateLocalServer[3] = 0x07;
+    SHCreateLocalServer[4] = 0x80;
+    SHCreateLocalServer[5] = 0xC3;
+
+    VirtualProtect(SHCreateLocalServer, 50, old, 0);
+}
+
 EXTERN_C BOOL WINAPI _CRT_INIT(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved);
 STDAPI_(int) ModuleEntry()
 {
@@ -1122,6 +1144,8 @@ STDAPI_(int) ModuleEntry()
 		return -1;
 
     InitDesktopFuncs();
+
+    PatchShell32();
 
     // We don't want the "No disk in drive X:" requesters, so we set
     // the critical error mask such that calls will just silently fail

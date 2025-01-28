@@ -983,7 +983,7 @@ void _ValidateShellNoRoam(HKEY hk)
 LANGID MLGetUILanguage(void)
 {
 	static LANGID LangID = 0;
-	CHAR szLangID[8];
+	CHAR szLangID[8] = "";
 
 	if (0 == LangID)  // no cached LANGID
 	{
@@ -1671,8 +1671,8 @@ void _ExecRegValue(LPCTSTR pszValue)
     }
 }
 
-#define IsInRange(item,min_val,max_val) \
-            (((item) >= min_val) && ((item) <= max_val))
+//#define IsInRange(item,min_val,max_val) \
+//            (((item) >= min_val) && ((item) <= max_val))
 
 extern "C" void WINAPI SetICIKeyModifiers(DWORD* pfMask)
 {
@@ -2801,7 +2801,7 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
             // Fast Items and Programs folders with a separator between them.
             
             //causes a crash
-            //dwSmset |= SMSET_SEPARATEMERGEFOLDER;
+            dwSmset |= SMSET_SEPARATEMERGEFOLDER;
 
 			//hr = GetMergedFolder(&psf, &pidl, c_rgmfiProgramsFolderAndFastItems,
 			//	ARRAYSIZE(c_rgmfiProgramsFolderAndFastItems));
