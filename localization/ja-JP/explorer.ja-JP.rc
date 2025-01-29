@@ -59,6 +59,9 @@ IDB_NANOCLOCKCLEAN     BITMAP DISCARDABLE PURE ".\\nanoclockclean.bmp"
 IDB_NACLOCKNOCLEAN     BITMAP DISCARDABLE PURE ".\\naclocknoclean.bmp"
 IDB_NANOCLOCKNOCLEAN   BITMAP DISCARDABLE PURE ".\\nanoclocknoclean.bmp"
 
+IDB_STARTPREVIEWNEW     BITMAP DISCARDABLE PURE ".\\NewSM.bmp"
+IDB_STARTPREVIEWCLASSIC BITMAP DISCARDABLE PURE ".\\ClassicSM.bmp"
+
 #ifndef APSTUDIO_INVOKED
 
 //////////////////////////////////////////////////////////////////////////////
