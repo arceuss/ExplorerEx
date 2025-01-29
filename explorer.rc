@@ -100,7 +100,11 @@ IDB_NANOCLOCKNOCLEAN   BITMAP DISCARDABLE PURE "resources\\nanoclocknoclean.bmp"
 //
 //  These are the Start Menu bitmaps that are used on Win32 machines.
 //
+#ifdef _WIN64
+IDB_SERVERSTARTBKG     BITMAP DISCARDABLE PURE "resources\\srvbkx64.bmp"
+#else
 IDB_SERVERSTARTBKG     BITMAP DISCARDABLE PURE "resources\\srvbkg.bmp"
+#endif
 IDB_TERMINALSERVICESBKG BITMAP DISCARDABLE PURE "resources\\tsbanner.bmp"
 IDB_PERSONALSTARTBKG    BITMAP DISCARDABLE PURE "resources\\stmuper.bmp"
 IDB_PROFESSIONALSTARTBKG BITMAP DISCARDABLE PURE "resources\\stmupro.bmp"
