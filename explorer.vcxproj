@@ -140,6 +140,12 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
 link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ru-RU.res" "localization\ru-RU\explorer.ru-RU.rc"
+if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
+link /dll /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
 del "$(IntermediateOutputPath)temp.res"</Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -174,6 +180,12 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
 link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ru-RU.res" "localization\ru-RU\explorer.ru-RU.rc"
+if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
+link /dll /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
 del "$(IntermediateOutputPath)temp.res"</Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -208,6 +220,12 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
 link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ru-RU.res" "localization\ru-RU\explorer.ru-RU.rc"
+if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
+link /dll /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
 del "$(IntermediateOutputPath)temp.res"</Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -239,6 +257,12 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
 link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ru-RU.res" "localization\ru-RU\explorer.ru-RU.rc"
+if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
+link /dll /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
 del "$(IntermediateOutputPath)temp.res"</Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -274,6 +298,12 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
 link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ru-RU.res" "localization\ru-RU\explorer.ru-RU.rc"
+if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
+link /dll /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
 del "$(IntermediateOutputPath)temp.res"</Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -313,6 +343,12 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0411 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ja-JP" md "$(OutDir)ja-JP"
 link /dll /noentry /out:"$(OutDir)ja-JP\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ja-JP.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ja-JP\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.ru-RU.res" "localization\ru-RU\explorer.ru-RU.rc"
+if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
+link /dll /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
 del "$(IntermediateOutputPath)temp.res"</Command>
     </PostBuildEvent>
     <ResourceCompile>
@@ -324,7 +360,6 @@ del "$(IntermediateOutputPath)temp.res"</Command>
     <ClInclude Include="cowsite.h" />
     <ClInclude Include="desktop2.h" />
     <ClInclude Include="desktopp.h" />
-    <ClInclude Include="localization\ja-JP\mfulist_ja-JP.h" />
     <ClInclude Include="MinHook.h" />
     <ClInclude Include="ntperf.h" />
     <ClInclude Include="ntwmi.h" />
