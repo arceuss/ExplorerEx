@@ -2,6 +2,8 @@
 	<resources>
 		<win32Resources fileType="Application">
 			<neutralResources>
+				<!-- RT_VERSION -->
+				<resourceType typeNameId="#16"/>
 			</neutralResources>
 			<localizedResources>
 			    <!-- RT_BITMAP, includes only localisable taskbar resources. -->
@@ -12,6 +14,8 @@
 				<resourceType typeNameId="#5"/>
 				<!-- RT_STRING -->
 				<resourceType typeNameId="#6"/>
+				<!-- RT_VERSION -->
+				<resourceType typeNameId="#16"/>
 			</localizedResources>
 		</win32Resources>
 	</resources>
