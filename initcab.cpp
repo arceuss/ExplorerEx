@@ -1108,33 +1108,9 @@ LPTSTR _SkipCmdLineCrap(LPTSTR pszCmdLine)
     return pszCmdLine;
 }
 
-//for some reason, desktop is fucky because of this function, we need to figure out the proper way to deal
-//with this without resorting to patches
-void PatchShell32() 
-{
-    uint8_t* SHCreateLocalServer = (uint8_t*)GetProcAddress(LoadLibrary(L"shell32.dll"), (LPCSTR)915);
-    DWORD old;
-    VirtualProtect(SHCreateLocalServer, 50, PAGE_EXECUTE_READWRITE, &old);
-
-    //B8 05 00 07 80 -> mov     eax, 80070005h
-    //C3 -> ret
-
-    SHCreateLocalServer[0] = 0xB8;
-    SHCreateLocalServer[1] = 0x05;
-    SHCreateLocalServer[2] = 0x00;
-    SHCreateLocalServer[3] = 0x07;
-    SHCreateLocalServer[4] = 0x80;
-    SHCreateLocalServer[5] = 0xC3;
-
-    VirtualProtect(SHCreateLocalServer, 50, old, 0);
-}
-
 EXTERN_C BOOL WINAPI _CRT_INIT(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpReserved);
 STDAPI_(int) ModuleEntry()
 {
-
-
-
     PERFSETMARK("ExplorerStartup");
 
     _CRT_INIT(GetModuleHandle(0),DLL_PROCESS_ATTACH,NULL);
@@ -1142,10 +1118,15 @@ STDAPI_(int) ModuleEntry()
 
 	if (!SHUndocInit())
 		return -1;
+    
+    //LoadLibrary(L"shdocvw.dll");
+    //SHLoadInProc(CLSID_WinListShellProc);
+    //LoadLibrary(L"shell32.dll");
+    //LoadLibrary(L"explorerframe.dll");
 
     InitDesktopFuncs();
 
-    PatchShell32();
+
 
     // We don't want the "No disk in drive X:" requesters, so we set
     // the critical error mask such that calls will just silently fail
@@ -1805,6 +1786,46 @@ void CheckForServerAdminUI()
     }
 }
 
+//reversed from w10 explorer
+class CThreadRefHost
+{
+public:
+    LONG ref = 0;
+    IUnknown* punk = 0;
+
+    void WaitForRefs()
+    {
+		SHSetThreadRef(0LL);
+		punk = this->punk;
+		if (punk)
+		{
+            punk->Release();
+			this->punk = 0LL;
+		}
+        MSG Msg;
+		while (this->ref)
+		{
+			if (GetMessageW(&Msg, 0LL, 0, 0))
+			{
+				TranslateMessage(&Msg);
+				DispatchMessageW(&Msg);
+			}
+		}
+    }
+
+    CThreadRefHost()
+    {
+		SHCreateThreadRef(&ref, &this->punk);
+		SHSetThreadRef(this->punk);
+        static void(*fSetProcessReference)(IUnknown * punk) = decltype(fSetProcessReference)(GetProcAddress(LoadLibrary(L"api-ms-win-shcore-thread-l1-1-0"),"SetProcessReference"));
+        fSetProcessReference(punk);
+        //SetProcessReference(punk);
+    }
+    virtual ~CThreadRefHost()
+    {
+        WaitForRefs();
+    }
+};
 
 int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int nCmdShow)
 {
@@ -1980,7 +2001,11 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
             }
 
             WriteCleanShutdown(FALSE);    // assume we will have a bad shutdown
-
+            CThreadRefHost refhost;
+			//typedef DWORD(WINAPI* STF)(DWORD, DWORD);
+			//static STF SetThreadFlags = (STF)GetProcAddress(LoadLibrary(L"shell32.dll"), (LPSTR)904);
+			//SetThreadFlags(1, 1);
+            //WinList_Init();
 
             // If any of the shellwindows are already present, then we want to bail out.
             //

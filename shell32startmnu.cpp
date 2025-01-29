@@ -2800,7 +2800,6 @@ HRESULT CStartMenuCallbackBase::InitializeProgramsShellMenu(IShellMenu* psm)
             // Start Panel: Menu:  The Programs section is a merge of the
             // Fast Items and Programs folders with a separator between them.
             
-            //causes a crash
             dwSmset |= SMSET_SEPARATEMERGEFOLDER;
 
 			//hr = GetMergedFolder(&psf, &pidl, c_rgmfiProgramsFolderAndFastItems,
