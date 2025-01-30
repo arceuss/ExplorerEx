@@ -216,6 +216,7 @@ typedef struct _TRAYAPPBARDATA
     DWORD dwProcId;
 } TRAYAPPBARDATA, * PTRAYAPPBARDATA;
 
+#pragma pack(push,0x1)
 typedef struct tagNOTIFYITEM
 {
     LPWSTR      pszExeName;
@@ -226,6 +227,7 @@ typedef struct tagNOTIFYITEM
     UINT        uID;
     GUID        guidItem;
 } NOTIFYITEM, * LPNOTIFYITEM;
+#pragma pack(pop)
 
 typedef struct _NOTIFYICONDATA32A {
     DWORD cbSize;

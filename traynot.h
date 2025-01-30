@@ -109,7 +109,7 @@ public:
     STDMETHODIMP_(ULONG) Release();
 
     // *** ITrayNotify methods, which are called from the CTrayNotifyStub ***
-    STDMETHODIMP SetPreference(LPNOTIFYITEM pNotifyItem);
+    STDMETHODIMP SetPreference(NOTIFYITEM pNotifyItem);
     STDMETHODIMP RegisterCallback(INotificationCB* pNotifyCB);
     STDMETHODIMP EnableAutoTray(BOOL bTraySetting);
 
@@ -340,6 +340,33 @@ private:
     BOOL                _bWaitingBetweenBalloons;
     BOOL                _bStartMenuAllowsTrayBalloon;
     BALLOONEVENT        _beLastBalloonEvent;
+};
+
+//
+// Stub for CTrayNotify, so as to not break the COM rules of refcounting a static object
+//
+class CTrayNotifyStub :
+	public CComObjectRootEx<CComSingleThreadModel>,
+	public CComCoClass<CTrayNotifyStub, &CLSID_TrayNotify>,
+	public ITrayNotify
+{
+public:
+	CTrayNotifyStub() {};
+	virtual ~CTrayNotifyStub() {};
+
+	//DECLARE_NOT_AGGREGATABLE(CTrayNotifyStub)
+
+	BEGIN_COM_MAP(CTrayNotifyStub)
+		COM_INTERFACE_ENTRY(ITrayNotify)
+	END_COM_MAP()
+
+	// *** ITrayNotify method ***
+	virtual STDMETHODIMP RegisterCallback(INotificationCB* pNotifyCB, ULONG*) override;
+	virtual STDMETHODIMP UnregisterCallback(ULONG*) override;
+	virtual STDMETHODIMP SetPreference(NOTIFYITEM pNotifyItem) override;
+	virtual STDMETHODIMP EnableAutoTray(BOOL bTraySetting) override;
+	virtual STDMETHODIMP DoAction(BOOL bTraySetting) override;
+	virtual STDMETHODIMP SetWindowingEnvironmentConfig(IUnknown* unk) override;
 };
 
 #endif  // _TRAYNOT_H

@@ -284,7 +284,7 @@ private:
 
     CSimpleArray<CNotificationItem> _saItems; //copy of the data, initialized by user
     BOOL _fItemChanged;
-    ITrayNotify* _pTrayNotify;
+    CTrayNotifyStub* _pTrayNotify;
     int _nPrevIndex;
     HWND _hwndCombo;
     HWND _hwndListView;
@@ -519,7 +519,7 @@ LRESULT CNotificationsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam,
     }
 
     // localserver for tray notify
-    if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&_pTrayNotify))))
+    if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, __uuidof(ITrayNotify), (void**)&_pTrayNotify)))
     {
         INotificationCB* pCB = 0;
 
@@ -735,7 +735,7 @@ void CNotificationsDlg::ApplyChanges(void)
     {
         for (int i = 0; i < _saItems.GetSize(); i++)
         {
-            _pTrayNotify->SetPreference(&_saItems[i]);
+            _pTrayNotify->SetPreference(_saItems[i]);
         }
     }
 }

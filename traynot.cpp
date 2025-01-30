@@ -75,36 +75,12 @@ int CALLBACK DeleteDPAPtrCB(TNINFOITEM *pItem, void *pData)
     return TRUE;
 }
 
-//
-// Stub for CTrayNotify, so as to not break the COM rules of refcounting a static object
-//
-class ATL_NO_VTABLE CTrayNotifyStub :
-    public CComObjectRootEx<CComSingleThreadModel>,
-    public CComCoClass<CTrayNotifyStub, &CLSID_TrayNotify>,
-    public ITrayNotify
-{
-public:
-    CTrayNotifyStub() {};
-    virtual ~CTrayNotifyStub() {};
 
-    DECLARE_NOT_AGGREGATABLE(CTrayNotifyStub)
-
-    BEGIN_COM_MAP(CTrayNotifyStub)
-        COM_INTERFACE_ENTRY(ITrayNotify)
-    END_COM_MAP()
-
-    // *** ITrayNotify method ***
-    STDMETHODIMP RegisterCallback(INotificationCB* pNotifyCB, ULONG*);
-    STDMETHODIMP UnregisterCallback(ULONG*);
-    STDMETHODIMP SetPreference(LPNOTIFYITEM pNotifyItem);
-    STDMETHODIMP EnableAutoTray(BOOL bTraySetting);
-    STDMETHODIMP DoAction(BOOL bTraySetting);
-};
 
 //
 // CTrayNotifyStub functions...
 //
-HRESULT CTrayNotifyStub::SetPreference(LPNOTIFYITEM pNotifyItem)
+HRESULT CTrayNotifyStub::SetPreference(NOTIFYITEM pNotifyItem)
 {
     return c_tray._trayNotify.SetPreference(pNotifyItem);
 }
@@ -127,6 +103,11 @@ HRESULT CTrayNotifyStub::EnableAutoTray(BOOL bTraySetting)
 HRESULT CTrayNotifyStub::DoAction(BOOL bTraySetting)
 {
 	return S_OK;
+}
+
+STDMETHODIMP_(HRESULT __stdcall) CTrayNotifyStub::SetWindowingEnvironmentConfig(IUnknown* unk)
+{
+    return E_NOTIMPL;
 }
 
 HRESULT CTrayNotifyStub_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk)
@@ -274,28 +255,28 @@ HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB)
     return S_OK;
 }
 
-HRESULT CTrayNotify::SetPreference(LPNOTIFYITEM pNotifyItem)
+HRESULT CTrayNotify::SetPreference(NOTIFYITEM pNotifyItem)
 {
     // This function should NEVER be called if the NoTrayItemsDisplayPolicy is enabled...
     ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
 
     ASSERT(!GetIsNoAutoTrayPolicyEnabled());
 
-    ASSERT( pNotifyItem->dwUserPref == TNUP_AUTOMATIC   ||
-            pNotifyItem->dwUserPref == TNUP_DEMOTED     ||
-            pNotifyItem->dwUserPref == TNUP_PROMOTED );
+	ASSERT(pNotifyItem.dwUserPref == TNUP_AUTOMATIC ||
+		pNotifyItem.dwUserPref == TNUP_DEMOTED ||
+		pNotifyItem.dwUserPref == TNUP_PROMOTED);
 
     INT_PTR iItem = -1;
 
-    if (pNotifyItem->hWnd)
+    if (pNotifyItem.hWnd)
     {
-        iItem = m_TrayItemManager.FindItemAssociatedWithHwndUid(pNotifyItem->hWnd, pNotifyItem->uID);
+        iItem = m_TrayItemManager.FindItemAssociatedWithHwndUid(pNotifyItem.hWnd, pNotifyItem.uID);
         if (iItem != -1)
         {
             CTrayItem * pti = m_TrayItemManager.GetItemDataByIndex(iItem);
-            if (pti && pti->dwUserPref != pNotifyItem->dwUserPref)
+            if (pti && pti->dwUserPref != pNotifyItem.dwUserPref)
             {
-                pti->dwUserPref = pNotifyItem->dwUserPref;
+                pti->dwUserPref = pNotifyItem.dwUserPref;
                 // If the preference changes, the accumulated time must start again...
                 if (pti->IsStartupIcon())
                     pti->uNumSeconds = 0;
@@ -309,7 +290,7 @@ HRESULT CTrayNotify::SetPreference(LPNOTIFYITEM pNotifyItem)
     }
     else
     {
-        if (m_TrayItemRegistry.SetPastItemPreference(pNotifyItem))
+        if (m_TrayItemRegistry.SetPastItemPreference(&pNotifyItem))
             return S_OK;
     }
 
