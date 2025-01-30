@@ -2892,6 +2892,20 @@ bool SHUndocInit(void)
 	if (!CFSFolder_CreateFolder)
 		*(FARPROC*)&CFSFolder_CreateFolder = (FARPROC)FindPattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 48 83 EC 20 48 8B 74 24 68 48 8B D9 B9", (uintptr_t)hMod_shell32);
 
+    //8.1 (1/2)
+	if (!CFSFolder_CreateFolder)
+		*(FARPROC*)&CFSFolder_CreateFolder = (FARPROC)FindPattern("48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 48 89 78 20 41 54 41 56 41 57 48 83 EC 20 4C 8B 74 24 68 48 8B D9", (uintptr_t)hMod_shell32);
+
+    //8.1 (2/2)
+	if (!CFSFolder_CreateFolder)
+		*(FARPROC*)&CFSFolder_CreateFolder = (FARPROC)FindPattern("48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 48 89 78 20 41 56 48 83 EC 20 48 8B 74 24 58 49 8B F9 49 8B E8", (uintptr_t)hMod_shell32);
+
+    if (!CFSFolder_CreateFolder)
+    {
+        MessageBoxW(0, TEXT("CFSFolder_CreateFolder"), TEXT("CFSFolder_CreateFolder"),0);
+        return false;
+    }
+
 	return true;
 }
 
