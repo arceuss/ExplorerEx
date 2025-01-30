@@ -2169,17 +2169,26 @@ HRESULT SHGetNameAndFlags(LPCITEMIDLIST pidl, DWORD dwFlags, LPTSTR pszName, UIN
 #define LOAD_MODULE(NAME)                                        \
 HMODULE MODULE_VARNAME(NAME) = LoadLibraryW(L#NAME ".dll");      \
 if (!MODULE_VARNAME(NAME))                                       \
-    return false;
+{\
+    MessageBoxW(0,TEXT(#NAME),TEXT(#NAME),0); \
+    return false;\
+}
 
 #define LOAD_FUNCTION(MODULE, FUNCTION)                                      \
 *(FARPROC *)&FUNCTION = GetProcAddress(MODULE_VARNAME(MODULE), #FUNCTION);   \
 if (!FUNCTION)                                                               \
-	return false;
+{ \
+    MessageBoxW(0, TEXT(#FUNCTION), TEXT(#FUNCTION), 0); \
+	return false; \
+}
 
 #define LOAD_ORDINAL(MODULE, FUNCNAME, ORDINAL)                                   \
 *(FARPROC *)&FUNCNAME = GetProcAddress(MODULE_VARNAME(MODULE), (LPCSTR)ORDINAL);  \
 if (!FUNCNAME)                                                                    \
-	return false;
+{ \
+    MessageBoxW(0, TEXT(#FUNCNAME), TEXT(#FUNCNAME), 0); \
+    return false; \
+}
 
 BOOL SHWinHelp(HWND hwndMain, LPCTSTR lpszHelp, UINT usCommand, ULONG_PTR ulData)
 {
@@ -2825,16 +2834,32 @@ bool SHUndocInit(void)
     //LOAD_ORDINAL(shell32, DDECreatePostNotify, 82);
     //LOAD_ORDINAL(shell32, DDEHandleViewFolderNotify, 202);
 
-	LOAD_MODULE(shcore);
-	LOAD_ORDINAL(shcore, IUnknown_GetClassID, 142);
-    LOAD_ORDINAL(shcore, SHQueueUserWorkItem, 162)
-    LOAD_ORDINAL(shcore, SHLoadRegUIStringW, 126);
-    LOAD_ORDINAL(shcore, SHCreateWorkerWindowW, 188);
+    HMODULE hMod_shcore = LoadLibraryW(L"shcore.dll");
+    if (hMod_shcore)
+    {
+		LOAD_ORDINAL(shcore, IUnknown_GetClassID, 142);
+		LOAD_ORDINAL(shcore, SHQueueUserWorkItem, 162)
+		LOAD_ORDINAL(shcore, SHLoadRegUIStringW, 126);
+		LOAD_ORDINAL(shcore, SHCreateWorkerWindowW, 188);
+    }
+    else
+    {
+		LOAD_ORDINAL(shlwapi, IUnknown_GetClassID, 175);
+		LOAD_ORDINAL(shlwapi, SHQueueUserWorkItem, 260);
+		LOAD_ORDINAL(shlwapi, SHLoadRegUIStringW, 439);
+		LOAD_ORDINAL(shlwapi, SHCreateWorkerWindowW, 278);
+
+    }
+
 
     LOAD_MODULE(user32);
     LOAD_FUNCTION(user32, EndTask);
-    LOAD_ORDINAL(user32, IsShellManagedWindow, 2574);
-    LOAD_ORDINAL(user32, IsShellFrameWindow, 2573);
+    *(FARPROC*)&IsShellManagedWindow = GetProcAddress(hMod_user32, (LPCSTR)2574); if (!IsShellManagedWindow) {
+        //MessageBoxW(0, L"IsShellManagedWindow", L"IsShellManagedWindow", 0); return false;
+    };
+    *(FARPROC*)&IsShellFrameWindow = GetProcAddress(hMod_user32, (LPCSTR)2573); if (!IsShellFrameWindow) {
+        //MessageBoxW(0, L"IsShellFrameWindow", L"IsShellFrameWindow", 0); return false;
+    };
     LOAD_FUNCTION(user32, GhostWindowFromHungWindow);
 
     LOAD_MODULE(msi);
@@ -2850,15 +2875,22 @@ bool SHUndocInit(void)
 
     //expanded cuz ye...
     HMODULE hMod_windowsstorage = LoadLibrary(L"windows.storage.dll"); 
-    if (!hMod_windowsstorage) return false;
-    *(FARPROC*)&CFSFolder_CreateFolder = GetProcAddress(hMod_windowsstorage, "CFSFolder_CreateFolder"); 
-    if (!CFSFolder_CreateFolder)
+    if (hMod_windowsstorage)
+        *(FARPROC*)&CFSFolder_CreateFolder = GetProcAddress(hMod_windowsstorage, "CFSFolder_CreateFolder"); 
+
+    if (!CFSFolder_CreateFolder && hMod_windowsstorage)
     {
         const char* pattern = "40 53 55 56 57 41 54 41 56 41 57 48 83 EC 50 48 8B 05 ?? ?? ?? 00 48 33 C4 48 89 44 24 38";
         *(FARPROC*)&CFSFolder_CreateFolder= (FARPROC)FindPattern(pattern, (uintptr_t)hMod_windowsstorage);
+
+        
+
+
         if (!CFSFolder_CreateFolder) return false;
     }
-
+	//for win7
+	if (!CFSFolder_CreateFolder)
+		*(FARPROC*)&CFSFolder_CreateFolder = (FARPROC)FindPattern("48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 48 83 EC 20 48 8B 74 24 68 48 8B D9 B9", (uintptr_t)hMod_shell32);
 
 	return true;
 }

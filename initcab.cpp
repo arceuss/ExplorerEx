@@ -1818,7 +1818,8 @@ public:
 		SHCreateThreadRef(&ref, &this->punk);
 		SHSetThreadRef(this->punk);
         static void(*fSetProcessReference)(IUnknown * punk) = decltype(fSetProcessReference)(GetProcAddress(LoadLibrary(L"api-ms-win-shcore-thread-l1-1-0"),"SetProcessReference"));
-        fSetProcessReference(punk);
+        if (fSetProcessReference)
+            fSetProcessReference(punk);
         //SetProcessReference(punk);
     }
     virtual ~CThreadRefHost()

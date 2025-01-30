@@ -4299,13 +4299,22 @@ BOOL WINAPI CTaskBand::BuildEnumProc(HWND hwnd, LPARAM lParam)
         if (bCloaked)
             return TRUE;
 
-        if (IsShellFrameWindow(hwnd) && !GhostWindowFromHungWindow(hwnd))
+        if (IsShellFrameWindow)
         {
-            ptasks->_AddWindow(hwnd);
-            return TRUE;
+			if (IsShellFrameWindow(hwnd) && !GhostWindowFromHungWindow(hwnd))
+			{
+				ptasks->_AddWindow(hwnd);
+				return TRUE;
+			}
         }
+        else if (!GhostWindowFromHungWindow(hwnd))
+        {
+			ptasks->_AddWindow(hwnd);
+			return TRUE;
+        }
+        
 
-        if (IsShellManagedWindow(hwnd) && GetPropW(hwnd, L"Microsoft.Windows.ShellManagedWindowAsNormalWindow") == NULL)
+        if (IsShellManagedWindow && IsShellManagedWindow(hwnd) && GetPropW(hwnd, L"Microsoft.Windows.ShellManagedWindowAsNormalWindow") == NULL)
             return TRUE;
 
         ptasks->_AddWindow(hwnd);

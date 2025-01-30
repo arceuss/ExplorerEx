@@ -258,12 +258,12 @@ INotificationCB : IUnknown
 MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4")
 ITrayNotify : IUnknown
 {
-    virtual STDMETHOD(RegisterCallback)(INotificationCB * callback, ULONG*) PURE;
-    virtual STDMETHOD(UnregisterCallback)(ULONG*) PURE;
-    virtual STDMETHOD(SetPreference)(NOTIFYITEM) PURE;
-    virtual STDMETHOD(EnableAutoTray)(BOOL) PURE;
-    virtual STDMETHOD(DoAction)(BOOL) PURE;
-    virtual STDMETHOD(SetWindowingEnvironmentConfig)(IUnknown*) PURE;
+    STDMETHOD(RegisterCallback)(INotificationCB * callback, ULONG*) PURE;
+    STDMETHOD(UnregisterCallback)(ULONG*) PURE;
+    STDMETHOD(SetPreference)(NOTIFYITEM) PURE;
+    STDMETHOD(EnableAutoTray)(BOOL) PURE;
+    STDMETHOD(DoAction)(BOOL) PURE;
+    STDMETHOD(SetWindowingEnvironmentConfig)(IUnknown*) PURE;
 };
 #pragma optimize( "", on )
 MIDL_INTERFACE("2F711B17-773C-41D4-93FA-7F23EDCECB66")
