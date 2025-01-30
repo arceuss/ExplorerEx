@@ -341,7 +341,7 @@ private:
     BOOL                _bStartMenuAllowsTrayBalloon;
     BALLOONEVENT        _beLastBalloonEvent;
 };
-
+#pragma optimize( "", off )
 //
 // Stub for CTrayNotify, so as to not break the COM rules of refcounting a static object
 //
@@ -368,5 +368,5 @@ public:
 	virtual STDMETHODIMP DoAction(BOOL bTraySetting) override;
 	virtual STDMETHODIMP SetWindowingEnvironmentConfig(IUnknown* unk) override;
 };
-
+#pragma optimize( "", on )
 #endif  // _TRAYNOT_H

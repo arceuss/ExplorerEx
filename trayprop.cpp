@@ -725,7 +725,7 @@ LRESULT CALLBACK CNotificationsDlg::s_ComboBoxSubClassWndProc( HWND hwnd, UINT u
 
     return DefSubclassProc(hwnd, uMsg, wParam, lParam);
 }
-
+#pragma optimize( "", off )
 void CNotificationsDlg::ApplyChanges(void)
 {
     if (!_fItemChanged)
@@ -739,7 +739,7 @@ void CNotificationsDlg::ApplyChanges(void)
         }
     }
 }
-
+#pragma optimize( "", on )
 void CNotificationsDlg::_ShowComboBox(void)
 {
     int nCurIndex = _GetCurSel();

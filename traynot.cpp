@@ -76,7 +76,7 @@ int CALLBACK DeleteDPAPtrCB(TNINFOITEM *pItem, void *pData)
 }
 
 
-
+#pragma optimize( "", off )
 //
 // CTrayNotifyStub functions...
 //
@@ -121,7 +121,7 @@ HRESULT CTrayNotifyStub_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk)
     else
         return E_OUTOFMEMORY;
 }
-
+#pragma optimize( "", on )
 
 //
 // CTrayNotify Methods..
