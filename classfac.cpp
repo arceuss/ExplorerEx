@@ -162,6 +162,53 @@ void ClassFactory_Stop()
 
 const wchar_t pszCLSID[] = L"SOFTWARE\\Classes\\CLSID\\";
 
+//https://github.com/microsoftarchive/msdn-code-gallery-microsoft/blob/master/OneCodeTeam/UAC%20self-elevation%20(CppUACSelfElevation)/%5BC++%5D-UAC%20self-elevation%20(CppUACSelfElevation)/C++/CppUACSelfElevation/CppUACSelfElevation.cpp#L291
+BOOL IsProcessElevated()
+{
+	BOOL fIsElevated = FALSE;
+	DWORD dwError = ERROR_SUCCESS;
+	HANDLE hToken = NULL;
+
+	// Open the primary access token of the process with TOKEN_QUERY.
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken))
+	{
+		dwError = GetLastError();
+		goto Cleanup;
+	}
+
+	// Retrieve token elevation information.
+	TOKEN_ELEVATION elevation;
+	DWORD dwSize;
+	if (!GetTokenInformation(hToken, TokenElevation, &elevation,
+		sizeof(elevation), &dwSize))
+	{
+		// When the process is run on operating systems prior to Windows 
+		// Vista, GetTokenInformation returns FALSE with the 
+		// ERROR_INVALID_PARAMETER error code because TokenElevation is 
+		// not supported on those operating systems.
+		dwError = GetLastError();
+		goto Cleanup;
+	}
+
+	fIsElevated = elevation.TokenIsElevated;
+
+Cleanup:
+	// Centralized cleanup for all allocated resources.
+	if (hToken)
+	{
+		CloseHandle(hToken);
+		hToken = NULL;
+	}
+
+	// Throw the error if something failed in the function.
+	if (ERROR_SUCCESS != dwError)
+	{
+		throw dwError;
+	}
+
+	return fIsElevated;
+}
+
 void SetupMergedFolderKeys(LPCTSTR clsid)
 {
     WCHAR subKey[255];
@@ -179,11 +226,15 @@ void SetupMergedFolderKeys(LPCTSTR clsid)
     wprintf(L"subkey %s\n",subKey);
     wprintf(L"subKeyShellFolder %s\n", subKeyShellFolder);
 
+    HKEY mainKeyToUse = HKEY_CURRENT_USER;
+    if (IsProcessElevated())
+        mainKeyToUse = HKEY_LOCAL_MACHINE;
+
     HKEY res;
-    bool bHasKey = RegOpenKeyW(HKEY_CURRENT_USER, subKey, &res) == S_OK;
+    bool bHasKey = RegOpenKeyW(mainKeyToUse, subKey, &res) == S_OK;
     if (!bHasKey)
     {
-        bHasKey = RegCreateKeyW(HKEY_CURRENT_USER,subKey,&res) == S_OK;
+        bHasKey = RegCreateKeyW(mainKeyToUse,subKey,&res) == S_OK;
     }
 
     if (!bHasKey)
@@ -215,10 +266,10 @@ void SetupMergedFolderKeys(LPCTSTR clsid)
     if (!bWrote)
         wprintf(L"FAILED TO WRITE!!");
 
-	bHasKey = RegOpenKeyW(HKEY_CURRENT_USER, subKeyShellFolder, &res) == S_OK;
+	bHasKey = RegOpenKeyW(mainKeyToUse, subKeyShellFolder, &res) == S_OK;
 	if (!bHasKey)
 	{
-		bHasKey = RegCreateKeyW(HKEY_CURRENT_USER, subKeyShellFolder, &res) == S_OK;
+		bHasKey = RegCreateKeyW(mainKeyToUse, subKeyShellFolder, &res) == S_OK;
 	}
 
     //DWORD attributes = SFGAO_CANRENAME | SFGAO_CANDELETE | SFGAO_HASPROPSHEET | SFGAO_FOLDER;
