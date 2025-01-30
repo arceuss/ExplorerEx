@@ -1053,6 +1053,12 @@ inline HRESULT(WINAPI *SHMapIDListToSystemImageListIndexAsync)(
     int *outIndex1,
     int *outIndex2
 );
+inline HRESULT(WINAPI* SHMapIDListToSystemImageListIndex)(
+	void* psf,
+	LPCITEMIDLIST pidlChild,
+	int* outIndex1,
+	int idk
+	);
 inline BOOL(WINAPI *IsShellManagedWindow)(HWND hwnd);
 inline BOOL(WINAPI *IsShellFrameWindow)(HWND hwnd);
 inline HWND(WINAPI *GhostWindowFromHungWindow)(HWND hwnd);

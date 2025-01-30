@@ -495,7 +495,12 @@ int SFTBarHost::AddImageForItem(PaneItem *pitem, IShellFolder *psf, LPCITEMIDLIS
     {
         // system image list: Make the shell do the work.
         int iIndex = 0;
-        SHMapIDListToSystemImageListIndexAsync(_psched, psf, pidl, SetIconAsync, _hwnd, pitem, &iIndex, NULL);
+        //SHMapIDListToSystemImageListIndexAsync(_psched, psf, pidl, SetIconAsync, _hwnd, pitem, &iIndex, NULL);
+        SHMapIDListToSystemImageListIndex(psf, pidl, &iIndex, NULL);
+		if (IsWindow(_hwnd))
+		{
+			PostMessage(_hwnd, SFTBM_ICONUPDATE, iIndex, (LPARAM)pitem);
+		}
         return iIndex;
     }
 }

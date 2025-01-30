@@ -2825,7 +2825,7 @@ bool SHUndocInit(void)
     LOAD_ORDINAL(shell32, SHMapIDListToSystemImageListIndexAsync, 787);
     LOAD_ORDINAL(shell32, SHGetUserPicturePath_t, 261);
     LOAD_FUNCTION(shell32, SHUpdateRecycleBinIcon);
-    LOAD_ORDINAL(shell32, SHMapIDListToSystemImageListIndexAsync, 787);
+    LOAD_ORDINAL(shell32, SHMapIDListToSystemImageListIndex, 790);
     LOAD_ORDINAL(shell32, CheckWinIniForAssocs, 711);
     LOAD_ORDINAL(shell32, CheckDiskSpace, 733);
     LOAD_ORDINAL(shell32, CheckStagingArea, 753);
