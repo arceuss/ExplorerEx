@@ -300,6 +300,23 @@ static SpecialFolderDesc s_rgsfd[] = {
         NULL,                               // (no desktop visibility control)
     },
 
+    /* Set Program Access and Defaults */
+    {
+        // Using the ::{guid} gets the icon right
+        TEXT("shell:::{2559a1f7-21d7-11d4-bdaf-00c04f60b9f0}"), // pszTarget
+        REST_NONE,                          // no restriction
+        REGSTR_VAL_DV2_SHOWDEFPROG,         // customize show
+        SFD_SHOW,                           // show by default
+        NULL,                               // no custom callback
+        NULL,                               // no drag/drop customization
+        0,                                  // no special flags for cascaded menu
+        NULL,                               // no custom name
+        NULL,                               // no custom tip
+        NULL,                               // no custom name
+        NULL,                               // (no custom display rule)
+        NULL,                               // (no desktop visibility control)
+    },
+
     /* Printers */
     {
         MAKEINTRESOURCE(CSIDL_PRINTERS),    // pszTarget

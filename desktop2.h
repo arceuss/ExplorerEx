@@ -213,6 +213,7 @@ typedef struct SMNTRACKSHELLMENU {
 #define REGSTR_VAL_DV2_SHOWMYPICS  TEXT("Start_ShowMyPics")
 #define REGSTR_VAL_DV2_SHOWMYMUSIC TEXT("Start_ShowMyMusic")
 #define REGSTR_VAL_DV2_SHOWCPL     TEXT("Start_ShowControlPanel")
+#define REGSTR_VAL_DV2_SHOWDEFPROG TEXT("Start_ShowSetProgramAccessAndDefaults")
 #define REGSTR_VAL_DV2_SHOWPRINTERS TEXT("Start_ShowPrinters")
 #define REGSTR_VAL_DV2_SHOWHELP    TEXT("Start_ShowHelp")
 #define REGSTR_VAL_DV2_SHOWSEARCH  TEXT("Start_ShowSearch")
