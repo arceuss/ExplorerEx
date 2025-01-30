@@ -14,8 +14,6 @@
 #include <util.h>
 
 
-#define REGSTR_EXPLORER_ADVANCED REGSTR_PATH_EXPLORER TEXT("\\Advanced")
-
 #define TF_DV2HOST  0
 // #define TF_DV2HOST TF_CUSTOM1
 

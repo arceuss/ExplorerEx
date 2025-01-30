@@ -28,6 +28,7 @@
 #include <strsafe.h>
 #include <RegStr.h>
 #include <shlguid.h>
+#include <patternhelper.h>
 
 
 
@@ -2848,8 +2849,15 @@ bool SHUndocInit(void)
     LOAD_FUNCTION(comctl32, ImageList_GetFlags);
 
     //expanded cuz ye...
-    HMODULE hMod_windowsstorage = LoadLibraryW(L"windows.storage" ".dll"); if (!hMod_windowsstorage) return false;;
-    *(FARPROC*)&CFSFolder_CreateFolder = GetProcAddress(hMod_windowsstorage, "CFSFolder_CreateFolder"); if (!CFSFolder_CreateFolder) return false;
+    HMODULE hMod_windowsstorage = LoadLibrary(L"windows.storage.dll"); 
+    if (!hMod_windowsstorage) return false;
+    *(FARPROC*)&CFSFolder_CreateFolder = GetProcAddress(hMod_windowsstorage, "CFSFolder_CreateFolder"); 
+    if (!CFSFolder_CreateFolder)
+    {
+        const char* pattern = "40 53 55 56 57 41 54 41 56 41 57 48 83 EC 50 48 8B 05 ?? ?? ?? 00 48 33 C4 48 89 44 24 38";
+        *(FARPROC*)&CFSFolder_CreateFolder= (FARPROC)FindPattern(pattern, (uintptr_t)hMod_windowsstorage);
+        if (!CFSFolder_CreateFolder) return false;
+    }
 
 
 	return true;

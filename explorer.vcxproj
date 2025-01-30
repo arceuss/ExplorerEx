@@ -360,6 +360,7 @@ del "$(IntermediateOutputPath)temp.res"</Command>
     <ClInclude Include="cowsite.h" />
     <ClInclude Include="desktop2.h" />
     <ClInclude Include="desktopp.h" />
+    <ClInclude Include="patternhelper.h" />
     <ClInclude Include="MinHook.h" />
     <ClInclude Include="ntperf.h" />
     <ClInclude Include="ntwmi.h" />
