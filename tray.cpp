@@ -8678,9 +8678,9 @@ STDMETHODIMP CStartDropTarget::Drop(IDataObject* pdtobj, DWORD grfKeyState, POIN
         {
             // Delete it from the pin list if it's already there because
             // we want to move it to the bottom.
-            _ptray->_psmpin->Modify(pidl, NULL,18);
+            _ptray->_psmpin->Modify(pidl, NULL);
             // Now add it to the bottom.
-            _ptray->_psmpin->Modify(NULL, pidl, 18);
+            _ptray->_psmpin->Modify(NULL, pidl);
             ILFree(pidl);
             hr = S_OK;
         }

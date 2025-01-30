@@ -536,6 +536,7 @@ del "$(IntermediateOutputPath)temp.res"</Command>
     <ClCompile Include="mixer.cpp" />
     <ClCompile Include="moreprog.cpp" />
     <ClCompile Include="path.cpp" />
+    <ClCompile Include="pinnedlist.cpp" />
     <ClCompile Include="proglist.cpp" />
     <ClCompile Include="runtask.cpp" />
     <ClCompile Include="sfthost.cpp" />

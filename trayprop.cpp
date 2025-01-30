@@ -187,12 +187,12 @@ void CPinHelper::SavePinInfo(LPCITEMIDLIST pidlVictim, BOOL bOld, BOOL bNew)
     {
         if (bNew)
         {
-            _psmp->Modify(NULL, pidlVictim, 18);
-            _psmp->Modify(pidlVictim, SMPIN_POS(0), 18);
+            _psmp->Modify(NULL, pidlVictim);
+            _psmp->Modify(pidlVictim, SMPIN_POS(0));
         }
         else
         {
-            _psmp->Modify(pidlVictim, NULL, 18);
+            _psmp->Modify(pidlVictim, NULL);
         }
     }
 }

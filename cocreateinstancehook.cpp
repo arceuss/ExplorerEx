@@ -4,6 +4,8 @@
 #include <Dbghelp.h>
 #include "dbg.h"
 #include <ShlObj_core.h>
+#include <initguid.h>
+#include <shundoc.h>
 
 DWORD WINAPI BeepThread(LPVOID)
 {
@@ -11,9 +13,29 @@ DWORD WINAPI BeepThread(LPVOID)
 	return 0;
 }
 
+
 HRESULT CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsContext, REFIID riid, LPVOID* ppv)
 {
+
 	HRESULT hr = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
+	if (FAILED(hr))
+	{
+		if (rclsid == CLSID_StartMenuPin)
+		{
+			// 0 - ipinnedlist3
+			// 1 - iflexiblepinnedlist
+			// 2 - ipinnedlist25
+			int id = 0;
+			if (FAILED(CoCreateInstance(rclsid, pUnkOuter, dwClsContext, IID_IPinnedList3, ppv)))
+				id += 1;
+
+			if (FAILED(CoCreateInstance(rclsid, pUnkOuter, dwClsContext, IID_IFlexibleTaskbarPinnedList, ppv)))
+				id += 1;
+
+			*ppv = new CPinnedListWrapper((IUnknown*)*ppv, id);
+			hr= S_OK;
+		}
+	}
 #ifndef RELEASE
 	if (FAILED(hr))
 	{

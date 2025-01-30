@@ -1340,6 +1340,14 @@ DEFINE_GUID(IID_IAssociationElement, 0xD8F6AD5B, 0xB44F, 0x4BCC, 0x88, 0xFD, 0xE
 DEFINE_GUID(CLSID_PostBootReminder, 0x7849596a, 0x48ea, 0x486e, 0x89, 0x37, 0xa2, 0xa3, 0x00, 0x9f, 0x31, 0xa9);
 DEFINE_GUID(IID_IShellReminderManager, 0x968edb91, 0x8a70, 0x4930, 0x83, 0x32, 0x5f, 0x15, 0x83, 0x8a, 0x64, 0xf9);
 
+// for start
+DEFINE_GUID(CLSID_StartMenuPin, 0xA2A9545D, 0xA0C2, 0x42B4, 0x97, 0x08, 0xA0, 0xB2, 0xBA, 0xDD, 0x77, 0xC8);
+DEFINE_GUID(IID_IPinnedList2, 0xBBD20037, 0xBC0E, 0x42F1, 0x91, 0x3F, 0xE2, 0x93, 0x6B, 0xB0, 0xEA, 0x0C);
+DEFINE_GUID(IID_IPinnedList25, 0x446BC432, 0x57E9, 0x4B72, 0x8E, 0x0F1, 0x0AF, 0x27, 0x11, 0x3D, 0x0CF, 0x9C);
+DEFINE_GUID(IID_IFlexibleTaskbarPinnedList, 0x60274fa2, 0x611f, 0x4b8a, 0xa2, 0x93, 0xf2, 0x7b, 0xf1, 0x03, 0xd1, 0x48);
+DEFINE_GUID(IID_IPinnedList3, 0x0dd79ae2, 0xd156, 0x45d4, 0x9e, 0xeb, 0x3b, 0x54, 0x97, 0x69, 0xe9, 0x40);
+
+
 MIDL_INTERFACE("968edb91-8a70-4930-8332-5f15838a64f9")
 IShellReminderManager : IUnknown
 {
@@ -1400,3 +1408,33 @@ HRESULT CStartMenuFastItems_CreateInstance(IUnknown* punkOuter, REFIID riid, voi
 //DEFINE_GUID(CLSID_UserAssist, 0xDD313E04, 0xFEFF, 0x11D1, 0x8E, 0xCD, 0x00, 0x00, 0xF8, 0x7A, 0x47, 0x0C);
 
 #include "interfacesp.inc"
+
+class CPinnedListWrapper : public IStartMenuPin
+{
+public:
+    CPinnedListWrapper(IUnknown*, int);
+    ~CPinnedListWrapper();
+
+    //IUnknown
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppvObject);
+    STDMETHODIMP_(ULONG) AddRef(void);
+    STDMETHODIMP_(ULONG) Release(void);
+
+    //IPinnedList2
+    STDMETHODIMP EnumObjects(IEnumFullIDList**);
+    STDMETHODIMP Modify(PCIDLIST_ABSOLUTE, PCIDLIST_ABSOLUTE);
+    STDMETHODIMP GetChangeCount(ULONG*);
+    STDMETHODIMP GetPinnableInfo(IDataObject*, int, IShellItem2**, IShellItem**, PWSTR*, INT*);
+    STDMETHODIMP IsPinnable(IDataObject*, int);
+    STDMETHODIMP Resolve(HWND, ULONG, PCIDLIST_ABSOLUTE, PIDLIST_ABSOLUTE*);
+    STDMETHODIMP IsPinned(PCIDLIST_ABSOLUTE);
+    STDMETHODIMP GetPinnedItem(PCIDLIST_ABSOLUTE, PIDLIST_ABSOLUTE*);
+    STDMETHODIMP GetAppIDForPinnedItem(PCIDLIST_ABSOLUTE, PWSTR*);
+    STDMETHODIMP ItemChangeNotify(PCIDLIST_ABSOLUTE, PCIDLIST_ABSOLUTE);
+    STDMETHODIMP UpdateForRemovedItemsAsNecessary(VOID);
+private:
+    IFlexibleTaskbarPinnedList* m_flexList = 0;
+    IPinnedList3* m_pinnedList3 = 0;
+    IPinnedList25* m_pinnedList25 = 0;
+    //int m_build = 0;
+};

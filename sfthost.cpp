@@ -2654,7 +2654,7 @@ void OfferDelete::_ThreadProc()
                                 MAKEINTRESOURCE(IDS_SFTHOST_OFFERREMOVEITEM),
                                 _pszName, MB_YESNO) == IDYES)
             {
-                _psmpin->Modify(_pidlFull, NULL,18);
+                _psmpin->Modify(_pidlFull, NULL);
             }
             ATOMICRELEASE(_psmpin);
         }

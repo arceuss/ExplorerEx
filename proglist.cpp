@@ -3659,7 +3659,7 @@ HRESULT ByUsage::ContextMenuDeleteItem(PaneItem *p, IContextMenu *pcm, CMINVOKEC
         LPITEMIDLIST pidlFull = pitem->CreateFullPidl();
         if (pidlFull)
         {
-            _psmpin->Modify(pidlFull, NULL,18); // delete from pin list
+            _psmpin->Modify(pidlFull, NULL); // delete from pin list
             ILFree(pidlFull);
         }
 
@@ -3786,7 +3786,7 @@ HRESULT ByUsage::ContextMenuRenameItem(PaneItem *p, LPCTSTR ptszNewName)
             if ((pidlNew = ILClone(pitem->RelativePidl())) &&
                 (pidlNew = ByUsageHiddenData::SetAltName(pidlNew, ptszNewName)))
             {
-                hr = _psmpin->Modify(pitem->RelativePidl(), pidlNew, 18);
+                hr = _psmpin->Modify(pitem->RelativePidl(), pidlNew);
                 if (SUCCEEDED(hr))
                 {
                     pitem->SetRelativePidl(pidlNew);
@@ -3844,7 +3844,7 @@ HRESULT ByUsage::ContextMenuRenameItem(PaneItem *p, LPCTSTR ptszNewName)
                         LPITEMIDLIST pidlFullNew = ILCombine(pidlDad, pidlNew);
                         if (pidlFullNew)
                         {
-                            _psmpin->Modify(pitem->RelativePidl(), pidlFullNew, 18);
+                            _psmpin->Modify(pitem->RelativePidl(), pidlFullNew);
                             pitem->SetRelativePidl(pidlFullNew);    // takes ownership
                         }
                         ILFree(pidlDad);
@@ -3915,7 +3915,7 @@ HRESULT ByUsage::MovePinnedItem(PaneItem *p, int iInsert)
     ByUsageItem *pitem = static_cast<ByUsageItem *>(p);
     ASSERT(_IsPinned(pitem));
 
-    return _psmpin->Modify(pitem->RelativePidl(), SMPIN_POS(iInsert), 18);
+    return _psmpin->Modify(pitem->RelativePidl(), SMPIN_POS(iInsert));
 }
 
 //
@@ -3935,8 +3935,8 @@ HRESULT ByUsage::InsertPinnedItem(IDataObject *pdto, int iInsert)
     LPITEMIDLIST pidlItem;
     if (IsPinnable(pdto, SMPINNABLE_REJECTSLOWMEDIA, &pidlItem) == S_OK)
     {
-        if (SUCCEEDED(hr = _psmpin->Modify(NULL, pidlItem,18)) &&
-            SUCCEEDED(hr = _psmpin->Modify(pidlItem, SMPIN_POS(iInsert),18)))
+        if (SUCCEEDED(hr = _psmpin->Modify(NULL, pidlItem)) &&
+            SUCCEEDED(hr = _psmpin->Modify(pidlItem, SMPIN_POS(iInsert))))
         {
             // Woo-hoo!
         }
