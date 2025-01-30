@@ -136,7 +136,6 @@ DWORD GetMinDisplayRes(void);
 #define IDT_STARTBUTTONBALLOON  22
 #define IDT_CHANGENOTIFY        23
 #define IDT_COFREEUNUSED        24
-#define IDT_DESKTOPCLEANUP      25
 
 #define FADEINDELAY             100
 #define BALLOONTIPDELAY         10000 // default balloon time copied from traynot.cpp
@@ -1263,11 +1262,6 @@ LRESULT CTray::_CreateWindows()
             if (IsUserAnAdmin() && !SHRestricted(REST_NOLOWDISKSPACECHECKS))
             {
                 SetTimer(_hwnd, IDT_CHECKDISKSPACE, 60 * 1000, NULL);   // 60 seconds poll
-            }
-
-            if (IsOS(OS_PERSONAL) || IsOS(OS_PROFESSIONAL))
-            {
-                SetTimer(_hwnd, IDT_DESKTOPCLEANUP, 24 * 60 * 60 * 1000, NULL);   // 24 hour poll
             }
 
             if (!SHRestricted(REST_NOCDBURNING))
@@ -3977,10 +3971,6 @@ void CTray::_HandleTimer(WPARAM wTimerID)
         CheckDiskSpace();
         break;
 
-    case IDT_DESKTOPCLEANUP:
-        _CheckDesktopCleanup();
-        break;
-
     case IDT_CHANGENOTIFY:
         // did somebody send another notify since we last handled one?
         if (_fUseChangeNotifyTimer)
@@ -5148,121 +5138,6 @@ void CTray::_HandlePowerStatus(UINT uMsg, WPARAM wParam, LPARAM lParam)
 #define REGSTR_VAL_TIME                   TEXT("Last used time")
 #define REGSTR_VAL_DELTA_DAYS             TEXT("Days between clean up")
 #define REGSTR_VAL_DONTRUN                TEXT("NoRun")
-#define REGSTR_OEM_SEVENDAY_DISABLE       TEXT("OemDesktopCleanupDisable")
-
-//
-// iDays can be negative or positive, indicating time in the past or future
-//
-//
-#define FTsPerDayOver1000 (10000*60*60*24) // we've got (1000 x 10,000) 100ns intervals per second
-
-void CTray::_DesktopCleanup_GetFileTimeNDaysFromGivenTime(const FILETIME* pftGiven, FILETIME* pftReturn, int iDays)
-{
-    __int64 i64 = *((__int64*)pftGiven);
-    i64 += Int32x32To64(iDays * 1000, FTsPerDayOver1000);
-
-    *pftReturn = *((FILETIME*)&i64);
-}
-
-//////////////////////////////////////////////////////
-
-BOOL CTray::_DesktopCleanup_ShouldRun()
-{
-    BOOL fRetVal = FALSE;
-
-    if (!IsOS(OS_ANYSERVER) &&
-        _fIsDesktopConnected &&
-        !SHTestTokenMembership(NULL, DOMAIN_ALIAS_RID_GUESTS) &&
-        !SHRestricted(REST_NODESKTOPCLEANUP))
-    {
-        fRetVal = TRUE;
-
-        FILETIME ftNow, ftLast;
-        SYSTEMTIME st;
-        GetLocalTime(&st);
-        SystemTimeToFileTime(&st, &ftNow);
-
-        DWORD cb = sizeof(ftLast);
-        DWORD dwData;
-        if (ERROR_SUCCESS != SHRegGetUSValue(REGSTR_PATH_CLEANUPWIZ, REGSTR_VAL_TIME,
-            NULL, &ftLast, &cb, FALSE, NULL, 0))
-        {
-            cb = sizeof(dwData);
-            if ((ERROR_SUCCESS == SHGetValue(HKEY_LOCAL_MACHINE, REGSTR_OEM_PATH, REGSTR_OEM_SEVENDAY_DISABLE, NULL, &dwData, &cb)) &&
-                (dwData != 0))
-            {
-                _DesktopCleanup_GetFileTimeNDaysFromGivenTime(&ftNow, &ftLast, -53); // to get the timer to kick in 7 days from now, set last to be 53 days ago
-            }
-            else
-            {
-                ftLast = ftNow;
-            }
-            SHRegSetUSValue(REGSTR_PATH_CLEANUPWIZ, REGSTR_VAL_TIME, NULL, &ftLast, sizeof(ftLast), SHREGSET_FORCE_HKCU);
-        }
-
-        HUSKEY hkey = NULL;
-        if (ERROR_SUCCESS == SHRegOpenUSKey(REGSTR_PATH_CLEANUPWIZ, KEY_READ, NULL, &hkey, FALSE))
-        {
-            //
-            // if we're in normal mode and the DONT RUN flag is set, we return immediately
-            // (the user checked the "don't run automatically" box)
-            //
-            cb = sizeof(DWORD);
-            if ((ERROR_SUCCESS == SHRegQueryUSValue(hkey, REGSTR_VAL_DONTRUN, NULL, &dwData, &cb, FALSE, NULL, 0)) &&
-                (dwData != 0))
-            {
-                fRetVal = FALSE;
-            }
-            else
-            {
-                //
-                // we need to figure out if if we are within the (last run time + delta days) 
-                // time period
-                //                
-                int iDays = 60;
-                if (ERROR_SUCCESS == (SHRegGetUSValue(REGSTR_PATH_CLEANUPWIZ, REGSTR_VAL_DELTA_DAYS,
-                    NULL, &dwData, &cb, FALSE, NULL, 0)))
-                {
-                    iDays = dwData;
-                }
-
-                // if (iDays == 0), run every time!
-                if (iDays > 0)
-                {
-                    FILETIME ftRange;
-
-                    _DesktopCleanup_GetFileTimeNDaysFromGivenTime(&ftLast, &ftRange, iDays);
-                    if (!(CompareFileTime(&ftNow, &ftRange) > 0))
-                    {
-                        fRetVal = FALSE;
-                    }
-                }
-            }
-
-            SHRegCloseUSKey(hkey);
-        }
-    }
-
-    return fRetVal;
-}
-
-void CTray::_CheckDesktopCleanup()
-{
-    if (_DesktopCleanup_ShouldRun())
-    {
-        PROCESS_INFORMATION pi = { 0 };
-        TCHAR szRunDll32[MAX_PATH];
-
-        GetSystemDirectory(szRunDll32, ARRAYSIZE(szRunDll32));
-        PathAppend(szRunDll32, TEXT("rundll32.exe"));
-
-        if (CreateProcessWithArgs(szRunDll32, TEXT("fldrclnr.dll,Wizard_RunDLL"), NULL, &pi))
-        {
-            CloseHandle(pi.hProcess);
-            CloseHandle(pi.hThread);
-        }
-    }
-}
 
 //////////////////////////////////////////////////////
 
@@ -5722,9 +5597,6 @@ void CTray::_HandleDelayBootStuff()
             // signaled" parameter to CreateEvent got ignored.
             SetEvent(_hShellReadyEvent);
         }
-
-        // Check whether we should launch Desktop Cleanup Wizard
-        _CheckDesktopCleanup();
 
         TBOOL(WinStationRegisterConsoleNotification(SERVERNAME_CURRENT, _hwnd, NOTIFY_FOR_THIS_SESSION));
 

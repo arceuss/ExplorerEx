@@ -442,10 +442,6 @@ protected:
     void _HandleWindowPosChanging(LPWINDOWPOS lpwp);
     void _HandlePowerStatus(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    void _DesktopCleanup_GetFileTimeNDaysFromGivenTime(const FILETIME* pftGiven, FILETIME* pftReturn, int iDays);
-    BOOL _DesktopCleanup_ShouldRun();
-    void _CheckDesktopCleanup(void);
-
     static BOOL_PTR WINAPI RogueProgramFileDlgProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
     void _CheckForRogueProgramFile();
     void _OnWaitCursorNotify(LPNMHDR pnm);
