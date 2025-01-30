@@ -2003,10 +2003,10 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
 
             WriteCleanShutdown(FALSE);    // assume we will have a bad shutdown
             CThreadRefHost refhost;
-			//typedef DWORD(WINAPI* STF)(DWORD, DWORD);
-			//static STF SetThreadFlags = (STF)GetProcAddress(LoadLibrary(L"shell32.dll"), (LPSTR)904);
-			//SetThreadFlags(1, 1);
-            //WinList_Init();
+
+            void(*WinList_Init)() = decltype(WinList_Init)(GetProcAddress(LoadLibrary(L"explorerframe.dll"),(LPCSTR)110));
+            if (WinList_Init)
+                WinList_Init();
 
             // If any of the shellwindows are already present, then we want to bail out.
             //
@@ -2055,6 +2055,10 @@ int ExplorerWinMain(HINSTANCE hInstance, HINSTANCE hPrev, LPTSTR pszCmdLine, int
                 WriteCleanShutdown(TRUE);    // we made it out ok, record that fact
                 WriteFaultCount(0);          // clear our count of faults, we are exiting normally
             }
+
+			void(*WinList_Terminate)() = decltype(WinList_Terminate)(GetProcAddress(LoadLibrary(L"explorerframe.dll"), (LPCSTR)111));
+			if (WinList_Terminate)
+                WinList_Terminate();
 
             OleUninitialize();
             SHCoUninitialize(hrInit);
