@@ -20,7 +20,7 @@
 #define MFU_PRO32ALL_06 "%ALLUSERSPROFILE%\\Menú Inicio\\Programas\\MSN Explorer.lnk"
 #define MFU_PRO32ALL_07 "%USERPROFILE%\\Menú Inicio\\Programas\\Reproductor de Windows Media.lnk"
 #define MFU_PRO32ALL_08 "%ALLUSERSPROFILE%\\Menú Inicio\\Programas\\Accesorios\\Windows Messenger.lnk"
-#define MFU_PRO32ALL_09 "%USERPROFILE%\\Menú Inicio\\Programas\Accesorios\\Paseo por Windows XP.lnk"
+#define MFU_PRO32ALL_09 "%USERPROFILE%\\Menú Inicio\\Programas\\Accesorios\\Paseo por Windows XP.lnk"
 #define MFU_PRO32ALL_10 "%ALLUSERSPROFILE%\\Menú Inicio\\Programas\\Accesorios\\Windows Movie Maker.lnk"
 #define MFU_PRO32ALL_11 "%ALLUSERSPROFILE%\\Menú Inicio\\Programas\\Accesorios\\Herramientas del sistema\\Asistente para transferencia de archivos y configuraciones.lnk"
 #define MFU_PRO32ALL_12 ""
@@ -52,7 +52,7 @@
 //  32-bit Server for administrators
 //
 #define MFU_SRV32ADM_00 "%USERPROFILE%\\Menú Inicio\\Programas\Accesorios\\Símbolo del sistema.lnk"
-#define MFU_SRV32ADM_01 "%USERPROFILE%\\Menú Inicio\Programas\\Accesorios\\Bloc de notas.lnk"
+#define MFU_SRV32ADM_01 "%USERPROFILE%\\Menú Inicio\\Programas\\Accesorios\\Bloc de notas.lnk"
 #define MFU_SRV32ADM_02 ""
 #define MFU_SRV32ADM_03 ""
 #define MFU_SRV32ADM_04 ""
@@ -72,7 +72,7 @@
 //  64-bit Server for administrators
 //
 #define MFU_SRV64ADM_00 "%USERPROFILE%\\Menú Inicio\\Programas\Accesorios\\Símbolo del sistema.lnk"
-#define MFU_SRV64ADM_01 "%USERPROFILE%\\Menú Inicio\Programas\\Accesorios\\Bloc de notas.lnk"
+#define MFU_SRV64ADM_01 "%USERPROFILE%\\Menú Inicio\\Programas\\Accesorios\\Bloc de notas.lnk"
 #define MFU_SRV64ADM_02 ""
 #define MFU_SRV64ADM_03 ""
 #define MFU_SRV64ADM_04 ""
