@@ -146,7 +146,13 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
 link /dll /MACHINE:X86 /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
-del "$(IntermediateOutputPath)temp.res"</Command>
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x040A /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.es-ES.res" "localization\es-ES\explorer.es-ES.rc"
+if not exist "$(OutDir)es-ES" md "$(OutDir)es-ES"
+link /dll /MACHINE:X86 /noentry /out:"$(OutDir)es-ES\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.es-ES.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)es-ES\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
@@ -186,7 +192,13 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
 link /dll /MACHINE:X86 /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
-del "$(IntermediateOutputPath)temp.res"</Command>
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x040A /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.es-ES.res" "localization\es-ES\explorer.es-ES.rc"
+if not exist "$(OutDir)es-ES" md "$(OutDir)es-ES"
+link /dll /MACHINE:X86 /noentry /out:"$(OutDir)es-ES\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.es-ES.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)es-ES\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
@@ -226,7 +238,13 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
 link /dll /MACHINE:X86 /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
-del "$(IntermediateOutputPath)temp.res"</Command>
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x040A /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.es-ES.res" "localization\es-ES\explorer.es-ES.rc"
+if not exist "$(OutDir)es-ES" md "$(OutDir)es-ES"
+link /dll /MACHINE:X86 /noentry /out:"$(OutDir)es-ES\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.es-ES.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)es-ES\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
@@ -263,7 +281,13 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
 link /dll /MACHINE:X64 /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
-del "$(IntermediateOutputPath)temp.res"</Command>
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x040A /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.es-ES.res" "localization\es-ES\explorer.es-ES.rc"
+if not exist "$(OutDir)es-ES" md "$(OutDir)es-ES"
+link /dll /MACHINE:X86 /noentry /out:"$(OutDir)es-ES\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.es-ES.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)es-ES\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
@@ -304,7 +328,13 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
 link /dll /MACHINE:X64 /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
-del "$(IntermediateOutputPath)temp.res"</Command>
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x040A /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.es-ES.res" "localization\es-ES\explorer.es-ES.rc"
+if not exist "$(OutDir)es-ES" md "$(OutDir)es-ES"
+link /dll /MACHINE:X86 /noentry /out:"$(OutDir)es-ES\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.es-ES.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)es-ES\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>
@@ -349,7 +379,13 @@ rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x0419 /q "muiconfig.xml" /g 0x0409 
 if not exist "$(OutDir)ru-RU" md "$(OutDir)ru-RU"
 link /dll /MACHINE:X64 /noentry /out:"$(OutDir)ru-RU\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.ru-RU.res"
 muirct -c "$(TargetPath)" -e "$(OutDir)ru-RU\$(TargetFileName).mui"
-del "$(IntermediateOutputPath)temp.res"</Command>
+del "$(IntermediateOutputPath)temp.res"
+
+rc /D "_UNICODE" /D "UNICODE" /D "WINNT" /l 0x040A /q "muiconfig.xml" /g 0x0409 /nologo /fo "$(IntermediateOutputPath)temp.res" /fm"$(IntermediateOutputPath)explorer.es-ES.res" "localization\es-ES\explorer.es-ES.rc"
+if not exist "$(OutDir)es-ES" md "$(OutDir)es-ES"
+link /dll /MACHINE:X86 /noentry /out:"$(OutDir)es-ES\$(TargetFileName).mui" "$(SolutionDir)$(IntermediateOutputPath)explorer.es-ES.res"
+muirct -c "$(TargetPath)" -e "$(OutDir)es-ES\$(TargetFileName).mui"
+del "$(IntermediateOutputPath)temp.res</Command>
     </PostBuildEvent>
     <ResourceCompile>
       <AdditionalOptions>/D "WINNT" /g 0x0409 /q "muiconfig.xml" /fm "$(IntermediateOutputPath)%(Filename).en-US.res" %(AdditionalOptions)</AdditionalOptions>

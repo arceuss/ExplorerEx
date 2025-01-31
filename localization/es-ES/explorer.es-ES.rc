@@ -1,0 +1,336 @@
+
+#pragma code_page(65001)
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+//#include "cabinet.h"
+#include <winres.h>
+#else
+#include <winres.h>
+#endif
+
+#include "rcids.h"
+#include "mfulist_es-ES.h"
+
+// Define this here because its NT5-only and we compile for NT4 (its safe to
+// use this flag anyway, it will be ignored)
+
+/////////////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+LANGUAGE LANG_SPANISH, SUBLANG_SPANISH_MODERN
+
+
+DLG_PROGRAMFILECONFLICT DIALOGEX DISCARDABLE  0, 0, 272, 81
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | (DS_SETFONT|DS_FIXEDSYS)
+CAPTION "Advertencia de nombre de archivo"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    DEFPUSHBUTTON   "Om&itir",IDIGNORE,215,60,50,14
+    PUSHBUTTON      "Cambia&r nombre",IDC_RENAME,148,60,61,14
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,51,258,1
+    CONTROL         "&No realizar esta comprobación al iniciar", 0x1202,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,62,139,10
+    ICON            IDI_WARNING,IDC_STATIC,7,7,21,20
+    LTEXT           "Hay un archivo o carpeta en su equipo llamado ""%s"" que podría hacer que ciertas aplicaciones no funcionen correctamente . Si cambia el nombre a ""%s"" se resolverá este problema. ¿Desea cambiarlo ahora?",
+                    IDC_MSG,34,7,224,37
+END
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_TAAUTOHIDE         BITMAP DISCARDABLE PURE ".\\taautohide.bmp"
+IDB_TALOCKGROUP        BITMAP DISCARDABLE PURE ".\\talockgroup.bmp"
+IDB_TANOLOCKGROUP      BITMAP DISCARDABLE PURE ".\\tanolockgroup.bmp"
+IDB_TALOCKNOGROUP      BITMAP DISCARDABLE PURE ".\\talocknogroup.bmp"
+IDB_TANOLOCKNOGROUP    BITMAP DISCARDABLE PURE ".\\tanolocknogroup.bmp"
+IDB_TAQLLOCKGROUP      BITMAP DISCARDABLE PURE ".\\taqllockgroup.bmp"
+IDB_TAQLNOLOCKGROUP    BITMAP DISCARDABLE PURE ".\\taqlnolockgroup.bmp"
+IDB_TAQLLOCKNOGROUP    BITMAP DISCARDABLE PURE ".\\taqllocknogroup.bmp"
+IDB_TAQLNOLOCKNOGROUP  BITMAP DISCARDABLE PURE ".\\taqlnolocknogroup.bmp"
+
+IDB_NACLOCKCLEAN       BITMAP DISCARDABLE PURE ".\\naclockclean.bmp"
+IDB_NANOCLOCKCLEAN     BITMAP DISCARDABLE PURE ".\\nanoclockclean.bmp"
+IDB_NACLOCKNOCLEAN     BITMAP DISCARDABLE PURE ".\\naclocknoclean.bmp"
+IDB_NANOCLOCKNOCLEAN   BITMAP DISCARDABLE PURE ".\\nanoclocknoclean.bmp"
+
+IDB_STARTPREVIEWNEW     BITMAP DISCARDABLE PURE ".\\NewSM.bmp"
+IDB_STARTPREVIEWCLASSIC BITMAP DISCARDABLE PURE ".\\ClassicSM.bmp"
+
+#ifndef APSTUDIO_INVOKED
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+#define FCIDM_BROWSERFIRST          0xa000
+#define FCIDM_BROWSERLAST           0xbf00
+
+ACCEL_TRAY ACCELERATORS DISCARDABLE
+BEGIN
+    "s",            IDC_KBSTART,        ALT
+    VK_TAB,         FCIDM_NEXTCTL,      VIRTKEY,NOINVERT
+    VK_TAB,         FCIDM_NEXTCTL,      VIRTKEY,NOINVERT,SHIFT
+    VK_TAB,         FCIDM_NEXTCTL,      VIRTKEY,NOINVERT,CONTROL
+    VK_TAB,         FCIDM_NEXTCTL,      VIRTKEY,NOINVERT,CONTROL,SHIFT
+    VK_F5,          FCIDM_REFRESH,      VIRTKEY,NOINVERT
+    VK_F6,          FCIDM_NEXTCTL,      VIRTKEY,NOINVERT
+    VK_RETURN,      IDM_TRAYPROPERTIES, VIRTKEY,NOINVERT,ALT
+    "Z",            IDM_UNDO,           VIRTKEY,NOINVERT,CONTROL
+    VK_F3,          FCIDM_FINDFILES,    VIRTKEY,NOINVERT
+    "m",            IDM_MINIMIZEALLHOTKEY,  VIRTKEY,NOINVERT,ALT
+END
+
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+MENU_TRAYCONTEXT MENU PRELOAD DISCARDABLE
+BEGIN
+        POPUP ""
+        BEGIN
+// WARNING -- CTray::BuildContextMenu assumes position of these menu items
+                MENUITEM "Ajustar &fecha y hora",           IDM_SETTIME
+                MENUITEM "Personali&zar notificaciones...", IDM_NOTIFYCUST
+                MENUITEM SEPARATOR
+// END WARNING
+                MENUITEM "Ca&scada",            IDM_CASCADE
+                MENUITEM "Mosaico &horizontal",  IDM_HORIZTILE
+                MENUITEM "Mosaico vert&ical",    IDM_VERTTILE
+                MENUITEM "Mostrar el &escritorio",           IDM_TOGGLEDESKTOP   
+                MENUITEM "&Deshacer",   IDM_UNDO
+                MENUITEM SEPARATOR
+                MENUITEM "Admi&nistrador de tareas",               IDM_SHOWTASKMAN
+                MENUITEM SEPARATOR
+                MENUITEM "Bloquear la barra de &tareas",           IDM_LOCKTASKBAR
+                MENUITEM "&Propiedades",                 IDM_TRAYPROPERTIES
+        END
+END
+
+
+MENU_GROUPCONTEXT MENUEX PRELOAD DISCARDABLE
+BEGIN
+        POPUP "", -1
+        BEGIN
+                MENUITEM "&Cascada",           IDM_CASCADE
+                MENUITEM "Mosaico &horizontal", IDM_HORIZTILE
+                MENUITEM "Mosaico &vertical",   IDM_VERTTILE
+                MENUITEM "&Minimizar grupo",    IDM_MINIMIZE
+                MENUITEM "", -1,               MFT_SEPARATOR
+                MENUITEM "C&errar grupo",       IDM_CLOSE
+        END
+END
+
+// NB - ToolbarMenu() relies on the order of these menu items.
+// REVIEW HACK Note the spaces after (Empty), these are intentional.
+
+// WARNING:  if you change the order of this, or add new items,
+//           you'll need to change the table in StartMenu_CatMenu
+//           too.
+
+MENU_START MENUEX DISCARDABLE
+BEGIN
+    POPUP ""
+    BEGIN
+        MENUITEM "", -1, MFT_SEPARATOR
+        POPUP "&Programas",                      IDM_PROGRAMS
+        BEGIN
+            MENUITEM "(Vacío)",                     IDM_PROGRAMSINIT,,MFS_GRAYED
+        END
+
+        POPUP "Fa&voritos",                      IDM_FAVORITES
+        BEGIN
+            MENUITEM "(Vacío)",                     -1,,MFS_GRAYED
+        END
+
+        POPUP "Docu&mentos",                     IDM_RECENT
+        BEGIN
+            MENUITEM "(Vacío)",                     IDM_RECENTINIT,,MFS_GRAYED
+        END
+        POPUP "Con&figuración",                      IDM_SETTINGS
+        BEGIN
+            MENUITEM "&Panel de control",                  IDM_CONTROLS
+            MENUITEM "", -1, MFT_SEPARATOR
+#ifdef WINNT
+            MENUITEM "Seguridad de &Windows...",        IDM_MU_SECURITY
+            MENUITEM "&Conexiones de red", IDM_NETCONNECT
+#else
+            MENUITEM "Dial-up &Networking",             IDM_NETCONNECT
+#endif
+            // MENUITEM "&Start Menu",                  IDM_PROGRAMSFOLDER
+            MENUITEM "&Impresoras y faxes",             IDM_PRINTERS
+            // MENUITEM "&Fonts",                       IDM_FONTS
+            // MENUITEM "", -1, MFT_SEPARATOR
+            MENUITEM "&Barra de tareas y menú Inicio",       IDM_TRAYPROPERTIES
+
+        END
+        POPUP "&Buscar",                          IDM_MENU_FIND
+        BEGIN
+            MENUITEM "", -1, MFT_SEPARATOR
+        END
+
+        MENUITEM "&Ayuda y soporte técnico",           IDM_HELPSEARCH
+        MENUITEM "&Ejecutar...",                     IDM_FILERUN
+        MENUITEM "",                            IDM_SEP2,       MFT_SEPARATOR
+        MENUITEM "Sincroni&zar",                 IDM_CSC
+        MENUITEM "&Cerrar sesión de %s...",              IDM_LOGOFF
+        MENUITEM "&Desconectar...",              IDM_MU_DISCONNECT
+        MENUITEM "De&sacoplar equipo",            IDM_EJECTPC
+        MENUITEM "Apaga&r...",               IDM_EXITWIN
+    END
+END
+
+MENU_STARTPANECONTEXT MENUEX PRELOAD DISCARDABLE
+BEGIN
+        POPUP "", -1
+        BEGIN
+                MENUITEM "&Propiedades",        IDSYSPOPUP_STARTMENUPROP
+        END
+END
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+
+#ifdef WINNT
+
+// Neither of these two strings should exceed MAX_PATH in length
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    IDS_OKTOKILLAPP1     "La aplicación está ocupada o no puede responder a su petición de cerrar."
+    IDS_OKTOKILLAPP2     "Si fuerza el cierre de la aplicación, puede causar la pérdida de datos. ¿Desea forzar el cierre de la aplicación?"
+END
+
+#endif
+
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    IDS_STARTBUTTONTIP          "Haga clic aquí para iniciar"
+
+    IDS_UNDOTEMPLATE            "&Deshacer %s"
+    IDS_CASCADE                 "Cascada"
+    IDS_TILE                    "En mosaico"
+    IDS_MINIMIZEALL             "Minimizar todo"
+    IDS_SHOWDEMOTEDTIP          "Mostrar iconos ocultos"
+    IDS_HIDEDEMOTEDTIP          "Ocultar"
+    IDS_BANGICONINFOTITLE       "Ocultando sus iconos de notificación inactivos..."
+    IDS_BANGICONINFOTIP1        "Para ver los iconos ocultos, haga clic en este botón."
+    IDS_TRAYNOTIFYTITLE         "Área de notificación"
+    IDS_TASKBANDTITLE           "Aplicaciones en ejecución"
+    IDS_HIDEDESKTOP             "Mostrar &ventanas abiertas"
+END
+
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    IDS_CABINET             "Explorador de Windows"
+    IDS_STARTMENU           "Menú Inicio"
+    IDS_WINDOWS             "Windows"
+#ifdef WINNT
+    IDS_WINININORUN         "No se puede cargar ni ejecutar ""%1"" especificado en el Registro. Asegúrese de que el archivo existe en el equipo o quite del Registro toda referencia al mismo."
+#else
+    IDS_WINININORUN         "Could not load or run '%1' specified in the WIN.INI file. Make sure the file exists on your computer or remove the reference to it in the WIN.INI file."
+#endif
+    IDS_TASKBAR             "Barra de tareas"
+    IDS_DESKTOP             "Escritorio"
+    IDS_CANTFINDSPECIALDIR  "No se puede ejecutar el comando.\nLa carpeta ""%1"" ha sido quitada."
+    IDS_NOTINITED           "Mi PC o el Explorador de Windows no se han iniciado correctamente. Vuelva a intentarlo."
+    IDS_OUTOFMEM            "Memoria insuficiente para completar esta operación."
+#ifdef FULL_DEBUG
+    IDS_START               "unicode debug"
+    IDS_STARTCLASSIC        "Unicode Debug"
+#else
+    IDS_START               "Inicio"
+    IDS_STARTCLASSIC        "Inicio"
+#endif
+
+    IDS_STARTMENUANDTASKBAR "Propiedades de la barra de tareas y del menú Inicio"
+
+    IDS_STARTMENUBALLOON_TIP "Desde el menú Inicio puede tener acceso a todos los programas, documentos y opciones de configuración. Haga clic en Inicio para comenzar."
+    IDS_STARTMENUBALLOON_TITLE "Haga clic en el botón Inicio"
+
+    IDS_EXCEPTIONMSG        "Se produjo un error interno y una de las ventanas que estaba utilizando se ha cerrado."
+    IDS_RESTRICTIONSTITLE   "Restricciones"
+    IDS_RESTRICTIONS        "Esta operación ha sido cancelada debido a las restricciones especificadas para este equipo. Póngase en contacto con el administrador del sistema."
+
+END
+
+STRINGTABLE DISCARDABLE
+BEGIN
+    IDS_DISPLAY_ERROR "Windows no pudo cambiar la configuración de presentación por la nueva configuración. Devuelva el equipo a su estado anterior, cierre Windows y, a continuación, reinicie el equipo en la configuración deseada."
+    IDS_DISPLAY_WARN "Si continúa, puede producirse un problema con la configuración de monitor. Para cambiar sin problemas a una nueva configuración, salga de Windows y reinicie el equipo en la configuración deseada. ¿Realmente desea continuar?"
+    IDS_TASKDROP_ERROR "No se puede soltar un elemento en un botón de la barra de tareas.\n\nSi arrastra un elemento sobre un botón sin liberar el botón del mouse, tras unos instantes se abrirá la ventana, permitiéndole soltar el elemento dentro de la misma."
+
+    IDS_ALREADYAUTOHIDEBAR "Ya hay una barra de herramientas oculta en este lado de la pantalla.\nSólo puede ocultar automáticamente una barra de herramientas en cada lado de la pantalla."
+    IDS_COMMON      "(Común)"
+    IDS_BETAEXPIRED         "La versión preliminar de Internet Explorer 4.0 Escritorio/Explorador ha caducado. Actualice Internet Explorer 4.0 en WWW.MICROSOFT.COM"
+    IDS_RUNDLGTITLE   "Ejecutar"
+
+    // This has to be in sync with IDM_LOGOFF
+    IDS_LOGOFFNOUSER        "&Cerrar sesión..."
+    // This has to be in sync with IDM_EXITWIN
+    IDS_TURNOFFCOMPUTER     "&Apagar equipo..."
+#ifdef WINNT
+   IDS_OPENCOMMON    "Abrir &todos los usuarios"
+   IDS_EXPLORECOMMON "xplo&rar todos los usuarios"
+#endif
+    IDS_STARTMENUPROP   "&Propiedades"
+
+#ifdef WINNT
+    //IDS_HELP_CMD            "hh.exe>%systemroot%\\help\\windows.chm"
+	// on Whistler, we use Help and Support
+    IDS_HELP_CMD            "helpctr.exe>-FromStartHelp"
+#else
+    //  on millennium, we use the Help AC
+    IDS_HELP_CMD            "helpctr.exe"
+#endif
+    IDS_FIXSCREENRES_TITLE  "Configuración de pantalla"
+    IDS_FIXSCREENRES_TEXT   "La resolución de la pantalla y la intensidad de los colores están configurados con un nivel muy bajo.  Puede obtener una imagen mejor incrementando los niveles. Para realizar esto, haga clic en este globo de texto."
+    IDS_OFFERTOUR_TITLE     "Dar un paseo por Windows XP"
+    IDS_OFFERTOUR_TEXT      "Haga clic aquí para obtener más información acerca de las nuevas y atractivas características de Windows XP. Si desea dar el paseo más tarde, haga clic en Todos los programas del menú Inicio, y a continuación, en Accesorios."
+
+    IDS_CLEANBOOTMSG        "Windows se está ejecutando en modo a prueba de errores.\n\nEste modo de diagnóstico especial de Windows permite corregir el problema que puede haber sido originado por la configuración de su hardware de red. Asegúrese de que esta configuración es correcta en el Panel de control y luego vuelva a iniciar Windows. Mientras está en el modo a prueba de errores es posible que no funcionen algunos dispositivos."
+    IDS_CLEANBOOTMSGRESTORE "Windows se está ejecutando en modo a prueba de errores.\n\nEste modo de diagnóstico especial de Windows permite corregir el problema que haber sido originado por la configuración de su hardware de red. Asegúrese de que esta configuración es correcta en el Panel de control y luego vuelva a iniciar Windows. Mientras está en el modo a prueba de errores no funcionarán algunos dispositivos.\n\nPara continuar con el modo a prueba de errores, haga clic en Sí. Si prefiere utilizar Restaurar sistema para devolver la configuración de su equipo a un estado anterior, haga clic en No."
+    IDS_BOGUSLABELS         "|Ir||"
+END
+
+//  MFU strings
+//
+//  We need to put all of the strings in here, even though only one or two
+//  of them will actually be used.  There is a single MUI package that
+//  is used for both Win32 and Win64, so you can't put #ifdef WIN64 in a
+//  resource file.
+//
+
+STRINGTABLE
+BEGIN
+
+    MFU_ENUMRC(PRO32ALL)
+    MFU_ENUMRC(PRO64ALL)
+    MFU_ENUMRC(SRV32ADM)
+    MFU_ENUMRC(SRV64ADM)
+
+END
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#include "explorer.rcv"
+#include "dlg.es-ES.rc"
+
+#include "resource.h"
+#include "StartPane.es-ES.rc"
+
+/////////////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
