@@ -2,6 +2,7 @@
 #include "shundoc.h"
 #include <stdio.h>
 
+#undef  INTERFACE
 #define INTERFACE   IUserAssist
 
 typedef struct tagOBJECTINFO
@@ -205,7 +206,6 @@ IUserAssist* g_uempUa;      // 0:uninit, -1:failed, o.w.:cached obj
 //
 IUserAssist* GetUserAssist()
 {
-    HRESULT hr;
     IUserAssist* pua = NULL;
 
     if (g_uempUa == 0)

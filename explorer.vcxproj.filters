@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\ATL">
+      <UniqueIdentifier>{263cc518-0f76-4592-89d5-fdb0a4e6d9a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cabinet.h">
@@ -96,9 +99,6 @@
     <ClInclude Include="w4warn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="atlstuff.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="bandsite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -141,66 +141,6 @@
     <ClInclude Include="criticalsection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wtl\atlapp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlcrack.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlctrls.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlctrlw.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlctrlx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlddx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atldlgs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlfind.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlframe.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlgdi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlmisc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlprint.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlres.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlresce.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlscrl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlsplit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atltheme.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atluser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlwince.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="wtl\atlwinx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="runtask.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -240,6 +180,75 @@
     <ClInclude Include="thememanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="patternhelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MinHook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlapp.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlcrack.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrls.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrlw.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlctrlx.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atldlgs.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlddx.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlfind.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlframe.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlgdi.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlmisc.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlprint.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlres.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlresce.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlscrl.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlsplit.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="atlstuff.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atltheme.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atluser.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlwince.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
+    <ClInclude Include="wtl\atlwinx.h">
+      <Filter>Header Files\ATL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="explorer.rcv">
@@ -263,172 +272,172 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="naclockclean.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="naclocknoclean.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="nanoclockclean.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="nanoclocknoclean.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="newsm.bmp">
+    <Image Include="resources\clasicsm.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="sbsbkg.bmp">
+    <Image Include="resources\classicsm.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="srvadv2.bmp">
+    <Image Include="resources\desktop.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="srvapp.bmp">
+    <Image Include="resources\docs.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="srvbkg.bmp">
+    <Image Include="resources\folderop.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="srvdc2.bmp">
+    <Image Include="resources\inetmail.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="srvemb.bmp">
+    <Image Include="resources\inetweb.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="srvweb.bmp">
+    <Image Include="resources\logoffbuttons.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="start.bmp">
+    <Image Include="resources\logoffbuttonshot.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="start16.bmp">
+    <Image Include="resources\mycomold.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="start16mask.bmp">
+    <Image Include="resources\mycomp.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="startclassic.bmp">
+    <Image Include="resources\naclockclean.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="startem.bmp">
+    <Image Include="resources\naclocknoclean.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="stmuper.bmp">
+    <Image Include="resources\nanoclockclean.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="stmupr64.bmp">
+    <Image Include="resources\newsm.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="stmupro.bmp">
+    <Image Include="resources\old_error.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="stmutab.bmp">
+    <Image Include="resources\old_info.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="taautohide.bmp">
+    <Image Include="resources\old_printer.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="talockgroup.bmp">
+    <Image Include="resources\old_printerr.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="talocknogroup.bmp">
+    <Image Include="resources\old_warning.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="tanolockgroup.bmp">
+    <Image Include="resources\overflow.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="tanolocknogroup.bmp">
+    <Image Include="resources\sbsbkg.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="taqllockgroup.bmp">
+    <Image Include="resources\smwmail.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="taqllocknogroup.bmp">
+    <Image Include="resources\srvadv2.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="taqlnolockgroup.bmp">
+    <Image Include="resources\srvapp.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="taqlnolocknogroup.bmp">
+    <Image Include="resources\srvbkg.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="traych.bmp">
+    <Image Include="resources\srvdc2.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="traycho.bmp">
+    <Image Include="resources\srvemb.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="traycv.bmp">
+    <Image Include="resources\srvweb.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="traycvo.bmp">
+    <Image Include="resources\start.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="tsbanner.bmp">
+    <Image Include="resources\start.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="classicsm.bmp">
+    <Image Include="resources\start16.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="logoffbuttons.bmp">
+    <Image Include="resources\start16mask.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="logoffbuttonshot.bmp">
+    <Image Include="resources\startclassic.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="folderop.ico">
+    <Image Include="resources\startem.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="inetmail.ico">
+    <Image Include="resources\stmuper.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="inetweb.ico">
+    <Image Include="resources\stmupr64.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="mycomold.ico">
+    <Image Include="resources\stmupro.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="mycomp.ico">
+    <Image Include="resources\stmutab.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="old_error.ico">
+    <Image Include="resources\taautohide.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="old_info.ico">
+    <Image Include="resources\talockgroup.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="old_printer.ico">
+    <Image Include="resources\talocknogroup.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="old_printerr.ico">
+    <Image Include="resources\tanolockgroup.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="old_warning.ico">
+    <Image Include="resources\tanolocknogroup.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="overflow.ico">
+    <Image Include="resources\taqllockgroup.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="smwmail.ico">
+    <Image Include="resources\taqllocknogroup.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="start.ico">
+    <Image Include="resources\taqlnolockgroup.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="treeup.ico">
+    <Image Include="resources\taqlnolocknogroup.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="underflow.ico">
+    <Image Include="resources\traych.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="clasicsm.ico">
+    <Image Include="resources\traycho.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="desktop.ico">
+    <Image Include="resources\traycv.bmp">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="docs.ico">
+    <Image Include="resources\traycvo.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\treeup.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\tsbanner.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="resources\underflow.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
@@ -556,10 +565,16 @@
     <ClCompile Include="thememanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pinnedlist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="WindowsShell.manifest">
       <Filter>Header Files</Filter>
     </Manifest>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="muiconfig.xml" />
   </ItemGroup>
 </Project>

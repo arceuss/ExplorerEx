@@ -20,7 +20,7 @@ HRESULT CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsCo
 	HRESULT hr = CoCreateInstance(rclsid, pUnkOuter, dwClsContext, riid, ppv);
 	if (FAILED(hr))
 	{
-		if (rclsid == CLSID_StartMenuPin)
+		if (rclsid == CLSID_StartMenuPin || rclsid == CLSID_WebCheck)
 		{
 			// 0 - ipinnedlist3
 			// 1 - iflexiblepinnedlist
