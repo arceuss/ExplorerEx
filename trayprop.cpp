@@ -284,7 +284,7 @@ private:
 
     CSimpleArray<CNotificationItem> _saItems; //copy of the data, initialized by user
     BOOL _fItemChanged;
-    CTrayNotifyStub* _pTrayNotify;
+    ITrayNotify* _pTrayNotify;
     int _nPrevIndex;
     HWND _hwndCombo;
     HWND _hwndListView;
