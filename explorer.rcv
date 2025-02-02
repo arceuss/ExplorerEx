@@ -1,4 +1,6 @@
 #include <ntverp.h>
+#undef VER_COMPANYNAME_STR 
+#undef VER_PRODUCTNAME_STR 
 
 #define VER_FILETYPE                    VFT_APP
 #define VER_FILESUBTYPE                 VFT_UNKNOWN
