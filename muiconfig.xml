@@ -2,6 +2,17 @@
 	<resources>
 		<win32Resources fileType="Application">
 			<neutralResources>
+				<!-- All localised resources are copied over to ensure that
+				     en-US resources are also embedded in the EXE (helps developers) -->
+				<!-- RT_BITMAP, includes only localisable taskbar resources. -->
+				<resourceType typeNameId="#2" itemId="145 146 147 148 149 150 151 152 153 170 171 180 181 182 183" />
+				<!-- RT_MENU -->
+				<resourceType typeNameId="#4"/>
+				<!-- RT_DIALOG -->
+				<resourceType typeNameId="#5"/>
+				<!-- RT_STRING -->
+				<resourceType typeNameId="#6"/>
+			
 				<!-- RT_VERSION -->
 				<resourceType typeNameId="#16"/>
 			</neutralResources>
