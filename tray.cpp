@@ -46,6 +46,7 @@
 #include "startids.h"
 
 #include "debug.h"
+#include <dwmapi.h>
 
 #define DM_FOCUS        0           // focus
 #define DM_SHUTDOWN     TF_TRAY     // shutdown
@@ -1854,6 +1855,12 @@ void CTray::_CreateTrayWindow()
         WS_CLIPCHILDREN | WS_POPUP,
         0, 0, 0, 0, NULL, NULL, hinstCabinet, (void*)this);
 
+
+    // Fix for DWM borders on classic theme
+    BOOL bCompositionEnabled;
+    DwmIsCompositionEnabled(&bCompositionEnabled);
+    DWMNCRENDERINGPOLICY ncrp = bCompositionEnabled ? DWMNCRP_ENABLED : DWMNCRP_DISABLED;
+    DwmSetWindowAttribute(_hwnd, DWMWA_NCRENDERING_POLICY, &ncrp, sizeof(DWMNCRENDERINGPOLICY));
 }
 
 DWORD WINAPI CTray::SyncThreadProc(void* pv)
