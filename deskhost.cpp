@@ -1923,6 +1923,9 @@ void CDesktopHost::LoadResourceInt(UINT ids, LONG* pl)
     }
 }
 
+
+static HANDLE(*IsThemeClassDefined)(HTHEME hTheme, LPCWSTR pszAppName, LPCWSTR pszClassId, int fAllowInheritance);
+
 void CDesktopHost::LoadPanelMetrics()
 {
     // initialize our copy of the panel metrics from the default...
@@ -1962,8 +1965,18 @@ void CDesktopHost::LoadPanelMetrics()
     if (SHGetCurColorRes() > 8)
         _hTheme = OpenThemeData(_hwnd, STARTPANELTHEME);
 
+    IsThemeClassDefined = (decltype(IsThemeClassDefined))GetProcAddress(GetModuleHandle(L"uxtheme.dll"), (LPSTR)0x32);
+
     if (_hTheme)
-    {
+    { 
+        // If there is no start button defined, start menu will fall back to classic theme state.
+        // This is better for incompatible styles as it prevents the interface from being functionally limited
+        if (!IsThemeClassDefined(_hTheme, L"Start", L"Button", 0))
+        {
+            CloseThemeData(_hTheme);
+            _hTheme = NULL;
+        }
+
         // if we fail reading the size from the theme, it will fall back to the defaul size....
 
         RECT rcT;
