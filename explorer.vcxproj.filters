@@ -259,6 +259,9 @@
     </None>
     <None Include="cpp.hint" />
     <None Include="explorer.fakemanifest" />
+    <None Include="interfacesp.inc">
+      <Filter>Header Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="startpane.rc">
