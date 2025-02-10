@@ -57,7 +57,7 @@
 #define BALLOON_INTERVAL_MEDIUM                  3000
 #define BALLOON_INTERVAL_MIN                     1000
 
-const TCHAR CTrayNotify::c_szTrayNotify[]                   = TEXT("TrayNotifyWnd");
+const WCHAR CTrayNotify::c_szTrayNotify[]                   = L"TrayNotifyWnd";
 const WCHAR CTrayNotify::c_wzTrayNotifyTheme[]              = L"TrayNotify";
 const WCHAR CTrayNotify::c_wzTrayNotifyHorizTheme[]         = L"TrayNotifyHoriz";
 const WCHAR CTrayNotify::c_wzTrayNotifyVertTheme[]          = L"TrayNotifyVert";

@@ -258,7 +258,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="cpp.hint" />
-    <None Include="explorer.fakemanifest" />
     <None Include="interfacesp.inc">
       <Filter>Header Files</Filter>
     </None>

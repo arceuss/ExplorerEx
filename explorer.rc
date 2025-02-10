@@ -14,13 +14,6 @@
 #include "rcids.h"
 #include "mfulist.h"
 
-//
-// Include a dummy manifest so that explorer.exe.manifest will not somehow
-// automagically add a manifest to the process.
-//
-
-CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "explorer.fakemanifest"
-
 // Define this here because its NT5-only and we compile for NT4 (its safe to
 // use this flag anyway, it will be ignored)
 

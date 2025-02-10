@@ -514,7 +514,6 @@ del "$(IntermediateOutputPath)temp.res"
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="explorer.fakemanifest" />
     <None Include="explorer.rcv" />
     <None Include="interfacesp.inc" />
     <None Include="resource.rcv" />

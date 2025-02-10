@@ -33,7 +33,7 @@ protected:
 
     HWND _hwnd;
 
-} ;
+};
 
 
 // CNotifySubclassWndProc
