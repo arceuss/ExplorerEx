@@ -255,7 +255,7 @@ protected:
     void _TestNotify();
 #endif
 
-    static const TCHAR c_szTrayNotify[] ;
+    static const WCHAR c_szTrayNotify[];
     static const WCHAR c_wzTrayNotifyTheme[];
     static const WCHAR c_wzTrayNotifyHorizTheme[];
     static const WCHAR c_wzTrayNotifyVertTheme[];
