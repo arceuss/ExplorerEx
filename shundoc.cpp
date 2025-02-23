@@ -1537,7 +1537,16 @@ HRESULT SHBindToIDListParent(LPCITEMIDLIST pidl, REFIID riid, void** ppv, LPCITE
 
 CHAR CharUpperCharA(CHAR c)
 {
-    return (CHAR)(DWORD_PTR)CharUpperA((LPSTR)(DWORD_PTR)(c));
+    // XXX(isabella): MSVC seems to have a bug, presumably with inlining, where the input to
+    // this function, and therefore argument passed through to CharUpperA, is not shortened
+    // down to the length of a single byte, and therefore CharUpperA receives unwanted data
+    // which tends to get interpreted as a pointer.
+    // 
+    // This usually causes an access violation. It is entirely undesirable.
+    //
+    // The fix is simple: always ensure that the upper byte is 0. The mask "& 0xff" is enough
+    // for this purpose.
+    return (CHAR)(DWORD_PTR)CharUpperA((LPSTR)(DWORD_PTR)(c & 0x00ff));
 }
 
 WCHAR CharUpperCharW(WCHAR c)
