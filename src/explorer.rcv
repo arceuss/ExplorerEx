@@ -1,0 +1,13 @@
+#include <ntverp.h>
+#undef VER_COMPANYNAME_STR 
+#undef VER_PRODUCTNAME_STR 
+
+#define VER_FILETYPE                    VFT_APP
+#define VER_FILESUBTYPE                 VFT_UNKNOWN
+#define VER_FILEDESCRIPTION_STR         "Windows Explorer"
+#define VER_INTERNALNAME_STR            "explorer"
+#define VER_ORIGINALFILENAME_STR        "EXPLORER.EXE"
+#define VER_COMPANYNAME_STR             "Microsoft Corporation"
+#define VER_PRODUCTNAME_STR             "Microsoft\xAE Windows\xAE Operating System"
+
+#include <common.ver>
