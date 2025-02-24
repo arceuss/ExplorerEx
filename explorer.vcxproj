@@ -99,22 +99,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
+    <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
+    <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|Win32'">
-    <IncludePath>wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
+    <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
+    <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
+    <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">
-    <IncludePath>wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
+    <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -122,6 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>desktop2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,6 +174,7 @@ del "$(IntermediateOutputPath)temp.res"
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>desktop2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -226,6 +228,7 @@ del "$(IntermediateOutputPath)temp.res"
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>desktop2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -278,6 +281,7 @@ del "$(IntermediateOutputPath)temp.res"
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>desktop2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -330,6 +334,7 @@ del "$(IntermediateOutputPath)temp.res"
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;RELEASE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>desktop2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -387,6 +392,7 @@ del "$(IntermediateOutputPath)temp.res"
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <AdditionalIncludeDirectories>desktop2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -436,7 +442,16 @@ del "$(IntermediateOutputPath)temp.res"
   <ItemGroup>
     <ClInclude Include="cocreateinstancehook.h" />
     <ClInclude Include="cowsite.h" />
-    <ClInclude Include="desktop2.h" />
+    <ClInclude Include="desktop2\deskhost.h" />
+    <ClInclude Include="desktop2\desktop2.h" />
+    <ClInclude Include="desktop2\moreprog.h" />
+    <ClInclude Include="desktop2\pidlbutton.h" />
+    <ClInclude Include="desktop2\proglist.h" />
+    <ClInclude Include="desktop2\resource.h" />
+    <ClInclude Include="desktop2\sfthost.h" />
+    <ClInclude Include="desktop2\specfldr.h" />
+    <ClInclude Include="desktop2\stdafx.h" />
+    <ClInclude Include="desktop2\userpane.h" />
     <ClInclude Include="desktopp.h" />
     <ClInclude Include="patternhelper.h" />
     <ClInclude Include="MinHook.h" />
@@ -471,7 +486,6 @@ del "$(IntermediateOutputPath)temp.res"
     <ClInclude Include="criticalsection.h" />
     <ClInclude Include="cwndproc.h" />
     <ClInclude Include="debug.h" />
-    <ClInclude Include="deskhost.h" />
     <ClInclude Include="dlg.h" />
     <ClInclude Include="dpa.h" />
     <ClInclude Include="help.h" />
@@ -479,21 +493,14 @@ del "$(IntermediateOutputPath)temp.res"
     <ClInclude Include="ieguidp.h" />
     <ClInclude Include="mfulist.h" />
     <ClInclude Include="mixer.h" />
-    <ClInclude Include="moreprog.h" />
-    <ClInclude Include="pidlbutton.h" />
     <ClInclude Include="port32.h" />
-    <ClInclude Include="proglist.h" />
     <ClInclude Include="rcids.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="sfthost.h" />
     <ClInclude Include="shdguid.h" />
     <ClInclude Include="shguidp.h" />
     <ClInclude Include="shundoc.h" />
-    <ClInclude Include="specfldr.h" />
     <ClInclude Include="ssomgr.h" />
     <ClInclude Include="startids.h" />
     <ClInclude Include="startmnu.h" />
-    <ClInclude Include="stdafx.h" />
     <ClInclude Include="taskband.h" />
     <ClInclude Include="taskbar.h" />
     <ClInclude Include="tray.h" />
@@ -514,9 +521,9 @@ del "$(IntermediateOutputPath)temp.res"
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="desktop2\startpane.aps" />
     <None Include="explorer.rcv" />
     <None Include="interfacesp.inc" />
-    <None Include="resource.rcv" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="dlg.rc">
@@ -528,14 +535,6 @@ del "$(IntermediateOutputPath)temp.res"
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">true</ExcludedFromBuild>
     </ResourceCompile>
     <ResourceCompile Include="explorer.rc" />
-    <ResourceCompile Include="startpane.rc">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">true</ExcludedFromBuild>
-    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\clasicsm.ico" />
@@ -603,25 +602,27 @@ del "$(IntermediateOutputPath)temp.res"
     <ClCompile Include="cwndproc.cpp" />
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="defaultmfu.cpp" />
-    <ClCompile Include="deskhost.cpp" />
+    <ClCompile Include="desktop2\deskhost.cpp" />
+    <ClCompile Include="desktop2\logoff.cpp" />
+    <ClCompile Include="desktop2\moreprog.cpp" />
+    <ClCompile Include="desktop2\proglist.cpp" />
+    <ClCompile Include="desktop2\sfthost.cpp" />
+    <ClCompile Include="desktop2\specfldr.cpp" />
+    <ClCompile Include="desktop2\userpane.cpp" />
+    <ClCompile Include="desktop2\wrapctl.cpp" />
     <ClCompile Include="desktopp.cpp" />
     <ClCompile Include="dllload.cpp" />
     <ClCompile Include="hostutil.cpp" />
     <ClCompile Include="ieguidp.cpp" />
     <ClCompile Include="initcab.cpp" />
     <ClCompile Include="libx.cpp" />
-    <ClCompile Include="logoff.cpp" />
     <ClCompile Include="mixer.cpp" />
-    <ClCompile Include="moreprog.cpp" />
     <ClCompile Include="path.cpp" />
     <ClCompile Include="pinnedlist.cpp" />
-    <ClCompile Include="proglist.cpp" />
     <ClCompile Include="runtask.cpp" />
-    <ClCompile Include="sfthost.cpp" />
     <ClCompile Include="shell32startmnu.cpp" />
     <ClCompile Include="shfusion.cpp" />
     <ClCompile Include="shundoc.cpp" />
-    <ClCompile Include="specfldr.cpp" />
     <ClCompile Include="ssomgr.cpp" />
     <ClCompile Include="startmnu.cpp" />
     <ClCompile Include="taskband.cpp" />
@@ -635,9 +636,7 @@ del "$(IntermediateOutputPath)temp.res"
     <ClCompile Include="trayprop.cpp" />
     <ClCompile Include="trayreg.cpp" />
     <ClCompile Include="uemapp.cpp" />
-    <ClCompile Include="userpane.cpp" />
     <ClCompile Include="util.cpp" />
-    <ClCompile Include="wrapctl.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="WindowsShell.manifest" />
