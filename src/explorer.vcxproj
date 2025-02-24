@@ -100,33 +100,33 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|Win32'">
     <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">
     <IncludePath>desktop2\;wtl\;$(VC_IncludePath);$(WindowsSDK_IncludePath);.\;</IncludePath>
-    <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
-    <IntDir>$(ProjectDir)$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>$(ProjectDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
