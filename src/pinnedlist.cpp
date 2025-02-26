@@ -1,21 +1,25 @@
 #include <shundoc.h>
 
-CPinnedListWrapper::CPinnedListWrapper(IUnknown* flex, int id)
+CPinnedListWrapper::CPinnedListWrapper(IUnknown *punk, const GUID &riid)
 {
-	if (id == 0)
+	if (riid == IID_IPinnedList3)
 	{
 		// using IPinnedList3
-		m_pinnedList3 = (IPinnedList3*)flex;
+		m_pinnedList3 = (IPinnedList3*)punk;
 	}
-	else if (id == 1)
+	else if (riid == IID_IFlexibleTaskbarPinnedList)
 	{
 		// using IFlexiblePinnedList
-		m_flexList = (IFlexibleTaskbarPinnedList*)flex;
+		m_flexList = (IFlexibleTaskbarPinnedList*)punk;
 	}
-	else if (id == 2)
+	else if (riid == IID_IPinnedList25)
 	{
 		// using IPinnedList25
-		m_pinnedList25 = (IPinnedList25*)flex;
+		m_pinnedList25 = (IPinnedList25*)punk;
+	}
+	else
+	{
+		ASSERT(0);
 	}
 }
 
@@ -42,7 +46,7 @@ STDMETHODIMP_(HRESULT __stdcall) CPinnedListWrapper::QueryInterface(REFIID riid,
 
 STDMETHODIMP_(ULONG __stdcall) CPinnedListWrapper::AddRef(void)
 {
-	ULONG cref;
+	ULONG cref = 0;
 	if (m_pinnedList25)
 		cref = m_pinnedList25->AddRef();
 	if (m_flexList)
@@ -54,7 +58,7 @@ STDMETHODIMP_(ULONG __stdcall) CPinnedListWrapper::AddRef(void)
 
 STDMETHODIMP_(ULONG __stdcall) CPinnedListWrapper::Release(void)
 {
-	ULONG cref;
+	ULONG cref = 0;
 	if (m_pinnedList25)
 		cref = m_pinnedList25->Release();
 	if (m_flexList)
@@ -62,7 +66,7 @@ STDMETHODIMP_(ULONG __stdcall) CPinnedListWrapper::Release(void)
 	if (m_pinnedList3)
 		cref = m_pinnedList3->Release();
 	if (cref == 0)
-		free((void*)this);
+		free((void*)this); // <- This is probably very stupid.
 	return cref;
 }
 

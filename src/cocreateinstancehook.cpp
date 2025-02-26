@@ -22,17 +22,26 @@ HRESULT CoCreateInstanceHook(REFCLSID rclsid, LPUNKNOWN pUnkOuter, DWORD dwClsCo
 	{
 		if (rclsid == CLSID_StartMenuPin || rclsid == CLSID_WebCheck)
 		{
-			// 0 - ipinnedlist3
-			// 1 - iflexiblepinnedlist
-			// 2 - ipinnedlist25
-			int id = 0;
-			if (FAILED(CoCreateInstance(rclsid, pUnkOuter, dwClsContext, IID_IPinnedList3, ppv)))
-				id += 1;
+			static const GUID *rgpiidTry[] = {
+				// IPinnedList3 is used since Windows 10 build 17763.
+				&IID_IPinnedList3,
+				// IFlexiblePinnedList is used between 14393 and 17763.
+				&IID_IFlexibleTaskbarPinnedList,
+				// IPinnedList25 is used until 14393
+				&IID_IPinnedList25
+			};
 
-			if (FAILED(CoCreateInstance(rclsid, pUnkOuter, dwClsContext, IID_IFlexibleTaskbarPinnedList, ppv)))
-				id += 1;
+			const GUID *piid = nullptr;
+			for (const GUID *&piidCur : rgpiidTry)
+			{
+				piid = piidCur;
+				if (SUCCEEDED(CoCreateInstance(rclsid, pUnkOuter, dwClsContext, *piid, ppv)))
+				{
+					break;
+				}
+			}
 
-			*ppv = new CPinnedListWrapper((IUnknown*)*ppv, id);
+			*ppv = new CPinnedListWrapper((IUnknown*)*ppv, *piid);
 			hr= S_OK;
 		}
 	}

@@ -1424,7 +1424,7 @@ HRESULT CStartMenuFastItems_CreateInstance(IUnknown* punkOuter, REFIID riid, voi
 class CPinnedListWrapper : public IStartMenuPin
 {
 public:
-    CPinnedListWrapper(IUnknown*, int);
+    CPinnedListWrapper(IUnknown *punk, const GUID &riid);
     ~CPinnedListWrapper();
 
     //IUnknown
