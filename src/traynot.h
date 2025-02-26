@@ -93,6 +93,14 @@ typedef enum BALLOONEVENT {
         BALLOONEVENT_BALLOONHIDE
 } BALLOONEVENT;
 
+// The anchor point is a new thing introduced in Vista. It is used for NOTIFYICON version 4.
+// This is the internal form of the anchor point WPARAM documented on MSDN for version 4.
+// It is the exact same type, but with a couple sentinel values used for internal Explorer
+// logic.
+#define TRAYITEM_ANCHORPOINT_INPUTTYPE_MOUSE    ((DWORD)(-1))
+#define TRAYITEM_ANCHORPOINT_INPUTTYPE_KEYBOARD ((DWORD)(-2))
+
+
 class CTrayNotify;  // forward declaration...
 
 //
@@ -144,6 +152,9 @@ protected:
     void _OpenTheme();
 
     void _OnSizeChanged(BOOL fForceRepaint);
+
+    // Used for notifications:
+    WPARAM _CalculateAnchorPointWPARAMIfNecessary(DWORD inputType, HWND const hwnd, int itemIndex);
 
     // Tray Animation functions
     DWORD _GetStepTime(int iStep, int cSteps);
@@ -204,7 +215,7 @@ protected:
     BOOL _DeleteNotify(INT_PTR nIcon, BOOL bShutdown, BOOL bShouldSaveIcon);
     BOOL _ModifyNotify(PNOTIFYICONDATA32 pnid, INT_PTR nIcon, BOOL *pbRefresh, BOOL bFirstTime);
     BOOL _SetVersionNotify(PNOTIFYICONDATA32 pnid, INT_PTR nIcon);
-    LRESULT _SendNotify(CTrayItem *pti, UINT uMsg);
+    LRESULT _SendNotify(CTrayItem *pti, UINT uMsg, DWORD dwAnchorPoint, HWND const hwnd, int itemIndex);
     void _SetToolbarHotItem(HWND hWndToolbar, UINT nToolbarIcon);
     INT_PTR _GetToolbarFirstVisibleItem(HWND hWndToolbar, BOOL bFromLast);
 

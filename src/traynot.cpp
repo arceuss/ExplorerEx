@@ -190,7 +190,7 @@ void CTrayNotify::_TickleForTooltip(CNotificationItem *pni)
             m_TrayItemManager.FindItemAssociatedWithHwndUid(pni->hWnd, pni->uID));
         if (pti)
         {
-            _SendNotify(pti, WM_MOUSEMOVE);
+            _SendNotify(pti, WM_MOUSEMOVE, 0, nullptr, 0);
         }
     }
 }
@@ -593,7 +593,10 @@ void CTrayNotify::_DisableCurrentInfoTip(CTrayItem * ptiTemp, UINT uReason, BOOL
         {
             uReason = NIN_BALLOONTIMEOUT;
         }
-        _SendNotify(ptiTemp, uReason);
+
+        // NOTE(isabella) on Vista/V4 compatibility: This code was restructured into a separate
+        // class CTrayBalloonInfoTipManager, which is not aware of these additional parameters.
+        _SendNotify(ptiTemp, uReason, 0, nullptr, 0);
     }
     
     delete _pinfo;
@@ -641,8 +644,10 @@ void CTrayNotify::_ShowInfoTip(HWND hwnd, UINT uID, BOOL bShow, BOOL bAsync, UIN
         {
             if (!_fEnableUserTrackedInfoTips || pti->dwUserPref == TNUP_DEMOTED)
             {
-                _SendNotify(pti, NIN_BALLOONSHOW);
-                _SendNotify(pti, NIN_BALLOONTIMEOUT);
+                // NOTE(isabella) on Vista/V4 compatibility: This code was restructured into a separate
+                // class CTrayBalloonInfoTipManager, which is not aware of these additional parameters.
+                _SendNotify(pti, NIN_BALLOONSHOW, 0, nullptr, 0);
+                _SendNotify(pti, NIN_BALLOONTIMEOUT, 0, nullptr, 0);
             }
         }
 
@@ -679,7 +684,10 @@ void CTrayNotify::_ShowInfoTip(HWND hwnd, UINT uID, BOOL bShow, BOOL bAsync, UIN
                 if ((nIcon != -1) && pti)
                 {
                     pti->dwLastSoundTime = dwLastSoundTime;
-                    _SendNotify(pti, NIN_BALLOONSHOW);
+
+                    // NOTE(isabella) on Vista/V4 compatibility: This code was restructured into a separate
+                    // class CTrayBalloonInfoTipManager, which is not aware of these additional parameters.
+                    _SendNotify(pti, NIN_BALLOONSHOW, 0, nullptr, 0);
                 }
             }
         }
@@ -1007,10 +1015,14 @@ BOOL CTrayNotify::_SetVersionNotify(PNOTIFYICONDATA32 pnid, INT_PTR nIcon)
     {
         pti->uVersion = 0;
         return TRUE;
-    } 
-    else if (pnid->uVersion == NOTIFYICON_VERSION) 
+    }
+    else if (pnid->uVersion == NOTIFYICON_VERSION) // Version 3, used by XP.
     {
         pti->uVersion = NOTIFYICON_VERSION;
+    }
+    else if (pnid->uVersion == NOTIFYICON_VERSION_4) // Version 4, used since Vista.
+    {
+        pti->uVersion = NOTIFYICON_VERSION_4;
         return TRUE;
     } 
     else 
@@ -1269,12 +1281,47 @@ void CTrayNotify::_SetCursorPos(INT_PTR i)
     }
 }
 
-LRESULT CTrayNotify::_SendNotify(CTrayItem * pti, UINT uMsg)
+WPARAM CTrayNotify::_CalculateAnchorPointWPARAMIfNecessary(DWORD inputType, HWND const hwnd, int itemIndex)
+{
+    if (inputType == TRAYITEM_ANCHORPOINT_INPUTTYPE_MOUSE)
+    {
+        POINT ptCursor;
+        if (GetCursorPos(&ptCursor))
+            return MAKEWPARAM(ptCursor.x, ptCursor.y);
+        return 0;
+    }
+    if (inputType == TRAYITEM_ANCHORPOINT_INPUTTYPE_KEYBOARD)
+    {
+        RECT rcItem;
+        if (SendMessageW(hwnd, TB_GETITEMRECT, itemIndex, (LPARAM)&rcItem))
+        {
+            MapWindowPoints(hwnd, nullptr, (LPPOINT)&rcItem, 2);
+            return MAKEWPARAM((rcItem.left + rcItem.right) / 2, (rcItem.top + rcItem.bottom) / 2);
+        }
+        return 0;
+    }
+    return inputType;
+}
+
+LRESULT CTrayNotify::_SendNotify(CTrayItem *pti, UINT uMsg, DWORD dwAnchorPoint, HWND const hwnd, int itemIndex)
 {
     ASSERT(!_fNoTrayItemsDisplayPolicyEnabled);
 
+    WPARAM wParam;
+    LPARAM lParam;
+    if (pti->uVersion >= NOTIFYICON_VERSION_4) // Version 4, used since Vista:
+    {
+        wParam = _CalculateAnchorPointWPARAMIfNecessary(dwAnchorPoint, hwnd, itemIndex);
+        lParam = MAKELPARAM(uMsg, pti->uID);
+    }
+    else // NOTIFYICON version 3 and prior:
+    {
+        wParam = pti->uID;
+        lParam = uMsg;
+    }
+
     if (pti->uCallbackMessage && pti->hWnd)
-       return SendNotifyMessage(pti->hWnd, pti->uCallbackMessage, pti->uID, uMsg);
+       return SendNotifyMessage(pti->hWnd, pti->uCallbackMessage, wParam, lParam);
     return 0;
 }
 
@@ -1439,20 +1486,27 @@ LRESULT CALLBACK CTrayNotify::s_ToolbarWndProc(HWND hwnd, UINT uMsg, WPARAM wPar
 
                 if (pTrayNotify->_hwndToolbarInfoTip)
                     SendMessage(pTrayNotify->_hwndToolbarInfoTip, TTM_POP, 0, 0);
-                
+
                 if (pti)
                 {
+                    // Determine the anchor point command for V4:
+                    DWORD dwAnchorPointCmd = pti->uVersion >= NOTIFYICON_VERSION_4
+                        ? (lParam != TRAYITEM_ANCHORPOINT_INPUTTYPE_MOUSE
+                            ? (DWORD)lParam
+                            : TRAYITEM_ANCHORPOINT_INPUTTYPE_KEYBOARD)
+                        : 0;
+
                     SHAllowSetForegroundWindow(pti->hWnd);
                     if (pti->uVersion >= KEYBOARD_VERSION)
                     {
-                        pTrayNotify->_SendNotify(pti, WM_CONTEXTMENU);
+                        pTrayNotify->_SendNotify(pti, WM_CONTEXTMENU, dwAnchorPointCmd, hwnd, i);
                     }
                     else
                     {
                         if (pTrayNotify->_fKey)
                         {
-                            pTrayNotify->_SendNotify(pti, WM_RBUTTONDOWN);
-                            pTrayNotify->_SendNotify(pti, WM_RBUTTONUP);
+                            pTrayNotify->_SendNotify(pti, WM_RBUTTONDOWN, 0, nullptr, 0);
+                            pTrayNotify->_SendNotify(pti, WM_RBUTTONUP, 0, nullptr, 0);
                         }
                     }
                 }
@@ -2354,8 +2408,10 @@ LRESULT CTrayNotify::_OnMouseEvent(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 _fItemClicked = TRUE;
                 _ActivateTips(FALSE);
             }
-                
-            _SendNotify(pti, uMsg);
+            
+            // XXX(isabella): Compare with ep_taskbar CTrayNotify::_HandleNotifyIcon_MouseEvent
+            // control flow. Amr skips this call when there is a click-down, and XP does not.
+            _SendNotify(pti, uMsg, lParam, nullptr, i);
         } 
         else 
         {
@@ -2673,25 +2729,30 @@ void CTrayNotify::_OnCommand(UINT id, UINT uCmd)
                     {
                         // if they are a new version that understands the keyboard messages,
                         // send the real message to them.
-                        _SendNotify(pti, _fKey ? NIN_KEYSELECT : NIN_SELECT);
+                        _SendNotify(pti, 
+                            _fKey ? NIN_KEYSELECT : NIN_SELECT,
+                            _fKey ? TRAYITEM_ANCHORPOINT_INPUTTYPE_KEYBOARD : TRAYITEM_ANCHORPOINT_INPUTTYPE_MOUSE,
+                            nullptr,
+                            0
+                        );
                         // Hitting RETURN is like double-clicking (which in the new
                         // style means keyselecting twice)
                         if (_fKey && _fReturn)
-                            _SendNotify(pti, NIN_KEYSELECT);
+                            _SendNotify(pti, NIN_KEYSELECT, TRAYITEM_ANCHORPOINT_INPUTTYPE_KEYBOARD, nullptr, 0);
                     }
-                    else
+                    else // pre-XP code:
                     {
                         // otherwise mock up a mouse event if it was a keyboard select
                         // (if it wasn't a keyboard select, we assume they handled it already on
                         // the WM_MOUSE message
                         if (_fKey)
                         {
-                            _SendNotify(pti, WM_LBUTTONDOWN);
-                            _SendNotify(pti, WM_LBUTTONUP);
+                            _SendNotify(pti, WM_LBUTTONDOWN, 0, nullptr, 0);
+                            _SendNotify(pti, WM_LBUTTONUP, 0, nullptr, 0);
                             if (_fReturn)
                             {
-                                _SendNotify(pti, WM_LBUTTONDBLCLK);
-                                _SendNotify(pti, WM_LBUTTONUP);
+                                _SendNotify(pti, WM_LBUTTONDBLCLK, 0, nullptr, 0);
+                                _SendNotify(pti, WM_LBUTTONUP, 0, nullptr, 0);
                             }
                         }
                     }
