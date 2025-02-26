@@ -92,6 +92,8 @@ extern "C" {
 #define UEMIID_SHELL    CLSID_ActiveDesktop     // FEATURE need better one
 #define UEMIID_BROWSER  CLSID_InternetToolbar   // FEATURE need better one
 
+DEFINE_GUID(UAIID_SHORTCUTS, 0xF4E57C4B, 0x2036, 0x45f0, 0xa9, 0xab, 0x44, 0x3b, 0xcf, 0xe3, 0x3d, 0x9f);
+
 #define UEMIND_NIL      (-1)
 #define UEMIND_SHELL    0
 #define UEMIND_BROWSER  1

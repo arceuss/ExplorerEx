@@ -474,6 +474,7 @@ del "$(IntermediateOutputPath)temp.res"
     <ClInclude Include="runtask.h" />
     <ClInclude Include="shfusion.h" />
     <ClInclude Include="thememanager.h" />
+    <ClInclude Include="uemapp.h" />
     <ClInclude Include="winter.h" />
     <ClInclude Include="wmiumkm.h" />
     <ClInclude Include="wtl\atlapp.h" />

@@ -179,7 +179,7 @@ typedef struct
     CLSID clsid;
     DWORD dwFlags;
 } LOADINPROCDATA, * PLOADINPROCDATA;
-
+/*
 typedef struct
 {
     DWORD   cbSize;     // SIZEOF
@@ -187,6 +187,17 @@ typedef struct
     int     cHit;       // profile count
     DWORD   dwAttrs;    // attributes (UEIA_*)
     FILETIME ftExecute; // Last execute filetime
+} UEMINFO, * LPUEMINFO;
+*/
+typedef struct tagUEMINFO {
+    DWORD cbSize; /*  +0x0000  */
+    DWORD dwMask; /*  +0x0004  */
+    DWORD R; /*  +0x0008 40 00 00 00  */
+    DWORD cHit; /*  +0x000c 75 00 00 00  */
+    DWORD cSwitches; /*  +0x0010 75 00 00 00  */
+    DWORD dwTime; /*  +0x0014  */
+    FILETIME ftExecute; /*  +0x0018 ce 1a 00 00  */
+    BOOL fExcludeFromMFU; /*  +0x0020 74 00 00 00  */
 } UEMINFO, * LPUEMINFO;
 
 typedef struct _SHShortcutInvokeAsIDList {
@@ -1245,6 +1256,7 @@ void ILExpungeRemovedHiddenIDs(LPITEMIDLIST pidl);
 BOOL ILRemoveHiddenID(LPITEMIDLIST pidl, IDLHID id);
 LPITEMIDLIST ILAppendHiddenID(LPITEMIDLIST pidl, PCIDHIDDEN pidhid);
 
+
 enum
 {
     XLATEALIAS_MYDOCS = 0x00000001,
@@ -1360,6 +1372,8 @@ DEFINE_GUID(CLSID_WebCheck, 0xE6FB5E20, 0xDE35, 0x11CF, 0x9C, 0x87, 0x00, 0xAA, 
 // {08165EA0-E946-11CF-9C87-00AA005127ED}
 DEFINE_GUID(CLSID_WebCheckNew, 0x08165EA0, 0xE946, 0x11CF, 0x9C, 0x87, 0x00, 0xAA, 0x00, 0x51, 0x27, 0xED);
 
+DEFINE_GUID(IID_IUserAssist10, 0x49B36D57, 0x5FD2, 0x45A7, 0x98, 0x1B, 0x6, 0x2, 0x8D, 0x57, 0x7A, 0x47);
+
 MIDL_INTERFACE("968edb91-8a70-4930-8332-5f15838a64f9")
 IShellReminderManager : IUnknown
 {
@@ -1399,7 +1413,7 @@ DEFINE_GUID(CLSID_MruLongList, 0x53bd6b4e, 0x3780, 0x4693, 0xaf, 0xc3, 0x71, 0x6
 DEFINE_GUID(IID_IAugmentedFolder, 0x2f711b17, 0x773c, 0x41d4, 0x93, 0xfa, 0x7f, 0x23, 0xed, 0xce, 0xcb, 0x66);
 DEFINE_GUID(CLSID_UserEventTimer, 0x864A1288, 0x354C, 0x4D19, 0x9D, 0x68, 0x0C2, 0x74, 0x2B, 0x0B1, 0x49, 0x97);
 
-//         Note: SHRegisterDarwinLink takes ownership of pidlFull. fUpdate means: update the Darwin state right away
+// Note: SHRegisterDarwinLink takes ownership of pidlFull. fUpdate means: update the Darwin state right away
 BOOL SHRegisterDarwinLink(LPITEMIDLIST pidlFull, LPWSTR pszDarwinID, BOOL fUpdate);
 
 // Use this function to update the Darwin state for all registered Darwin shortcuts.
