@@ -2129,9 +2129,9 @@ BOOL ByUsage::_AfterEnumCB(ByUsageAppInfo *papp, AFTERENUMINFO *paei)
         // Note that "new" apps are *not* placed on the list until
         // they are used.  ("new" apps are highlighted on the
         // Start Menu.)
-        //papp->_ueiTotal.cHit = 1;
-        if (!papp->_fPinned /*&&
-            papp->_ueiTotal.cHit && FILETIMEtoInt64(papp->_ueiTotal.ftExecute)*/)
+
+        if (!papp->_fPinned &&
+            papp->_ueiTotal.cHit && FILETIMEtoInt64(papp->_ueiTotal.ftExecute))
         {
 
             ByUsageItem *pitem = papp->CreateByUsageItem();

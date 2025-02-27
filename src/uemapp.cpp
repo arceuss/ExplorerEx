@@ -283,7 +283,7 @@ IUserAssist10* i10 = NULL;
 
 HRESULT UEMQueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
 {
-	printf("UEMQueryEvent\n");
+	//printf("UEMQueryEvent\n");
 	HRESULT hr = E_FAIL;
 
 	/* ass
@@ -307,7 +307,7 @@ HRESULT UEMQueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lPar
 		i10->QueryEntry(UAIID_SHORTCUTS, psz, pui);
 		//wprintf(L"%s; launchcount: %d\n",psz, pui->cHit);
 		CoTaskMemFree(psz);
-		return S_OK;
+		hr = S_OK;
 	}
 
 	return hr;
