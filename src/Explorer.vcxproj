@@ -620,7 +620,7 @@ del "$(IntermediateOutputPath)temp.res"
     <ClCompile Include="COWSite.cpp" />
     <ClCompile Include="CWndProc.cpp" />
     <ClCompile Include="debug.cpp" />
-    <ClCompile Include="DefaultMFU.cpp" />
+    <ClCompile Include="desktop2\DefaultMFU.cpp" />
     <ClCompile Include="desktop2\DeskHost.cpp" />
     <ClCompile Include="desktop2\LogOff.cpp" />
     <ClCompile Include="desktop2\MoreProg.cpp" />

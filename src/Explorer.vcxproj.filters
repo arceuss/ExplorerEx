@@ -502,7 +502,7 @@
     <ClCompile Include="debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="defaultmfu.cpp">
+    <ClCompile Include="desktop2\DefaultMFU.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shundoc.cpp">
