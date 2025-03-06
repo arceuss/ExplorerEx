@@ -622,7 +622,7 @@ del "$(IntermediateOutputPath)temp.res"
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="desktop2\DefaultMFU.cpp" />
     <ClCompile Include="desktop2\DeskHost.cpp" />
-    <ClCompile Include="desktop2\LogOff.cpp" />
+    <ClCompile Include="desktop2\Logoff.cpp" />
     <ClCompile Include="desktop2\MoreProg.cpp" />
     <ClCompile Include="desktop2\ProgList.cpp" />
     <ClCompile Include="desktop2\SFTHost.cpp" />
