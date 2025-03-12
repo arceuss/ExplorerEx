@@ -123,7 +123,7 @@ private:
     void _CalcExcludeRect(RECT* lprcDst);
     void _CalcStartButtonPos(POINT* a2, HRGN* a3);
     HFONT _CreateStartFont();
-    void _ExploreCommonStartMenu();
+    void _ExploreCommonStartMenu(BOOL a2);
 
     const WCHAR _GetCurrentThemeName();
 
