@@ -204,6 +204,11 @@ BOOL CTray::ShouldUseSmallIcons()
     return _fSMSmallIcons;  //_uModalMode possibly
 }
 
+VOID CTray::HandleFullScreenApp2(HWND hwnd)
+{
+    return HandleFullScreenApp(hwnd);
+}
+
 void CTray::ClosePopupMenus()
 {
     if (_pmpStartMenu)
@@ -889,7 +894,6 @@ HWND CTray::_CreateStartButton()
 	// Register for MM device changes
 	_uWinMM_DeviceChange = RegisterWindowMessage(WINMMDEVICECHANGEMSGSTRING);
 
-
 	HWND hwnd = CreateWindowEx(0, WC_BUTTON, TEXT("Start"),
 		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS |
 		BS_PUSHBUTTON | BS_LEFT | BS_VCENTER | dwStyle,
@@ -907,6 +911,7 @@ HWND CTray::_CreateStartButton()
 
 		_StartButtonReset();
 	}
+
 	return hwnd;
 }
 

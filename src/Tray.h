@@ -2,7 +2,6 @@
 
 #ifndef _TRAY_H
 #define _TRAY_H
-#include "StartButton.h"
 
 #ifdef __cplusplus
 
@@ -188,12 +187,12 @@ EXTERN_C void Tray_DoProperties(DWORD dwFlags);
 #define AH_ON           0x01
 #define AH_HIDING       0x02
 
-struct DECLSPEC_NOVTABLE IStartButtonSite
+struct IStartButtonSite
 {
     STDMETHOD_(VOID, EnableTooltips(BOOL bEnable)) PURE;
     STDMETHOD_(VOID, PurgeRebuildRequests()) PURE;
     STDMETHOD_(BOOL, ShouldUseSmallIcons()) PURE;
-    STDMETHOD_(VOID, HandleFullScreenApp(HWND)) PURE;
+    STDMETHOD_(VOID, HandleFullScreenApp2(HWND)) PURE;
     STDMETHOD_(VOID, StartButtonClicked()) PURE;
     STDMETHOD_(VOID, OnStartMenuDismissed()) PURE;
     STDMETHOD_(int, GetStartButtonMinHeight()) PURE;
@@ -202,7 +201,7 @@ struct DECLSPEC_NOVTABLE IStartButtonSite
     STDMETHOD_(VOID, OnStartButtonClosing()) PURE;
 };
 
-class CTray : public CImpWndProc, IStartButtonSite
+class CTray : IStartButtonSite, public CImpWndProc
 {
 public:
 
@@ -215,7 +214,7 @@ public:
     STDMETHODIMP_(VOID) EnableTooltips(BOOL bEnable) override;
     STDMETHODIMP_(VOID) PurgeRebuildRequests() override;
     STDMETHODIMP_(BOOL) ShouldUseSmallIcons() override;
-    STDMETHODIMP_(VOID) HandleFullScreenApp(HWND hwnd) override;
+    STDMETHODIMP_(VOID) HandleFullScreenApp2(HWND hwnd) override;
     STDMETHODIMP_(VOID) StartButtonClicked() override;
     STDMETHODIMP_(VOID) OnStartMenuDismissed() override;
     STDMETHODIMP_(int) GetStartButtonMinHeight() override;
@@ -225,6 +224,7 @@ public:
     //~ End IStartButtonSite Interface
 
     void HandleWindowDestroyed(HWND hwnd);
+    void HandleFullScreenApp(HWND hwnd);
     void RealityCheck();
     DWORD getStuckPlace() { return _uStuckPlace; }
     void InvisibleUnhide(BOOL fShowWindow);
