@@ -247,6 +247,7 @@ public:
     IMenuPopup* GetStartMenu() { return _pmpStartMenu; };
     void StartMenuContextMenu(HWND hwnd, DWORD dwPos);
     BOOL IsTaskbarFading() { return _fTaskbarFading; };
+    void GetStuckMonitorRect(RECT* prcStuck);
 
     DWORD CountOfRunningPrograms();
     void ClosePopupMenus();
