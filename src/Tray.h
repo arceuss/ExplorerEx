@@ -201,7 +201,7 @@ struct IStartButtonSite
     STDMETHOD_(VOID, OnStartButtonClosing()) PURE;
 };
 
-class CTray : IStartButtonSite, public CImpWndProc
+class CTray : public CImpWndProc, IStartButtonSite
 {
 public:
 
