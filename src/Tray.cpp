@@ -181,7 +181,11 @@ const DWORD GlobalKeylist[] =
     MAKELONG(TEXT('B'),MOD_WIN),
 };
 
-CTray::CTray() : _fCanSizeMove(TRUE), _fIsLogoff(FALSE), _fIsDesktopConnected(TRUE)
+CTray::CTray()
+    : _fCanSizeMove(TRUE)
+    , _fIsLogoff(FALSE)
+    , _fIsDesktopConnected(TRUE)
+    , _startButton(this)
 {
 }
 
