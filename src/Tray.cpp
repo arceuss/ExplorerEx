@@ -1148,19 +1148,10 @@ void CTray::StartButtonClicked()
     SendMessageW(_hwnd, WM_COMMAND, IDC_START, NULL);
 }
 
-// to not break functionality
-void Tray_OnStartMenuDismissed()
-{
-    c_tray.OnStartMenuDismissed();
-}
-
 void CTray::OnStartMenuDismissed()
 {
-    _bMainMenuInit = 0;
-    _startButton._fAllowUp = TRUE;
-    Button_SetState(_startButton._hwndStartBtn, 0);
-
     ForceStartButtonUp();
+    _bMainMenuInit = 0;
     PostMessageW(v_hwndTray, TM_SHOWTRAYBALLOON, TRUE, 0);
 }
 
@@ -5334,13 +5325,8 @@ BOOL CTray::IsMouseOverStartButton()    // TODO: revise
                 }
             }
         }
-        POINT pt;
-        GetCursorPos(&pt);
-        bRet = PtInRect(&rc, pt);
-        if (bRet)
-            printf("mouse in start\n");
-        else
-            printf("mouse not in start\n");
+        DWORD messagePos = GetMessagePos();
+        bRet = PtInRect(&rc, { GET_X_LPARAM(messagePos), GET_Y_LPARAM(messagePos) });
     }
 
     return bRet;
@@ -5491,7 +5477,8 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     // EXEX-VISTA: LAZILY MODIFIED. Redo later.
     case WMTRAY_QUERY_MENU:
-        return (LRESULT)_startButton._hwndStartBtn;
+        // return (LRESULT)_hmenuStart;
+        return 0;
 
     case WMTRAY_QUERY_VIEW:
         return (LRESULT)_hwndTasks;
@@ -5570,18 +5557,9 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             if (!_startButton.IsButtonPushed())
             {
-                _startButton.SetStartPaneActive(TRUE);
-                _startButton.DrawStartButton(PBS_PRESSED, true);
-                _startButton.DisplayStartMenu();
-            }
-            else
-            {
-                _startButton.SetStartPaneActive(FALSE);
-                _startButton.DrawStartButton(PBS_NORMAL, true);
-                _startButton.CloseStartMenu();
+                SendMessageW(_startButton._hwndStartBtn, BM_SETSTATE, 1, 0);
             }
         }
-        break;
 
         /*
         if ( CTray::ShowClockFlyoutAsNeeded(this, (int)lprc) )
@@ -5622,6 +5600,8 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 goto DoDefault;
             }
+            
+            _startButton.DrawStartButton(PBS_HOT, true);
         }
         goto DoDefault;
 
@@ -5634,11 +5614,8 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             // SendMessageW(*(HWND *)&this->GAP_ResponseMonitor[52], 0x467u, 0, 0);
             if (_hTheme)
             {
-                // insane work
                 if (!_startButton.IsButtonPushed() && !IsMouseOverStartButton())
                 {
-                    _startButton.SetStartPaneActive(FALSE);
-                    SendMessageW(_startButton._hwndStartBtn, BM_SETSTATE, 0, 0);
                     _startButton.DrawStartButton(PBS_NORMAL, true);
                 }
             }
@@ -6149,18 +6126,6 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         if (!SHRestricted(REST_NOTRAYCONTEXTMENU))
         {
-            // DOESNT WORK (do we need?, cstartbutton handles it fine when the button is big enough)
-            /*
-            if (((HWND)wParam) == _startButton._hwndStartBtn)
-            {
-                // Don't display of the Start Menu is up.
-                if (SendMessage(_startButton._hwndStartBtn, BM_GETSTATE, 0, 0) & BST_PUSHED)
-                    break;
-                _fFromStart = TRUE;
-                _startButton.OnContextMenu(_startButton._hwndStartBtn, (DWORD)lParam);
-                _fFromStart = FALSE;
-            }
-            */
             if (IsPosInHwnd(lParam, _hwndNotify) || SHIsChildOrSelf(_hwndNotify, GetFocus()) == S_OK)
             {
                 // if click was inthe clock, include
@@ -6211,12 +6176,12 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
     // EXEX-VISTA: LAZILY MODIFIED. Redo later.
     case SBM_CANCELMENU:
-        _startButton.CloseStartMenu();
+        //ClosePopupMenus();
         break;
 
     // EXEX-VISTA: SLIGHTLY MODIFIED. Revalidate later.
     case SBM_REBUILDMENU:
-        _startButton.BuildStartMenu();
+        _startButton.CloseStartMenu();
         break;
 
     case WM_WINDOWPOSCHANGED:
@@ -6237,9 +6202,9 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             if (PtInRect(&rc, pt))
             {
-                ShowWindow(_startButton._hwndStartBalloon, SW_HIDE);
-                //_DontShowTheStartButtonBalloonAnyMore();
-                _startButton._DestroyStartButtonBalloon();
+                /*ShowWindow(_hwndStartBalloon, SW_HIDE);
+                _DontShowTheStartButtonBalloonAnyMore();
+                _DestroyStartButtonBalloon();*/
             }
         }
         break;
@@ -6360,7 +6325,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         else if (uMsg == _uStartButtonBalloonTip)
         {
-            ShowWindow(_startButton._hwndStartBalloon, SW_NORMAL);
+            // _ShowStartButtonToolTip();
         }
         else if (uMsg == _uLogoffUser)
         {

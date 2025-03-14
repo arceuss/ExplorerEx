@@ -147,7 +147,7 @@ STDMETHODIMP CStartMenuHost::SetSubMenu(IMenuPopup* pmp, BOOL fSet)
 {
     if (!fSet)
     {
-        Tray_OnStartMenuDismissed();
+        // Tray_OnStartMenuDismissed();
     }
     return NOERROR;
 }
