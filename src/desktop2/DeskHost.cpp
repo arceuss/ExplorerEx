@@ -1235,7 +1235,7 @@ BOOL CDesktopHost::_IsDialogMessage(MSG* pmsg)
         DesktopHost_Dismiss(_hwnd);
         // For accessibility purposes, dismissing the
         // Start Menu should place focus on the Start Button.
-        SetFocus(c_tray._hwndStart);
+        SetFocus(c_tray._startButton._hwndStartBtn);
         return TRUE;
     }
 
@@ -1316,7 +1316,7 @@ BOOL CDesktopHost::_IsDialogMessage(MSG* pmsg)
             DesktopHost_Dismiss(_hwnd);
             // For accessibility purposes, hitting ESC to dismiss the
             // Start Menu should place focus on the Start Button.
-            SetFocus(c_tray._hwndStart);
+            SetFocus(c_tray._startButton._hwndStartBtn);
             return TRUE;
 
         case VK_RETURN:
@@ -2401,7 +2401,8 @@ void CDesktopHost::_OnDismiss(BOOL bDestroy)
         // Don't try to preserve child focus across popups
         _hwndChildFocus = NULL;
 
-        Tray_OnStartMenuDismissed();
+        // EXEX-VISTA(isabella): Temporarily disabled.
+        // Tray_OnStartMenuDismissed();
 
         NotifyWinEvent(EVENT_SYSTEM_MENUPOPUPEND, _hwnd, OBJID_CLIENT, CHILDID_SELF);
     }
