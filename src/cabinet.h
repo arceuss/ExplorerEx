@@ -106,7 +106,7 @@ extern "C" {            /* Assume C declarations for C++ */
 
 //---------------------------------------------------------------------------
 // Globals
-extern HINSTANCE hinstCabinet;  // Instance handle of the app.
+extern HINSTANCE g_hinstCabinet;  // Instance handle of the app.
 
 extern HWND v_hwndDesktop;
 
