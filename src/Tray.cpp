@@ -1145,6 +1145,7 @@ void CTray::HandleFullScreenApp(HWND hwnd)
 
 void CTray::StartButtonClicked()
 {
+    DBIM_MINSIZE
     // TEMP
     _startButton.DisplayStartMenu();
 
