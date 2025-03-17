@@ -372,7 +372,7 @@ protected:
     char dword_144_3;
     char dword_144_4;
 
-    const WCHAR WindowName; // global?
+    const WCHAR WindowName; // @NOTE IZZY PLEASE PUT THIS IN ITS RIGHT PLACE
 
         
     CTaskBand();
