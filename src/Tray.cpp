@@ -4464,10 +4464,12 @@ void CTray::_OpenTaskbarThemeData()
         WCHAR szClassList[32];
         StringCchPrintfW(szClassList, ARRAYSIZE(szClassList), L"%s::%s", L"TaskBarComposited", L"TaskBar");
         _hTheme = OpenThemeData(_hwnd, szClassList);
+        wprintf(L"szClassList: %s", szClassList); // @NOTE(Olivia): Should be TaskbarComposited::Taskbar but its broken lel
     }
     else
     {
         _hTheme = OpenThemeData(_hwnd, L"TaskBar");
+        wprintf(L"szClassList: TaskBar\n");
     }
 }
 
