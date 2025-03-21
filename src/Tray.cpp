@@ -3766,12 +3766,16 @@ void CTray::_OnWinIniChange(HWND hwnd, WPARAM wParam, LPARAM lParam)
     {
         #ifdef DEBUG
         if (wParam == SPI_SETNONCLIENTMETRICS)
+        {
             //TraceMsg(TF_TRAY, "c.t_owic: Non-client metrics (probably) changed.");
+        }
         else
+        {
             //TraceMsg(TF_TRAY, "c.t_owic: Window metrics changed.");
-            #endif
+        }
+        #endif
 
-            _OnNewSystemSizes();
+        _OnNewSystemSizes();
     }
 
     // Handle old extensions.
@@ -4545,7 +4549,7 @@ void CTray::_OnThemeChanged()
     _nBorderPadding = 0;
     if (!_hTheme)
     {
-        NONCLIENTMETRICSW ncm = { sizeof (ncm) };
+        NONCLIENTMETRICSW ncm = { sizeof(ncm) };
         if (SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, 0, &ncm, FALSE))
             _nBorderPadding = ncm.iPaddedBorderWidth;
     }
@@ -5825,7 +5829,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 }
 
                 mouseEvent.cbSize = sizeof(mouseEvent);
-                mouseEvent.dwFlags = TME_HOVER | TME_LEAVE |TME_NONCLIENT;
+                mouseEvent.dwFlags = TME_HOVER | TME_LEAVE | TME_NONCLIENT;
                 mouseEvent.hwndTrack = _hwnd;
                 mouseEvent.dwHoverTime = GetDoubleClickTime();
 
@@ -5838,7 +5842,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 }
 
                 mouseEvent.cbSize = sizeof(mouseEvent);
-                mouseEvent.dwFlags = TME_LEAVE |TME_NONCLIENT;
+                mouseEvent.dwFlags = TME_LEAVE | TME_NONCLIENT;
                 mouseEvent.hwndTrack = _hwnd;
                 mouseEvent.dwHoverTime = NULL;
             }
@@ -6208,9 +6212,11 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
 
             if (lParam)
+            {
                 //TraceMsg(TF_TRAY, "Tray Got: lParam=%s", (LPCSTR)lParam);
+            }
 
-                break;
+            break;
 
         case WM_TIMECHANGE:
             _PropagateMessage(hwnd, uMsg, wParam, lParam);
@@ -6464,7 +6470,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
                 if (PtInRect(&rc, pt))
                 {
-                    
+
                     /*ShowWindow(_startButton._hwndStartBalloon, SW_HIDE);
                     _DontShowTheStartButtonBalloonAnyMore();
                     _startButton._DestroyStartButtonBalloon();*/
