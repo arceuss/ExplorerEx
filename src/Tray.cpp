@@ -4365,9 +4365,13 @@ void CTray::_OnWinIniChange(HWND hwnd, WPARAM wParam, LPARAM lParam)
     {
 #ifdef DEBUG
         if (wParam == SPI_SETNONCLIENTMETRICS)
+        {
             //TraceMsg(TF_TRAY, "c.t_owic: Non-client metrics (probably) changed.");
+        }
         else
+        {
             //TraceMsg(TF_TRAY, "c.t_owic: Window metrics changed.");
+        }
 #endif
 
         _OnNewSystemSizes();
@@ -6452,7 +6456,9 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
 
         if (lParam)
+        {
             //TraceMsg(TF_TRAY, "Tray Got: lParam=%s", (LPCSTR)lParam);
+        }
 
         break;
 
