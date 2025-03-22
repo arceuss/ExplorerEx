@@ -4,10 +4,6 @@
 //***   uemapp.h -- application (client) side of event monitor
 //
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // {
 //***   UEME_* -- events
 #include "uemevt.h"         // separate #include so rulc.exe can use it
@@ -167,9 +163,5 @@ enum {
 // is this the right set? sounds good to me -justmann
 #define XMB_ICONERROR   (MB_ICONERROR|MB_ICONSTOP|MB_ICONEXCLAMATION|MB_ICONHAND)
 // }
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // } _UEMAPP_H_
