@@ -311,7 +311,7 @@ private:
     static BOOL CALLBACK _AfterEnumCB(ByUsageAppInfo *papp, AFTERENUMINFO *paei);
 
 
-    static int UEMNotifyCB(void *param, const GUID *pguidGrp, int eCmd);
+    static int UEMNotifyCB(void* param, const GUID* pguidGrp, const WCHAR*, int eCmd);
 
     BOOL _GetExcludedDirectories();
     bool _IsShortcutNew(ByUsageShortcut *pscut, ByUsageAppInfo *papp, const UEMINFO *puei);

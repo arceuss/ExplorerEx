@@ -25,20 +25,25 @@ typedef struct tagOBJECTINFO
 typedef OBJECTINFO const* LPCOBJECTINFO;
 
 
-
 #define UEIM_HIT        0x01
 #define UEIM_FILETIME   0x02
 
+
 MIDL_INTERFACE("49b36d57-5fd2-45a7-981b-06028d577a47")
-IUserAssist10: public IUnknown
+IShellUserAssist : IUnknown
 {
-public:
-	STDMETHOD(FireEvent)(REFIID, PVOID, LPWSTR, int) PURE;
-	STDMETHOD(QueryEntry)(REFIID, LPWSTR, LPUEMINFO) PURE;
-	//...more of whatever
+	virtual HRESULT STDMETHODCALLTYPE FireEvent(const GUID * pguidGrp, UAEVENT eCmd, const WCHAR * pszPath, DWORD dwTimeElapsed) = 0;
+	virtual HRESULT STDMETHODCALLTYPE QueryEntry(const GUID* pguidGrp, const WCHAR* pszPath, UEMINFO* pui) = 0;
+	virtual HRESULT STDMETHODCALLTYPE SetEntry(const GUID* pguidGrp, const WCHAR* pszPath, UEMINFO* pui) = 0;
+	virtual HRESULT STDMETHODCALLTYPE RenameEntry(const GUID* pguidGrp, const WCHAR* pszPathOld, const WCHAR* pszPathNew) = 0;
+	virtual HRESULT STDMETHODCALLTYPE DeleteEntry(const GUID* pguidGrp, const WCHAR* pszPath) = 0;
+	virtual HRESULT STDMETHODCALLTYPE Enable(BOOL bEnable) = 0;
+	virtual HRESULT STDMETHODCALLTYPE RegisterNotify(UACallback pfnUACB, void* param, int) = 0;
 };
 
-IUserAssist10* i10 = NULL;
+
+
+IShellUserAssist* i10 = NULL;
 
 BOOL UEMIsLoaded()
 {
@@ -51,17 +56,21 @@ BOOL UEMIsLoaded()
 	return fRet;
 }
 
+VOID EnsureUserAssist()
+{
+	if (!i10)
+	{
+		CoCreateInstance(CLSID_UserAssist, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER | CLSCTX_NO_CODE_DOWNLOAD, IID_IUserAssist10, (PVOID*)&i10);
+		i10->Enable(TRUE);
+	}
+}
+
+
 HRESULT UEMFireEvent(const GUID* pguidGrp, int eCmd, DWORD dwFlags, WPARAM wParam, LPARAM lParam)
 {
 	printf("UEMFireEvent\n");
 	HRESULT hr = E_FAIL;
-	/*
-	IUserAssist* pua;
-
-	pua = GetUserAssist();
-	if (pua) {
-		hr = pua->FireEvent(pguidGrp, eCmd, dwFlags, wParam, lParam);
-	}*/
+	
 	IShellFolder* ish = (IShellFolder*)wParam;
 	if (!IsBadReadPtr(ish, sizeof(IShellFolder)))
 	{
@@ -71,11 +80,9 @@ HRESULT UEMFireEvent(const GUID* pguidGrp, int eCmd, DWORD dwFlags, WPARAM wPara
 		LPWSTR psz;
 		StrRetToStrW(&psn, pidl, &psz);
 
-		if (!i10)
-			HRESULT hr = CoCreateInstance(CLSID_UserAssist, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER | CLSCTX_NO_CODE_DOWNLOAD, IID_IUserAssist10, (PVOID*)&i10);
+		EnsureUserAssist();
 
-		i10->FireEvent(UAIID_SHORTCUTS,(PVOID)2, psz, GetTickCount64());
-		//wprintf(L"%s;\n",psz);
+		i10->FireEvent(&UAIID_SHORTCUTS, (UAEVENT)eCmd, psz, GetTickCount64());
 		CoTaskMemFree(psz);
 		hr = S_OK;
 	}
@@ -85,17 +92,11 @@ HRESULT UEMFireEvent(const GUID* pguidGrp, int eCmd, DWORD dwFlags, WPARAM wPara
 
 HRESULT UEMQueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
 {
-	//printf("UEMQueryEvent\n");
+	printf("UEMQueryEvent\n");
 	HRESULT hr = E_FAIL;
 
-	/* ass
-	pua = GetUserAssist();
-	if (pua) {
-		hr = pua->QueryEvent(pguidGrp, eCmd, wParam, lParam, pui);
-	}
-	*/
 	IShellFolder* ish = (IShellFolder*)wParam;
-	if (!IsBadReadPtr(ish, sizeof(IShellFolder)))
+	if (eCmd == UEME_RUNPIDL && !IsBadReadPtr(ish, sizeof(IShellFolder)))
 	{
 		LPITEMIDLIST pidl = (LPITEMIDLIST)lParam;
 		STRRET psn;
@@ -103,11 +104,9 @@ HRESULT UEMQueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lPar
 		LPWSTR psz;
 		StrRetToStrW(&psn, pidl, &psz);
 
-		if (!i10)
-			HRESULT hr = CoCreateInstance(CLSID_UserAssist, NULL, CLSCTX_INPROC_SERVER | CLSCTX_INPROC_HANDLER | CLSCTX_NO_CODE_DOWNLOAD, IID_IUserAssist10, (PVOID*)&i10);
+		EnsureUserAssist();
 
-		i10->QueryEntry(UAIID_SHORTCUTS, psz, pui);
-		//wprintf(L"%s; launchcount: %d\n",psz, pui->cHit);
+		i10->QueryEntry(&UAIID_SHORTCUTS, psz, pui);
 		CoTaskMemFree(psz);
 		hr = S_OK;
 	}
@@ -120,14 +119,32 @@ HRESULT UEMQueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lPar
 HRESULT UEMSetEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
 {
 	printf("UEMSetEvent\n");
+	// same as queryevent kinda
 	HRESULT hr = E_FAIL;
+
+	IShellFolder* ish = (IShellFolder*)wParam;
+	if (!IsBadReadPtr(ish, sizeof(IShellFolder)))
+	{
+		LPITEMIDLIST pidl = (LPITEMIDLIST)lParam;
+		STRRET psn;
+		ish->GetDisplayNameOf(pidl, SHGDN_FORPARSING, &psn);
+		LPWSTR psz;
+		StrRetToStrW(&psn, pidl, &psz);
+
+		EnsureUserAssist();
+
+		i10->SetEntry(&UAIID_SHORTCUTS, psz, pui);
+		CoTaskMemFree(psz);
+		hr = S_OK;
+	}
+
 	return hr;
 }
 
-HRESULT UEMRegisterNotify(UEMCallback pfnUEMCB, void* param)
+HRESULT UEMRegisterNotify(UACallback pfnUEMCB, void* param)
 {
 	printf("UEMRegisterNotify\n");
-	HRESULT hr = E_UNEXPECTED;
+	HRESULT hr = i10->RegisterNotify(pfnUEMCB, param, 1);
 	return hr;
 }
 

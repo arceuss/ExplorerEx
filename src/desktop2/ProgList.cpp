@@ -2324,25 +2324,23 @@ void ByUsage::AfterEnumItems()
     }
 }
 
-int ByUsage::UEMNotifyCB(void *param, const GUID *pguidGrp, int eCmd)
+int ByUsage::UEMNotifyCB(void* param, const GUID* pguidGrp, const WCHAR*, int eCmd)
 {
     ByUsage *pbu = reinterpret_cast<ByUsage *>(param);
     // Refresh our list whenever a new app is started.
     // or when the session changes (because that changes all the usage counts)
+    printf("UEMNotifyCB: %d\n", eCmd);
     switch (eCmd)
     {
-    case UEME_CTLSESSION:
-        if (IsEqualGUID(*pguidGrp, UEMIID_BROWSER))
-            break;
-
-        // Fall thru
-    case UEME_RUNPIDL:
-    case UEME_RUNPATH:
+    // yes
+    case 0:
+    case 3:
 
         if (pbu && pbu->_pByUsageUI)
         {
             pbu->_pByUsageUI->Invalidate();
             pbu->_pByUsageUI->StartRefreshTimer();
+            return 0;
         }
         break;
     default:
