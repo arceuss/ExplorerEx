@@ -14,7 +14,7 @@
 #define TF_DV2DIALOG  0
 // #define TF_DV2DIALOG TF_CUSTOM1
 
-EXTERN_C HINSTANCE hinstCabinet;
+EXTERN_C HINSTANCE g_hinstCabinet;
 HRESULT StartMenuHost_Create(IMenuPopup** ppmp, IMenuBand** ppmb);
 void RegisterDesktopControlClasses();
 
@@ -238,7 +238,7 @@ BOOL CDesktopHost::Register()
     wndclass.lpfnWndProc = WndProc;
     wndclass.cbClsExtra = 0;
     wndclass.cbWndExtra = 0;
-    wndclass.hInstance = hinstCabinet;
+    wndclass.hInstance = g_hinstCabinet;
     wndclass.hIcon = NULL;
     wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
     wndclass.hbrBackground = GetStockBrush(HOLLOW_BRUSH);
@@ -474,7 +474,7 @@ HWND CDesktopHost::_Create()
 {
     TCHAR szTitle[MAX_PATH];
 
-    LoadString(hinstCabinet, IDS_STARTMENU, szTitle, MAX_PATH);
+    LoadString(g_hinstCabinet, IDS_STARTMENU, szTitle, MAX_PATH);
 
     Register();
 
@@ -504,7 +504,7 @@ HWND CDesktopHost::_Create()
         0, 0,
         v_hwndTray,
         NULL,
-        hinstCabinet,
+        g_hinstCabinet,
         this);
 
     v_hwndStartPane = _hwnd;
@@ -863,7 +863,7 @@ void CDesktopHost::OnContextMenu(LPARAM lParam)
     {
 		if (!SHLoadMenuPopup)
 			SHLoadMenuPopup = reinterpret_cast<fnSHLoadMenuPopup>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(177)));
-        HMENU hmenu = SHLoadMenuPopup(hinstCabinet, MENU_STARTPANECONTEXT);
+        HMENU hmenu = SHLoadMenuPopup(g_hinstCabinet, MENU_STARTPANECONTEXT);
         if (hmenu)
         {
             POINT pt;
@@ -1229,7 +1229,7 @@ BOOL CDesktopHost::_IsDialogMessage(MSG* pmsg)
         DesktopHost_Dismiss(_hwnd);
         // For accessibility purposes, dismissing the
         // Start Menu should place focus on the Start Button.
-        SetFocus(c_tray._hwndStart);
+        SetFocus(c_tray._startButton._hwndStartBtn);
         return TRUE;
     }
 
@@ -1310,7 +1310,7 @@ BOOL CDesktopHost::_IsDialogMessage(MSG* pmsg)
             DesktopHost_Dismiss(_hwnd);
             // For accessibility purposes, hitting ESC to dismiss the
             // Start Menu should place focus on the Start Button.
-            SetFocus(c_tray._hwndStart);
+            SetFocus(c_tray._startButton._hwndStartBtn);
             return TRUE;
 
         case VK_RETURN:
@@ -1907,7 +1907,7 @@ void RemapSizeForHighDPI(SIZE* psiz)
 void CDesktopHost::LoadResourceInt(UINT ids, LONG* pl)
 {
     TCHAR sz[64];
-    if (LoadString(hinstCabinet, ids, sz, ARRAYSIZE(sz)))
+    if (LoadString(g_hinstCabinet, ids, sz, ARRAYSIZE(sz)))
     {
         int i = StrToInt(sz);
         if (i)
@@ -2395,7 +2395,8 @@ void CDesktopHost::_OnDismiss(BOOL bDestroy)
         // Don't try to preserve child focus across popups
         _hwndChildFocus = NULL;
 
-        Tray_OnStartMenuDismissed();
+        // EXEX-VISTA(isabella): Temporarily disabled.
+        // Tray_OnStartMenuDismissed();
 
         NotifyWinEvent(EVENT_SYSTEM_MENUPOPUPEND, _hwnd, OBJID_CLIENT, CHILDID_SELF);
     }

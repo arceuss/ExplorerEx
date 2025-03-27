@@ -90,6 +90,140 @@ protected:
     WCHAR* _pwzTheme;
 };
 
+LRESULT CALLBACK TaskbarSizingBarSubclassProc(
+    HWND hWnd,
+    UINT uMsg,
+    WPARAM wParam,
+    LPARAM lParam,
+    UINT_PTR uIdSubclass,
+    DWORD_PTR dwRefData)
+{
+    if (uMsg == WM_NCDESTROY)
+    {
+        RemoveWindowSubclass(hWnd, TaskbarSizingBarSubclassProc, 0);
+    }
+    else if (uMsg == WM_NCHITTEST)
+    {
+        RECT rc;
+        GetWindowRect(hWnd, &rc);
+
+        UINT uStuckPlace = c_tray.getStuckPlace();
+        /*if (uStuckPlace)
+        {
+            if (uStuckPlace == 1)
+            {
+                rc.bottom -= dword_106D610;
+            }
+            else if (uStuckPlace == 2)
+            {
+                rc.left += dword_106D610;
+            }
+            else
+            {
+                rc.top += dword_106D610;
+            }
+        }
+        else
+        {
+            rc.right -= dword_106D610;
+        }*/
+
+        POINT pt;
+        pt.x = GET_X_LPARAM(lParam);
+        pt.y = GET_Y_LPARAM(lParam);
+        if (!PtInRect(&rc, pt))
+            return HTTRANSPARENT;
+    }
+    return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
+
+// @NOTE (Olivia): Partially taken from ep_taskbar
+void BandSite_AccountBandForTaskbarSizingBar(IBandSite* pbs, DWORD dwBandID, BOOL bSomething)
+{
+    IDeskBand* pdb;
+    if (SUCCEEDED(pbs->GetBandObject(dwBandID, IID_PPV_ARGS(&pdb))))
+    {
+        HWND hwnd;
+        if (SUCCEEDED(IUnknown_GetWindow(pdb, &hwnd)))
+        {
+            if (!BandSite_TestBandCLSID(pbs, dwBandID, CLSID_TaskBand))
+                hwnd = GetWindow(hwnd, GW_CHILD);
+            if (hwnd)
+            {
+                if (bSomething)
+                    SetWindowSubclass(hwnd, TaskbarSizingBarSubclassProc, NULL, 0);
+                else
+                    RemoveWindowSubclass(hwnd, TaskbarSizingBarSubclassProc, NULL);
+            }
+        }
+        pdb->Release();
+    }
+}
+
+// @NOTE (Olivia): Partially taken from ep_taskbar but using a while loop instead of a for loop
+void BandSite_AccountAllBandsForTaskbarSizingBar(IBandSite* pbs, BOOL bSomething)
+{
+    UINT iBand = 0;
+    DWORD dwBandID;
+    while (SUCCEEDED(pbs->EnumBands(iBand, &dwBandID)))
+    {
+        BandSite_AccountBandForTaskbarSizingBar(pbs, dwBandID, bSomething);
+        ++iBand;
+    }
+    
+    HWND hwnd;
+    if (SUCCEEDED(IUnknown_GetWindow(pbs, &hwnd)))
+    {
+        if (bSomething)
+            SetWindowSubclass(hwnd, TaskbarSizingBarSubclassProc, NULL, 0);
+        else
+            RemoveWindowSubclass(hwnd, TaskbarSizingBarSubclassProc, NULL);
+    }
+}
+
+BOOL WINAPI BandSite_FixUpCompositionForBand(IUnknown* punk)
+{
+    IDeskBand2* pdb2;
+    BOOL fCanRenderComposited = FALSE;
+    if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARGS(&pdb2))))
+    {
+        pdb2->CanRenderComposited(&fCanRenderComposited);
+        pdb2->SetCompositionState(fCanRenderComposited && (IsAppThemed() && IsCompositionActive()));
+        pdb2->Release();
+    }
+    
+    BOOL bRet = FALSE;
+    if (!fCanRenderComposited)
+    {
+        bRet = TRUE;
+        c_tray.EnableGlass(FALSE);
+    }
+
+    return bRet;
+}
+
+// @NOTE (Olivia): Thanks to amr for this solution
+void WINAPI BandSite_FixUpComposition(IBandSite* pbs)
+{
+    BOOL fFixed = FALSE;
+
+    DWORD dwBandID;
+    for (UINT iBand = 0; !fFixed && SUCCEEDED(pbs->EnumBands(iBand, &dwBandID)); iBand++)
+    {
+        IDeskBand* pdb;
+        if (SUCCEEDED(pbs->GetBandObject(dwBandID, IID_PPV_ARGS(&pdb))))
+        {
+            fFixed = BandSite_FixUpCompositionForBand(pdb);
+            pdb->Release();
+        }
+    }
+
+    if (!fFixed)
+    {
+        c_tray.EnableGlass(TRUE);
+    }
+}
+
 CTrayBandSite* IUnknownToCTrayBandSite(IUnknown* punk)
 {
     CTrayBandSite* ptbs;
@@ -172,16 +306,34 @@ HRESULT CTrayBandSite::QueryInterface(REFIID riid, LPVOID * ppvObj)
     return hr;
 }
 
-
 static BOOL CALLBACK SetTransparency(HWND hwnd, LPARAM lParam)
 {
     SetWindowStyleEx(hwnd, WS_EX_TRANSPARENT, (BOOL)lParam);
+    return TRUE;
+}
 
+BOOL IsSizeMoveRestricted()
+{
+    // Refused to compile for me, linker error:
+    //return SHRegGetBoolValueFromHKCUHKLM(
+    //    L"Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer",
+    //    L"LockTaskbar",
+    //    FALSE);
+    return FALSE;
+}
+
+BOOL IsSizeMoveEnabled()
+{
+    // Refused to compile for me, linker error:
+    //return !IsSizeMoveRestricted()
+    //    && SHRegGetBoolValueFromHKCUHKLM(
+    //        L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced",
+    //        L"TaskbarSizeMove",
+    //        TRUE);
     return TRUE;
 }
 
 // *** IBandSite methods ***
-
 HRESULT CTrayBandSite::AddBand(IUnknown* punk)
 {
     CLSID clsid;
@@ -189,12 +341,7 @@ HRESULT CTrayBandSite::AddBand(IUnknown* punk)
 
     if (!_fDelayBootStuffHandled)
     {
-        //
-        // Tell the band to go into "delay init" mode.  When the tray
-        // timer goes off we'll tell the band to finish up.  (See
-        // BandSite_HandleDelayBootStuff).
-        //
-        IUnknown_Exec(punk, &CGID_DeskBand, DBID_DELAYINIT, 0, NULL, NULL);
+        IUnknown_Exec(punk, &CGID_DeskBand, DBID_DELAYINIT, 0, nullptr, nullptr);
     }
 
     if (c_tray.GetIsNoToolbarsOnTaskbarPolicyEnabled())
@@ -202,45 +349,58 @@ HRESULT CTrayBandSite::AddBand(IUnknown* punk)
         hr = IUnknown_GetClassID(punk, &clsid);
         if (SUCCEEDED(hr))
         {
-            hr = IsEqualGUID(clsid, CLSID_TaskBand) ? S_OK : E_FAIL;
+            IsEqualGUID(clsid, CLSID_TaskBand) ? S_OK : E_FAIL;
         }
     }
 
     if (SUCCEEDED(hr))
     {
         hr = _pbsInner->AddBand(punk);
-
         if (SUCCEEDED(hr))
         {
-            IShellFolderBand *pisfBand;
-            HRESULT hrInner = punk->QueryInterface(IID_PPV_ARGS(&pisfBand));
-            if (SUCCEEDED(hrInner)) 
+            IShellFolderBand* pisfBand;
+            if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARGS(&pisfBand))))
             {
                 BANDINFOSFB bi;
                 bi.dwMask = ISFB_MASK_STATE;
-                hrInner = pisfBand->GetBandInfoSFB(&bi);
-                if (SUCCEEDED(hrInner))
+                if (SUCCEEDED(pisfBand->GetBandInfoSFB(&bi)))
                 {
                     bi.dwState |= ISFB_STATE_BTNMINSIZE;
-                    hrInner = pisfBand->SetBandInfoSFB(&bi);
+                    pisfBand->SetBandInfoSFB(&bi);
                 }
                 pisfBand->Release();
             }
 
-
-            // tell the band to use the taskbar theme
             if (_pwzTheme)
             {
                 VARIANTARG var;
                 var.vt = VT_BSTR;
                 var.bstrVal = _pwzTheme;
-                IUnknown_Exec(punk, &CGID_DeskBand, DBID_SETWINDOWTHEME, 0, &var, NULL);
+                IUnknown_Exec(punk, &CGID_DeskBand, DBID_SETWINDOWTHEME, 0, &var, nullptr);
             }
 
-            if (GetWindowLong(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT)
+            if (GetWindowLongW(_hwnd, GWL_EXSTYLE) & WS_EX_TRANSPARENT)
             {
-                EnumChildWindows(_hwnd, SetTransparency, (LPARAM)TRUE);
+                EnumChildWindows(_hwnd, SetTransparency, TRUE);
             }
+
+            IDeskBandInfo* pdbi;
+            if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARGS(&pdbi))))
+            {
+                int nWidth;
+                HWND hwnd;
+                if (SUCCEEDED(pdbi->GetDefaultBandWidth(ShortFromResult(hr), 0, &nWidth)) && SUCCEEDED(IUnknown_GetWindow(_pbsInner, &hwnd)))
+                {
+                    int iIndex = SendMessageW(hwnd, RB_INSERTBAND, ShortFromResult(hr), 0);
+                    SendMessageW(hwnd, RB_SETBANDWIDTH, iIndex, nWidth);
+                }
+                pdbi->Release();
+            }
+            if (IsSizeMoveEnabled())
+            {
+                BandSite_AccountBandForTaskbarSizingBar(this, ShortFromResult(hr), TRUE);
+            }
+            BandSite_FixUpCompositionForBand(punk);
         }
     }
 

@@ -136,7 +136,7 @@ BOOL Reg_SetStruct(HKEY hkey, LPCTSTR pszSubKey, LPCTSTR pszValue, void *lpData,
 HMENU LoadMenuPopup(LPCTSTR id)
 {
     HMENU hMenuSub = NULL;
-    HMENU hMenu = LoadMenu(hinstCabinet, id);
+    HMENU hMenu = LoadMenu(g_hinstCabinet, id);
     if (hMenu) {
         hMenuSub = GetSubMenu(hMenu, 0);
         if (hMenuSub) {
@@ -176,11 +176,12 @@ WORD _GetHotkeyFromFolderItem(IShellFolder *psf, LPCITEMIDLIST pidl)
 
 // Just like shells SHRestricted() only this put up a message if the restricion
 // is in effect.
+// EXEX-VISTA: Changed to use GUID instead of RESTRICTIONS in Vista.
 BOOL _Restricted(HWND hwnd, RESTRICTIONS rest)
 {
     if (SHRestricted(rest))
     {
-        ShellMessageBox(hinstCabinet, hwnd, MAKEINTRESOURCE(IDS_RESTRICTIONS),
+        ShellMessageBox(g_hinstCabinet, hwnd, MAKEINTRESOURCE(IDS_RESTRICTIONS),
             MAKEINTRESOURCE(IDS_RESTRICTIONSTITLE), MB_OK|MB_ICONSTOP);
         return TRUE;
     }
@@ -354,19 +355,19 @@ BOOL _CheckAssociations(void)
     return FALSE;
 }
 
-
-void _ShowFolder(HWND hwnd, UINT csidl, UINT uFlags)
+// EXEX-VISTA: Validated.
+void _ShowFolder(HWND hwnd, UINT csidl, BOOL fExplore)
 {
     SHELLEXECUTEINFO shei = { 0 };
 
     shei.cbSize     = sizeof(shei);
-    shei.fMask      = SEE_MASK_IDLIST | SEE_MASK_INVOKEIDLIST;
+    shei.fMask      = SEE_MASK_INVOKEIDLIST;
     shei.nShow      = SW_SHOWNORMAL;
 
     if (_Restricted(hwnd, REST_NOSETFOLDERS))
         return;
 
-    if (uFlags & COF_EXPLORE)
+    if (fExplore)
         shei.lpVerb = TEXT("explore");
 
     shei.lpIDList = SHCloneSpecialIDList(NULL, csidl, FALSE);

@@ -14,6 +14,8 @@
 
 #include "shundoc.h"
 
+#include "StartButton.h"
+
 typedef struct tagHWNDANDPLACEMENT
 {
     HWND hwnd;
@@ -181,6 +183,8 @@ EXTERN_C void Tray_SetStartPaneActive(BOOL fActive);
 #define TPF_TASKBARPAGE     0x00000001
 #define TPF_STARTMENUPAGE   0x00000002
 #define TPF_INVOKECUSTOMIZE 0x00000004   // start with the "Customize..." sub-dialog open
+#define TPF_NOTIFAREAPAGE   0x00000008
+#define TPF_TOOLBARSPAGE    0x00000010
 
 EXTERN_C void Tray_DoProperties(DWORD dwFlags);
 
@@ -188,7 +192,7 @@ EXTERN_C void Tray_DoProperties(DWORD dwFlags);
 #define AH_ON           0x01
 #define AH_HIDING       0x02
 
-class CTray : public CImpWndProc
+class CTray : public CImpWndProc, public IStartButtonSite
 {
 public:
 
@@ -196,12 +200,26 @@ public:
     // miscellaneous public methods
     //
     CTray();
+
+    //~ Begin IStartButtonSite Interface
+    STDMETHODIMP_(VOID) EnableTooltips(BOOL bEnable) override;
+    STDMETHODIMP_(VOID) PurgeRebuildRequests() override;
+    STDMETHODIMP_(BOOL) ShouldUseSmallIcons() override;
+    STDMETHODIMP_(VOID) HandleFullScreenApp2(HWND hwnd) override;
+    STDMETHODIMP_(VOID) StartButtonClicked() override;
+    STDMETHODIMP_(VOID) OnStartMenuDismissed() override;
+    STDMETHODIMP_(int) GetStartButtonMinHeight() override;
+    STDMETHODIMP_(UINT) GetStartMenuStuckPlace() override;
+    STDMETHODIMP_(VOID) SetUnhideTimer(LONG a2, LONG a3) override;
+    STDMETHODIMP_(VOID) OnStartButtonClosing() override;
+    //~ End IStartButtonSite Interface
+
     void HandleWindowDestroyed(HWND hwnd);
     void HandleFullScreenApp(HWND hwnd);
     void RealityCheck();
     DWORD getStuckPlace() { return _uStuckPlace; }
     void InvisibleUnhide(BOOL fShowWindow);
-    void ContextMenuInvoke(int idCmd);
+    void ContextMenuInvoke(int idCmd, BOOL fFromNotifArea);
     HMENU BuildContextMenu(BOOL fIncludeTime);
     void AsyncSaveSettings();
     BOOL Init();
@@ -218,17 +236,23 @@ public:
     HWND GetTrayTips() { return _hwndTrayTips; }
     IDeskTray* GetDeskTray() { return &_desktray; }
     IMenuPopup* GetStartMenu() { return _pmpStartMenu; };
-    void StartMenuContextMenu(HWND hwnd, DWORD dwPos);
     BOOL IsTaskbarFading() { return _fTaskbarFading; };
+    void GetStuckMonitorRect(RECT* prcStuck);
+    BOOL IsMouseOverStartButton();
+    BOOL IsMouseOverClock();                       // ExplorerEx-Vista
+    BOOL ShowClockFlyoutAsNeeded(LPARAM mousePos); // ExplorerEx-Vista
+    void _ActivateWindowSwitcher();
+    void _SetLockState(UINT newVal);
+    void _InvokeSearch();
+    bool _fMouseInTaskbar; // ExplorerEx-Vista
+    bool _bBool679; // ExplorerEx-Vista
 
     DWORD CountOfRunningPrograms();
-    void ClosePopupMenus();
+
     HWND GetTrayNotifyHWND()
     {
         return _hwndNotify;
     }
-
-    void CreateStartButtonBalloon(UINT idsTitle, UINT idsMessage);
 
     void GetTrayViewOpts(TRAYVIEWOPTS* ptvo)
     {
@@ -274,24 +298,26 @@ public:
     BOOL _fSelfSizing;
     BOOL _fBalloonUp; // true if balloon notification is up
     BOOL _fIgnoreDoneMoving;
-    BOOL _fShowSizingBarAlways;
     BOOL _fSkipErase;
 
     BOOL _fIsLogoff;
 
-    HWND _hwndStart;
     HWND _hwndLastActive;
 
+    CStartButton _startButton;
+
     IBandSite* _ptbs;
+    IBandSite* _bandSite;
 
     UINT _uAutoHide;     // AH_HIDING , AH_ON
 
-    HBITMAP _hbmpStartBkg;
-    HFONT   _hFontStart;
-
-    RECT _arStuckRects[4];   // temporary for hit-testing
+    RECT _arStuckRects[4];
+    int _arStuckHeights[4];
 
     CTrayNotify _trayNotify;
+
+    // vista composition related - snatched from amr (but is likely this anyway)
+    BOOL GlassEnabled();
 
 protected:
     // protected methods
@@ -301,7 +327,7 @@ protected:
     DWORD _SyncThreadProc();
     static DWORD WINAPI MainThreadProc(void* pv);
 
-    int _GetPart(BOOL fSizingBar, UINT uStuckPlace);
+    int _GetPart(UINT uStuckPlace);
     void _UpdateVertical(UINT uStuckPlace, BOOL fForce = FALSE);
     void _RaiseDesktop(BOOL fRaise, BOOL fRestoreWindows);
 
@@ -319,14 +345,31 @@ protected:
     HWND _GetClockWindow(void);
     HRESULT _LoadInProc(PCOPYDATASTRUCT pcds);
 
+    // Vista composition related
+    BOOL _fIsGlass;
+public:
+    void EnableGlass(BOOL bEnable);
+
+protected:
+    void _RegisterForGlass();
+
+    // Half related to composition, needed regardless
+    void _OpenTaskbarThemeData();
+    void _SetBandSiteTheme();
+    void _SetRebarTheme();
+    void _OnThemeChanged();
+
+    void _AccountAllBandsForTaskbarSizingBar();
+    BOOL _ShouldSubclassForSizingBar();
+
+
     LRESULT _CreateWindows();
     LRESULT _InitStartButtonEtc();
     void _AdjustMinimizedMetrics();
     void _MessageLoop();
 
-    void _BuildStartMenu();
     void _DestroyStartMenu();
-    int _TrackMenu(HMENU hmenu);
+    SIZE *_GetStartButtonPadding(SIZE *pSize);
 
     static DWORD WINAPI RunDlgThreadProc(void* pv);
     DWORD _RunDlgThreadProc(HANDLE hdata);
@@ -350,11 +393,11 @@ protected:
     void _AdjustRectForSizingBar(UINT uStuckPlace, LPRECT prc, int iIncrement);
     void _MakeStuckRect(LPRECT prcStick, LPCRECT prcBound, SIZE size, UINT uStick);
     void _ScreenSizeChange(HWND hwnd);
-    void _ContextMenu(DWORD dwPos, BOOL fSetTime);
+    void _ContextMenu(DWORD dwPos, BOOL fFromNotifArea);
     void _StuckTrayChange();
     void _ResetZorder();
     void _HandleSize();
-    BOOL _HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace);
+    BOOL _HandleSizing(WPARAM code, LPRECT lprc, UINT uStuckPlace, BOOL fUpdateSize);
     void _RegisterGlobalHotkeys();
     void _UnregisterGlobalHotkeys();
     void _HandleGlobalHotkey(WPARAM wParam);
@@ -381,22 +424,16 @@ protected:
 
     BOOL _CanMinimizeAll();
     BOOL _MinimizeAll(BOOL fPostRaiseDesktop);
-    void _Command(UINT idCmd);
+    void _Command(UINT idCmd, BOOL fFromNotifArea);
     LONG _SetAutoHideState(BOOL fAutoHide);
-    BOOL _ShouldWeShowTheStartButtonBalloon();
-    void _DontShowTheStartButtonBalloonAnyMore();
-    void _DestroyStartButtonBalloon();
-    void _ShowStartButtonToolTip();
     void _ToolbarMenu();
     HFONT _CreateStartFont(HWND hwndTray);
     void _SaveTrayStuff(void);
     void _SaveTray(void);
     void _SaveTrayAndDesktop(void);
     void _SlideStep(HWND hwnd, const RECT* prcMonitor, const RECT* prcOld, const RECT* prcNew);
-    void _DoExitWindows(HWND hwnd);
-
-    static LRESULT WINAPI StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-    LRESULT _StartButtonSubclassWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+    void _DoExitExplorer();
+    void _DoExitWindows(HWND hwnd, BOOL fIsRestarting, BOOL fFromNotifArea);
 
     void _ResizeStuckRects(RECT* arStuckRects);
 
@@ -461,7 +498,7 @@ protected:
     void _PropagateMessage(HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam);
 
     BOOL _IsAutoHide() { return _uAutoHide & AH_ON; }
-    void _RunDlg();
+    void _RunDlg(BOOL fCreateEvent);
 
     static void WINAPI SettingsUIPropSheetCallback(DWORD nStartPage);
     static DWORD WINAPI SettingsUIThreadProc(void* pv);
@@ -516,14 +553,10 @@ protected:
 
     // protected data
     HWND _hwndNotify;     // clock window
-    HWND _hwndStartBalloon;
     HWND _hwndRude;
     HWND _hwndTrayTips;
     HWND _hwndTasks;
 
-    HMENU _hmenuStart;
-
-    SIZE _sizeStart;  // height/width of the start button
     SIZE _sizeSizingBar;
     int  _iAlpha;
 
@@ -552,6 +585,9 @@ protected:
     BOOL _fFromStart;      // Track when context menu popping up from Start button
     BOOL _fTaskbarFading;
     BOOL _fNoToolbarsOnTaskbarPolicyEnabled;
+    BOOL _fTaskbarLockAllPolicyEnabled;
+    BOOL _fTaskbarNoRedockPolicyEnabled;
+    BOOL _fTaskbarNoResizePolicyEnabled;
 
     POINT _ptLastHittest;
 
@@ -572,6 +608,8 @@ protected:
     UINT _uStuckPlace;       // the stuck place
     SIZE _sStuckWidths;      // width/height of tray
     UINT _uMoveStuckPlace;   // stuck status during a move operation
+
+    int _cyClockMargin;  // vista
 
     // these two must  go together for save reasons
     RECT _rcOldTray;     // last place we stuck ourselves (for work area diffs)
@@ -642,10 +680,13 @@ protected:
     HANDLE _hHTTPEvent;
     HANDLE _hHTTPWait;
 
+    int _iPaddedBorderWidth;
+
     friend class CDeskTray;
     friend class CStartDropTarget;
     friend class CTrayDropTarget;
     friend class CDropTargetBase;
+    friend class CStartButton; // XXX (isabella): Temporary?
 
     friend void Tray_OnStartMenuDismissed();
     friend void Tray_SetStartPaneActive(BOOL fActive);
@@ -659,8 +700,3 @@ extern UINT g_uStartButtonAllowPopup;
 
 BOOL _IsSizeMoveEnabled();
 BOOL _IsSizeMoveRestricted();
-
-
-#endif  // __cplusplus
-
-#endif  // _TRAY_H
