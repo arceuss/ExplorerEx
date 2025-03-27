@@ -10,8 +10,8 @@
 //    operator =
 //  operator <=
 
+#include "pch.h"
 
-#include <wtypes.h>
 #ifndef __TQSORT_INCL
 #define __TQSORT_INCL
 

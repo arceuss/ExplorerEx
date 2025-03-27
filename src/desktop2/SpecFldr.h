@@ -7,8 +7,9 @@
 //      "Target"    - name of registry key to enumerate
 //
 
+#include "pch.h"
 #include "sfthost.h"
-#include <vssym32.h>
+
 
 class SpecialFolderList : public SFTBarHost
 {

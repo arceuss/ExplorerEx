@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "cabinet.h"
 //#include <desktray.h>
 #include "uemapp.h"

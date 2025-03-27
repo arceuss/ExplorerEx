@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
@@ -5,11 +6,7 @@
 #include "uemapp.h"
 //#include <desktray.h>
 #include "tray.h"
-#include "rcids.h"
 #include "mfulist.h"
-#define STRSAFE_NO_CB_FUNCTIONS
-#define STRSAFE_NO_DEPRECATE
-#include <strsafe.h>
 
 //---------------------------------------------------------------------------
 //

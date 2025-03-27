@@ -5,6 +5,7 @@
 
 #ifdef __cplusplus
 
+#include "pch.h"
 #include "trayp.h"
 #include "cwndproc.h"
 

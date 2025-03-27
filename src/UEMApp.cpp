@@ -1,7 +1,6 @@
+#include "pch.h"
 #include "uemapp.h"
 #include "shundoc.h"
-#include <shlwapi.h>
-#include <stdio.h>
 
 #undef  INTERFACE
 #define INTERFACE   IUserAssist

@@ -3,11 +3,11 @@
 
 #ifdef __cplusplus
 
-#include "atlstuff.h"
+#include "pch.h"
 #include "cwndproc.h"
 #include "dpa.h"
 #include "commoncontrols.h"
-#include <winuserp.h>
+
 class CTray;
 class CGroupItemContextMenu;
 

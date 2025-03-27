@@ -1,21 +1,13 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "shfusion.h"
 #include "cabinet.h"
 #include "rcids.h"
-
-#include <regstr.h>
 #include "startmnu.h"
 #include "shdguid.h"    // for IID_IShellService
-#include <shlguid.h>
-//#include <desktray.h>
-#include <wininet.h>
-//#include <trayp.h>
 #include "tray.h"
 #include "util.h"
-#include "atlstuff.h"
-#include <strsafe.h>
-#include <dsrole.h>  // DsRoleGetPrimaryDomainInformation, DsRoleFreeMemory
-#include <sddl.h>
+
 // global so that it is shared between TS sessions
 #define SZ_SCMCREATEDEVENT_NT5  TEXT("Global\\ScmCreatedEvent")
 #define SZ_WINDOWMETRICS        TEXT("Control Panel\\Desktop\\WindowMetrics")

@@ -1,7 +1,7 @@
 //====== Assertion/Debug output APIs =================================
 
 //#include <platform.h> // for __endexcept
-#include <Windows.h>
+#include "pch.h"
 
 #pragma warning (disable:4096)      // '__cdecl' must be used with '...'
 #pragma warning (disable:4201)      // nonstandard extension used : nameless struct/union

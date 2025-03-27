@@ -1,18 +1,12 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "cabinet.h"
-#include "rcids.h"
-#include "shguidp.h"
 #include "bandsite.h"
-//#include "shellp.h"
 #include "shdguid.h"
+#include "shguidp.h"
 #include "taskband.h"
 #include "taskbar.h"
-#include <regstr.h>
 #include "util.h"
-#include "strsafe.h"
-#include <combaseapi.h>
-#include "ieguidp.h"
-
 #include "shundoc.h"
 
 //#include "shdeprecated.h"

@@ -1,9 +1,6 @@
+#include "pch.h"
 #include "cwndproc.h"
-#include <shtypes.h>
-#include <ShlObj.h>
 #include "shundoc.h"
-
-
 
 #define ID_NOTIFY_SUBCLASS (DWORD)'CHN'     // CHN change notify
 //

@@ -2,7 +2,7 @@
 #include <windows.h>
 #include <vector>
 
-uintptr_t FindPattern(const char* signature, uintptr_t base_address)
+inline uintptr_t FindPattern(const char* signature, uintptr_t base_address)
 {
 	static auto patternToByte = [](const char* pattern)
 		{

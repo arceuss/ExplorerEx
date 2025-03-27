@@ -1,7 +1,8 @@
 #ifndef __shdguid_h__
 #define __shdguid_h__
 
-#include "initguid.h"
+#define INITGUID
+#include <initguid.h>
 
 // GUIDs for COM objects that live in SHDOCVW.DLL. currently this is shared with SHELL32.DLL only
 

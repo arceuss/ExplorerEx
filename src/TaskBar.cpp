@@ -1,7 +1,7 @@
+#include "pch.h"
 #include "cabinet.h"
 #include "taskbar.h"
 #include "bandsite.h"
-#include "rcids.h"
 #include "tray.h"
 
 

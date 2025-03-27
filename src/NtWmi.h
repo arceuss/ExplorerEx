@@ -28,8 +28,8 @@ Revision History:
 
 #ifndef ETW_WOW6432
 
-#include <evntrace.h>
-#include <windows.h>
+#include "pch.h"
+
 // Alignment macros
 #define DEFAULT_TRACE_ALIGNMENT 8              // 8 byte alignment
 #define ALIGN_TO_POWER2( x, n ) (((ULONG)(x) + ((n)-1)) & ~((ULONG)(n)-1))

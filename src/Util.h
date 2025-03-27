@@ -1,6 +1,7 @@
 #ifndef _UTIL_H
 #define _UTIL_H
 
+#include "pch.h"
 #include "cabinet.h"
 
 #define RECTWIDTH(rc)   ((rc).right-(rc).left)

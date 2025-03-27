@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "tray.h"
 
 #ifndef _bandsite_h

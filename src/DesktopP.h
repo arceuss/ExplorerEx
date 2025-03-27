@@ -1,9 +1,8 @@
 #ifndef _desktop_h
 #define _desktop_h
 
-#include <windows.h>
-#include <shtypes.h>
-#include <tray.h>
+#include "pch.h"
+#include "tray.h"
 
 // REVIEW: does not seem to be used...
 // #define DTM_SIZEDESKTOP             (WM_USER + 75)

@@ -1,18 +1,12 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
+#include "shguidp.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
 #include "hostutil.h"
 #include "moreprog.h"
-
-//#include <desktray.h>
 #include "tray.h"           // To get access to c_tray
-#include "rcids.h"          // for IDM_PROGRAMS etc.
-#include <strsafe.h>
-
-#include <vsstyle.h>
-#include <vssym32.h>
-
 
 //
 //  Unfortunately, WTL #undef's SelectFont, so we have to define it again.

@@ -1,20 +1,16 @@
+#include "pch.h"
+#include "ShGuidP.h"
 #include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #pragma hdrstop
-//#include <shlobjp.h>
-#include <initguid.h>
-//#include "apithk.h"
 #include "resource.h"
-#include <runtask.h>
-#include <msi.h>
+#include "runtask.h"
+#include "msi.h"
 #include "cabinet.h"
 #include "util.h"
-#include "startids.h"
 #include "cowsite.h"
 #include "uemapp.h"
-
-//#include <msip.h>
 
 #define REGSTR_EXPLORER_WINUPDATE REGSTR_PATH_EXPLORER TEXT("\\WindowsUpdate")
 

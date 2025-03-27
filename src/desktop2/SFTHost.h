@@ -7,15 +7,12 @@
 #ifndef __SFTHOST_H__
 #define __SFTHOST_H__
 
+#include "pch.h"
 #include "uemapp.h"
 #include "runtask.h"
 #include "hostutil.h"
-//#include "dobjutil.h"
-
 #include "shundoc.h"
-#include <cabinet.h>
-
-#include <vssym32.h>
+#include "cabinet.h"
 
 #define FT_ONEHOUR             ((unsigned __int64)10000000 * 3600)
 

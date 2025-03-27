@@ -1,10 +1,8 @@
 #ifndef _CWNDPROC_H_
 #define _CWNDPROC_H_
 
-#include <Windows.h>
+#include "pch.h"
 #include "debug.h"
-#include <CommCtrl.h>
-#include <ShlObj.h>
 
 // CImpWndProc
 //

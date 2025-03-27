@@ -1,27 +1,15 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "util.h"
-#include "rcids.h"
-#include "psapi.h"
-
-#include <regstr.h>
-//#include <ntddapmt.h>
 
 #define DECL_CRTFREE
 //#include <crtfree.h>
-
 #include "qsort.h"
 
-#include <ddraw.h>      // DirectDraw stuff..
-
-#define STRSAFE_NO_CB_FUNCTIONS
-#define STRSAFE_NO_DEPRECATE
-#include <strsafe.h>
-#include <malloc.h>
 #include "ssomgr.h"
-
 #include "shundoc.h"
 
-
+__inline HBRUSH SelectBrush(HDC hdc, HBRUSH hbr) { return (HBRUSH)SelectObject(hdc, (HGDIOBJ)(HBRUSH)hbr); }
 
 
 //////////////////////////////////////////////////////////////////////////

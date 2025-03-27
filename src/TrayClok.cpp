@@ -1,9 +1,8 @@
+#include "pch.h"
 #include "cabinet.h"
 #include "trayclok.h"
 #include "tray.h"
 #include "util.h"
-#include "strsafe.h"
-#include <vssym32.h>
 
 class CClockCtl : public CImpWndProc
 {

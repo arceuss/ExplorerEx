@@ -1,3 +1,3 @@
 #define INITGUID
-#include <windows.h>
+#include "pch.h"
 #include "ieguidp.h"

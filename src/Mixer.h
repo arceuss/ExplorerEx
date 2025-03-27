@@ -1,3 +1,5 @@
+#include "pch.h"
+
 void Mixer_SetCallbackWindow(HWND hwndCallback);
 MMRESULT Mixer_ToggleMute(void);
 MMRESULT Mixer_SetVolume(int Increment);

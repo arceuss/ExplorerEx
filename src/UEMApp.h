@@ -3,6 +3,7 @@
 
 //***   uemapp.h -- application (client) side of event monitor
 //
+#include "pch.h"
 
 #ifdef __cplusplus
 extern "C" {

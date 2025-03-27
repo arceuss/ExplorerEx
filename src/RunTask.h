@@ -1,8 +1,7 @@
 #ifndef _RUNTASK_H_
 #define _RUNTASK_H_
 
-#include <windows.h>
-#include <Shobjidl.h>
+#include "pch.h"
 
 class CRunnableTask : public IRunnableTask
 {

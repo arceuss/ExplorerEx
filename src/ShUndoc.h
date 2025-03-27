@@ -11,20 +11,12 @@
 //  History:    Jan-20-25   olive6841 Add COM Interaces
 //
 //--------------------------------------------------------------------------
-#include <shobjidl_core.h>
-#include <Windows.h>
 
+#include "pch.h"
 #include "criticalsection.h"
-
 #include "winbase.h"
-#include <DocObj.h>
-#include <winuserp.h>
-
 #include "winter.h"
-
 #include "ieguidp.h"
-#include <shlobj_core.h>
-
 
 // path.cpp (private stuff) ---------------------
 

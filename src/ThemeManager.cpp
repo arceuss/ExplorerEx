@@ -1,8 +1,6 @@
+#include "pch.h"
 #include "ThemeManager.h"
 #include "pathcch.h"
-#include <stdio.h>
-#include <shlwapi.h>
-#include <strsafe.h>
 
 decltype(GetThemeDefaults) GetThemeDefaults = 0;
 decltype(LoaderLoadTheme) LoaderLoadTheme = 0;

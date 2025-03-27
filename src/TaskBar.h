@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "taskband.h"
 #include "tray.h"
 

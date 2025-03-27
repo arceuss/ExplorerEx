@@ -1,16 +1,10 @@
+#include "pch.h"
 #include "cabinet.h"
 #include "trayclok.h"
-#include <atlstuff.h>
 #include "traynot.h"
-#include "rcids.h"
 #include "tray.h"
 #include "util.h"
 #include "shellapi.h"
-
-#include "strsafe.h"
-
-#include <vssym32.h>
-
 #include "shundoc.h"
 #include "cocreateinstancehook.h"
 

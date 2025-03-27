@@ -411,6 +411,8 @@ del "$(IntermediateOutputPath)temp.res"
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <AdditionalIncludeDirectories>desktop2;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -476,6 +478,7 @@ del "$(IntermediateOutputPath)temp.res"
     <ClInclude Include="NtPerf.h" />
     <ClInclude Include="NtWmi.h" />
     <ClInclude Include="Path.h" />
+    <ClInclude Include="pch.h" />
     <ClInclude Include="QSort.h" />
     <ClInclude Include="RunTask.h" />
     <ClInclude Include="SHFusion.h" />
@@ -637,10 +640,15 @@ del "$(IntermediateOutputPath)temp.res"
     <ClCompile Include="libx.cpp" />
     <ClCompile Include="Mixer.cpp" />
     <ClCompile Include="Path.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">Create</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="PinnedList.cpp" />
     <ClCompile Include="RunTask.cpp" />
     <ClCompile Include="Shell32StartMnu.cpp" />
-    <ClCompile Include="SHFusion.cpp" />
+    <ClCompile Include="SHFusion.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ReleaseDebug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="ShUndoc.cpp" />
     <ClCompile Include="SSOMgr.cpp" />
     <ClCompile Include="StartMnu.cpp" />

@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "desktopp.h"
 #include "cabinet.h"
 

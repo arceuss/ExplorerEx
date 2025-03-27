@@ -5,7 +5,7 @@
 //
 //  Only shortcuts count, and the shortcuts are sorted by frequency of use.
 //
-
+#include "pch.h"
 #include "sfthost.h"
 
 //****************************************************************************

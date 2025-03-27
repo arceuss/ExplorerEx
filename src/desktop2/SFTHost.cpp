@@ -1,11 +1,9 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
-//#include <browseui.h>
 #include "sfthost.h"
-//#include <shellp.h>
 #include "startmnu.h"
-#include <vssym32.h>
 
 
 #define TF_HOST     0x00000010
@@ -25,6 +23,16 @@
 //#include <browseui.h>
 
 //---------END HACKS OF DEATH -------------
+
+
+//
+//  Unfortunately, WTL #undef's SelectFont, so we have to define it again.
+//
+
+inline HFONT SelectFont(HDC hdc, HFONT hf)
+{
+    return (HFONT)SelectObject(hdc, hf);
+}
 
 
 //****************************************************************************

@@ -1,9 +1,6 @@
+#include "pch.h"
 #include "cabinet.h"
 #include "trayitem.h"
-#include "shellapi.h"
-
-#include "strsafe.h"
-
 #include "shundoc.h"
 
 //

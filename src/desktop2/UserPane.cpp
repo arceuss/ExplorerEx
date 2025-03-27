@@ -1,12 +1,18 @@
+#include "pch.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
 #include "userpane.h"
 
 
-#include "vssym32.h"
+//
+//  Unfortunately, WTL #undef's SelectFont, so we have to define it again.
+//
 
-
+inline HFONT SelectFont(HDC hdc, HFONT hf)
+{
+    return (HFONT)SelectObject(hdc, hf);
+}
 
 CUserPane::CUserPane()
 {

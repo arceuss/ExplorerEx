@@ -1,4 +1,5 @@
-#include <shundoc.h>
+#include "pch.h"
+#include "shundoc.h"
 
 CPinnedListWrapper::CPinnedListWrapper(IUnknown *punk, const GUID &riid)
 {

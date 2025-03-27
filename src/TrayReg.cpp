@@ -1,11 +1,9 @@
+#include "pch.h"
 #include "cabinet.h"
 #include "traycmn.h"
 #include "trayreg.h"
 #include "trayitem.h"
-#include "shellapi.h"
 #include "util.h"
-
-#include "strsafe.h"
 
 BOOL CTrayItemRegistry::_DestroyIconInfoCB(TNPersistStreamData * pData, LPVOID pData2)
 {
