@@ -68,7 +68,7 @@ VOID EnsureUserAssist()
 
 HRESULT UEMFireEvent(const GUID* pguidGrp, int eCmd, DWORD dwFlags, WPARAM wParam, LPARAM lParam)
 {
-	printf("UEMFireEvent\n");
+	printf("UEMFireEvent: %d\n", eCmd);
 	HRESULT hr = E_FAIL;
 	
 	IShellFolder* ish = (IShellFolder*)wParam;
@@ -92,7 +92,7 @@ HRESULT UEMFireEvent(const GUID* pguidGrp, int eCmd, DWORD dwFlags, WPARAM wPara
 
 HRESULT UEMQueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
 {
-	printf("UEMQueryEvent\n");
+	printf("UEMQueryEvent: %d\n",eCmd);
 	HRESULT hr = E_FAIL;
 
 	IShellFolder* ish = (IShellFolder*)wParam;
@@ -118,7 +118,7 @@ HRESULT UEMQueryEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lPar
 
 HRESULT UEMSetEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui)
 {
-	printf("UEMSetEvent\n");
+	printf("UEMSetEvent : %d\n",eCmd);
 	// same as queryevent kinda
 	HRESULT hr = E_FAIL;
 
@@ -144,6 +144,7 @@ HRESULT UEMSetEvent(const GUID* pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam
 HRESULT UEMRegisterNotify(UACallback pfnUEMCB, void* param)
 {
 	printf("UEMRegisterNotify\n");
+	EnsureUserAssist();
 	HRESULT hr = i10->RegisterNotify(pfnUEMCB, param, 1);
 	return hr;
 }

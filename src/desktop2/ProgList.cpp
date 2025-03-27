@@ -2336,11 +2336,10 @@ int ByUsage::UEMNotifyCB(void* param, const GUID* pguidGrp, const WCHAR*, int eC
     case 0:
     case 3:
 
-        if (pbu && pbu->_pByUsageUI)
+        if (pbu && pbu->_pByUsageUI && !IsBadReadPtr(pbu->_pByUsageUI, sizeof(ByUsageUI)))
         {
             pbu->_pByUsageUI->Invalidate();
             pbu->_pByUsageUI->StartRefreshTimer();
-            return 0;
         }
         break;
     default:
