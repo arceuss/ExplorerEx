@@ -1,6 +1,7 @@
 #ifndef _SHSRVOBJ_H
 #define _SHSRVOBJ_H
 
+#include "pch.h"
 #include "dpa.h"
 
 

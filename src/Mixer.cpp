@@ -1,7 +1,6 @@
+#include "pch.h"
 #include "cabinet.h"
 #include "mixer.h"
-#include <dbt.h>
-//#include "mmddkp.h"
 
 ///////////////////////////////////////
 // External interface

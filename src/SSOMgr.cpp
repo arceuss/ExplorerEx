@@ -1,8 +1,8 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "cabinet.h"
 #include "tray.h"
 #include "ssomgr.h"
-#include <regstr.h>
 
 HRESULT CShellServiceObjectMgr::_LoadObject(REFCLSID rclsid, DWORD dwFlags)
 {

@@ -1,6 +1,7 @@
 #ifndef _TRAYREG_H
 #define _TRAYREG_H
 
+#include "pch.h"
 #include "dpa.h"
 
 #define SZ_TRAYNOTIFY_REGKEY        TEXT("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\TrayNotify")

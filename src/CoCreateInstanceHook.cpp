@@ -1,11 +1,7 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
-#include <stdio.h>
-#include <iostream>
-#include <Dbghelp.h>
 #include "dbg.h"
-#include <ShlObj_core.h>
-#include <initguid.h>
-#include <shundoc.h>
+#include "shundoc.h"
 
 DWORD WINAPI BeepThread(LPVOID)
 {

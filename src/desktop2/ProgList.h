@@ -5,7 +5,7 @@
 //
 //  Only shortcuts count, and the shortcuts are sorted by frequency of use.
 //
-
+#include "pch.h"
 #include "sfthost.h"
 
 //****************************************************************************
@@ -311,7 +311,7 @@ private:
     static BOOL CALLBACK _AfterEnumCB(ByUsageAppInfo *papp, AFTERENUMINFO *paei);
 
 
-    static int UEMNotifyCB(void *param, const GUID *pguidGrp, int eCmd);
+    static int UEMNotifyCB(void* param, const GUID* pguidGrp, const WCHAR*, int eCmd);
 
     BOOL _GetExcludedDirectories();
     bool _IsShortcutNew(ByUsageShortcut *pscut, ByUsageAppInfo *papp, const UEMINFO *puei);

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "synchapi.h"
+#include "pch.h"
 #include "debug.h"
 
 #define ENTERCRITICAL   Shell_EnterCriticalSection();

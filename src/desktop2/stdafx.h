@@ -12,29 +12,14 @@
 #pragma warning(disable:4328)    // indirection alignment of formal parameter 1(4) is greater than the actual argument alignment (1)
 
 #define _BROWSEUI_          // See HACKS OF DEATH in sfthost.cpp
-#include <windows.h>
-#include <shlobj.h>
-//#include <shlobjp.h>
-#include "shguidp.h"
+#include "pch.h"
 #include "ieguidp.h"
-#include <shlwapi.h>
-//#include <ccstock.h>
 #include "port32.h"
 #include "debug.h"
-//#include <varutil.h>
 #include "dpa.h"
-#include <atlbase.h>
-//extern CComModule _Module;
-#include <atlcom.h>
-#include <atlctl.h>
 #include "desktop2.h"
-//#include <shsemip.h>
-//#include <runonce.h>
 #include "regstr.h"
-#include <shfusion.h>
-
-
-#include <windowsx.h>
+#include "shfusion.h"
 
 EXTERN_C HWND v_hwndTray;
 EXTERN_C HWND v_hwndStartPane;

@@ -2,8 +2,7 @@
 #define _TRAYNOT_H
 
 #include "cwndproc.h"
-#include <atlstuff.h>
-//#include "dpa.h"
+#include "pch.h"
 #include "traycmn.h"
 #include "trayitem.h"
 #include "trayreg.h"

@@ -1,7 +1,7 @@
 #ifndef _DESKTOP2_H
 #define _DESKTOP2_H
 
-#include "uxtheme.h"
+#include "pch.h"
 //#include "tmschema.h"
 
 #define WC_USERPANE     TEXT("Desktop User Pane")

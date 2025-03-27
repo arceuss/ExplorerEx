@@ -21,8 +21,7 @@ Revision History:
 #ifndef _NTPERF_
 #define _NTPERF_
 
-#include <wmistr.h>
-#include <ntwmi.h>
+#include "pch.h"
 
 #define PERF_ASSERT(x) ASSERT(x)
 #define PERFINFO_ASSERT_PACKET_OVERFLOW(Size) ASSERT ((Size) <= MAXUSHORT)

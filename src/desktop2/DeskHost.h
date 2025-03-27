@@ -1,8 +1,7 @@
 #ifndef _DESKHOST_H_
 #define _DESKHOST_H_
 
-#include <exdisp.h>
-#include <mshtml.h>
+#include "pch.h"
 #include "dpa.h"
 #include "startmnu.h"
 #include "cowsite.h"

@@ -9,6 +9,7 @@
 #endif
 #include <shlwapi.h>
 
+
 typedef BOOL(__stdcall* PFNACTCTX)(HANDLE, ULONG_PTR*);
 typedef BOOL(__stdcall* PFNDEACTCTX)(DWORD, ULONG_PTR);
 typedef HANDLE(__stdcall* PFNCREATECTX)(ACTCTX*);

@@ -1,7 +1,6 @@
+#include "pch.h"
 #include "traycmn.h"
 #include "trayreg.h"
-
-#include "strsafe.h"
 
 //
 // CNotificationItem - encapsulate the data needed to communicate between the tray

@@ -1,4 +1,4 @@
-#include <lmcons.h> // for UNLEN
+#include "pch.h"
 
 // window class name of user pane control
 #define WC_USERPANE TEXT("Desktop User Pane")

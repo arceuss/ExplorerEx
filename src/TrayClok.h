@@ -4,7 +4,7 @@
 // Put a clock in a window.
 //---------------------------------------------------------------------------
 
-#include <Windows.h>
+#include "pch.h"
 
 #define WC_TRAYCLOCK TEXT("TrayClockWClass")
 

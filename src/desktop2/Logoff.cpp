@@ -1,12 +1,8 @@
+#include "pch.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #include "sfthost.h"
-#include "uxtheme.h"
-//#include "uxthemep.h"
-#include "rcids.h"
-
 #include "shundoc.h"
-#include "vssym32.h"
 
 // WARNING!  Must be in sync with c_rgidmLegacy
 

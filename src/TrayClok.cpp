@@ -1,9 +1,8 @@
+#include "pch.h"
 #include "cabinet.h"
 #include "trayclok.h"
 #include "tray.h"
 #include "util.h"
-#include "strsafe.h"
-#include <vssym32.h>
 
 // I have ommited the AcessibleWrapper interface. Beware.
 

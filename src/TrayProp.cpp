@@ -1,14 +1,11 @@
 //---------------------------------------------------------------------------
 // This file contains Taskbar and Start Menu property sheet code
 //---------------------------------------------------------------------------
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "cabinet.h"
-#include "rcids.h"
 #include "util.h"
 #include "help.h"      // help ids
-#include <regstr.h>
-#include "atlstuff.h"
-
 #include "dlg.h"
 #include "tray.h"
 #include "traycmn.h"

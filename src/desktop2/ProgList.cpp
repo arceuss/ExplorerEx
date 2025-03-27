@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
@@ -5,18 +6,7 @@
 #include "uemapp.h"
 #include "shdguid.h"
 #include "shguidp.h"        // IID_IInitializeObject
-#include <pshpack4.h>
-//#include <idhidden.h>       // Note!  idhidden.h requires pack4
-#include <poppack.h>
-#include <userenv.h>        // GetProfileType
-//#include <desktray.h>
 #include "tray.h"
-#define STRSAFE_NO_CB_FUNCTIONS
-#define STRSAFE_NO_DEPRECATE
-#include <strsafe.h>
-
-#include <dpa_dsa.h>
-#include <vssym32.h>
 #include "path.h"
 
 typedef UNALIGNED const WCHAR* LPNCWSTR;
@@ -2324,22 +2314,19 @@ void ByUsage::AfterEnumItems()
     }
 }
 
-int ByUsage::UEMNotifyCB(void *param, const GUID *pguidGrp, int eCmd)
+int ByUsage::UEMNotifyCB(void* param, const GUID* pguidGrp, const WCHAR*, int eCmd)
 {
     ByUsage *pbu = reinterpret_cast<ByUsage *>(param);
     // Refresh our list whenever a new app is started.
     // or when the session changes (because that changes all the usage counts)
+    printf("UEMNotifyCB: %d\n", eCmd);
     switch (eCmd)
     {
-    case UEME_CTLSESSION:
-        if (IsEqualGUID(*pguidGrp, UEMIID_BROWSER))
-            break;
+    // yes
+    case 0:
+    case 3:
 
-        // Fall thru
-    case UEME_RUNPIDL:
-    case UEME_RUNPATH:
-
-        if (pbu && pbu->_pByUsageUI)
+        if (pbu && pbu->_pByUsageUI && !IsBadReadPtr(pbu->_pByUsageUI, sizeof(ByUsageUI)))
         {
             pbu->_pByUsageUI->Invalidate();
             pbu->_pByUsageUI->StartRefreshTimer();

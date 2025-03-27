@@ -1,6 +1,8 @@
-#include "shundoc.h"
 #ifndef _HOSTUTIL_H_
 #define _HOSTUTIL_H_
+
+#include "pch.h"
+#include "shundoc.h"
 
 // usefull macro's which aren't elsewhere
 #define RECTWIDTH(rc)   ((rc).right-(rc).left)

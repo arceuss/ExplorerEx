@@ -1,3 +1,4 @@
+#include "pch.h"
 #include "cowsite.h"
 
 HRESULT CObjectWithSite::SetSite(IUnknown* punkSite)

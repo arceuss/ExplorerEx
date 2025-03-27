@@ -1,20 +1,9 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
+#include "shguidp.h"
 #include "cabinet.h"
-
-#include <wtsapi32.h>   // for NOTIFY_FOR_THIS_SESSION
-//#include <winsta.h>     // for disconnect and reconnect messages from terminal server
-//#include "mmsysp.h"
-
-#include "rcids.h"
 #include "dlg.h"
-
-#include <atlstuff.h>
-
-//#include <shlapip.h>
 #include "trayclok.h"
-//#include <help.h>       // help ids
-//#include <desktray.h>
-
 #include "util.h"
 #include "tray.h"
 
@@ -22,31 +11,19 @@
 #include <immp.h>
 #endif
 
-#include <regstr.h>
-
 #include "bandsite.h"
-
 #include "startmnu.h"
 #include "uemapp.h"
-//#include <uxthemep.h>
 
 #define NO_NOTIFYSUBCLASSWNDPROC
 #include "cwndproc.h"
-
 #include "desktop2.h"
 #include "mixer.h"
-
-#include "strsafe.h"
-
 #include "port32.h"
 #include "shundoc.h"
-
 #include "vssym32.h"
-#include <CommCtrl.h>
 #include "startids.h"
-
 #include "debug.h"
-#include <dwmapi.h>
 
 #import "C:\Windows\System32\HelpPaneProxy.dll" named_guids no_namespace exclude("GUID") exclude("IUnknown")
 
@@ -3744,8 +3721,8 @@ void CTray::_OnWinIniChange(HWND hwnd, WPARAM wParam, LPARAM lParam)
         {
             //TraceMsg(TF_TRAY, "c.t_owic: Window metrics changed.");
         }
-        #endif
 
+        #endif
         _OnNewSystemSizes();
     }
 

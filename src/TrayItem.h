@@ -1,6 +1,7 @@
 #ifndef _TRAYITEM_H
 #define _TRAYITEM_H
 
+#include "pch.h"
 #include "traycmn.h"
 
 #define TNUP_AUTOMATIC  0

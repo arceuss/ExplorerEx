@@ -1,17 +1,11 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "stdafx.h"
-#include "startids.h"           // for IDM_PROGRAMS et al
-#include "regstr.h"
-#include "rcids.h"
-//#include <desktray.h>
 #include "tray.h"
 #include "startmnu.h"
 #include "hostutil.h"
 #include "deskhost.h"
-#include "shdguid.h"
-
-#include <vssym32.h>
-#include <util.h>
+#include "util.h"
 
 
 #define TF_DV2HOST  0

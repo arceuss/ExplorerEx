@@ -9,14 +9,10 @@
 //
 //+-------------------------------------------------------------------------
 
+#include "pch.h"
 #include "shundoc.h"
-#include <strsafe.h>
-#include <Shlwapi.h>
-#include <shlobj.h>
-#include <fileapi.h>
-
 #include "path.h"
-#include <cocreateinstancehook.h>
+#include "cocreateinstancehook.h"
 #pragma  hdrstop
 
 BOOL _IsLink(LPCTSTR pszPath, DWORD dwAttributes)

@@ -3,6 +3,7 @@
 
 //***   uemapp.h -- application (client) side of event monitor
 //
+#include "pch.h"
 
 // {
 //***   UEME_* -- events
@@ -105,9 +106,20 @@ HRESULT UEMQueryEvent(const GUID *pguidGrp, int eCmd, WPARAM wParam, LPARAM lPar
 HRESULT UEMSetEvent(const GUID *pguidGrp, int eCmd, WPARAM wParam, LPARAM lParam, LPUEMINFO pui);
 
 
-typedef int (CALLBACK *UEMCallback)(void *param, const GUID *pguidGrp, int eCmd);
+typedef enum tagUAEVENT
+{
+    UAE_LAUNCH = 0,
+    UAE_SWITCH = 1,
+    UAE_TIME = 2,
+    UAE_SESSION = 3,
+    UAE_EXCLUDEAPP = 4,
+} UAEVENT;
 
-HRESULT UEMRegisterNotify(UEMCallback pfnUEMCB, void *param);
+
+//typedef int (CALLBACK *UEMCallback)(void *param, const GUID *pguidGrp, int eCmd);
+typedef int (CALLBACK* UACallback)(void* param, const GUID* pguidGrp, const WCHAR*, int eCmd);
+
+HRESULT UEMRegisterNotify(UACallback pfnUEMCB, void *param);
 
 #if 1 // {
 //***   obsolete -- old exports, nuke after all callers fixed

@@ -10,26 +10,11 @@
 //              Jan-22-25   kfh83     Modified
 //
 //--------------------------------------------------------------------------
+#include "pch.h"
 #include "shundoc.h"
-#include <windows.h>
-
-#include "docobj.h"
-
-#include "synchapi.h"
-
-#include "shlobj.h"
-
-#include "Shlwapi.h"
-
 #include "msi.h"
 #include "port32.h"
-
 #include "path.h"
-#include <strsafe.h>
-#include <RegStr.h>
-#include <shlguid.h>
-#include <patternhelper.h>
-
 
 
 //

@@ -1,6 +1,7 @@
 #ifndef _STARTMNU_H
 #define _STARTMNU_H
 
+#include "pch.h"
 #include "shundoc.h"
 
 //--------------------------------------------------------------------------

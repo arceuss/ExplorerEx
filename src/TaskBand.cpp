@@ -1,26 +1,18 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
+#include "shguidp.h"
 #include "cabinet.h"
 #include "taskband.h"
-#include "shguidp.h"
 #include "bandsite.h"
 #include "util.h"
 #include "tray.h"
-#include "rcids.h"
 #include "bandsite.h"
 #include "startmnu.h"
 #include "mixer.h"
-#include <regstr.h>
 #include "uemapp.h"
-#include "strsafe.h"
-
 #include "shundoc.h"
-
 #include "trayp.h"
-
 #include "dpa.h"
-
-#include <vssym32.h>
-#include <dwmapi.h>
 #include "winuserp.h"
 
 

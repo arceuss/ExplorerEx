@@ -1,13 +1,9 @@
+#include "pch.h"
 #include "cocreateinstancehook.h"
 #include "shundoc.h"
 #include "stdafx.h"
 #include "specfldr.h"
 #include "hostutil.h"
-#include "rcids.h"              // for IDM_PROGRAMS etc.
-#include "ras.h"
-#include "raserror.h"
-#include "netcon.h"
-//#include "netconp.h"
 #include "cowsite.h"
 
 //

@@ -1,8 +1,8 @@
 #ifndef _COWSITE_H_
 #define _COWSITE_H_
 
-#include <shlwapi.h>
-#include <shundoc.h>
+#include "pch.h"
+#include "shundoc.h"
 
 class CObjectWithSite : public IObjectWithSite
 {
