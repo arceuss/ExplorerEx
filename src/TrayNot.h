@@ -18,6 +18,7 @@
 #define TNM_NOTIFY                  (WM_USER + 9)
 #define TNM_STARTUPAPPSLAUNCHED     (WM_USER + 10)
 #define TNM_ENABLEUSERTRACKINGINFOTIPS      (WM_USER + 11)
+#define TNM_RELOADICONS                     (WM_USER + 12)
 
 #define TNM_BANGICONMESSAGE         (WM_USER + 50)
 #define TNM_ICONDEMOTETIMER         (WM_USER + 61)
@@ -141,6 +142,8 @@ protected:
     INT_PTR _GetCount();
     INT_PTR _GetVisibleCount();
     int _FindImageIndex(HICON hIcon, BOOL fSetAsSharedSource);
+    HICON _BuildDisplayIcon(HICON hSrc, HWND hwndOwner, int cx, int cy, BOOL* pfFree);
+    void _RefreshAllIcons();
     void _RemoveImage(UINT uIMLIndex);
     INT_PTR _FindNotify(PNOTIFYICONDATA32 pnid);
     BOOL _CheckAndResizeImages();

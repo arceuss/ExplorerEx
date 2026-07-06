@@ -302,6 +302,420 @@ INT_PTR CTrayNotify::_GetVisibleCount()
     }
 }
 
+//
+//  Reduce an icon to the Windows 2000 tray notify palette (ILC_COLOR4).
+//
+//  Win2k's notify imagelist was a 4bpp DIB section with the fixed 16-color
+//  table below (comctl32 image.c), and GDI reduced each icon to those colors
+//  with a nearest-color blit. Modern comctl32 stores 32bpp and skips that
+//  reduction, so the icons show in full color. GDI's DIB color matching is
+//  stable across Windows versions, so we reproduce win2k's result by pushing
+//  each icon through a 4bpp DIB with the identical color table here, before it
+//  reaches the imagelist. Transparency is recovered by compositing the icon
+//  over black and over white and XORing the two, which keeps 32bpp alpha icons
+//  from collapsing into black squares.
+//
+static HICON CreateWin2kColorReducedIcon(HICON hSrc, int cx, int cy)
+{
+    // The exact ILC_COLOR4 color table from win2k comctl32 image.c.
+    static const DWORD c_win2kColorTable[16] =
+    {
+        0x00000000,     // black
+        0x00800000,     // dark red
+        0x00008000,     // dark green
+        0x00808000,     // mustard
+        0x00000080,     // dark blue
+        0x00800080,     // purple
+        0x00008080,     // dark turquoise
+        0x00C0C0C0,     // gray
+        0x00808080,     // dark gray
+        0x00FF0000,     // red
+        0x0000FF00,     // green
+        0x00FFFF00,     // yellow
+        0x000000FF,     // blue
+        0x00FF00FF,     // magenta
+        0x0000FFFF,     // cyan
+        0x00FFFFFF,     // white
+    };
+
+    HDC hdcScreen = GetDC(NULL);
+    if (!hdcScreen)
+        return NULL;
+
+    HICON hIconOut = NULL;
+
+    // 4bpp DIB (the reduction target) carrying the exact win2k color table.
+    struct
+    {
+        BITMAPINFOHEADER bi;
+        DWORD ct[16];
+    } dib4 = { 0 };
+    dib4.bi.biSize        = sizeof(BITMAPINFOHEADER);
+    dib4.bi.biWidth       = cx;
+    dib4.bi.biHeight      = cy;
+    dib4.bi.biPlanes      = 1;
+    dib4.bi.biBitCount    = 4;
+    dib4.bi.biCompression = BI_RGB;
+    dib4.bi.biClrUsed     = 16;
+    for (int i = 0; i < 16; i++)
+        dib4.ct[i] = c_win2kColorTable[i];
+
+    HBITMAP hbm4    = CreateDIBSection(hdcScreen, (BITMAPINFO*)&dib4, DIB_RGB_COLORS, NULL, NULL, 0);
+    HBITMAP hbmBlk  = CreateCompatibleBitmap(hdcScreen, cx, cy);
+    HBITMAP hbmWht  = CreateCompatibleBitmap(hdcScreen, cx, cy);
+    HBITMAP hbmXor  = CreateCompatibleBitmap(hdcScreen, cx, cy);
+    HBITMAP hbmMask = CreateBitmap(cx, cy, 1, 1, NULL);
+
+    if (hbm4 && hbmBlk && hbmWht && hbmXor && hbmMask)
+    {
+        HDC hdcBlk  = CreateCompatibleDC(hdcScreen);
+        HDC hdcWht  = CreateCompatibleDC(hdcScreen);
+        HDC hdcXor  = CreateCompatibleDC(hdcScreen);
+        HDC hdc4    = CreateCompatibleDC(hdcScreen);
+        HDC hdcMask = CreateCompatibleDC(hdcScreen);
+
+        HBITMAP hbmOldBlk  = (HBITMAP)SelectObject(hdcBlk, hbmBlk);
+        HBITMAP hbmOldWht  = (HBITMAP)SelectObject(hdcWht, hbmWht);
+        HBITMAP hbmOldXor  = (HBITMAP)SelectObject(hdcXor, hbmXor);
+        HBITMAP hbmOld4    = (HBITMAP)SelectObject(hdc4, hbm4);
+        HBITMAP hbmOldMask = (HBITMAP)SelectObject(hdcMask, hbmMask);
+
+        RECT rc = { 0, 0, cx, cy };
+
+        // Composite the icon over black and over white.
+        FillRect(hdcBlk, &rc, (HBRUSH)GetStockObject(BLACK_BRUSH));
+        FillRect(hdcWht, &rc, (HBRUSH)GetStockObject(WHITE_BRUSH));
+        DrawIconEx(hdcBlk, 0, 0, hSrc, cx, cy, 0, NULL, DI_NORMAL);
+        DrawIconEx(hdcWht, 0, 0, hSrc, cx, cy, 0, NULL, DI_NORMAL);
+
+        // Reduce the black composite to the 4bpp win2k palette (nearest color).
+        BitBlt(hdc4, 0, 0, cx, cy, hdcBlk, 0, 0, SRCCOPY);
+
+        // Transparency mask: white-composite XOR black-composite is 0 where the
+        // icon is opaque and non-zero where the background showed through.
+        BitBlt(hdcXor, 0, 0, cx, cy, hdcWht, 0, 0, SRCCOPY);
+        BitBlt(hdcXor, 0, 0, cx, cy, hdcBlk, 0, 0, SRCINVERT);
+
+        // Convert to a 1bpp AND mask. Color->mono maps pixels equal to the
+        // source background color to 1; with black as background that marks the
+        // opaque pixels, so invert to get the AND-mask convention (1 = clear).
+        SetBkColor(hdcXor, RGB(0, 0, 0));
+        BitBlt(hdcMask, 0, 0, cx, cy, hdcXor, 0, 0, SRCCOPY);
+        PatBlt(hdcMask, 0, 0, cx, cy, DSTINVERT);
+
+        SelectObject(hdcBlk, hbmOldBlk);
+        SelectObject(hdcWht, hbmOldWht);
+        SelectObject(hdcXor, hbmOldXor);
+        SelectObject(hdc4, hbmOld4);
+        SelectObject(hdcMask, hbmOldMask);
+
+        DeleteDC(hdcBlk);
+        DeleteDC(hdcWht);
+        DeleteDC(hdcXor);
+        DeleteDC(hdc4);
+        DeleteDC(hdcMask);
+
+        ICONINFO ii = { 0 };
+        ii.fIcon    = TRUE;
+        ii.hbmColor = hbm4;
+        ii.hbmMask  = hbmMask;
+        hIconOut = CreateIconIndirect(&ii);
+    }
+
+    if (hbm4)    DeleteObject(hbm4);
+    if (hbmBlk)  DeleteObject(hbmBlk);
+    if (hbmWht)  DeleteObject(hbmWht);
+    if (hbmXor)  DeleteObject(hbmXor);
+    if (hbmMask) DeleteObject(hbmMask);
+    ReleaseDC(NULL, hdcScreen);
+
+    return hIconOut;
+}
+
+//
+//  Load the "classic" low-color variant of an application's tray icon.
+//
+//  On Win10 an app hands the shell a 32bpp truecolor icon; Win2k instead loaded
+//  the hand-authored 256-color (8bpp) variant that lives alongside it in the
+//  module's icon group. Algorithmically reducing the 32bpp art to 16 colors
+//  looks muddy, so we mirror Win2k: resolve the app's module from the
+//  notification's owner window, find the icon group matching the icon we were
+//  given, and return that group's 8bpp entry. The caller then reduces it to the
+//  16-color tray palette (which is clean, because an 8bpp icon has hard edges).
+//
+//  Returns NULL when the icon isn't backed by a readable module resource
+//  (dynamically generated icons, icons from DLLs we can't open, etc.); the
+//  caller then keeps the original truecolor icon.
+//
+#pragma pack(push, 2)
+typedef struct
+{
+    BYTE  bWidth;
+    BYTE  bHeight;
+    BYTE  bColorCount;
+    BYTE  bReserved;
+    WORD  wPlanes;
+    WORD  wBitCount;
+    DWORD dwBytesInRes;
+    WORD  nID;
+} TN_GRPICONDIRENTRY;
+
+typedef struct
+{
+    WORD idReserved;
+    WORD idType;
+    WORD idCount;
+    TN_GRPICONDIRENTRY idEntries[1];
+} TN_GRPICONDIR;
+#pragma pack(pop)
+
+typedef struct
+{
+    WORD ids[64];
+    int  count;
+} TN_GROUPLIST;
+
+static BOOL CALLBACK _EnumIconGroupProc(HMODULE hMod, LPCWSTR lpType, LPWSTR lpName, LONG_PTR lParam)
+{
+    UNREFERENCED_PARAMETER(hMod);
+    UNREFERENCED_PARAMETER(lpType);
+    TN_GROUPLIST* pList = (TN_GROUPLIST*)lParam;
+    if (IS_INTRESOURCE(lpName) && pList->count < ARRAYSIZE(pList->ids))
+        pList->ids[pList->count++] = (WORD)(ULONG_PTR)lpName;
+    return TRUE;
+}
+
+// Render an icon to a fresh cx*cy 32bpp buffer over a solid background.
+// Caller LocalFree()s the result. NULL on failure.
+static DWORD* _RenderIconBits(HICON hIcon, int cx, int cy, COLORREF bg)
+{
+    BITMAPINFO bi = { 0 };
+    bi.bmiHeader.biSize        = sizeof(BITMAPINFOHEADER);
+    bi.bmiHeader.biWidth       = cx;
+    bi.bmiHeader.biHeight      = -cy;   // top-down
+    bi.bmiHeader.biPlanes      = 1;
+    bi.bmiHeader.biBitCount    = 32;
+    bi.bmiHeader.biCompression = BI_RGB;
+
+    HDC hdcScreen = GetDC(NULL);
+    void* pBits = NULL;
+    HBITMAP hbm = CreateDIBSection(hdcScreen, &bi, DIB_RGB_COLORS, &pBits, NULL, 0);
+    DWORD* pOut = NULL;
+    if (hbm)
+    {
+        HDC hdc = CreateCompatibleDC(hdcScreen);
+        HBITMAP hbmOld = (HBITMAP)SelectObject(hdc, hbm);
+        RECT rc = { 0, 0, cx, cy };
+        HBRUSH hbr = CreateSolidBrush(bg);
+        FillRect(hdc, &rc, hbr);
+        DeleteObject(hbr);
+        DrawIconEx(hdc, 0, 0, hIcon, cx, cy, 0, NULL, DI_NORMAL);
+        GdiFlush();
+        SelectObject(hdc, hbmOld);
+        DeleteDC(hdc);
+
+        pOut = (DWORD*)LocalAlloc(LPTR, (size_t)cx * cy * sizeof(DWORD));
+        if (pOut)
+            memcpy(pOut, pBits, (size_t)cx * cy * sizeof(DWORD));
+        DeleteObject(hbm);
+    }
+    ReleaseDC(NULL, hdcScreen);
+    return pOut;
+}
+
+static BOOL _IconsRenderEqual(HICON hA, HICON hB, int cx, int cy)
+{
+    BOOL fMatch = FALSE;
+    DWORD* a = _RenderIconBits(hA, cx, cy, RGB(255, 0, 255));
+    DWORD* b = _RenderIconBits(hB, cx, cy, RGB(255, 0, 255));
+    if (a && b)
+        fMatch = (memcmp(a, b, (size_t)cx * cy * sizeof(DWORD)) == 0);
+    if (a) LocalFree(a);
+    if (b) LocalFree(b);
+    return fMatch;
+}
+
+static HICON LoadWin2kSourceIcon(HWND hwndOwner, HICON hIconGiven, int cx, int cy,
+                                 BOOL fWin98, BOOL* pfNeedsReduce)
+{
+    // Win2k reduces the loaded icon to 16 colors; Win98 uses the 4bpp icon as-is.
+    *pfNeedsReduce = TRUE;
+
+    if (!hwndOwner || !hIconGiven)
+        return NULL;
+
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwndOwner, &pid);
+    if (!pid)
+        return NULL;
+
+    HANDLE hProc = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+    if (!hProc)
+        return NULL;
+
+    WCHAR szModule[MAX_PATH];
+    DWORD cchModule = ARRAYSIZE(szModule);
+    BOOL fGotPath = QueryFullProcessImageNameW(hProc, 0, szModule, &cchModule);
+    CloseHandle(hProc);
+    if (!fGotPath)
+        return NULL;
+
+    HMODULE hMod = LoadLibraryExW(szModule, NULL,
+                                  LOAD_LIBRARY_AS_DATAFILE | LOAD_LIBRARY_AS_IMAGE_RESOURCE);
+    if (!hMod)
+        return NULL;
+
+    HICON hIconOut = NULL;
+
+    TN_GROUPLIST groups = { 0 };
+    EnumResourceNamesW(hMod, RT_GROUP_ICON, _EnumIconGroupProc, (LONG_PTR)&groups);
+
+    // Pick the icon group whose default icon matches the one we were handed.
+    // A single-group module (the common case) needs no matching.
+    WORD wGroup = 0;
+    if (groups.count == 1)
+    {
+        wGroup = groups.ids[0];
+    }
+    else
+    {
+        for (int i = 0; i < groups.count && !wGroup; i++)
+        {
+            HICON hCand = (HICON)LoadImageW(hMod, MAKEINTRESOURCEW(groups.ids[i]),
+                                            IMAGE_ICON, cx, cy, LR_DEFAULTCOLOR);
+            if (hCand)
+            {
+                if (_IconsRenderEqual(hCand, hIconGiven, cx, cy))
+                    wGroup = groups.ids[i];
+                DestroyIcon(hCand);
+            }
+        }
+        if (!wGroup && groups.count > 0)
+            wGroup = groups.ids[0];   // fall back to the primary group
+    }
+
+    if (wGroup)
+    {
+        HRSRC hGrpRes = FindResourceW(hMod, MAKEINTRESOURCEW(wGroup), RT_GROUP_ICON);
+        HGLOBAL hGrpData = hGrpRes ? LoadResource(hMod, hGrpRes) : NULL;
+        TN_GRPICONDIR* pDir = hGrpData ? (TN_GRPICONDIR*)LockResource(hGrpData) : NULL;
+        if (pDir)
+        {
+            // Win98 style uses the app's hand-authored 16-color (4bpp) icon
+            // directly; Win2k style loads the 256-color (8bpp) icon and reduces
+            // it to the 16-color tray palette. Fall back to the other depth if
+            // the preferred one is missing at this size.
+            const WORD wFirst  = fWin98 ? 4 : 8;
+            const WORD wSecond = fWin98 ? 8 : 4;
+            int iBest = -1;
+            WORD wPicked = 0;
+            for (int pass = 0; pass < 2 && iBest < 0; pass++)
+            {
+                WORD wWant = (pass == 0) ? wFirst : wSecond;
+                for (int i = 0; i < pDir->idCount; i++)
+                {
+                    const TN_GRPICONDIRENTRY* e = &pDir->idEntries[i];
+                    int w = e->bWidth ? e->bWidth : 256;
+                    int h = e->bHeight ? e->bHeight : 256;
+                    if (w == cx && h == cy && e->wBitCount == wWant)
+                    {
+                        iBest = i;
+                        wPicked = wWant;
+                        break;
+                    }
+                }
+            }
+
+            if (iBest >= 0)
+            {
+                WORD nID = pDir->idEntries[iBest].nID;
+                HRSRC hIconRes = FindResourceW(hMod, MAKEINTRESOURCEW(nID), RT_ICON);
+                if (hIconRes)
+                {
+                    DWORD cbIcon = SizeofResource(hMod, hIconRes);
+                    HGLOBAL hIconData = LoadResource(hMod, hIconRes);
+                    BYTE* pIconBits = hIconData ? (BYTE*)LockResource(hIconData) : NULL;
+                    if (pIconBits && cbIcon)
+                    {
+                        hIconOut = CreateIconFromResourceEx(pIconBits, cbIcon, TRUE,
+                                                            0x00030000, cx, cy, LR_DEFAULTCOLOR);
+                        // A 4bpp icon is already 16-color, so use it as-is; an
+                        // 8bpp icon is reduced to the 16-color tray palette.
+                        if (hIconOut)
+                            *pfNeedsReduce = (wPicked != 4);
+                    }
+                }
+            }
+        }
+    }
+
+    FreeLibrary(hMod);
+    return hIconOut;
+}
+
+//
+//  Build the icon to place in the tray imagelist for a source icon, honoring
+//  the current Win98/Win2k style. *pfFree is set TRUE when the returned icon was
+//  allocated here and the caller must DestroyIcon it. On any fallback the
+//  original source icon is returned with *pfFree = FALSE.
+//
+HICON CTrayNotify::_BuildDisplayIcon(HICON hSrc, HWND hwndOwner, int cx, int cy, BOOL* pfFree)
+{
+    *pfFree = FALSE;
+
+    BOOL fNeedsReduce = TRUE;
+    HICON hSource = LoadWin2kSourceIcon(hwndOwner, hSrc, cx, cy, c_tray._fWin98, &fNeedsReduce);
+    if (!hSource)
+        return hSrc;                 // not module-backed: keep the truecolor icon
+
+    if (!fNeedsReduce)
+    {
+        // The 4bpp icon is already 16-color (Win98 style); use it as-is.
+        *pfFree = TRUE;
+        return hSource;
+    }
+
+    HICON hReduced = CreateWin2kColorReducedIcon(hSource, cx, cy);
+    DestroyIcon(hSource);
+    if (hReduced)
+    {
+        *pfFree = TRUE;
+        return hReduced;
+    }
+    return hSrc;                      // reduction failed: keep the truecolor icon
+}
+
+//
+//  Rebuild every displayed tray icon from its original source icon. Called when
+//  the Win98/Win2k icon style changes, so icons update live without waiting for
+//  the owning app to refresh its icon or restarting the shell.
+//
+void CTrayNotify::_RefreshAllIcons()
+{
+    if (!_himlIcons)
+        return;
+
+    int cx, cy;
+    ImageList_GetIconSize(_himlIcons, &cx, &cy);
+
+    INT_PTR iCount = _GetCount();
+    for (INT_PTR i = 0; i < iCount; i++)
+    {
+        PTNPRIVICON ptnpi = _GetDataByIndex(i);
+        int iImage = _GetImage(i);
+        if (ptnpi && ptnpi->hIcon && iImage >= 0)
+        {
+            BOOL fFree = FALSE;
+            HICON hIconUse = _BuildDisplayIcon(ptnpi->hIcon, ptnpi->hWnd, cx, cy, &fFree);
+            ImageList_ReplaceIcon(_himlIcons, iImage, hIconUse);
+            if (fFree)
+                DestroyIcon(hIconUse);
+        }
+    }
+
+    InvalidateRect(_hwndToolbar, NULL, TRUE);
+}
+
 int CTrayNotify::_FindImageIndex(HICON hIcon, BOOL fSetAsSharedSource)
 {
     INT_PTR iCount = _GetCount();
@@ -369,7 +783,14 @@ BOOL CTrayNotify::_CheckAndResizeImages()
     ImageList_GetIconSize(himlOld, &cxSmIconOld, &cySmIconOld);
     if (cxSmIconNew != cxSmIconOld || cySmIconNew != cySmIconOld)
     {
-        HIMAGELIST himlNew = ImageList_Create(cxSmIconNew, cySmIconNew, SHGetImageListFlags(_hwndToolbar), 0, 1);
+        // Win2k creates the tray notify imagelist with ILC_MASK only, which
+        // defaults to ILC_COLOR4 (16-color). Don't use full color here.
+        UINT flags = ILC_MASK;
+        if (IS_WINDOW_RTL_MIRRORED(_hwndToolbar))
+        {
+            flags |= ILC_MIRROR;
+        }
+        HIMAGELIST himlNew = ImageList_Create(cxSmIconNew, cySmIconNew, flags, 0, 1);
         if (himlNew)
         {
             // Copy the images over to the new image list.
@@ -725,9 +1146,22 @@ BOOL CTrayNotify::_ModifyNotify(PNOTIFYICONDATA32 pnid, INT_PTR nIcon, BOOL* pbR
             int iImageOld = _GetImage(nIcon);
             if (GetHIcon(pnid))
             {
+                int cxIcon, cyIcon;
+                ImageList_GetIconSize(_himlIcons, &cxIcon, &cyIcon);
+
+                // Win10 hands us a 32bpp truecolor icon, which doesn't match the
+                // classic look. _BuildDisplayIcon loads the app's low-color icon
+                // instead (Win98: the 16-color 4bpp icon; Win2k: the 256-color
+                // 8bpp icon reduced to 16 colors), or keeps the original when the
+                // icon isn't backed by a module resource.
+                BOOL fFreeIcon = FALSE;
+                HICON hIconUse = _BuildDisplayIcon(GetHIcon(pnid), GetHWnd(pnid),
+                                                   cxIcon, cyIcon, &fFreeIcon);
+
                 // Replace icon knows how to handle -1 for add
-                iImageNew = ImageList_ReplaceIcon(_himlIcons, iImageOld,
-                                                  GetHIcon(pnid));
+                iImageNew = ImageList_ReplaceIcon(_himlIcons, iImageOld, hIconUse);
+                if (fFreeIcon)
+                    DestroyIcon(hIconUse);
                 if (iImageNew < 0)
                 {
                     return (FALSE);
@@ -1068,8 +1502,15 @@ LRESULT CTrayNotify::_Create(HWND hWnd)
     SendMessage(_hwndToolbar, CCM_SETVERSION, COMCTL32_VERSION, 0);
     SendMessage(_hwndToolbar, TB_SETEXTENDEDSTYLE,
                 TBSTYLE_EX_INVERTIBLEIMAGELIST, TBSTYLE_EX_INVERTIBLEIMAGELIST);
+    // Win2k creates the tray notify imagelist with ILC_MASK only, which
+    // defaults to ILC_COLOR4 (16-color). Don't use full color here.
+    // (flags is initialized to ILC_MASK at the top of this function.)
+    if (IS_WINDOW_RTL_MIRRORED(_hwndToolbar))
+    {
+        flags |= ILC_MIRROR;
+    }
     _himlIcons = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON),
-        SHGetImageListFlags(_hwndToolbar), 0, 1);
+        flags, 0, 1);
     if (!_himlIcons)
     {
         return (-1);
@@ -1595,6 +2036,10 @@ LRESULT CTrayNotify::v_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 
                 case TNM_GETCLOCK:
                     return (LRESULT)_hwndClock;
+
+                case TNM_RELOADICONS:
+                    _RefreshAllIcons();
+                    break;
 
                 case TNM_TRAYHIDE:
                     if (lParam && IsWindowVisible(_hwndClock))

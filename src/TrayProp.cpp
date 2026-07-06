@@ -1967,6 +1967,8 @@ BOOL_PTR CTaskBarPropertySheet::ExtraDlgProc(HWND hDlg, UINT uMsg, WPARAM wParam
                         tvo.fWin98 = fWin98;
                         c_tray.SetTrayViewOpts(&tvo);
                         c_tray.SizeWindows();
+                        // Rebuild the tray icons for the new style without a restart.
+                        ::SendMessage(c_tray.GetTrayNotifyHWND(), TNM_RELOADICONS, 0, 0);
                         ::InvalidateRect(v_hwndTray, nullptr, TRUE);
                         // please man just fucking save the option
                         c_tray._SaveTray();
