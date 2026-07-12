@@ -787,10 +787,210 @@ HRESULT CSearchOpenView::GetContextMenu(IContextMenu* pcmIn, IContextMenu** ppcm
 	return Create_ContextMenuWithoutVerbs(pcmIn, L"rename", IID_PPV_ARGS(ppcmOut));
 }
 
-// Requires CSrchViewAccStateWrapper which requires CAccessibleWrapperBase which we do not have yet.
+// Vista shell CAccessibleWrapperBase: wraps a standard IAccessible (the
+// OBJID_CLIENT std object), forwarding IDispatch/IAccessible to it and lazily
+// QI'ing IOleWindow / IEnumVARIANT. Subclasses override individual methods.
+class CAccessibleWrapperBase
+	: public IAccessible
+	, public IOleWindow
+	, public IEnumVARIANT
+{
+public:
+	CAccessibleWrapperBase(IAccessible* pacc)
+		: _cRef(1)
+		, _paccInner(pacc)
+		, _pevarInner(nullptr)
+		, _polewInner(nullptr)
+	{
+		_paccInner->AddRef();
+	}
+
+	virtual ~CAccessibleWrapperBase()
+	{
+		IUnknown_SafeReleaseAndNullPtr(&_pevarInner);
+		IUnknown_SafeReleaseAndNullPtr(&_polewInner);
+		_paccInner->Release();
+	}
+
+	// *** IUnknown ***
+	STDMETHODIMP QueryInterface(REFIID riid, void** ppv)
+	{
+		*ppv = nullptr;
+		if (riid == IID_IUnknown || riid == IID_IDispatch || riid == IID_IAccessible)
+		{
+			*ppv = static_cast<IAccessible*>(this);
+		}
+		else if (riid == IID_IOleWindow)
+		{
+			if (!_polewInner)
+			{
+				HRESULT hr = _paccInner->QueryInterface(IID_PPV_ARGS(&_polewInner));
+				if (FAILED(hr))
+				{
+					_polewInner = nullptr;
+					return hr;
+				}
+				if (!_polewInner)
+					return E_NOINTERFACE;
+			}
+			*ppv = static_cast<IOleWindow*>(this);
+		}
+		else if (riid == IID_IEnumVARIANT)
+		{
+			if (!_pevarInner)
+			{
+				HRESULT hr = _paccInner->QueryInterface(IID_PPV_ARGS(&_pevarInner));
+				if (FAILED(hr))
+				{
+					_pevarInner = nullptr;
+					return hr;
+				}
+				if (!_pevarInner)
+					return E_NOINTERFACE;
+			}
+			*ppv = static_cast<IEnumVARIANT*>(this);
+		}
+		else
+		{
+			return E_NOINTERFACE;
+		}
+		AddRef();
+		return S_OK;
+	}
+
+	STDMETHODIMP_(ULONG) AddRef()
+	{
+		return InterlockedIncrement(&_cRef);
+	}
+
+	STDMETHODIMP_(ULONG) Release()
+	{
+		ULONG cRef = InterlockedDecrement(&_cRef);
+		if (cRef == 0)
+			delete this;
+		return cRef;
+	}
+
+	// *** IDispatch (forward to inner IAccessible) ***
+	STDMETHODIMP GetTypeInfoCount(UINT* pctinfo)
+		{ return _paccInner->GetTypeInfoCount(pctinfo); }
+	STDMETHODIMP GetTypeInfo(UINT itinfo, LCID lcid, ITypeInfo** pptinfo)
+		{ return _paccInner->GetTypeInfo(itinfo, lcid, pptinfo); }
+	STDMETHODIMP GetIDsOfNames(REFIID riid, OLECHAR** rgszNames, UINT cNames, LCID lcid, DISPID* rgdispid)
+		{ return _paccInner->GetIDsOfNames(riid, rgszNames, cNames, lcid, rgdispid); }
+	STDMETHODIMP Invoke(DISPID dispidMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS* pdispparams,
+	                    VARIANT* pvarResult, EXCEPINFO* pexcepinfo, UINT* puArgErr)
+		{ return _paccInner->Invoke(dispidMember, riid, lcid, wFlags, pdispparams, pvarResult, pexcepinfo, puArgErr); }
+
+	// *** IAccessible (forward to inner IAccessible) ***
+	STDMETHODIMP get_accParent(IDispatch** ppdispParent)
+		{ return _paccInner->get_accParent(ppdispParent); }
+	STDMETHODIMP get_accChildCount(long* pChildCount)
+		{ return _paccInner->get_accChildCount(pChildCount); }
+	STDMETHODIMP get_accChild(VARIANT varChild, IDispatch** ppdispChild)
+		{ return _paccInner->get_accChild(varChild, ppdispChild); }
+	STDMETHODIMP get_accName(VARIANT varChild, BSTR* pszName)
+		{ return _paccInner->get_accName(varChild, pszName); }
+	STDMETHODIMP get_accValue(VARIANT varChild, BSTR* pszValue)
+		{ return _paccInner->get_accValue(varChild, pszValue); }
+	STDMETHODIMP get_accDescription(VARIANT varChild, BSTR* pszDescription)
+		{ return _paccInner->get_accDescription(varChild, pszDescription); }
+	STDMETHODIMP get_accRole(VARIANT varChild, VARIANT* pvarRole)
+		{ return _paccInner->get_accRole(varChild, pvarRole); }
+	STDMETHODIMP get_accState(VARIANT varChild, VARIANT* pvarState)
+		{ return _paccInner->get_accState(varChild, pvarState); }
+	STDMETHODIMP get_accHelp(VARIANT varChild, BSTR* pszHelp)
+		{ return _paccInner->get_accHelp(varChild, pszHelp); }
+	STDMETHODIMP get_accHelpTopic(BSTR* pszHelpFile, VARIANT varChild, long* pidTopic)
+		{ return _paccInner->get_accHelpTopic(pszHelpFile, varChild, pidTopic); }
+	STDMETHODIMP get_accKeyboardShortcut(VARIANT varChild, BSTR* pszKeyboardShortcut)
+		{ return _paccInner->get_accKeyboardShortcut(varChild, pszKeyboardShortcut); }
+	STDMETHODIMP get_accFocus(VARIANT* pvarFocusChild)
+		{ return _paccInner->get_accFocus(pvarFocusChild); }
+	STDMETHODIMP get_accSelection(VARIANT* pvarSelectedChildren)
+		{ return _paccInner->get_accSelection(pvarSelectedChildren); }
+	STDMETHODIMP get_accDefaultAction(VARIANT varChild, BSTR* pszDefaultAction)
+		{ return _paccInner->get_accDefaultAction(varChild, pszDefaultAction); }
+	STDMETHODIMP accSelect(long flagsSelect, VARIANT varChild)
+		{ return _paccInner->accSelect(flagsSelect, varChild); }
+	STDMETHODIMP accLocation(long* pxLeft, long* pyTop, long* pcxWidth, long* pcyHeight, VARIANT varChild)
+		{ return _paccInner->accLocation(pxLeft, pyTop, pcxWidth, pcyHeight, varChild); }
+	STDMETHODIMP accNavigate(long navDir, VARIANT varStart, VARIANT* pvarEndUpAt)
+		{ return _paccInner->accNavigate(navDir, varStart, pvarEndUpAt); }
+	STDMETHODIMP accHitTest(long xLeft, long yTop, VARIANT* pvarChildAtPoint)
+		{ return _paccInner->accHitTest(xLeft, yTop, pvarChildAtPoint); }
+	STDMETHODIMP accDoDefaultAction(VARIANT varChild)
+		{ return _paccInner->accDoDefaultAction(varChild); }
+	STDMETHODIMP put_accName(VARIANT varChild, BSTR szName)
+		{ return _paccInner->put_accName(varChild, szName); }
+	STDMETHODIMP put_accValue(VARIANT varChild, BSTR pszValue)
+		{ return _paccInner->put_accValue(varChild, pszValue); }
+
+	// *** IOleWindow (forward to inner IOleWindow) ***
+	STDMETHODIMP GetWindow(HWND* phwnd)
+		{ return _polewInner->GetWindow(phwnd); }
+	STDMETHODIMP ContextSensitiveHelp(BOOL fEnterMode)
+		{ return _polewInner->ContextSensitiveHelp(fEnterMode); }
+
+	// *** IEnumVARIANT (forward to inner IEnumVARIANT) ***
+	STDMETHODIMP Next(ULONG celt, VARIANT* rgVar, ULONG* pCeltFetched)
+		{ return _pevarInner->Next(celt, rgVar, pCeltFetched); }
+	STDMETHODIMP Skip(ULONG celt)
+		{ return _pevarInner->Skip(celt); }
+	STDMETHODIMP Reset()
+		{ return _pevarInner->Reset(); }
+	STDMETHODIMP Clone(IEnumVARIANT** ppEnum)
+		{ return _pevarInner->Clone(ppEnum); }
+
+protected:
+	LONG          _cRef;
+	IAccessible*  _paccInner;
+	IEnumVARIANT* _pevarInner;
+	IOleWindow*   _polewInner;
+};
+
+// Vista CSrchViewAccStateWrapper: overrides only get_accState, forcing
+// STATE_SYSTEM_FOCUSABLE|STATE_SYSTEM_FOCUSED when the inner returns a VT_I4 state.
+class CSrchViewAccStateWrapper : public CAccessibleWrapperBase
+{
+public:
+	CSrchViewAccStateWrapper(IAccessible* pacc) : CAccessibleWrapperBase(pacc) {}
+
+	STDMETHODIMP get_accState(VARIANT varChild, VARIANT* pvarState) override
+	{
+		HRESULT hr = CAccessibleWrapperBase::get_accState(varChild, pvarState);
+		if (SUCCEEDED(hr) && pvarState->vt == VT_I4)
+			pvarState->lVal |= (STATE_SYSTEM_FOCUSABLE | STATE_SYSTEM_FOCUSED);
+		return hr;
+	}
+};
+
 HRESULT CSearchOpenView::CreateAccessibleObject(HWND hwnd, LONG idObject, REFIID riid, void **ppv)
 {
-	return E_NOTIMPL; // EXEX-Vista(allison): TODO.
+	*ppv = nullptr;
+
+	HRESULT hr = S_FALSE;
+	if (idObject == OBJID_CLIENT)
+	{
+		IAccessible* paccStd = nullptr;
+		hr = CreateStdAccessibleObject(hwnd, OBJID_CLIENT, IID_PPV_ARGS(&paccStd));
+		if (SUCCEEDED(hr))
+		{
+			CAccessibleWrapperBase* pWrapper = new(std::nothrow) CSrchViewAccStateWrapper(paccStd);
+			if (pWrapper)
+			{
+				hr = pWrapper->QueryInterface(riid, ppv);
+				pWrapper->Release();
+			}
+			else
+			{
+				hr = E_OUTOFMEMORY;
+			}
+			paccStd->Release();
+		}
+	}
+
+	return hr;
 }
 
 HRESULT CSearchOpenView::GetEnumerationTimeout(DWORD *pdwTimeout)
