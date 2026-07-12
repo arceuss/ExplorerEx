@@ -116,28 +116,18 @@ class CTrayNotify;  // forward declaration...
 //
 // CTrayNotify class members
 //
-class CTrayNotify
-    : public CImpWndProc
-    , public ITrayNotify
+class CTrayNotify : public CImpWndProc
 {
 public:
     CTrayNotify() {};
     virtual ~CTrayNotify() {};
 
-    //~ Begin IUnknown Interface
-    STDMETHODIMP QueryInterface(REFIID riid, void** ppv) override;
-    STDMETHODIMP_(ULONG) AddRef() override;
-    STDMETHODIMP_(ULONG) Release() override;
-    //~ End IUnknown Interface
-
-    //~ Begin ITrayNotify Interface
-    STDMETHODIMP RegisterCallback(INotificationCB* pNotifyCB, DWORD* pdwCBCookie) override;
-    STDMETHODIMP UnregisterCallback(DWORD dwCBCookie) override;
-    STDMETHODIMP SetPreference(const NOTIFYITEM* pNotifyItem) override;
-    STDMETHODIMP EnableAutoTray(BOOL bTraySetting) override;
-    STDMETHODIMP DoAction(BOOL) override;
-    STDMETHODIMP SetWindowingEnvironmentConfig(IUnknown* punk) override;
-    //~ End ITrayNotify Interface
+    // Vista implementation called by the Win10-facing CTrayNotifyStub.
+    STDMETHODIMP_(ULONG) AddRef();
+    STDMETHODIMP_(ULONG) Release();
+    STDMETHODIMP RegisterCallback(INotificationCB* pNotifyCB);
+    STDMETHODIMP SetPreference(const NOTIFYITEM* pNotifyItem);
+    STDMETHODIMP EnableAutoTray(BOOL bTraySetting);
 
     // *** Properties Sheet methods ***
     BOOL GetIsNoTrayItemsDisplayPolicyEnabled() const
@@ -376,7 +366,6 @@ private:
     int             _idMouseActiveIcon;
 
     INotificationCB     * _pNotifyCB;
-    DWORD                 _dwNotifyCBCookie;
 
     IUserEventTimer     * m_pIconDemoteTimer;
     IUserEventTimer     * m_pInfoTipTimer;
@@ -405,5 +394,26 @@ private:
     SIZE                _sizeTrayNotify;
     int                 field_340;
 };
+
+#pragma optimize( "", off )
+// Win10 wire-ABI adapter around Vista's static CTrayNotify implementation.
+class CTrayNotifyStub :
+    public CComObjectRootEx<CComSingleThreadModel>,
+    public CComCoClass<CTrayNotifyStub, &CLSID_TrayNotify>,
+    public ITrayNotify
+{
+public:
+    BEGIN_COM_MAP(CTrayNotifyStub)
+        COM_INTERFACE_ENTRY(ITrayNotify)
+    END_COM_MAP()
+
+    STDMETHODIMP RegisterCallback(INotificationCB* pNotifyCB, ULONG* pulCookie) override;
+    STDMETHODIMP UnregisterCallback(ULONG* pulCookie) override;
+    STDMETHODIMP SetPreference(NOTIFYITEM notifyItem) override;
+    STDMETHODIMP EnableAutoTray(BOOL bTraySetting) override;
+    STDMETHODIMP DoAction(BOOL bTraySetting) override;
+    STDMETHODIMP SetWindowingEnvironmentConfig(IUnknown* punk) override;
+};
+#pragma optimize( "", on )
 
 #endif  // _TRAYNOT_H

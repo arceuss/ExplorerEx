@@ -1136,8 +1136,9 @@ HRESULT ByUsageUI::Exec(
         {
             case 305:
             {
+                ASSERT(pvarargIn->vt == VT_BYREF);
                 pvarargOut->vt = VT_BOOL;
-                pvarargOut->boolVal = _byUsage.IsPidlNew(reinterpret_cast<ITEMIDLIST_ABSOLUTE*>(pvarargIn->lVal)) ? VARIANT_TRUE : VARIANT_FALSE;
+                pvarargOut->boolVal = _byUsage.IsPidlNew(reinterpret_cast<ITEMIDLIST_ABSOLUTE*>(pvarargIn->llVal)) ? VARIANT_TRUE : VARIANT_FALSE;
                 hr = S_OK;
                 break;
             }

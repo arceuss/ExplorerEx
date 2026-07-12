@@ -70,27 +70,60 @@ int CALLBACK DeleteInfoItemCB(TNINFOITEM* pItem, void* pData)
     return TRUE;
 }
 
-HRESULT CTrayNotifyStub_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk)
+// Win10 proxy identity used to avoid invoking a callback after its STA is gone.
+MIDL_INTERFACE("0000001b-0000-0000-c000-000000000046")
+IStdIdentity : IUnknown
 {
-    HRESULT hr = S_OK;
-    if (pUnkOuter)
-        return CLASS_E_NOAGGREGATION;
-    *ppunk = static_cast<ITrayNotify*>(&c_tray._trayNotify);
-    return hr;
+};
+
+static bool IsCurrentComApartment(IUnknown* punk)
+{
+    IStdIdentity* pIdentity = nullptr;
+    if (SUCCEEDED(punk->QueryInterface(IID_PPV_ARGS(&pIdentity))))
+    {
+        pIdentity->Release();
+        return true;
+    }
+    return false;
 }
 
-//
-// CTrayNotify Methods..
-//
-
-HRESULT CTrayNotify::QueryInterface(REFIID riid, void** ppv)
+HRESULT CTrayNotifyStub::RegisterCallback(INotificationCB* pNotifyCB, ULONG*)
 {
-    static const QITAB qit[] =
-    {
-        QITABENT(CTrayNotify, ITrayNotify),
-        {}
-    };
-    return QISearch(this, qit, riid, ppv);
+    return c_tray._trayNotify.RegisterCallback(pNotifyCB);
+}
+
+HRESULT CTrayNotifyStub::UnregisterCallback(ULONG*)
+{
+    return S_OK;
+}
+
+HRESULT CTrayNotifyStub::SetPreference(NOTIFYITEM notifyItem)
+{
+    return c_tray._trayNotify.SetPreference(&notifyItem);
+}
+
+HRESULT CTrayNotifyStub::EnableAutoTray(BOOL bTraySetting)
+{
+    return c_tray._trayNotify.EnableAutoTray(bTraySetting);
+}
+
+HRESULT CTrayNotifyStub::DoAction(BOOL)
+{
+    return S_OK;
+}
+
+HRESULT CTrayNotifyStub::SetWindowingEnvironmentConfig(IUnknown*)
+{
+    return E_NOTIMPL;
+}
+
+HRESULT CTrayNotifyStub_CreateInstance(IUnknown* pUnkOuter, IUnknown** ppunk)
+{
+    if (pUnkOuter)
+        return CLASS_E_NOAGGREGATION;
+
+    CComObject<CTrayNotifyStub>* pStub = new CComObject<CTrayNotifyStub>;
+    return pStub ? pStub->QueryInterface(IID_PPV_ARGS(ppunk)) : E_OUTOFMEMORY;
 }
 
 STDMETHODIMP_(ULONG) CTrayNotify::AddRef()
@@ -178,18 +211,16 @@ void CTrayNotify::_TickleForTooltip(CNotificationItem* pni)
     }
 }
 
-HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB, DWORD* pdwCBCookie)
+HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB)
 {
-    *pdwCBCookie = 0;
-
     if (!_fNoTrayItemsDisplayPolicyEnabled)
     {
         ATOMICRELEASE(_pNotifyCB);
-        if (pNotifyCB)
+        _pNotifyCB = pNotifyCB;
+        if (_pNotifyCB)
         {
-            pNotifyCB->AddRef();
+            _pNotifyCB->AddRef();
 
-            // Add Current Items
             int i = 0;
             BOOL bStat = FALSE;
             do
@@ -199,22 +230,16 @@ HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB, DWORD* pdwCBCo
                 {
                     if (bStat)
                     {
-						//try
-						//{
-                            pNotifyCB->Notify(NIM_ADD, &ni);
-                        //}
-                        //catch (...)
-                        //{
-                        //}
-
-                        //_TickleForTooltip(&ni);
+                        _pNotifyCB->Notify(NIM_ADD, &ni);
+                        _TickleForTooltip(&ni);
                     }
                 }
                 else
+                {
                     break;
+                }
             } while (TRUE);
 
-            // Add Past Items
             i = 0;
             bStat = FALSE;
             do
@@ -223,69 +248,32 @@ HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB, DWORD* pdwCBCo
                 if (_trayItemRegistry.GetTrayItem(i++, &ni, &bStat))
                 {
                     if (bStat)
-                        pNotifyCB->Notify(NIM_ADD, &ni);
+                        _pNotifyCB->Notify(NIM_ADD, &ni);
                 }
                 else
+                {
                     break;
+                }
             } while (TRUE);
-        }
-
-        _pNotifyCB = pNotifyCB;
-
-        if (pNotifyCB)
-        {
-            // Hand out a non-zero cookie so the caller can UnregisterCallback()
-            // this specific registration.  Without this the caller's callback
-            // object is torn down while _pNotifyCB still references its (now
-            // dead) cross-apartment proxy, and the next _NotifyCallback faults
-            // inside rpcrt4 when it invokes _pNotifyCB->Notify().
-            if (++_dwNotifyCBCookie == 0)
-                _dwNotifyCBCookie = 1;
-            *pdwCBCookie = _dwNotifyCBCookie;
         }
     }
     else
     {
-        _pNotifyCB = NULL;
+        _pNotifyCB = nullptr;
     }
 
     return S_OK;
 }
 
-HRESULT CTrayNotify::UnregisterCallback(DWORD dwCBCookie)
-{
-    if (dwCBCookie != 0 && dwCBCookie == _dwNotifyCBCookie)
-    {
-        ATOMICRELEASE(_pNotifyCB);
-        _dwNotifyCBCookie = 0;
-    }
-
-    return S_OK;
-}
-
-// _pNotifyCB is a cross-apartment proxy owned by the notification-area customize
-// UI. If that UI's apartment/process is torn down without unregistering, the proxy
-// dangles and marshalling into it faults inside rpcrt4. Invoke it under SEH so a
-// dead peer cannot take down Explorer, and drop the callback so we stop retrying
-// (a live client will re-register). Kept in its own function so the __try does not
-// collide with C++ object unwinding in v_WndProc.
 void CTrayNotify::_SafeNotifyCallback(WPARAM wParam, CNotificationItem* pni)
 {
-    __try
+    if (_pNotifyCB && IsCurrentComApartment(_pNotifyCB))
     {
-        _pNotifyCB->Notify(wParam, pni);
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        // Null the callback before touching it further so a re-entrant notify
-        // can't use it, then attempt a best-effort Release under its own guard
-        // in case the proxy memory itself is already gone.
-        INotificationCB* pDead = _pNotifyCB;
-        _pNotifyCB = NULL;
-        _dwNotifyCBCookie = 0;
-        if (pDead)
+        INotificationCB* pCallback = nullptr;
+        if (SUCCEEDED(_pNotifyCB->QueryInterface(IID_PPV_ARGS(&pCallback))))
         {
-            __try { pDead->Release(); } __except (EXCEPTION_EXECUTE_HANDLER) { }
+            pCallback->Notify(static_cast<ULONG>(wParam), pni);
+            pCallback->Release();
         }
     }
 }
@@ -2371,15 +2359,6 @@ HRESULT CTrayNotify::EnableAutoTray(BOOL bTraySetting)
     return S_OK;
 }
 
-HRESULT CTrayNotify::DoAction(BOOL)
-{
-    return E_NOTIMPL;
-}
-
-HRESULT CTrayNotify::SetWindowingEnvironmentConfig(IUnknown* punk)
-{
-    return E_NOTIMPL;
-}
 
 void CTrayNotify::_ShowChevronInfoTip()
 {
@@ -4650,6 +4629,7 @@ LRESULT CTrayNotify::v_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 {
     unsigned int v27;
     BOOL fHide;
+
 
     if (_hwndToolbar && !_hwndToolbarSCA && uMsg != 1 && uMsg != 2)
         return DefWindowProcW(hWnd, uMsg, wParam, lParam);

@@ -234,7 +234,8 @@ typedef struct _TRAYAPPBARDATA
     DWORD dwProcId;
 } TRAYAPPBARDATA, * PTRAYAPPBARDATA;
 
-#pragma pack(push,0x1)
+// Windows 8+ ITrayNotify wire layout. Vista only consumes the original fields
+// through guidItem; the trailing fields keep Win10's private RPC proxy ABI intact.
 typedef struct tagNOTIFYITEM
 {
     LPWSTR      pszExeName;
@@ -244,8 +245,14 @@ typedef struct tagNOTIFYITEM
     DWORD       dwUserPref;
     UINT        uID;
     GUID        guidItem;
+    DWORD       dwFlags;
+    int         nDisplayIndex;
+    UINT        uCallbackMsg;
+    UINT        uVersion;
+    BOOL        fUseSystemTip;
+    PWSTR       pszAppId;
+    BOOL        fIsExplicitAppId;
 } NOTIFYITEM, * LPNOTIFYITEM;
-#pragma pack(pop)
 
 typedef struct _NOTIFYICONDATA32A {
     DWORD cbSize;

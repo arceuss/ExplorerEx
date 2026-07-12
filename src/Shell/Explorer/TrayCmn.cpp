@@ -32,10 +32,12 @@ CNotificationItem::CNotificationItem(const TNPersistStreamData* ptnpd)
 
 inline void CNotificationItem::_Init()
 {
+    ZeroMemory(this, sizeof(*this));
     hIcon = nullptr;
     pszExeName = nullptr;
     pszIconText = nullptr;
     guidItem = GUID_NULL;
+    pszAppId = nullptr;
 }
 
 void CNotificationItem::CopyNotifyItem(const NOTIFYITEM& no, BOOL bInsert /* = TRUE */)

@@ -225,6 +225,8 @@ public:
     {
         if (_pTrayNotify)
         {
+            ULONG cookie;
+            _pTrayNotify->RegisterCallback(nullptr, &cookie);
             _pTrayNotify->Release();
             _pTrayNotify = nullptr;
         }
@@ -515,21 +517,21 @@ LRESULT CNotificationsDlg::OnInitDialog(UINT uMsg, WPARAM wParam, LPARAM lParam,
 
     if (_pTrayNotify)
     {
+        ULONG cookie;
+        _pTrayNotify->RegisterCallback(nullptr, &cookie);
         _pTrayNotify->Release();
-        _pTrayNotify = NULL;
+        _pTrayNotify = nullptr;
     }
 
-    // localserver for tray notify
-    if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, __uuidof(ITrayNotify), (void**)&_pTrayNotify)))
+    if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, nullptr, CLSCTX_LOCAL_SERVER,
+            IID_PPV_ARGS(&_pTrayNotify))))
     {
-        INotificationCB* pCB = 0;
-
-        if (SUCCEEDED(QueryInterface(IID_PPV_ARGS(&pCB))))
+        INotificationCB* pCallback = nullptr;
+        if (SUCCEEDED(QueryInterface(IID_PPV_ARGS(&pCallback))))
         {
-            ULONG a;
-            _pTrayNotify->RegisterCallback(pCB,&a);
-            if (pCB)
-                pCB->Release();
+            ULONG cookie;
+            _pTrayNotify->RegisterCallback(pCallback, &cookie);
+            pCallback->Release();
         }
     }
 
@@ -648,10 +650,9 @@ LRESULT CNotificationsDlg::OnCloseCmd(WORD wNotifyCode, WORD wID, HWND hWndCtl, 
 
     if (_pTrayNotify)
     {
-        DWORD dwToken;
-        _pTrayNotify->RegisterCallback(nullptr, &dwToken);
+        ULONG cookie;
+        _pTrayNotify->RegisterCallback(nullptr, &cookie);
     }
-
     bHandled = TRUE;
     ::EndDialog(m_hWnd, wID);
     return 0;
@@ -736,7 +737,7 @@ void CNotificationsDlg::ApplyChanges(void)
     {
         for (int i = 0; i < _saItems.GetSize(); i++)
         {
-            _pTrayNotify->SetPreference((NOTIFYITEM*)&_saItems[i]);
+            _pTrayNotify->SetPreference(_saItems[i]);
         }
     }
 }
@@ -2352,7 +2353,8 @@ BOOL_PTR CTaskBarPropertySheet::NotificationOptionsDlgProc(HWND hDlg, UINT uMsg,
 void _UpdateNotifySetting(BOOL fNotifySetting)
 {
     ITrayNotify* pTrayNotify = nullptr;
-    if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, NULL, CLSCTX_LOCAL_SERVER, IID_PPV_ARGS(&pTrayNotify))))
+    if (SUCCEEDED(CoCreateInstanceHook(CLSID_TrayNotify, nullptr, CLSCTX_LOCAL_SERVER,
+            IID_PPV_ARGS(&pTrayNotify))))
     {
         pTrayNotify->EnableAutoTray(fNotifySetting);
         pTrayNotify->Release();
@@ -2387,16 +2389,6 @@ void CTaskBarPropertySheet::_ApplyTaskbarOptionsFromDialog(HWND hDlg)
     if (fChanged)
     {
         c_tray._AppBarNotifyAll(nullptr, ABN_STATECHANGE, nullptr, 0);
-    }
-
-    if (!tvo.fNoTrayItemsDisplayPolicyEnabled && !tvo.fNoAutoTrayPolicyEnabled)
-    {
-        BOOL fNotifySetting = ::IsDlgButtonChecked(hDlg, IDC_NOTIFYMAN);
-        if (tvo.fAutoTrayEnabledByUser != fNotifySetting)
-        {
-            tvo.fAutoTrayEnabledByUser = fNotifySetting;
-            _UpdateNotifySetting(fNotifySetting);
-        }
     }
 
     tvo.fShowQuickLaunch = ::IsDlgButtonChecked(hDlg, IDC_QUICKLAUNCH);
@@ -2509,7 +2501,7 @@ void CTaskBarPropertySheet::_ApplyNotificationOptionsFromDialog(HWND hDlg)
     c_tray.GetTrayViewOpts(&tvo, _pcbm);
 
     tvo.fHideClock = ::IsDlgButtonChecked(hDlg, 1108) == 0;
-    for (UINT i = 0; i <= ARRAYSIZE(tvo.rgfHideSCA); i++)
+    for (UINT i = 0; i < ARRAYSIZE(tvo.rgfHideSCA); i++)
     {
         tvo.rgfHideSCA[i] = UpdateSCAIcon(hDlg, i);
     }

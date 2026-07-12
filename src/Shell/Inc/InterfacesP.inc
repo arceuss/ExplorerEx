@@ -255,16 +255,17 @@ INotificationCB : IUnknown
 //};
 
 #pragma optimize( "", off )
-//this is the Windows 8+ variant of ITrayNotify, probably not needed for now but might need it for later
+// Windows 8+ wire ABI used by the Win10 ITrayNotify proxy. The stub adapts it
+// to Vista's internal CTrayNotify methods.
 MIDL_INTERFACE("D133CE13-3537-48BA-93A7-AFCD5D2053B4")
 ITrayNotify : IUnknown
 {
-	STDMETHOD(RegisterCallback)(INotificationCB*, DWORD*) PURE;
-	STDMETHOD(UnregisterCallback)(DWORD) PURE;
-	STDMETHOD(SetPreference)(const NOTIFYITEM*) PURE;
-	STDMETHOD(EnableAutoTray)(BOOL) PURE;
-	STDMETHOD(DoAction)(BOOL) PURE;
-	STDMETHOD(SetWindowingEnvironmentConfig)(IUnknown*) PURE;
+    STDMETHOD(RegisterCallback)(INotificationCB* pNotifyCB, ULONG* pulCookie) PURE;
+    STDMETHOD(UnregisterCallback)(ULONG* pulCookie) PURE;
+    STDMETHOD(SetPreference)(NOTIFYITEM notifyItem) PURE;
+    STDMETHOD(EnableAutoTray)(BOOL bTraySetting) PURE;
+    STDMETHOD(DoAction)(BOOL bTraySetting) PURE;
+    STDMETHOD(SetWindowingEnvironmentConfig)(IUnknown* punk) PURE;
 };
 #pragma optimize( "", on )
 
