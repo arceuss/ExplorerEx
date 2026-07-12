@@ -230,6 +230,18 @@ HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB, DWORD* pdwCBCo
         }
 
         _pNotifyCB = pNotifyCB;
+
+        if (pNotifyCB)
+        {
+            // Hand out a non-zero cookie so the caller can UnregisterCallback()
+            // this specific registration.  Without this the caller's callback
+            // object is torn down while _pNotifyCB still references its (now
+            // dead) cross-apartment proxy, and the next _NotifyCallback faults
+            // inside rpcrt4 when it invokes _pNotifyCB->Notify().
+            if (++_dwNotifyCBCookie == 0)
+                _dwNotifyCBCookie = 1;
+            *pdwCBCookie = _dwNotifyCBCookie;
+        }
     }
     else
     {
@@ -241,7 +253,13 @@ HRESULT CTrayNotify::RegisterCallback(INotificationCB* pNotifyCB, DWORD* pdwCBCo
 
 HRESULT CTrayNotify::UnregisterCallback(DWORD dwCBCookie)
 {
-    return E_NOTIMPL;
+    if (dwCBCookie != 0 && dwCBCookie == _dwNotifyCBCookie)
+    {
+        ATOMICRELEASE(_pNotifyCB);
+        _dwNotifyCBCookie = 0;
+    }
+
+    return S_OK;
 }
 
 HRESULT CTrayNotify::SetPreference(const NOTIFYITEM* pNotifyItem)

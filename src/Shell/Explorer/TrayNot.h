@@ -375,6 +375,7 @@ private:
     int             _idMouseActiveIcon;
 
     INotificationCB     * _pNotifyCB;
+    DWORD                 _dwNotifyCBCookie;
 
     IUserEventTimer     * m_pIconDemoteTimer;
     IUserEventTimer     * m_pInfoTipTimer;
