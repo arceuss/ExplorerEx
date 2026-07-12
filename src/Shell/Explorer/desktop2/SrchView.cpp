@@ -944,14 +944,67 @@ HRESULT CSearchOpenView::AddPathCompletionTask(const WCHAR* pszPath)
 	return hr;
 }
 
+struct EXECUTEINFO
+{
+	HWND field_0;
+	LPVOID field_4;
+	BOOL field_8;
+};
+
+typedef HRESULT (WINAPI* PFNSHELLEXECCMDLINE)(HWND hwnd, LPCWSTR pszCommand, LPCWSTR pszStartDir, int nShow, LPVOID pvReserved, DWORD dwSeclFlags);
+
 DWORD CSearchOpenView::s_ExecuteCommandLine(LPVOID lpv)
 {
-	return 0; // EXEX-Vista(allison): TODO.
+	EXECUTEINFO* pei = reinterpret_cast<EXECUTEINFO*>(lpv);
+
+	WCHAR szPath[MAX_PATH];
+	if (SHGetFolderPathW(nullptr, CSIDL_PROFILE, nullptr, 0, szPath) >= 0)
+	{
+		DWORD dwSeclFlags = 57;
+		if (pei->field_8)
+			dwSeclFlags = 121;	// Ctrl+Shift adds SECL_RUNAS (0x40) so the command runs elevated
+
+		PFNSHELLEXECCMDLINE pfnShellExecCmdLine = reinterpret_cast<PFNSHELLEXECCMDLINE>(
+			GetProcAddress(GetModuleHandleW(L"shell32.dll"), MAKEINTRESOURCEA(265)));
+		if (pfnShellExecCmdLine)
+		{
+			pfnShellExecCmdLine(pei->field_0, static_cast<LPCWSTR>(pei->field_4), szPath, SW_SHOWNORMAL, nullptr, dwSeclFlags);
+		}
+	}
+
+	UEMFireEvent(&CLSID_ActiveDesktop, UEME_RUNPATHW, 0, 0, reinterpret_cast<LPARAM>(pei->field_4));
+	CoTaskMemFree(pei->field_4);
+	delete pei;
+	return 0;
 }
 
 DWORD CSearchOpenView::s_ExecuteIDList(LPVOID lpv)
 {
-	return 0; // EXEX-Vista(allison): TODO.
+	EXECUTEINFO* pei = reinterpret_cast<EXECUTEINFO*>(lpv);
+
+	IShellFolder* psf;
+	LPCITEMIDLIST pidlLast;
+	if (SUCCEEDED(SHBindToParent((LPCITEMIDLIST)pei->field_4, IID_PPV_ARGS(&psf), &pidlLast)))
+	{
+		LPCSTR pszVerb = pei->field_8 ? "runas" : nullptr;
+
+		// shlwapi ordinal 571 (NONAME) == SHInvokeCommandWithFlagsAndSite
+		using fnSHInvokeCommandWithFlagsAndSite = HRESULT(WINAPI*)(HWND, IUnknown*, IShellFolder*, LPCITEMIDLIST, DWORD, LPCSTR);
+		fnSHInvokeCommandWithFlagsAndSite SHInvokeCommandWithFlagsAndSite =
+			reinterpret_cast<fnSHInvokeCommandWithFlagsAndSite>(GetProcAddress(GetModuleHandle(L"shlwapi.dll"), MAKEINTRESOURCEA(571)));
+		if (SHInvokeCommandWithFlagsAndSite)
+		{
+			SHInvokeCommandWithFlagsAndSite(pei->field_0, nullptr, psf, pidlLast, 0x4100000, pszVerb);
+		}
+
+		UEMFireEvent(&CLSID_ActiveDesktop, 18, 0, (WPARAM)psf, (LPARAM)pidlLast);
+
+		psf->Release();
+	}
+
+	ILFree((LPITEMIDLIST)pei->field_4);
+	operator delete(pei);
+	return 0;
 }
 
 LRESULT CSearchOpenView::s_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -1356,13 +1409,6 @@ int CSearchOpenView::_GetItemCount()
 	}
 	return cItems;
 }
-
-struct EXECUTEINFO
-{
-	HWND field_0;
-	LPVOID field_4;
-	BOOL field_8;
-};
 
 HRESULT CSearchOpenView::_ActivateItem(int iItem)
 {
