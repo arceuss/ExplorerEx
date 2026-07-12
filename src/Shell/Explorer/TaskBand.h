@@ -248,7 +248,7 @@ protected:
 
     BOOL _IsHidden(int i);
     void _GetItemTitle(int iIndex, WCHAR* pszTitle, int cbTitle, BOOL fCustom);
-    void _RefreshSettings();
+    void _RefreshSettings(BOOL fForce = FALSE);
     void _LoadSettings();
     void _Glom(int iIndexGroup, BOOL fGlom);
     void _HideGroup(int iIndexGroup, BOOL fHide);

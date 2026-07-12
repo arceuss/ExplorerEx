@@ -801,7 +801,7 @@ HRESULT CTaskBand::OnWinEvent(HWND hwnd, UINT dwMsg, WPARAM wParam, LPARAM lPara
         break;
 
     case 0x575u:
-        _RefreshSettings();
+        _RefreshSettings(TRUE);
         break;
     }
 
@@ -7227,13 +7227,13 @@ int DestroyCB(PTASKITEM pti, LPVOID pData)
     return 0;
 }
 
-void CTaskBand::_RefreshSettings() // EXEX-VISTA TODO: Add new argument
+void CTaskBand::_RefreshSettings(BOOL fForce)
 {
     BOOL fOldGlom = _fGlom;
     int iOldGroupSize = _iGroupSize;
     _LoadSettings();
 
-    if ((fOldGlom != _fGlom) || (iOldGroupSize != _iGroupSize))
+    if ((fOldGlom != _fGlom) || (iOldGroupSize != _iGroupSize) || fForce)
     {
         CDPA<TASKITEM> dpa;
         _BuildTaskList(&dpa);
