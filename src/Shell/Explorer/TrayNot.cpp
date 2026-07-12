@@ -262,6 +262,33 @@ HRESULT CTrayNotify::UnregisterCallback(DWORD dwCBCookie)
     return S_OK;
 }
 
+// _pNotifyCB is a cross-apartment proxy owned by the notification-area customize
+// UI. If that UI's apartment/process is torn down without unregistering, the proxy
+// dangles and marshalling into it faults inside rpcrt4. Invoke it under SEH so a
+// dead peer cannot take down Explorer, and drop the callback so we stop retrying
+// (a live client will re-register). Kept in its own function so the __try does not
+// collide with C++ object unwinding in v_WndProc.
+void CTrayNotify::_SafeNotifyCallback(WPARAM wParam, CNotificationItem* pni)
+{
+    __try
+    {
+        _pNotifyCB->Notify(wParam, pni);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        // Null the callback before touching it further so a re-entrant notify
+        // can't use it, then attempt a best-effort Release under its own guard
+        // in case the proxy memory itself is already gone.
+        INotificationCB* pDead = _pNotifyCB;
+        _pNotifyCB = NULL;
+        _dwNotifyCBCookie = 0;
+        if (pDead)
+        {
+            __try { pDead->Release(); } __except (EXCEPTION_EXECUTE_HANDLER) { }
+        }
+    }
+}
+
 HRESULT CTrayNotify::SetPreference(const NOTIFYITEM* pNotifyItem)
 {
     // This function should NEVER be called if the NoTrayItemsDisplayPolicy is enabled...
@@ -4793,7 +4820,7 @@ LRESULT CTrayNotify::v_WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
             {
                 if (_pNotifyCB)
                 {
-                    _pNotifyCB->Notify(wParam, pni);
+                    _SafeNotifyCallback(wParam, pni);
                     if (wParam == NIM_ADD)
                     {
                         _TickleForTooltip(pni);

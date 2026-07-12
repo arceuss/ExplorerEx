@@ -268,6 +268,7 @@ protected:
     void _OnCommand(const HWND hWnd, WPARAM wParam, LPARAM lParam);
     BOOL _TrayNotifyIcon(PTRAYNOTIFYDATA pnid, BOOL *pbRefresh);
     LRESULT _TrayNotifyInfo(PTRAYNOTIFYINFO pnii);
+    void _SafeNotifyCallback(WPARAM wParam, CNotificationItem* pni);
 
     // User Event Timer functions
     HRESULT _SetItemTimer(CTrayItem *pti);
