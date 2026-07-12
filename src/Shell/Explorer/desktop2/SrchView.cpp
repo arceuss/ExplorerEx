@@ -1878,14 +1878,67 @@ HRESULT CSearchOpenView::_FilterView(IFilterView* pfv)
 	return hr;
 }
 
+// GUID+PID read from the Vista binary global _PKEY_StartMenu_RunCommand.
+DEFINE_PROPERTYKEY(PKEY_StartMenu_RunCommand, 0x4BD13B3D, 0xE68B, 0x44EC, 0x89, 0xEE, 0x76, 0x11, 0x78, 0x9D, 0x40, 0x70, 101);
+
 HRESULT CSearchOpenView::_GetItemKeyWord(int itemIndex, LPWSTR pszDest, UINT cchDest)
 {
-	return E_NOTIMPL; // EXEX-Vista(allison): TODO.
+	*pszDest = 0;
+	HRESULT hr = E_FAIL;
+	if (_pFolderView)
+	{
+		LPITEMIDLIST pidl;
+		hr = _pFolderView->Item(itemIndex, &pidl);
+		if (hr >= 0)
+		{
+			IShellFolder2* psf2;
+			hr = _pFolderView->GetFolder(IID_PPV_ARGS(&psf2));
+			if (hr >= 0)
+			{
+				VARIANT varIn;
+				hr = psf2->GetDetailsEx(pidl, &PKEY_StartMenu_RunCommand, &varIn);
+				if (hr >= 0)
+				{
+					LPCWSTR psz = VariantToStringWithDefault(varIn, L"");
+					hr = StringCchCopyW(pszDest, cchDest, psz);
+					if (hr >= 0 && !*pszDest)
+						hr = E_FAIL;
+					VariantClear(&varIn);
+				}
+				psf2->Release();
+			}
+			ILFree(pidl);
+		}
+	}
+	return hr;
 }
 
 HRESULT CSearchOpenView::_GetSelectedItemParsingName(WCHAR* pszName, UINT cchName)
 {
-	return E_NOTIMPL; // EXEX-Vista(allison): TODO.
+	IShellFolderView* psfv;
+	HRESULT hr = _pFolderView->QueryInterface(IID_PPV_ARGS(&psfv));
+	if (SUCCEEDED(hr))
+	{
+		UINT cItems = 0;
+		PCUITEMID_CHILD* ppidl;
+		hr = psfv->GetSelectedObjects(&ppidl, &cItems);
+		if (SUCCEEDED(hr))
+		{
+			if (cItems == 1)
+			{
+				IShellFolder* psf;
+				hr = _pFolderView->GetFolder(IID_PPV_ARGS(&psf));
+				if (SUCCEEDED(hr))
+				{
+					hr = DisplayNameOfW(psf, ppidl[0], SHGDN_FORPARSING, pszName, cchName);
+					psf->Release();
+				}
+			}
+			LocalFree(ppidl);
+		}
+		psfv->Release();
+	}
+	return hr;
 }
 
 struct IAutoListDescription;
