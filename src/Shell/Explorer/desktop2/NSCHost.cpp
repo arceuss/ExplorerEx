@@ -11,6 +11,13 @@
 #include "ShUndoc.h"
 #include "util.h"
 
+// shell32-private interface (declared in Shell32\unicpp\StartMnu.cpp); not in a shared header.
+MIDL_INTERFACE("f1763f2a-6e44-426d-ac5b-641c866dcd63")
+IStartMenuMSIAds : IUnknown
+{
+    virtual HRESULT STDMETHODCALLTYPE IsMSIAds(ITEMIDLIST_ABSOLUTE*) = 0;
+};
+
 HRESULT CNSCHost::QueryInterface(REFIID riid, void** ppvObj)
 {
 	static const QITAB qit[] =
@@ -951,12 +958,105 @@ HRESULT CNSCHost::_Invoke(IShellItem* psi, BOOL fDoDefault)
 
 HRESULT CNSCHost::_IsItemMSIAds(IShellItem* psi)
 {
-	return E_NOTIMPL; // EXEX-Vista(allison): TODO.
+	IParentAndItem* ppai;
+	HRESULT hr = psi->QueryInterface(IID_PPV_ARGS(&ppai));
+	if (SUCCEEDED(hr))
+	{
+		LPITEMIDLIST pidlParent = nullptr;
+		LPITEMIDLIST pidlChild = nullptr;
+		hr = ppai->GetParentAndItem(&pidlParent, nullptr, &pidlChild);
+		if (SUCCEEDED(hr))
+		{
+			if (!_pidl || !pidlParent || !ILIsEqual(pidlParent, _pidl))
+			{
+				IUnknown_SafeReleaseAndNullPtr(&_psf);
+				if (SUCCEEDED(SHBindToObject(nullptr, pidlParent, nullptr, IID_PPV_ARGS(&_psf))))
+				{
+					ILFree(_pidl);
+					_pidl = pidlParent;
+					pidlParent = nullptr;
+				}
+			}
+
+			LPITEMIDLIST pidlIdentity = nullptr;
+			IIdentityName* pin;
+			if (FAILED(SHBindToObject(_psf, pidlChild, nullptr, IID_PPV_ARGS(&pin))))
+			{
+				SHGetIDListFromObject(psi, &pidlIdentity);
+			}
+			else
+			{
+				pin->GetItemIDList(&pidlIdentity);
+				pin->Release();
+			}
+
+			hr = S_FALSE;
+			IStartMenuMSIAds* pmsiads;
+			if (_psif && SUCCEEDED(_psif->QueryInterface(IID_PPV_ARGS(&pmsiads))))
+			{
+				hr = pmsiads->IsMSIAds(pidlIdentity);
+				pmsiads->Release();
+			}
+
+			ILFree(pidlParent);
+			ILFree(pidlChild);
+			ILFree(pidlIdentity);
+		}
+		ppai->Release();
+	}
+	return hr;
 }
 
 HRESULT CNSCHost::_IsNewItem(IShellItem* psi)
 {
-	return E_NOTIMPL; // EXEX-Vista(allison): TODO.
+	IParentAndItem* ppai;
+	HRESULT hr = psi->QueryInterface(IID_PPV_ARGS(&ppai));
+	if (SUCCEEDED(hr))
+	{
+		LPITEMIDLIST pidlParent = nullptr;
+		LPITEMIDLIST pidlChild = nullptr;
+		hr = ppai->GetParentAndItem(&pidlParent, nullptr, &pidlChild);
+		if (SUCCEEDED(hr))
+		{
+			if (!_pidl || !pidlParent || !ILIsEqual(pidlParent, _pidl))
+			{
+				IUnknown_SafeReleaseAndNullPtr(&_psf);
+				if (SUCCEEDED(SHBindToObject(nullptr, pidlParent, nullptr, IID_PPV_ARGS(&_psf))))
+				{
+					ILFree(_pidl);
+					_pidl = pidlParent;
+					pidlParent = nullptr;
+				}
+			}
+
+			LPITEMIDLIST pidlItem = nullptr;
+			IIdentityName* pinIdentity;
+			if (SUCCEEDED(SHBindToObject(_psf, pidlChild, nullptr, IID_PPV_ARGS(&pinIdentity))))
+			{
+				pinIdentity->GetItemIDList(&pidlItem);
+				pinIdentity->Release();
+			}
+			else
+			{
+				SHGetIDListFromUnk(psi, &pidlItem);
+			}
+
+			VARIANT varIn = {};
+			varIn.vt = VT_BYREF;
+			varIn.byref = pidlItem;
+
+			VARIANT varOut = {};
+			IUnknown_QueryServiceExec(_punkSite, SID_SM_MFU, &SID_SM_DV2ControlHost, 305, 0, &varIn, &varOut);
+
+			hr = (varOut.vt == VT_BOOL && varOut.boolVal == VARIANT_TRUE) ? S_OK : S_FALSE;
+
+			ILFree(pidlParent);
+			ILFree(pidlChild);
+			ILFree(pidlItem);
+		}
+		ppai->Release();
+	}
+	return hr;
 }
 
 BOOL NSCHost_RegisterClass()
