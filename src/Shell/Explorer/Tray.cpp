@@ -10773,6 +10773,8 @@ HRESULT CDeskTray::QueryInterface(REFIID riid, void** ppvObj)
     };
     return QISearch(this, qit, riid, ppvObj);
     #else
+    if (ppvObj)
+        *ppvObj = nullptr;
     return E_NOTIMPL;
     #endif
 }
