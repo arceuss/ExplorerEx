@@ -9,6 +9,7 @@
 
 #include <propkey.h>
 #include <propvarutil.h>
+#include <searchapi.h>
 
 #pragma comment(lib, "propsys.lib")
 
@@ -1744,9 +1745,65 @@ LABEL_38:
 	return hr;
 }
 
+// Background task that checks whether the Windows search indexer is serving the
+// SystemIndex catalog and posts the result (0x402 -> _UpdateIndexState) so the
+// view can pick its "no results" empty text and cache StartMenuIndexed.
+//
+// Vista probed this through the internal CGatheringManager COM object
+// (CLSID 9E175B68-..., B05651xx IIDs) dispatched by raw vtable slot. That CLSID
+// still instantiates on Win10 but resolves to a different object layout, so the
+// raw-slot dispatch would be undefined behavior. Probe through the public
+// Windows Search API (searchapi.h) instead, which answers the same question;
+// any failure takes Vista's not-indexed fallback branch.
+class CIndexingStateTask : public CRunnableTask
+{
+public:
+	CIndexingStateTask(HWND hwnd)
+		: CRunnableTask(RTF_DEFAULT)
+		, _hwnd(hwnd)
+	{
+	}
+
+	STDMETHODIMP InternalResumeRT()
+	{
+		int fNotIndexed = 1;
+
+		ISearchManager* pSearchManager = nullptr;
+		if (SUCCEEDED(CoCreateInstance(__uuidof(CSearchManager), nullptr, CLSCTX_SERVER, IID_PPV_ARGS(&pSearchManager))))
+		{
+			ISearchCatalogManager* pCatalog = nullptr;
+			if (SUCCEEDED(pSearchManager->GetCatalog(L"SystemIndex", &pCatalog)))
+			{
+				fNotIndexed = 0;
+				pCatalog->Release();
+			}
+			pSearchManager->Release();
+		}
+
+		if (fNotIndexed != 0)
+		{
+			DWORD dwValue = 1;
+			SHSetValueW(HKEY_CURRENT_USER, DV2_REGPATH, L"StartMenuIndexed", REG_DWORD, &dwValue, sizeof(dwValue));
+		}
+		PostMessageW(_hwnd, 0x402, fNotIndexed, 0);
+		return S_OK;
+	}
+
+private:
+	HWND _hwnd;
+};
+
 HRESULT CSearchOpenView::_AddCheckIndexerStaterTask()
 {
-	return S_OK; // EXEX-Vista(allison): TODO.
+	HRESULT hr = E_OUTOFMEMORY;
+
+	CIndexingStateTask* pTask = new CIndexingStateTask(_hwnd);
+	if (pTask)
+	{
+		hr = _psched->AddTask(pTask, TOID_PathCompletion, 0, 0x10000100);
+		pTask->Release();
+	}
+	return hr;
 }
 
 HRESULT CSearchOpenView::_AddCondition(IObjectArray* poa, REFPROPERTYKEY a3, CONDITION_OPERATION a4, LPCWSTR a5)
