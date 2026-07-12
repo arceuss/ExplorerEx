@@ -1653,6 +1653,8 @@ void CTray::_InitBandsite()
 
     BandSite_FindBand(_ptbs, CLSID_TaskBand, IID_PPV_ARGS(&_pdbTasks), nullptr, nullptr);
     IUnknown_GetWindow(_pdbTasks, &_hwndTasks);
+    // ITaskbarList interface uses this property to get the tasks window
+    SetProp(_hwnd, L"TaskbandHWND", _hwndTasks);
 
     SendMessageW(_hwndTasks, 0x43F, 0, !_fNoThumbnails);
 
@@ -3805,6 +3807,7 @@ LRESULT CTray::_HandleDestroy()
 
     IUnknown_SafeReleaseAndNullPtr(&_ptbs);
     IUnknown_SafeReleaseAndNullPtr(&_pdbTasks);
+    RemoveProp(_hwnd, L"TaskbandHWND");
     _hwndTasks = nullptr;
 
     if (_hwndTrayTips)
