@@ -497,9 +497,93 @@ HRESULT COpenViewHost::_SetCurrentView(int iView, VARIANT* pvararg)
 	return hr;
 }
 
+static void CALLBACK FireFocusWinEventProc(HWINEVENTHOOK hWinEventHook, DWORD event,
+	HWND hwnd, LONG idObject, LONG idChild, DWORD idEventThread, DWORD dwmsEventTime)
+{
+	if (event == EVENT_OBJECT_SELECTION)
+	{
+		NotifyWinEvent(EVENT_OBJECT_FOCUS, hwnd, OBJID_CLIENT, idChild);
+	}
+}
+
 HRESULT COpenViewHost::_HandleOpenBoxArrowKey(MSG* pmsg)
 {
-	return E_NOTIMPL; // EXEX-VISTA(allison): TODO.
+	if (_iCurView != OPENVIEW_SEARCHPANE)
+		return E_FAIL;
+
+	HWND hwndSearch = _aopa[OPENVIEW_SEARCHPANE].hwnd;
+	HWND hwndTopMatch = _aopa[OPENVIEW_TOPMATCH].hwnd;
+	HWND hwndCur = hwndSearch;
+
+	VARIANT vt;
+	vt.vt = VT_I4;
+	vt.lVal = -1;
+	HRESULT hr = IUnknown_QueryServiceExec(_punkSite, SID_SM_OpenView, &SID_SM_DV2ControlHost, 325, 0, nullptr, &vt);
+	if (FAILED(hr) || vt.lVal == -1)
+	{
+		hr = IUnknown_QueryServiceExec(_punkSite, SID_SM_TopMatch, &SID_SM_DV2ControlHost, 325, 0, nullptr, &vt);
+		hwndCur = hwndTopMatch;
+	}
+
+	SMNDIALOGMESSAGE dm = {};
+	dm.hdr.hwndFrom = _hwnd;
+	dm.hdr.code = 215;
+	dm.pmsg = pmsg;
+
+	HWND hwndNav = nullptr;
+	if (vt.lVal == -1)
+	{
+		hwndNav = (pmsg->wParam == VK_UP) ? hwndTopMatch : hwndSearch;
+	}
+	else
+	{
+		dm.flags = 0xC05;
+
+		HWINEVENTHOOK hHook = SetWinEventHook(EVENT_OBJECT_SELECTION, EVENT_OBJECT_SELECTION, g_hinstCabinet,
+			FireFocusWinEventProc, GetCurrentProcessId(), GetCurrentThreadId(), WINEVENT_INCONTEXT);
+		LRESULT lRes = SendMessageW(hwndCur, WM_NOTIFY, 0, (LPARAM)&dm);
+		if (hHook)
+			UnhookWinEvent(hHook);
+		if (lRes)
+			return S_OK;
+
+		NMHDR nm;
+		nm.hwndFrom = hwndCur;
+		nm.idFrom = GetDlgCtrlID(hwndCur);
+		nm.code = NM_KILLFOCUS;
+		SendMessageW(hwndCur, WM_NOTIFY, nm.idFrom, (LPARAM)&nm);
+
+		if ((pmsg->wParam == VK_UP && hwndCur == hwndSearch) ||
+			(pmsg->wParam == VK_DOWN && hwndCur == hwndTopMatch))
+			return hr;
+
+		hwndNav = (hwndCur == hwndSearch) ? hwndTopMatch : hwndSearch;
+	}
+
+	if (!hwndNav)
+		return hr;
+
+	dm.flags = (pmsg->wParam == VK_UP) ? 0xC04 : 0xC03;
+
+	HWINEVENTHOOK hHook = SetWinEventHook(EVENT_OBJECT_SELECTION, EVENT_OBJECT_SELECTION, g_hinstCabinet,
+		FireFocusWinEventProc, GetCurrentProcessId(), GetCurrentThreadId(), WINEVENT_INCONTEXT);
+	LRESULT lRes = SendMessageW(hwndNav, WM_NOTIFY, 0, (LPARAM)&dm);
+	if (hHook)
+		UnhookWinEvent(hHook);
+
+	if (!lRes)
+	{
+		if (pmsg->wParam == VK_DOWN && hwndNav == hwndSearch)
+		{
+			VARIANT vtSel;
+			vtSel.vt = VT_I4;
+			vtSel.lVal = 1;
+			IUnknown_QueryServiceExec(_punkSite, SID_SM_TopMatch, &SID_SM_DV2ControlHost, 317, 0, &vtSel, nullptr);
+			VariantClear(&vtSel);
+		}
+		return hr;
+	}
+	return S_OK;
 }
 
 HRESULT COpenViewHost::_HandleOpenBoxContextMenu(MSG* pmsg)
