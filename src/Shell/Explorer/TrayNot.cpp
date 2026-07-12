@@ -7,6 +7,7 @@
 #include "shellapi.h"
 #include "shundoc.h"
 #include "cocreateinstancehook.h"
+#include "UserEventTimer.h"
 
 //
 // Tray Notify Icon area implementation notes / details:
@@ -5648,9 +5649,9 @@ IUserEventTimer * CTrayNotify::_CreateTimer(int nTimerFlag)
 
     if (ppUserEventTimer && !*ppUserEventTimer)
     {
-        //if ( !SUCCEEDED(SHCoCreateInstanceHook(NULL, &__uuidof(IUserEventTimer), NULL,
-        //                        IID_PPV_ARGS(ppUserEventTimer))) )
-        if (!SUCCEEDED(CoCreateInstanceHook(CLSID_UserEventTimer,NULL, CLSCTX_INPROC_SERVER,IID_PPV_ARGS(ppUserEventTimer))))
+        // The system CLSID_UserEventTimer (shell32) instantiates on Win7+ but no
+        // longer drives icon demotion, so use our own Vista-accurate implementation.
+        if (!SUCCEEDED(CUserEventTimer::CreateInstance(IID_PPV_ARGS(ppUserEventTimer))))
         {
             *ppUserEventTimer = NULL;
         }
