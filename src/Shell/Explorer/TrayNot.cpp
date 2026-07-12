@@ -269,15 +269,19 @@ HRESULT CTrayNotify::SetPreference(const NOTIFYITEM* pNotifyItem)
 
     ASSERT(!GetIsNoAutoTrayPolicyEnabled());
 
-	ASSERT(pNotifyItem.dwUserPref == TNUP_AUTOMATIC ||
-		pNotifyItem.dwUserPref == TNUP_DEMOTED ||
-		pNotifyItem.dwUserPref == TNUP_PROMOTED);
+    ASSERT(!IsSCAGuid(pNotifyItem->guidItem) &&
+        (pNotifyItem->dwUserPref == TNUP_AUTOMATIC ||
+         pNotifyItem->dwUserPref == TNUP_DEMOTED ||
+         pNotifyItem->dwUserPref == TNUP_PROMOTED));
 
     INT_PTR iItem = -1;
 
     if (pNotifyItem->hWnd)
     {
-        iItem = m_TrayItemManager.FindItemAssociatedWithHwndUid(pNotifyItem->hWnd, pNotifyItem->uID);
+        if (IsEqualGUID(pNotifyItem->guidItem, GUID_NULL))
+            iItem = m_TrayItemManager.FindItemAssociatedWithHwndUid(pNotifyItem->hWnd, pNotifyItem->uID);
+        else
+            iItem = m_TrayItemManager.FindItemAssociatedWithGuid(pNotifyItem->guidItem);
         if (iItem != -1)
         {
             CTrayItem * pti = m_TrayItemManager.GetItemDataByIndex(iItem);
