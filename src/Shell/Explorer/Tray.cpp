@@ -1220,6 +1220,8 @@ LRESULT CTray::_OnCreate()
     LRESULT lres = -1;
     v_hwndTray = _hwnd;
 
+    _fIsAudioHIDInitialized = AudioHIDInitialize ? AudioHIDInitialize(_hwnd) : FALSE;
+
     _pSystemMixer = new CSystemMixer(_hwnd);
 
     SendMessage(_hwnd, WM_CHANGEUISTATE, MAKEWPARAM(UIS_INITIALIZE, 0), 0);
@@ -3818,6 +3820,11 @@ LRESULT CTray::_HandleDestroy()
         _pSysTray->Exec(&CGID_ShellServiceObject, SSOCMDID_CLOSE, 0, nullptr, nullptr);
         _pSysTray->Release();
         _pSysTray = nullptr;
+    }
+
+    if (_fIsAudioHIDInitialized)
+    {
+        AudioHIDShutdown();
     }
 
     DeleteCriticalSection(&_csHotkey);
@@ -6641,6 +6648,15 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         // EXEX-VISTA: Validated.
         case WM_INPUTLANGCHANGEREQUEST:
             return(LRESULT)0L;
+
+        case WM_INPUT:
+        {
+            if (_fIsAudioHIDInitialized)
+            {
+                AudioHIDProcessMessage(uMsg, wParam, lParam);
+            }
+            break;
+        }
 
         // EXEX-VISTA: Validated.
         case WM_GETMINMAXINFO:

@@ -324,6 +324,11 @@ public:
         return _fNoToolbarsOnTaskbarPolicyEnabled;
     }
 
+    BOOL GetIsAudioHIDInitialized() const
+    {
+        return _fIsAudioHIDInitialized;
+    }
+
     //
     // miscellaneous public data
     //
@@ -646,6 +651,7 @@ protected:
     BOOL _fFromStart;      // Track when context menu popping up from Start button
     BOOL _fTaskbarFading;
     BOOL _fNoToolbarsOnTaskbarPolicyEnabled;
+    BOOL _fIsAudioHIDInitialized;
     BOOL _fTaskbarLockAllPolicyEnabled;
     BOOL _fTaskbarNoRedockPolicyEnabled;
     BOOL _fTaskbarNoResizePolicyEnabled;
