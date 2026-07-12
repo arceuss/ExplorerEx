@@ -3613,7 +3613,15 @@ HRESULT SFTBarHost::ContextMenuInvokeItem(PaneItem *pitem, IContextMenu *pcm, CM
     ULONG_PTR cookie = 0;
     ActivateActCtx(NULL, &cookie); 
 
-	// SetICIKeyModifiers(&pici->fMask); // EXEX-VISTA(allison): TODO: Uncomment when implemented.
+    // record if shift or control was being held down
+    if (GetKeyState(VK_SHIFT) < 0)
+    {
+        pici->fMask |= CMIC_MASK_SHIFT_DOWN;
+    }
+    if (GetKeyState(VK_CONTROL) < 0)
+    {
+        pici->fMask |= CMIC_MASK_CONTROL_DOWN;
+    }
 
     IUnknown_SetSite(pcm, SAFECAST(this, IServiceProvider *));
     HRESULT hr = pcm->InvokeCommand(reinterpret_cast<LPCMINVOKECOMMANDINFO>(pici));
