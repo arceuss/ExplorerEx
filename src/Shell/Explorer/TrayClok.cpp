@@ -7,7 +7,7 @@
 // I have ommited the AcessibleWrapper interface. Beware.
 
 // Vista IFlyout interface
-/*enum TRAYORIENTATION
+enum TRAYORIENTATION
 {
     TO_BOTTOM = 0x0,
     TO_RIGHT = 0x1,
@@ -23,17 +23,18 @@ IFlyout : IUnknown
     STDMETHOD(HideFlyout)() PURE;
     STDMETHOD(ShowTooltip)(TRAYORIENTATION, const RECT*) PURE;
     STDMETHOD(HideTooltip)() PURE;
-};*/
-
-// @MOD Windows 8+ IFlyout interface taken from ep_taskbar
-MIDL_INTERFACE("7a5fca8a-76b1-44c8-a97c-e7173cca5f4f")
-IFlyout : IUnknown
-{
-    virtual HRESULT STDMETHODCALLTYPE ShowFlyout(HWND, const RECT*) = 0;
-    virtual HRESULT STDMETHODCALLTYPE HideFlyout() = 0;
-    virtual HRESULT STDMETHODCALLTYPE ShowTooltip(HWND, const RECT*) = 0;
-    virtual HRESULT STDMETHODCALLTYPE HideTooltip() = 0;
 };
+
+static TRAYORIENTATION Clock_GetTrayOrientation()
+{
+    switch (c_tray.getStuckPlace())
+    {
+        case STICK_RIGHT: return TO_RIGHT;
+        case STICK_LEFT: return TO_LEFT;
+        case STICK_TOP: return TO_TOP;
+        default: return TO_BOTTOM;
+    }
+}
 
 class CClockCtl : public CImpWndProc
 {
@@ -131,7 +132,7 @@ HRESULT CClockCtl::_ShowTooltip(BOOL fShow) // @MOD taken from ep_taskbar, based
             GetWindowRect(_hwnd, &rcExclude);
             if (_pFlyout)
             {
-                hr = _pFlyout->ShowTooltip(_hwnd, &rcExclude);
+                hr = _pFlyout->ShowTooltip(Clock_GetTrayOrientation(), &rcExclude);
             }
         }
         else if (_pFlyout)
@@ -1074,7 +1075,7 @@ HRESULT CClockCtl::_ShowFlyout(BOOL fShow) // @MOD taken from ep_taskbar, based 
 
             if (_pFlyout)
             {
-                hr = _pFlyout->ShowFlyout(_hwnd, &rcExclude);
+                hr = _pFlyout->ShowFlyout(Clock_GetTrayOrientation(), &rcExclude);
             }
         }
         else if (_pFlyout)

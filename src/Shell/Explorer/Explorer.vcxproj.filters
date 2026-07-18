@@ -233,5 +233,6 @@
     <None Include="Explorer.rcv" />
     <None Include="immersive\README.md" />
     <None Include="InterfacesP.inc" />
+    <None Include="runtime\ExplorerEx.AudioHID.Win10.dll" />
   </ItemGroup>
 </Project>

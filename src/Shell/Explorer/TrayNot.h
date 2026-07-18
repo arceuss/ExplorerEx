@@ -149,6 +149,8 @@ public:
     HWND TrayNotifyCreate(HWND hwndParent, UINT uID, HINSTANCE hInst);
     LRESULT TrayNotify(HWND hwndTray, HWND hwndFrom, PCOPYDATASTRUCT pcds, BOOL *pbRefresh);
     LRESULT TrayNotifyInfo(HWND hwndTray, HWND hwndFrom, PCOPYDATASTRUCT pcds);
+    BOOL IsNetworkIconOwnedByProcess(DWORD processId, HWND* callbackWindow, UINT* iconId);
+    BOOL RemoveNetworkIcon(HWND callbackWindow, UINT iconId);
 
 protected:
     static BOOL GetTrayItemCB(INT_PTR nIndex, void *pCallbackData, TRAYCBARG trayCallbackArg,

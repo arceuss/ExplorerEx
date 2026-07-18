@@ -2220,8 +2220,9 @@ LRESULT CALLBACK CTrayNotify::s_ToolbarWndProc(HWND hwnd, UINT uMsg, WPARAM wPar
                     if (iIndex != -1)
                     {
                         GetCursorPos(&ptCursor);
-                        MapWindowPoints(nullptr, hwnd, &ptCursor, 1u);
-                        if (iIndex == SendMessageW(hwnd, TB_HITTEST, 0, (LPARAM)&ptCursor))
+                        POINT ptHitTest = ptCursor;
+                        MapWindowPoints(nullptr, hwnd, &ptHitTest, 1u);
+                        if (iIndex == SendMessageW(hwnd, TB_HITTEST, 0, (LPARAM)&ptHitTest))
                         {
                             pTrayNotify->_SendNotify(ItemData, 0x406, MAKELONG(ptCursor.x, ptCursor.y), nullptr, 0);
                         }
@@ -2359,6 +2360,51 @@ HRESULT CTrayNotify::EnableAutoTray(BOOL bTraySetting)
     return S_OK;
 }
 
+BOOL CTrayNotify::IsNetworkIconOwnedByProcess(
+    DWORD processId,
+    HWND* callbackWindow,
+    UINT* iconId)
+{
+    if (callbackWindow)
+    {
+        *callbackWindow = nullptr;
+    }
+    if (iconId)
+    {
+        *iconId = 0;
+    }
+
+    const INT_PTR index = m_TrayItemManagerSCA.FindItemAssociatedWithGuid(SCAID_Network);
+    CTrayItem* item = index >= 0 ? m_TrayItemManagerSCA.GetItemDataByIndex(index) : nullptr;
+    DWORD ownerProcessId = 0;
+    if (!processId || !item ||
+        !GetWindowThreadProcessId(item->hWnd, &ownerProcessId) ||
+        ownerProcessId != processId)
+    {
+        return FALSE;
+    }
+
+    if (callbackWindow)
+    {
+        *callbackWindow = item->hWnd;
+    }
+    if (iconId)
+    {
+        *iconId = item->uID;
+    }
+    return TRUE;
+}
+
+BOOL CTrayNotify::RemoveNetworkIcon(HWND callbackWindow, UINT iconId)
+{
+    const INT_PTR index = m_TrayItemManagerSCA.FindItemAssociatedWithGuid(SCAID_Network);
+    CTrayItem* item = index >= 0 ? m_TrayItemManagerSCA.GetItemDataByIndex(index) : nullptr;
+    if (!item || item->hWnd != callbackWindow || item->uID != iconId)
+    {
+        return FALSE;
+    }
+    return _DeleteNotify(SCAID_Network, index, FALSE, FALSE);
+}
 
 void CTrayNotify::_ShowChevronInfoTip()
 {
@@ -5050,6 +5096,34 @@ BOOL CTrayNotify::_TrayNotifyIcon(PTRAYNOTIFYDATA pnid, BOOL *pbRefresh)
     else
     {
         nIcon = ptim->FindItemAssociatedWithGuid(guidItem);
+    }
+
+    if (nIcon >= 0 && IsEqualGUID(SCAID_Network, guidItem))
+    {
+        CTrayItem* item = ptim->GetItemDataByIndex(nIcon);
+        const HWND incomingWindow = GetHWnd(pNID);
+        if (item && (item->hWnd != incomingWindow || item->uID != pNID->uID))
+        {
+            DWORD ownerProcessId = 0;
+            DWORD incomingProcessId = 0;
+            GetWindowThreadProcessId(item->hWnd, &ownerProcessId);
+            GetWindowThreadProcessId(incomingWindow, &incomingProcessId);
+            if (pnid->dwMessage == NIM_ADD && !ownerProcessId && incomingProcessId)
+            {
+                if (_DeleteNotify(SCAID_Network, nIcon, FALSE, FALSE))
+                {
+                    nIcon = -1;
+                }
+                else
+                {
+                    return FALSE;
+                }
+            }
+            else if (!ownerProcessId || !incomingProcessId || ownerProcessId != incomingProcessId)
+            {
+                return TRUE;
+            }
+        }
     }
 
     BOOL bRet = FALSE;

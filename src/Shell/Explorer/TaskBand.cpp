@@ -6263,7 +6263,8 @@ LRESULT CTaskBand::_OnAppCommand(int cmd)
         break;
 
     case APPCOMMAND_VOLUME_MUTE:
-        Mixer_ToggleMute();
+        if (_ptray->_pSystemMixer)
+            _ptray->_pSystemMixer->ToggleMute();
         return 0;
     case APPCOMMAND_VOLUME_DOWN:
         Mixer_SetVolume(-MIXER_DEFAULT_STEP);

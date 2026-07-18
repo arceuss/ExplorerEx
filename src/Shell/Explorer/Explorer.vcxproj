@@ -639,7 +639,14 @@ link /dll /MACHINE:X64 /noentry /out:"$(OutDir)en-US\$(TargetFileName).mui" "$(I
   <ItemGroup>
     <Xml Include="muiconfig.xml" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="runtime\ExplorerEx.AudioHID.Win10.dll" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Target Name="CopyExplorerExPrivateRuntimes" AfterTargets="Build" Condition="'$(Platform)'=='x64'">
+    <MakeDir Directories="$(TargetDir)ExplorerEx.Runtime" />
+    <Copy SourceFiles="$(ProjectDir)runtime\ExplorerEx.AudioHID.Win10.dll" DestinationFiles="$(TargetDir)ExplorerEx.Runtime\ExplorerEx.AudioHID.Win10.dll" SkipUnchangedFiles="true" />
+  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>

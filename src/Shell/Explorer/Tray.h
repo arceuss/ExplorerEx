@@ -539,6 +539,8 @@ protected:
     int _OnFactoryMessage(WPARAM wParam, LPARAM lParam);
     int _OnTimerService(UINT uMsg, WPARAM wParam, LPARAM lParam);
     void _HandleDelayBootStuff();
+    BOOL _StartVistaPnidui();
+    void _StopVistaPnidui();
     void _HandleChangeNotify(WPARAM wParam, LPARAM lParam);
     void _CheckStagingAreaOnTimer();
 
@@ -622,6 +624,10 @@ public: // @TEMP
 
 protected:
     IOleCommandTarget* _pSysTray;
+    HANDLE _hVistaPniduiProcess = nullptr;
+    HWND _hwndVistaPniduiCallback = nullptr;
+    UINT _uVistaPniduiIconId = 0;
+    BOOL _fDestroying = FALSE;
     SIZE _sizeSizingBar;
     int  _iAlpha;
 
@@ -778,6 +784,7 @@ protected:
     friend class CTrayDropTarget;
     friend class CDropTargetBase;
     friend class CStartButton; // XXX (isabella): Temporary?
+    friend class CTaskBand;
 
     friend void Tray_OnStartMenuDismissed();
     friend void Tray_SetStartPaneActive(BOOL fActive);

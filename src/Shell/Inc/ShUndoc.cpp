@@ -2913,13 +2913,45 @@ EXTERN_C BOOL SHUndocInit(void)
     LOAD_FUNCTION(winsta, WinStationSetInformationW);
     LOAD_FUNCTION(winsta, WinStationUnRegisterConsoleNotification);
 
-    HMODULE hMod_sndvolsso = LoadLibrary(L"sndvolsso.dll");
-    if (hMod_sndvolsso)
+    WCHAR szAudioHIDPath[MAX_PATH];
+    HMODULE hMod_shundoc = nullptr;
+    DWORD cchAudioHIDPath = 0;
+    if (GetModuleHandleExW(
+        GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+        reinterpret_cast<LPCWSTR>(&SHUndocInit), &hMod_shundoc))
     {
-        LOAD_ORDINAL_NO_FAIL(sndvolsso, AudioHIDInitialize, 1);
-        LOAD_ORDINAL_NO_FAIL(sndvolsso, AudioHIDShutdown, 2);
-        LOAD_ORDINAL_NO_FAIL(sndvolsso, AudioHIDProcessMessage, 3);
-        LOAD_ORDINAL_NO_FAIL(sndvolsso, AudioHIDProcessAppCommand, 4);
+        cchAudioHIDPath = GetModuleFileNameW(hMod_shundoc, szAudioHIDPath, ARRAYSIZE(szAudioHIDPath));
+    }
+    if (cchAudioHIDPath && cchAudioHIDPath < ARRAYSIZE(szAudioHIDPath) &&
+        PathRemoveFileSpecW(szAudioHIDPath) &&
+        PathAppendW(szAudioHIDPath, L"ExplorerEx.Runtime\\ExplorerEx.AudioHID.Win10.dll"))
+    {
+        HMODULE hMod_audiohid = LoadLibraryExW(szAudioHIDPath, nullptr,
+            LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_SYSTEM32);
+        if (hMod_audiohid)
+        {
+            auto pAudioHIDInitialize = reinterpret_cast<decltype(AudioHIDInitialize)>(
+                GetProcAddress(hMod_audiohid, MAKEINTRESOURCEA(1)));
+            auto pAudioHIDShutdown = reinterpret_cast<decltype(AudioHIDShutdown)>(
+                GetProcAddress(hMod_audiohid, MAKEINTRESOURCEA(2)));
+            auto pAudioHIDProcessMessage = reinterpret_cast<decltype(AudioHIDProcessMessage)>(
+                GetProcAddress(hMod_audiohid, MAKEINTRESOURCEA(3)));
+            auto pAudioHIDProcessAppCommand = reinterpret_cast<decltype(AudioHIDProcessAppCommand)>(
+                GetProcAddress(hMod_audiohid, MAKEINTRESOURCEA(4)));
+
+            if (pAudioHIDInitialize && pAudioHIDShutdown &&
+                pAudioHIDProcessMessage && pAudioHIDProcessAppCommand)
+            {
+                AudioHIDInitialize = pAudioHIDInitialize;
+                AudioHIDShutdown = pAudioHIDShutdown;
+                AudioHIDProcessMessage = pAudioHIDProcessMessage;
+                AudioHIDProcessAppCommand = pAudioHIDProcessAppCommand;
+            }
+            else
+            {
+                FreeLibrary(hMod_audiohid);
+            }
+        }
     }
 
     LOAD_MODULE(comctl32);

@@ -117,6 +117,7 @@ DWORD GetMinDisplayRes(void);
 #define IDT_STARTBUTTONBALLOON  22
 #define IDT_CHANGENOTIFY        23
 #define IDT_COFREEUNUSED        24
+#define IDT_VISTAPNIDUI         25
 
 #define FADEINDELAY             100
 #define BALLOONTIPDELAY         10000 // default balloon time copied from traynot.cpp
@@ -3687,6 +3688,34 @@ void CTray::_HandleTimer(WPARAM wTimerID)
             KillTimer(_hwnd, IDT_COFREEUNUSED);
             break;
 
+        case IDT_VISTAPNIDUI:
+        {
+            if (!_hVistaPniduiProcess)
+            {
+                KillTimer(_hwnd, IDT_VISTAPNIDUI);
+                break;
+            }
+
+            HWND callbackWindow = nullptr;
+            UINT iconId = 0;
+            const DWORD processId = GetProcessId(_hVistaPniduiProcess);
+            if (WaitForSingleObject(_hVistaPniduiProcess, 0) == WAIT_TIMEOUT &&
+                _trayNotify.IsNetworkIconOwnedByProcess(processId, &callbackWindow, &iconId))
+            {
+                _hwndVistaPniduiCallback = callbackWindow;
+                _uVistaPniduiIconId = iconId;
+                break;
+            }
+
+            _StopVistaPnidui();
+            if (!_fDestroying && _pSysTray)
+            {
+                _pSysTray->Exec(&CGID_ShellServiceObject, SSOCMDID_CLOSE, 0, nullptr, nullptr);
+                _pSysTray->Exec(&CGID_ShellServiceObject, SSOCMDID_OPEN, 0, nullptr, nullptr);
+            }
+            break;
+        }
+
     }
 }
 
@@ -5451,6 +5480,204 @@ typedef struct _PREFETCHER_INFORMATION
 
 DEFINE_GUID(CLSID_SysTray, 0x35CEC8A3, 0x2BE6, 0x11D2, 0x87, 0x73, 0x92, 0xE2, 0x20, 0x52, 0x41, 0x53);
 
+BOOL CTray::_StartVistaPnidui()
+{
+    if (_fDestroying || _hVistaPniduiProcess)
+    {
+        return FALSE;
+    }
+
+    WCHAR szRuntimeDirectory[MAX_PATH];
+    const DWORD cchModule = GetModuleFileNameW(g_hinstCabinet, szRuntimeDirectory, ARRAYSIZE(szRuntimeDirectory));
+    if (!cchModule || cchModule >= ARRAYSIZE(szRuntimeDirectory) ||
+        !PathRemoveFileSpecW(szRuntimeDirectory) ||
+        !PathAppendW(szRuntimeDirectory, L"ExplorerEx.Runtime\\VistaPnidui"))
+    {
+        return FALSE;
+    }
+
+    WCHAR szHostPath[MAX_PATH];
+    if (FAILED(StringCchCopyW(szHostPath, ARRAYSIZE(szHostPath), szRuntimeDirectory)) ||
+        !PathAppendW(szHostPath, L"VistaPniduiHost.exe"))
+    {
+        return FALSE;
+    }
+
+    WCHAR szReadyEvent[128];
+    if (FAILED(StringCchPrintfW(
+            szReadyEvent,
+            ARRAYSIZE(szReadyEvent),
+            L"Local\\ExplorerEx.VistaPniduiReady.%lu.%I64u",
+            GetCurrentProcessId(),
+            GetTickCount64())))
+    {
+        return FALSE;
+    }
+
+    SetLastError(ERROR_SUCCESS);
+    HANDLE hReadyEvent = CreateEventW(nullptr, TRUE, FALSE, szReadyEvent);
+    const DWORD readyEventError = GetLastError();
+    if (!hReadyEvent || readyEventError == ERROR_ALREADY_EXISTS)
+    {
+        if (hReadyEvent)
+        {
+            CloseHandle(hReadyEvent);
+        }
+        return FALSE;
+    }
+
+    WCHAR szCommandLine[MAX_PATH * 2];
+    if (FAILED(StringCchPrintfW(
+            szCommandLine,
+            ARRAYSIZE(szCommandLine),
+            L"\"%s\" --parent-pid %lu --ready-event \"%s\"",
+            szHostPath,
+            GetCurrentProcessId(),
+            szReadyEvent)))
+    {
+        CloseHandle(hReadyEvent);
+        return FALSE;
+    }
+
+    STARTUPINFOW startupInfo = {};
+    startupInfo.cb = sizeof(startupInfo);
+    PROCESS_INFORMATION processInfo = {};
+    if (!CreateProcessW(
+            szHostPath,
+            szCommandLine,
+            nullptr,
+            nullptr,
+            FALSE,
+            CREATE_NO_WINDOW,
+            nullptr,
+            szRuntimeDirectory,
+            &startupInfo,
+            &processInfo))
+    {
+        CloseHandle(hReadyEvent);
+        return FALSE;
+    }
+
+    CloseHandle(processInfo.hThread);
+    HANDLE waitHandles[] = {hReadyEvent, processInfo.hProcess};
+    DWORD signaledIndex = 0;
+    const HRESULT waitResult = CoWaitForMultipleHandles(
+        COWAIT_DISPATCH_CALLS | COWAIT_DISPATCH_WINDOW_MESSAGES,
+        5000,
+        ARRAYSIZE(waitHandles),
+        waitHandles,
+        &signaledIndex);
+    CloseHandle(hReadyEvent);
+
+    if (SUCCEEDED(waitResult) && signaledIndex == 0 &&
+        !_fDestroying &&
+        WaitForSingleObject(processInfo.hProcess, 0) == WAIT_TIMEOUT)
+    {
+        HWND callbackWindow = nullptr;
+        UINT iconId = 0;
+        if (_trayNotify.IsNetworkIconOwnedByProcess(
+                processInfo.dwProcessId,
+                &callbackWindow,
+                &iconId))
+        {
+            _hVistaPniduiProcess = processInfo.hProcess;
+            _hwndVistaPniduiCallback = callbackWindow;
+            _uVistaPniduiIconId = iconId;
+            if (SetTimer(_hwnd, IDT_VISTAPNIDUI, 1000, nullptr))
+            {
+                return TRUE;
+            }
+
+            _StopVistaPnidui();
+            return FALSE;
+        }
+
+        _hVistaPniduiProcess = processInfo.hProcess;
+        _StopVistaPnidui();
+        return FALSE;
+    }
+
+    DWORD processWait = WaitForSingleObject(processInfo.hProcess, 0);
+    if (processWait == WAIT_TIMEOUT)
+    {
+        if (TerminateProcess(processInfo.hProcess, ERROR_TIMEOUT))
+        {
+            processWait = WaitForSingleObject(processInfo.hProcess, 1000);
+        }
+    }
+    if (processWait != WAIT_OBJECT_0)
+    {
+        _hVistaPniduiProcess = processInfo.hProcess;
+        if (!_fDestroying)
+        {
+            SetTimer(_hwnd, IDT_VISTAPNIDUI, 1000, nullptr);
+        }
+        return FALSE;
+    }
+    CloseHandle(processInfo.hProcess);
+    return FALSE;
+}
+
+void CTray::_StopVistaPnidui()
+{
+    KillTimer(_hwnd, IDT_VISTAPNIDUI);
+
+    HANDLE process = _hVistaPniduiProcess;
+    _hVistaPniduiProcess = nullptr;
+    const HWND callbackWindow = _hwndVistaPniduiCallback;
+    const UINT iconId = _uVistaPniduiIconId;
+    _hwndVistaPniduiCallback = nullptr;
+    _uVistaPniduiIconId = 0;
+    if (!process)
+    {
+        return;
+    }
+
+    const DWORD processId = GetProcessId(process);
+    const HWND hostWindow = FindWindowW(L"VistaPniduiPrivateHostWindow", L"Vista PNIDUI Private Host");
+    DWORD windowProcessId = 0;
+    if (hostWindow)
+    {
+        GetWindowThreadProcessId(hostWindow, &windowProcessId);
+    }
+    if (processId && windowProcessId == processId)
+    {
+        PostMessageW(hostWindow, WM_CLOSE, 0, 0);
+    }
+
+    DWORD signaledIndex = 0;
+    const HRESULT waitResult = CoWaitForMultipleHandles(
+        COWAIT_DISPATCH_CALLS | COWAIT_DISPATCH_WINDOW_MESSAGES,
+        5000,
+        1,
+        &process,
+        &signaledIndex);
+    DWORD processWait = WaitForSingleObject(process, 0);
+    if (FAILED(waitResult) && processWait == WAIT_TIMEOUT)
+    {
+        if (TerminateProcess(process, ERROR_TIMEOUT))
+        {
+            processWait = WaitForSingleObject(process, 1000);
+        }
+    }
+    if (processWait != WAIT_OBJECT_0)
+    {
+        _hVistaPniduiProcess = process;
+        _hwndVistaPniduiCallback = callbackWindow;
+        _uVistaPniduiIconId = iconId;
+        if (!_fDestroying)
+        {
+            SetTimer(_hwnd, IDT_VISTAPNIDUI, 1000, nullptr);
+        }
+        return;
+    }
+    CloseHandle(process);
+    if (!_fDestroying)
+    {
+        _trayNotify.RemoveNetworkIcon(callbackWindow, iconId);
+    }
+}
+
 // EXEX-VISTA: Implementation changed since XP. Inspect later.
 void CTray::_HandleDelayBootStuff()
 {
@@ -7123,6 +7350,7 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     HWND Focus;
     RECT rcClip;
     RECT Rect;
+    TRACKMOUSEEVENT mouseEvent;
     LRESULT lres;
     BOOL bRefresh;
     HMENU hmenu;
@@ -7593,10 +7821,10 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                             {
                                 return DefWindowProcW(hwnd, uMsg, wParam, lParam);
                             }
-                            Rect.left = 0x10; // mouseEvent.cbSize
-                            Rect.top = 0x13; // mouseEvent.dwFlags
-                            Rect.right = (LONG)_hwnd; // mouseEvent.hwndTrack
-                            Rect.bottom = GetDoubleClickTime(); // mouseEvent.dwHoverTime
+                            mouseEvent.cbSize = sizeof(mouseEvent);
+                            mouseEvent.dwFlags = TME_HOVER | TME_LEAVE | TME_NONCLIENT;
+                            mouseEvent.hwndTrack = _hwnd;
+                            mouseEvent.dwHoverTime = GetDoubleClickTime();
                         }
                         else
                         {
@@ -7608,12 +7836,12 @@ LRESULT CTray::v_WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                                 return DefWindowProcW(hwnd, uMsg, wParam, lParam);
                             }
                             _stb.DrawStartButton(PBS_HOT, true);
-                            Rect.left = 0x10; // mouseEvent.cbSize
-                            Rect.top = 0x12; // mouseEvent.dwFlags
-                            Rect.right = (LONG)_hwnd; // mouseEvent.hwndTrack
-                            Rect.bottom = 0; // mouseEvent.dwHoverTime
+                            mouseEvent.cbSize = sizeof(mouseEvent);
+                            mouseEvent.dwFlags = TME_LEAVE | TME_NONCLIENT;
+                            mouseEvent.hwndTrack = _hwnd;
+                            mouseEvent.dwHoverTime = 0;
                         }
-                        TrackMouseEvent((LPTRACKMOUSEEVENT)&Rect); // &mouseEvent
+                        TrackMouseEvent(&mouseEvent);
                         _fMouseInTaskbar = true;
                         return 0;
                     case WM_NCLBUTTONDOWN: // WM_NCLBUTTONDOWN
